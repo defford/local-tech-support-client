@@ -8,3 +8,28 @@
 2025-06-24 16:52:48.815 [main] INFO  c.l.cli.service.ApiService - ApiService initialized with base URL: http://localhost:8080
 2025-06-24 16:52:48.861 [main] WARN  c.l.cli.client.TechSupportApiClient - Connection test failed: Failed to connect to localhost/[0:0:0:0:0:0:0:1]:8080
 2025-06-24 16:52:48.877 [main] INFO  c.l.cli.service.ApiService - Closing API service
+2025-06-24 18:25:38.849 [main] INFO  c.l.cli.command.SystemHealthCommand - Executing system-health command
+2025-06-24 18:25:41.176 [main] INFO  c.l.cli.client.TechSupportApiClient - TechSupportApiClient initialized with base URL: http://localhost:8080
+2025-06-24 18:25:41.182 [main] INFO  c.l.cli.service.ApiService - ApiService initialized with base URL: http://localhost:8080
+2025-06-24 18:25:41.604 [main] WARN  c.l.cli.client.TechSupportApiClient - Connection test failed: Failed to connect to localhost/[0:0:0:0:0:0:0:1]:8080
+2025-06-24 18:25:41.605 [main] INFO  c.l.cli.service.ApiService - Closing API service
+2025-06-24 18:25:49.591 [main] INFO  c.l.c.command.TechnicianStatsCommand - Executing technician-stats command
+2025-06-24 18:25:50.746 [main] INFO  c.l.cli.client.TechSupportApiClient - TechSupportApiClient initialized with base URL: http://localhost:8080
+2025-06-24 18:25:50.748 [main] INFO  c.l.cli.service.ApiService - ApiService initialized with base URL: http://localhost:8080
+2025-06-24 18:25:50.946 [main] WARN  c.l.cli.client.TechSupportApiClient - Connection test failed: Failed to connect to localhost/[0:0:0:0:0:0:0:1]:8080
+2025-06-24 18:25:50.947 [main] INFO  c.l.cli.service.ApiService - Closing API service
+2025-06-24 18:25:59.230 [main] INFO  c.l.cli.command.FeedbackStatsCommand - Executing feedback-stats command
+2025-06-24 18:25:59.847 [main] INFO  c.l.cli.client.TechSupportApiClient - TechSupportApiClient initialized with base URL: http://localhost:8080
+2025-06-24 18:25:59.848 [main] INFO  c.l.cli.service.ApiService - ApiService initialized with base URL: http://localhost:8080
+2025-06-24 18:25:59.959 [main] WARN  c.l.cli.client.TechSupportApiClient - Connection test failed: Failed to connect to localhost/[0:0:0:0:0:0:0:1]:8080
+2025-06-24 18:25:59.960 [main] INFO  c.l.cli.service.ApiService - Closing API service
+2025-06-24 18:26:06.700 [main] INFO  c.l.cli.command.SkillCoverageCommand - Executing skill-coverage command
+2025-06-24 18:26:07.094 [main] INFO  c.l.cli.client.TechSupportApiClient - TechSupportApiClient initialized with base URL: http://localhost:8080
+2025-06-24 18:26:07.095 [main] INFO  c.l.cli.service.ApiService - ApiService initialized with base URL: http://localhost:8080
+2025-06-24 18:26:07.155 [main] WARN  c.l.cli.client.TechSupportApiClient - Connection test failed: Failed to connect to localhost/[0:0:0:0:0:0:0:1]:8080
+2025-06-24 18:26:07.156 [main] INFO  c.l.cli.service.ApiService - Closing API service
+2025-06-24 18:26:13.179 [main] INFO  c.l.cli.command.SystemHealthCommand - Executing system-health command
+2025-06-24 18:26:13.532 [main] INFO  c.l.cli.client.TechSupportApiClient - TechSupportApiClient initialized with base URL: http://localhost:8080
+2025-06-24 18:26:13.533 [main] INFO  c.l.cli.service.ApiService - ApiService initialized with base URL: http://localhost:8080
+2025-06-24 18:26:13.594 [main] WARN  c.l.cli.client.TechSupportApiClient - Connection test failed: Failed to connect to localhost/[0:0:0:0:0:0:0:1]:8080
+2025-06-24 18:26:13.595 [main] INFO  c.l.cli.service.ApiService - Closing API service
