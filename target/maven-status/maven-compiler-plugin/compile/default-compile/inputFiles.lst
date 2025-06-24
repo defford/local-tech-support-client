@@ -1,0 +1,14 @@
+/Users/danielefford/Documents/SD12/04-DevOps/local-tech-support-client/src/main/java/com/localtechsupport/cli/CliApplication.java
+/Users/danielefford/Documents/SD12/04-DevOps/local-tech-support-client/src/main/java/com/localtechsupport/cli/client/ApiException.java
+/Users/danielefford/Documents/SD12/04-DevOps/local-tech-support-client/src/main/java/com/localtechsupport/cli/client/ApiResponse.java
+/Users/danielefford/Documents/SD12/04-DevOps/local-tech-support-client/src/main/java/com/localtechsupport/cli/client/TechSupportApiClient.java
+/Users/danielefford/Documents/SD12/04-DevOps/local-tech-support-client/src/main/java/com/localtechsupport/cli/command/FeedbackStatsCommand.java
+/Users/danielefford/Documents/SD12/04-DevOps/local-tech-support-client/src/main/java/com/localtechsupport/cli/command/SkillCoverageCommand.java
+/Users/danielefford/Documents/SD12/04-DevOps/local-tech-support-client/src/main/java/com/localtechsupport/cli/command/SystemHealthCommand.java
+/Users/danielefford/Documents/SD12/04-DevOps/local-tech-support-client/src/main/java/com/localtechsupport/cli/command/TechnicianStatsCommand.java
+/Users/danielefford/Documents/SD12/04-DevOps/local-tech-support-client/src/main/java/com/localtechsupport/cli/model/FeedbackStatistics.java
+/Users/danielefford/Documents/SD12/04-DevOps/local-tech-support-client/src/main/java/com/localtechsupport/cli/model/SkillCoverage.java
+/Users/danielefford/Documents/SD12/04-DevOps/local-tech-support-client/src/main/java/com/localtechsupport/cli/model/TechnicianStatistics.java
+/Users/danielefford/Documents/SD12/04-DevOps/local-tech-support-client/src/main/java/com/localtechsupport/cli/model/TicketStatistics.java
+/Users/danielefford/Documents/SD12/04-DevOps/local-tech-support-client/src/main/java/com/localtechsupport/cli/service/ApiService.java
+/Users/danielefford/Documents/SD12/04-DevOps/local-tech-support-client/src/main/java/com/localtechsupport/cli/util/JsonFormatter.java
