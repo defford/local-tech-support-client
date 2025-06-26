@@ -48,11 +48,11 @@ import java.util.stream.Collectors;
     )
     private String skill;
 
-    @Option(
+<span class="nc" id="L51">    @Option(</span>
         names = {&quot;--show-skills&quot;},
         description = &quot;Show detailed skill breakdown&quot;
     )
-<span class="nc" id="L55">    private boolean showSkills = false;</span>
+    private boolean showSkills = false;
 
     @Option(
         names = {&quot;--sort-by&quot;},
@@ -141,7 +141,7 @@ import java.util.stream.Collectors;
 <span class="nc bnc" id="L141" title="All 2 branches missed.">        if (filterSkill != null) {</span>
             // Fetch technicians with specific skill
 <span class="nc" id="L143">            availableTechnicians = apiService.getAvailableTechniciansByServiceType(filterSkill);</span>
-<span class="nc" id="L144">        } else {</span>
+        } else {
             // Fetch all available technicians
 <span class="nc" id="L146">            availableTechnicians = apiService.getAvailableTechnicians();</span>
         }
@@ -186,10 +186,10 @@ import java.util.stream.Collectors;
 <span class="nc bnc" id="L186" title="All 3 branches missed.">        switch (format.toLowerCase()) {</span>
             case &quot;json&quot;:
 <span class="nc" id="L188">                return JsonFormatter.withMetadata(</span>
-<span class="nc" id="L189">                    &quot;Available Technicians Report&quot;, </span>
-<span class="nc" id="L190">                    availableTechnicians, </span>
-<span class="nc" id="L191">                    serverUrl, </span>
-<span class="nc" id="L192">                    timestamp</span>
+                    &quot;Available Technicians Report&quot;, 
+                    availableTechnicians, 
+                    serverUrl, 
+                    timestamp
                 );
                 
             case &quot;table&quot;:
@@ -269,23 +269,23 @@ import java.util.stream.Collectors;
 <span class="nc bnc" id="L269" title="All 2 branches missed.">            if (showSkills) {</span>
 <span class="nc" id="L270">                output.append(String.format(&quot;%-20s %s%-14s %-12s %-30s %s\n&quot;,</span>
 <span class="nc" id="L271">                    truncate(technician.getFullName(), 19),</span>
-<span class="nc" id="L272">                    statusEmoji,</span>
+                    statusEmoji,
 <span class="nc" id="L273">                    technician.getStatus(),</span>
 <span class="nc bnc" id="L274" title="All 2 branches missed.">                    technician.getSkills() != null ? technician.getSkills().size() : 0,</span>
-<span class="nc" id="L275">                    skillInfo,</span>
+                    skillInfo,
 <span class="nc bnc" id="L276" title="All 2 branches missed.">                    contact != null ? contact : &quot;N/A&quot;</span>
                 ));
-<span class="nc" id="L278">            } else {</span>
+            } else {
 <span class="nc" id="L279">                output.append(String.format(&quot;%-25s %s%-14s %-15s %-20s %s\n&quot;,</span>
 <span class="nc" id="L280">                    truncate(technician.getFullName(), 24),</span>
-<span class="nc" id="L281">                    statusEmoji,</span>
+                    statusEmoji,
 <span class="nc" id="L282">                    technician.getStatus(),</span>
 <span class="nc" id="L283">                    technician.getEmail(),</span>
 <span class="nc bnc" id="L284" title="All 2 branches missed.">                    contact != null ? contact : &quot;N/A&quot;,</span>
-<span class="nc" id="L285">                    skillInfo</span>
+                    skillInfo
                 ));
             }
-        }
+<span class="nc" id="L288">        }</span>
         
 <span class="nc" id="L290">        output.append(&quot;-&quot;.repeat(90)).append(&quot;\n&quot;);</span>
         

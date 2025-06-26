@@ -1,0 +1,282 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>InputValidator.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Local Tech Support CLI Client</a> &gt; <a href="index.source.html" class="el_package">com.localtechsupport.cli.util</a> &gt; <span class="el_source">InputValidator.java</span></div><h1>InputValidator.java</h1><pre class="source lang-java linenums">package com.localtechsupport.cli.util;
+
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.util.Scanner;
+import java.util.regex.Pattern;
+
+/**
+ * Utility class for validating and processing user input.
+ * 
+ * Provides methods to safely collect and validate different types of input
+ * with appropriate error handling and user-friendly prompts.
+ */
+<span class="nc" id="L15">public class InputValidator {</span>
+    
+<span class="nc" id="L17">    private static final Pattern EMAIL_PATTERN = Pattern.compile(</span>
+<span class="nc" id="L18">        &quot;^[A-Za-z0-9+_.-]+@([A-Za-z0-9.-]+\\.[A-Za-z]{2,})$&quot;</span>
+    );
+    
+<span class="nc" id="L21">    private static final Pattern PHONE_PATTERN = Pattern.compile(</span>
+<span class="nc" id="L22">        &quot;^[\\d\\s\\-\\(\\)\\+\\.]{10,20}$&quot;</span>
+<span class="nc" id="L23">    );</span>
+    
+    /**
+     * Validate and get a Long input (for IDs)
+     * 
+     * @param scanner the scanner for input
+     * @param prompt the prompt message
+     * @return the validated Long value
+     */
+    public static Long validateLongInput(Scanner scanner, String prompt) {
+<span class="nc" id="L33">        while (true) {</span>
+<span class="nc" id="L34">            System.out.print(prompt);</span>
+<span class="nc" id="L35">            String input = scanner.nextLine().trim();</span>
+            
+<span class="nc bnc" id="L37" title="All 2 branches missed.">            if (input.isEmpty()) {</span>
+<span class="nc" id="L38">                DisplayUtils.printError(&quot;Input cannot be empty. Please try again.&quot;);</span>
+<span class="nc" id="L39">                continue;</span>
+            }
+            
+            try {
+<span class="nc" id="L43">                long value = Long.parseLong(input);</span>
+<span class="nc bnc" id="L44" title="All 2 branches missed.">                if (value &lt;= 0) {</span>
+<span class="nc" id="L45">                    DisplayUtils.printError(&quot;Value must be positive. Please try again.&quot;);</span>
+<span class="nc" id="L46">                    continue;</span>
+                }
+<span class="nc" id="L48">                return value;</span>
+<span class="nc" id="L49">            } catch (NumberFormatException e) {</span>
+<span class="nc" id="L50">                DisplayUtils.printError(&quot;Please enter a valid number.&quot;);</span>
+            }
+        }
+    }
+    
+    /**
+     * Validate and get a String input
+     * 
+     * @param scanner the scanner for input
+     * @param prompt the prompt message
+     * @param required whether the input is required
+     * @return the validated String value (or null if not required and empty)
+     */
+    public static String validateStringInput(Scanner scanner, String prompt, boolean required) {
+        while (true) {
+<span class="nc" id="L65">            System.out.print(prompt);</span>
+<span class="nc" id="L66">            String input = scanner.nextLine().trim();</span>
+            
+<span class="nc bnc" id="L68" title="All 2 branches missed.">            if (input.isEmpty()) {</span>
+<span class="nc bnc" id="L69" title="All 2 branches missed.">                if (required) {</span>
+<span class="nc" id="L70">                    DisplayUtils.printError(&quot;This field is required. Please try again.&quot;);</span>
+<span class="nc" id="L71">                    continue;</span>
+                } else {
+<span class="nc" id="L73">                    return null;</span>
+                }
+            }
+            
+<span class="nc" id="L77">            return input;</span>
+        }
+    }
+    
+    /**
+     * Validate and get a String input with minimum length
+     * 
+     * @param scanner the scanner for input
+     * @param prompt the prompt message
+     * @param minLength minimum required length
+     * @return the validated String value
+     */
+    public static String validateStringInput(Scanner scanner, String prompt, int minLength) {
+        while (true) {
+<span class="nc" id="L91">            System.out.print(prompt);</span>
+<span class="nc" id="L92">            String input = scanner.nextLine().trim();</span>
+            
+<span class="nc bnc" id="L94" title="All 2 branches missed.">            if (input.length() &lt; minLength) {</span>
+<span class="nc" id="L95">                DisplayUtils.printError(String.format(&quot;Input must be at least %d characters long.&quot;, minLength));</span>
+<span class="nc" id="L96">                continue;</span>
+            }
+            
+<span class="nc" id="L99">            return input;</span>
+        }
+    }
+    
+    /**
+     * Validate and get a DateTime input
+     * 
+     * @param scanner the scanner for input
+     * @param prompt the prompt message
+     * @return the validated LocalDateTime value
+     */
+    public static LocalDateTime validateDateTimeInput(Scanner scanner, String prompt) {
+<span class="nc" id="L111">        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(&quot;yyyy-MM-dd HH:mm&quot;);</span>
+        
+<span class="nc" id="L113">        while (true) {</span>
+<span class="nc" id="L114">            System.out.print(prompt + &quot; (format: yyyy-MM-dd HH:mm): &quot;);</span>
+<span class="nc" id="L115">            String input = scanner.nextLine().trim();</span>
+            
+<span class="nc bnc" id="L117" title="All 2 branches missed.">            if (input.isEmpty()) {</span>
+<span class="nc" id="L118">                DisplayUtils.printError(&quot;Date/time is required. Please try again.&quot;);</span>
+<span class="nc" id="L119">                continue;</span>
+            }
+            
+            try {
+<span class="nc" id="L123">                return LocalDateTime.parse(input, formatter);</span>
+<span class="nc" id="L124">            } catch (DateTimeParseException e) {</span>
+<span class="nc" id="L125">                DisplayUtils.printError(&quot;Invalid date/time format. Please use yyyy-MM-dd HH:mm&quot;);</span>
+            }
+        }
+    }
+    
+    /**
+     * Validate and get an enum input
+     * 
+     * @param scanner the scanner for input
+     * @param prompt the prompt message
+     * @param enumClass the enum class
+     * @param &lt;T&gt; the enum type
+     * @return the validated enum value
+     */
+    public static &lt;T extends Enum&lt;T&gt;&gt; T validateEnumInput(Scanner scanner, String prompt, Class&lt;T&gt; enumClass) {
+<span class="nc" id="L140">        T[] values = enumClass.getEnumConstants();</span>
+        
+<span class="nc" id="L142">        while (true) {</span>
+<span class="nc" id="L143">            System.out.println(prompt);</span>
+<span class="nc" id="L144">            System.out.println(&quot;Available options:&quot;);</span>
+<span class="nc bnc" id="L145" title="All 2 branches missed.">            for (int i = 0; i &lt; values.length; i++) {</span>
+<span class="nc" id="L146">                System.out.printf(&quot;  %d. %s%n&quot;, i + 1, values[i].name());</span>
+            }
+<span class="nc" id="L148">            System.out.print(&quot;Enter your choice (1-&quot; + values.length + &quot;): &quot;);</span>
+            
+<span class="nc" id="L150">            String input = scanner.nextLine().trim();</span>
+            
+<span class="nc bnc" id="L152" title="All 2 branches missed.">            if (input.isEmpty()) {</span>
+<span class="nc" id="L153">                DisplayUtils.printError(&quot;Selection is required. Please try again.&quot;);</span>
+<span class="nc" id="L154">                continue;</span>
+            }
+            
+            try {
+<span class="nc" id="L158">                int choice = Integer.parseInt(input);</span>
+<span class="nc bnc" id="L159" title="All 4 branches missed.">                if (choice &gt;= 1 &amp;&amp; choice &lt;= values.length) {</span>
+<span class="nc" id="L160">                    return values[choice - 1];</span>
+                } else {
+<span class="nc" id="L162">                    DisplayUtils.printError(&quot;Please enter a number between 1 and &quot; + values.length);</span>
+                }
+<span class="nc" id="L164">            } catch (NumberFormatException e) {</span>
+                // Try to match by name
+<span class="nc bnc" id="L166" title="All 2 branches missed.">                for (T value : values) {</span>
+<span class="nc bnc" id="L167" title="All 2 branches missed.">                    if (value.name().equalsIgnoreCase(input)) {</span>
+<span class="nc" id="L168">                        return value;</span>
+                    }
+                }
+<span class="nc" id="L171">                DisplayUtils.printError(&quot;Invalid selection. Please try again.&quot;);</span>
+            }
+        }
+    }
+    
+    /**
+     * Validate and get an email input
+     * 
+     * @param scanner the scanner for input
+     * @param prompt the prompt message
+     * @return the validated email address
+     */
+    public static String validateEmailInput(Scanner scanner, String prompt) {
+        while (true) {
+<span class="nc" id="L185">            System.out.print(prompt);</span>
+<span class="nc" id="L186">            String input = scanner.nextLine().trim();</span>
+            
+<span class="nc bnc" id="L188" title="All 2 branches missed.">            if (input.isEmpty()) {</span>
+<span class="nc" id="L189">                DisplayUtils.printError(&quot;Email is required. Please try again.&quot;);</span>
+<span class="nc" id="L190">                continue;</span>
+            }
+            
+<span class="nc bnc" id="L193" title="All 2 branches missed.">            if (!EMAIL_PATTERN.matcher(input).matches()) {</span>
+<span class="nc" id="L194">                DisplayUtils.printError(&quot;Please enter a valid email address.&quot;);</span>
+<span class="nc" id="L195">                continue;</span>
+            }
+            
+<span class="nc" id="L198">            return input;</span>
+        }
+    }
+    
+    /**
+     * Validate and get a phone number input
+     * 
+     * @param scanner the scanner for input
+     * @param prompt the prompt message
+     * @return the validated phone number
+     */
+    public static String validatePhoneInput(Scanner scanner, String prompt) {
+        while (true) {
+<span class="nc" id="L211">            System.out.print(prompt);</span>
+<span class="nc" id="L212">            String input = scanner.nextLine().trim();</span>
+            
+<span class="nc bnc" id="L214" title="All 2 branches missed.">            if (input.isEmpty()) {</span>
+<span class="nc" id="L215">                DisplayUtils.printError(&quot;Phone number is required. Please try again.&quot;);</span>
+<span class="nc" id="L216">                continue;</span>
+            }
+            
+<span class="nc bnc" id="L219" title="All 2 branches missed.">            if (!PHONE_PATTERN.matcher(input).matches()) {</span>
+<span class="nc" id="L220">                DisplayUtils.printError(&quot;Please enter a valid phone number (10-20 digits, spaces, dashes, parentheses allowed).&quot;);</span>
+<span class="nc" id="L221">                continue;</span>
+            }
+            
+<span class="nc" id="L224">            return input;</span>
+        }
+    }
+    
+    /**
+     * Get a confirmation (yes/no) input
+     * 
+     * @param scanner the scanner for input
+     * @param prompt the prompt message
+     * @return true for yes, false for no
+     */
+    public static boolean getConfirmation(Scanner scanner, String prompt) {
+<span class="nc" id="L236">        while (true) {</span>
+<span class="nc" id="L237">            System.out.print(prompt + &quot; (y/n): &quot;);</span>
+<span class="nc" id="L238">            String input = scanner.nextLine().trim().toLowerCase();</span>
+            
+<span class="nc bnc" id="L240" title="All 4 branches missed.">            if (input.equals(&quot;y&quot;) || input.equals(&quot;yes&quot;)) {</span>
+<span class="nc" id="L241">                return true;</span>
+<span class="nc bnc" id="L242" title="All 4 branches missed.">            } else if (input.equals(&quot;n&quot;) || input.equals(&quot;no&quot;)) {</span>
+<span class="nc" id="L243">                return false;</span>
+            } else {
+<span class="nc" id="L245">                DisplayUtils.printError(&quot;Please enter 'y' for yes or 'n' for no.&quot;);</span>
+            }
+        }
+    }
+    
+    /**
+     * Get an integer input within a range
+     * 
+     * @param scanner the scanner for input
+     * @param prompt the prompt message
+     * @param min minimum value (inclusive)
+     * @param max maximum value (inclusive)
+     * @return the validated integer
+     */
+    public static int validateIntegerInput(Scanner scanner, String prompt, int min, int max) {
+<span class="nc" id="L260">        while (true) {</span>
+<span class="nc" id="L261">            System.out.print(prompt + String.format(&quot; (%d-%d): &quot;, min, max));</span>
+<span class="nc" id="L262">            String input = scanner.nextLine().trim();</span>
+            
+<span class="nc bnc" id="L264" title="All 2 branches missed.">            if (input.isEmpty()) {</span>
+<span class="nc" id="L265">                DisplayUtils.printError(&quot;Input is required. Please try again.&quot;);</span>
+<span class="nc" id="L266">                continue;</span>
+            }
+            
+            try {
+<span class="nc" id="L270">                int value = Integer.parseInt(input);</span>
+<span class="nc bnc" id="L271" title="All 4 branches missed.">                if (value &gt;= min &amp;&amp; value &lt;= max) {</span>
+<span class="nc" id="L272">                    return value;</span>
+                } else {
+<span class="nc" id="L274">                    DisplayUtils.printError(String.format(&quot;Please enter a number between %d and %d.&quot;, min, max));</span>
+                }
+<span class="nc" id="L276">            } catch (NumberFormatException e) {</span>
+<span class="nc" id="L277">                DisplayUtils.printError(&quot;Please enter a valid number.&quot;);</span>
+            }
+        }
+    }
+} 
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

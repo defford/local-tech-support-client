@@ -163,13 +163,17 @@ public class TechSupportApiClient {
      */
     public boolean testConnection() {
         try {
+            // Try the main API endpoint instead of actuator health which may not be available
             Request request = new Request.Builder()
-                .url(baseUrl + "/actuator/health")
+                .url(baseUrl + "/api/clients")
                 .header("Accept", "application/json")
+                .header("User-Agent", "TechSupport-CLI/1.0")
                 .build();
 
             try (Response response = httpClient.newCall(request).execute()) {
-                return response.isSuccessful();
+                // Accept any response from 200-299 or even 401/403 as "connected"
+                // We just want to verify the server is reachable, not that we can access data
+                return response.code() >= 200 && response.code() < 500;
             }
         } catch (Exception e) {
             logger.warn("Connection test failed: {}", e.getMessage());

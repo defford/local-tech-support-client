@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MainMenu.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Local Tech Support CLI Client</a> &gt; <a href="index.source.html" class="el_package">com.localtechsupport.cli.menu.main</a> &gt; <span class="el_source">MainMenu.java</span></div><h1>MainMenu.java</h1><pre class="source lang-java linenums">package com.localtechsupport.cli.menu.main;
+
+import com.localtechsupport.cli.menu.BaseMenu;
+import com.localtechsupport.cli.menu.Menu;
+import com.localtechsupport.cli.util.DisplayUtils;
+
+/**
+ * Main menu for the Tech Support CLI system.
+ * 
+ * This is the root menu that provides access to all major system functions
+ * including client management, technician management, tickets, appointments,
+ * reports, and viewing current data.
+ */
+public class MainMenu extends BaseMenu {
+    
+    public MainMenu() {
+<span class="nc" id="L17">        super(null); // Root menu has no parent</span>
+<span class="nc" id="L18">    }</span>
+    
+    @Override
+    protected String getMenuTitle() {
+<span class="nc" id="L22">        return &quot;Tech Support CLI System - Main Menu&quot;;</span>
+    }
+    
+    @Override
+    protected void displayCustomContent() {
+        // Display system information and connection status
+<span class="nc" id="L28">        System.out.println(&quot;🖥️  Welcome to the Local Tech Support System&quot;);</span>
+<span class="nc" id="L29">        System.out.println(&quot;    Server: &quot; + apiService.getBaseUrl());</span>
+<span class="nc" id="L30">        System.out.println(&quot;    Connection: ✅ Active&quot;);</span>
+<span class="nc" id="L31">        System.out.println();  </span>
+<span class="nc" id="L32">        System.out.println(&quot;📋 This interactive menu system provides access to all&quot;);</span>
+<span class="nc" id="L33">        System.out.println(&quot;    system functions with an intuitive navigation interface.&quot;);</span>
+<span class="nc" id="L34">    }</span>
+    
+    @Override
+    protected void initializeMenuOptions() {
+        // Client Management
+<span class="nc" id="L39">        addMenuOption(1, &quot;Client Management&quot;, </span>
+<span class="nc" id="L40">            &quot;Manage clients, view client information, and handle client-related operations&quot;,</span>
+<span class="nc" id="L41">            () -&gt; new PlaceholderMenu(this, &quot;Client Management&quot;, </span>
+<span class="nc" id="L42">                &quot;Client operations will be available in Phase 2 implementation&quot;));</span>
+        
+        // Technician Management  
+<span class="nc" id="L45">        addMenuOption(2, &quot;Technician Management&quot;,</span>
+<span class="nc" id="L46">            &quot;Manage technicians, skills, schedules, and technician-related operations&quot;, </span>
+<span class="nc" id="L47">            () -&gt; new PlaceholderMenu(this, &quot;Technician Management&quot;,</span>
+<span class="nc" id="L48">                &quot;Technician operations will be available in Phase 3 implementation&quot;));</span>
+        
+        // Ticket Management
+<span class="nc" id="L51">        addMenuOption(3, &quot;Ticket Management&quot;,</span>
+<span class="nc" id="L52">            &quot;Create, update, assign, and track support tickets&quot;,</span>
+<span class="nc" id="L53">            () -&gt; new PlaceholderMenu(this, &quot;Ticket Management&quot;, </span>
+<span class="nc" id="L54">                &quot;Ticket operations will be available in Phase 4 implementation&quot;));</span>
+        
+        // Appointment Management
+<span class="nc" id="L57">        addMenuOption(4, &quot;Appointment Management&quot;, </span>
+<span class="nc" id="L58">            &quot;Schedule, manage, and track client appointments&quot;,</span>
+<span class="nc" id="L59">            () -&gt; new PlaceholderMenu(this, &quot;Appointment Management&quot;,</span>
+<span class="nc" id="L60">                &quot;Appointment operations will be available in Phase 5 implementation&quot;));</span>
+        
+        // Reports &amp; Analytics
+<span class="nc" id="L63">        addMenuOption(5, &quot;Reports &amp; Analytics&quot;,</span>
+<span class="nc" id="L64">            &quot;View system reports, statistics, and analytics&quot;,</span>
+<span class="nc" id="L65">            () -&gt; new PlaceholderMenu(this, &quot;Reports &amp; Analytics&quot;,</span>
+<span class="nc" id="L66">                &quot;Advanced reporting will be available in Phase 6 implementation&quot;));</span>
+        
+        // View Current Data - Links to existing functionality
+<span class="nc" id="L69">        addMenuOption(6, &quot;View Current Data&quot;,</span>
+<span class="nc" id="L70">            &quot;Quick access to current system data using existing commands&quot;,</span>
+<span class="nc" id="L71">            () -&gt; new ViewCurrentDataMenu(this));</span>
+        
+        // Exit option
+<span class="nc" id="L74">        addExitOption(7, &quot;Exit&quot;);</span>
+<span class="nc" id="L75">    }</span>
+    
+    /**
+     * Placeholder menu for features not yet implemented
+     */
+    private static class PlaceholderMenu extends BaseMenu {
+        
+        private final String menuTitle;
+        private final String message;
+        
+        public PlaceholderMenu(Menu parent, String title, String message) {
+<span class="nc" id="L86">            super(parent);</span>
+<span class="nc" id="L87">            this.menuTitle = title;</span>
+<span class="nc" id="L88">            this.message = message;</span>
+<span class="nc" id="L89">        }</span>
+        
+        @Override
+        protected String getMenuTitle() {
+<span class="nc" id="L93">            return menuTitle;</span>
+        }
+        
+        @Override
+        protected void displayCustomContent() {
+<span class="nc" id="L98">            DisplayUtils.printInfo(message);</span>
+<span class="nc" id="L99">            System.out.println();</span>
+<span class="nc" id="L100">            System.out.println(&quot;🚧 This feature is planned for future implementation.&quot;);</span>
+<span class="nc" id="L101">            System.out.println(&quot;   Use 'b' or 'back' to return to the main menu.&quot;);</span>
+<span class="nc" id="L102">        }</span>
+        
+        @Override
+        protected void initializeMenuOptions() {
+            // No options - just a placeholder
+<span class="nc" id="L107">        }</span>
+    }
+    
+    /**
+     * Menu for viewing current data using existing commands
+     */
+    private static class ViewCurrentDataMenu extends BaseMenu {
+        
+        public ViewCurrentDataMenu(Menu parent) {
+<span class="nc" id="L116">            super(parent);</span>
+<span class="nc" id="L117">        }</span>
+        
+        @Override
+        protected String getMenuTitle() {
+<span class="nc" id="L121">            return &quot;View Current Data&quot;;</span>
+        }
+        
+        @Override
+        protected void displayCustomContent() {
+<span class="nc" id="L126">            System.out.println(&quot;📊 Quick access to current system data&quot;);</span>
+<span class="nc" id="L127">            System.out.println(&quot;    These options use the existing command implementations&quot;);</span>
+<span class="nc" id="L128">            System.out.println(&quot;    to display current system information.&quot;);</span>
+<span class="nc" id="L129">        }</span>
+        
+        @Override
+        protected void initializeMenuOptions() {
+            // Client Tickets
+<span class="nc" id="L134">            addActionOption(1, &quot;Client Tickets&quot;, </span>
+<span class="nc" id="L135">                &quot;Show tickets for each client in the system&quot;,</span>
+<span class="nc" id="L136">                this::showClientTickets);</span>
+            
+            // Overdue Tickets
+<span class="nc" id="L139">            addActionOption(2, &quot;Overdue Tickets&quot;,</span>
+<span class="nc" id="L140">                &quot;Show tickets that are currently overdue&quot;, </span>
+<span class="nc" id="L141">                this::showOverdueTickets);</span>
+            
+            // Technician Workload
+<span class="nc" id="L144">            addActionOption(3, &quot;Technician Workload&quot;,</span>
+<span class="nc" id="L145">                &quot;Show tickets assigned to each technician&quot;,</span>
+<span class="nc" id="L146">                this::showTechnicianWorkload);</span>
+            
+            // Available Technicians
+<span class="nc" id="L149">            addActionOption(4, &quot;Available Technicians&quot;, </span>
+<span class="nc" id="L150">                &quot;Show technicians available for each service type&quot;,</span>
+<span class="nc" id="L151">                this::showAvailableTechnicians);</span>
+            
+            // Technician Schedule
+<span class="nc" id="L154">            addActionOption(5, &quot;Technician Schedule&quot;,</span>
+<span class="nc" id="L155">                &quot;Show appointments for each technician&quot;,</span>
+<span class="nc" id="L156">                this::showTechnicianSchedule);</span>
+            
+            // Client Appointments
+<span class="nc" id="L159">            addActionOption(6, &quot;Client Appointments&quot;,</span>
+<span class="nc" id="L160">                &quot;Show appointments scheduled by each client&quot;, </span>
+<span class="nc" id="L161">                this::showClientAppointments);</span>
+            
+            // Client-Technician History
+<span class="nc" id="L164">            addActionOption(7, &quot;Client-Technician History&quot;,</span>
+<span class="nc" id="L165">                &quot;Show which clients have worked with which technicians&quot;,</span>
+<span class="nc" id="L166">                this::showClientTechnicianHistory);</span>
+            
+            // Technician Feedback
+<span class="nc" id="L169">            addActionOption(8, &quot;Technician Feedback&quot;, </span>
+<span class="nc" id="L170">                &quot;Show feedback ratings for each technician&quot;,</span>
+<span class="nc" id="L171">                this::showTechnicianFeedback);</span>
+<span class="nc" id="L172">        }</span>
+        
+        private void showClientTickets() {
+<span class="nc" id="L175">            DisplayUtils.printInfo(&quot;This would execute the client-tickets command&quot;);</span>
+<span class="nc" id="L176">            DisplayUtils.printWarning(&quot;Integration with existing commands will be implemented in the next iteration&quot;);</span>
+<span class="nc" id="L177">        }</span>
+        
+        private void showOverdueTickets() {
+<span class="nc" id="L180">            DisplayUtils.printInfo(&quot;This would execute the overdue-tickets command&quot;);</span>
+<span class="nc" id="L181">            DisplayUtils.printWarning(&quot;Integration with existing commands will be implemented in the next iteration&quot;);</span>
+<span class="nc" id="L182">        }</span>
+        
+        private void showTechnicianWorkload() {
+<span class="nc" id="L185">            DisplayUtils.printInfo(&quot;This would execute the technician-workload command&quot;);</span>
+<span class="nc" id="L186">            DisplayUtils.printWarning(&quot;Integration with existing commands will be implemented in the next iteration&quot;);</span>
+<span class="nc" id="L187">        }</span>
+        
+        private void showAvailableTechnicians() {
+<span class="nc" id="L190">            DisplayUtils.printInfo(&quot;This would execute the available-technicians command&quot;);</span>
+<span class="nc" id="L191">            DisplayUtils.printWarning(&quot;Integration with existing commands will be implemented in the next iteration&quot;);</span>
+<span class="nc" id="L192">        }</span>
+        
+        private void showTechnicianSchedule() {
+<span class="nc" id="L195">            DisplayUtils.printInfo(&quot;This would execute the technician-schedule command&quot;);</span>
+<span class="nc" id="L196">            DisplayUtils.printWarning(&quot;Integration with existing commands will be implemented in the next iteration&quot;);</span>
+<span class="nc" id="L197">        }</span>
+        
+        private void showClientAppointments() {
+<span class="nc" id="L200">            DisplayUtils.printInfo(&quot;This would execute the client-appointments command&quot;);</span>
+<span class="nc" id="L201">            DisplayUtils.printWarning(&quot;Integration with existing commands will be implemented in the next iteration&quot;);</span>
+<span class="nc" id="L202">        }</span>
+        
+        private void showClientTechnicianHistory() {
+<span class="nc" id="L205">            DisplayUtils.printInfo(&quot;This would execute the client-technician-history command&quot;);</span>
+<span class="nc" id="L206">            DisplayUtils.printWarning(&quot;Integration with existing commands will be implemented in the next iteration&quot;);</span>
+<span class="nc" id="L207">        }</span>
+        
+        private void showTechnicianFeedback() {
+<span class="nc" id="L210">            DisplayUtils.printInfo(&quot;This would execute the technician-feedback command&quot;);</span>
+<span class="nc" id="L211">            DisplayUtils.printWarning(&quot;Integration with existing commands will be implemented in the next iteration&quot;);</span>
+<span class="nc" id="L212">        }</span>
+    }
+} 
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

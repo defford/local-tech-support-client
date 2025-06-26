@@ -6,11 +6,17 @@
 /Users/danielefford/Documents/SD12/04-DevOps/local-tech-support-client/src/main/java/com/localtechsupport/cli/command/ClientAppointmentsCommand.java
 /Users/danielefford/Documents/SD12/04-DevOps/local-tech-support-client/src/main/java/com/localtechsupport/cli/command/ClientTechnicianHistoryCommand.java
 /Users/danielefford/Documents/SD12/04-DevOps/local-tech-support-client/src/main/java/com/localtechsupport/cli/command/ClientTicketsCommand.java
+/Users/danielefford/Documents/SD12/04-DevOps/local-tech-support-client/src/main/java/com/localtechsupport/cli/command/InteractiveMenuCommand.java
 /Users/danielefford/Documents/SD12/04-DevOps/local-tech-support-client/src/main/java/com/localtechsupport/cli/command/OverdueTicketsCommand.java
 /Users/danielefford/Documents/SD12/04-DevOps/local-tech-support-client/src/main/java/com/localtechsupport/cli/command/TechnicianFeedbackCommand.java
 /Users/danielefford/Documents/SD12/04-DevOps/local-tech-support-client/src/main/java/com/localtechsupport/cli/command/TechnicianScheduleCommand.java
 /Users/danielefford/Documents/SD12/04-DevOps/local-tech-support-client/src/main/java/com/localtechsupport/cli/command/TechnicianWorkloadCommand.java
 /Users/danielefford/Documents/SD12/04-DevOps/local-tech-support-client/src/main/java/com/localtechsupport/cli/formatter/ClientTicketsFormatter.java
+/Users/danielefford/Documents/SD12/04-DevOps/local-tech-support-client/src/main/java/com/localtechsupport/cli/menu/BaseMenu.java
+/Users/danielefford/Documents/SD12/04-DevOps/local-tech-support-client/src/main/java/com/localtechsupport/cli/menu/Menu.java
+/Users/danielefford/Documents/SD12/04-DevOps/local-tech-support-client/src/main/java/com/localtechsupport/cli/menu/MenuManager.java
+/Users/danielefford/Documents/SD12/04-DevOps/local-tech-support-client/src/main/java/com/localtechsupport/cli/menu/MenuOption.java
+/Users/danielefford/Documents/SD12/04-DevOps/local-tech-support-client/src/main/java/com/localtechsupport/cli/menu/main/MainMenu.java
 /Users/danielefford/Documents/SD12/04-DevOps/local-tech-support-client/src/main/java/com/localtechsupport/cli/model/Appointment.java
 /Users/danielefford/Documents/SD12/04-DevOps/local-tech-support-client/src/main/java/com/localtechsupport/cli/model/Client.java
 /Users/danielefford/Documents/SD12/04-DevOps/local-tech-support-client/src/main/java/com/localtechsupport/cli/model/FeedbackStatistics.java
@@ -21,4 +27,6 @@
 /Users/danielefford/Documents/SD12/04-DevOps/local-tech-support-client/src/main/java/com/localtechsupport/cli/model/Ticket.java
 /Users/danielefford/Documents/SD12/04-DevOps/local-tech-support-client/src/main/java/com/localtechsupport/cli/model/TicketStatistics.java
 /Users/danielefford/Documents/SD12/04-DevOps/local-tech-support-client/src/main/java/com/localtechsupport/cli/service/ApiService.java
+/Users/danielefford/Documents/SD12/04-DevOps/local-tech-support-client/src/main/java/com/localtechsupport/cli/util/DisplayUtils.java
+/Users/danielefford/Documents/SD12/04-DevOps/local-tech-support-client/src/main/java/com/localtechsupport/cli/util/InputValidator.java
 /Users/danielefford/Documents/SD12/04-DevOps/local-tech-support-client/src/main/java/com/localtechsupport/cli/util/JsonFormatter.java

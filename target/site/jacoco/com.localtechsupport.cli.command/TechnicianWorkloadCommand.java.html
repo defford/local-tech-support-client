@@ -50,11 +50,11 @@ import java.util.stream.Collectors;
     )
     private String technicianStatus;
 
-    @Option(
+<span class="nc" id="L53">    @Option(</span>
         names = {&quot;--include-closed&quot;},
         description = &quot;Include closed tickets in workload calculation&quot;
     )
-<span class="nc" id="L57">    private boolean includeClosedTickets = false;</span>
+    private boolean includeClosedTickets = false;
 
     @Option(
         names = {&quot;--sort-by&quot;},
@@ -170,7 +170,7 @@ import java.util.stream.Collectors;
 <span class="nc" id="L170">                List&lt;Ticket&gt; tickets = apiService.getTicketsByTechnician(technician.getId());</span>
 <span class="nc" id="L171">                WorkloadInfo workloadInfo = calculateWorkloadInfo(tickets);</span>
 <span class="nc" id="L172">                technicianWorkloadMap.put(technician, workloadInfo);</span>
-            }
+<span class="nc" id="L173">            }</span>
         }
         
 <span class="nc" id="L176">        return applySorting(technicianWorkloadMap);</span>
@@ -206,10 +206,10 @@ import java.util.stream.Collectors;
             
 <span class="nc" id="L207">        return new WorkloadInfo(</span>
 <span class="nc" id="L208">            activeTickets.size(),</span>
-<span class="nc" id="L209">            (int) overdueCount,</span>
-<span class="nc" id="L210">            ticketsByStatus,</span>
-<span class="nc" id="L211">            ticketsByPriority,</span>
-<span class="nc" id="L212">            ticketsByServiceType</span>
+            (int) overdueCount,
+            ticketsByStatus,
+            ticketsByPriority,
+            ticketsByServiceType
         );
     }
 
@@ -230,10 +230,10 @@ import java.util.stream.Collectors;
                 }
             })
 <span class="nc" id="L232">            .collect(Collectors.toMap(</span>
-<span class="nc" id="L233">                Map.Entry::getKey,</span>
-<span class="nc" id="L234">                Map.Entry::getValue,</span>
+                Map.Entry::getKey,
+                Map.Entry::getValue,
 <span class="nc" id="L235">                (e1, e2) -&gt; e1,</span>
-<span class="nc" id="L236">                java.util.LinkedHashMap::new</span>
+                java.util.LinkedHashMap::new
             ));
     }
 
@@ -246,10 +246,10 @@ import java.util.stream.Collectors;
 <span class="nc bnc" id="L246" title="All 3 branches missed.">        switch (format.toLowerCase()) {</span>
             case &quot;json&quot;:
 <span class="nc" id="L248">                return JsonFormatter.withMetadata(</span>
-<span class="nc" id="L249">                    &quot;Technician Workload Report&quot;, </span>
-<span class="nc" id="L250">                    technicianWorkloadMap, </span>
-<span class="nc" id="L251">                    serverUrl, </span>
-<span class="nc" id="L252">                    timestamp</span>
+                    &quot;Technician Workload Report&quot;, 
+                    technicianWorkloadMap, 
+                    serverUrl, 
+                    timestamp
                 );
                 
             case &quot;table&quot;:
@@ -303,7 +303,7 @@ import java.util.stream.Collectors;
         
         // Technician details table
 <span class="nc" id="L305">        output.append(String.format(&quot;%-25s %-12s %-8s %-8s %-20s %s\n&quot;, </span>
-<span class="nc" id="L306">            &quot;Technician&quot;, &quot;Status&quot;, &quot;Active&quot;, &quot;Overdue&quot;, &quot;Skills&quot;, &quot;Priority Breakdown&quot;));</span>
+            &quot;Technician&quot;, &quot;Status&quot;, &quot;Active&quot;, &quot;Overdue&quot;, &quot;Skills&quot;, &quot;Priority Breakdown&quot;));
 <span class="nc" id="L307">        output.append(&quot;-&quot;.repeat(100)).append(&quot;\n&quot;);</span>
         
 <span class="nc bnc" id="L309" title="All 2 branches missed.">        for (Map.Entry&lt;Technician, WorkloadInfo&gt; entry : technicianWorkloadMap.entrySet()) {</span>
@@ -322,14 +322,14 @@ import java.util.stream.Collectors;
             
 <span class="nc" id="L323">            output.append(String.format(&quot;%-25s %s%-11s %-8s %-8s %-20s %s\n&quot;,</span>
 <span class="nc" id="L324">                technician.getFullName(),</span>
-<span class="nc" id="L325">                statusEmoji,</span>
+                statusEmoji,
 <span class="nc" id="L326">                technician.getStatus(),</span>
 <span class="nc" id="L327">                workloadEmoji + workload.getActiveTicketCount(),</span>
 <span class="nc bnc" id="L328" title="All 2 branches missed.">                workload.getOverdueTicketCount() &gt; 0 ? &quot;⚠️&quot; + workload.getOverdueTicketCount() : workload.getOverdueTicketCount(),</span>
-<span class="nc" id="L329">                skills,</span>
-<span class="nc" id="L330">                priorityBreakdown</span>
+                skills,
+                priorityBreakdown
             ));
-        }
+<span class="nc" id="L332">        }</span>
         
 <span class="nc" id="L334">        output.append(&quot;-&quot;.repeat(100)).append(&quot;\n&quot;);</span>
         
@@ -385,9 +385,9 @@ import java.util.stream.Collectors;
         private final Map&lt;String, Long&gt; ticketsByPriority;
         private final Map&lt;String, Long&gt; ticketsByServiceType;
 
-<span class="nc" id="L388">        public WorkloadInfo(int activeTicketCount, int overdueTicketCount, </span>
+        public WorkloadInfo(int activeTicketCount, int overdueTicketCount, 
                           Map&lt;String, Long&gt; ticketsByStatus, Map&lt;String, Long&gt; ticketsByPriority,
-                          Map&lt;String, Long&gt; ticketsByServiceType) {
+<span class="nc" id="L390">                          Map&lt;String, Long&gt; ticketsByServiceType) {</span>
 <span class="nc" id="L391">            this.activeTicketCount = activeTicketCount;</span>
 <span class="nc" id="L392">            this.overdueTicketCount = overdueTicketCount;</span>
 <span class="nc" id="L393">            this.ticketsByStatus = ticketsByStatus;</span>

@@ -73,7 +73,7 @@ public class ApiService implements AutoCloseable {
         
         try {
 <span class="nc" id="L75">            ApiResponse&lt;PagedResponse&lt;Client&gt;&gt; response = apiClient.get(</span>
-<span class="nc" id="L76">                &quot;/api/clients&quot;, </span>
+                &quot;/api/clients&quot;, 
 <span class="nc" id="L77">                new TypeReference&lt;PagedResponse&lt;Client&gt;&gt;() {}</span>
             );
             
@@ -100,8 +100,8 @@ public class ApiService implements AutoCloseable {
         
         try {
 <span class="nc" id="L102">            ApiResponse&lt;Client&gt; response = apiClient.get(</span>
-<span class="nc" id="L103">                &quot;/api/clients/&quot; + clientId, </span>
-<span class="nc" id="L104">                Client.class</span>
+                &quot;/api/clients/&quot; + clientId, 
+                Client.class
             );
             
 <span class="nc" id="L107">            Client client = response.getData();</span>
@@ -127,7 +127,7 @@ public class ApiService implements AutoCloseable {
         
         try {
 <span class="nc" id="L129">            ApiResponse&lt;PagedResponse&lt;Ticket&gt;&gt; response = apiClient.get(</span>
-<span class="nc" id="L130">                &quot;/api/tickets?clientId=&quot; + clientId, </span>
+                &quot;/api/tickets?clientId=&quot; + clientId, 
 <span class="nc" id="L131">                new TypeReference&lt;PagedResponse&lt;Ticket&gt;&gt;() {}</span>
             );
             
@@ -153,7 +153,7 @@ public class ApiService implements AutoCloseable {
         
         try {
 <span class="nc" id="L155">            ApiResponse&lt;PagedResponse&lt;Technician&gt;&gt; response = apiClient.get(</span>
-<span class="nc" id="L156">                &quot;/api/technicians&quot;, </span>
+                &quot;/api/technicians&quot;, 
 <span class="nc" id="L157">                new TypeReference&lt;PagedResponse&lt;Technician&gt;&gt;() {}</span>
             );
             
@@ -180,7 +180,7 @@ public class ApiService implements AutoCloseable {
         
         try {
 <span class="nc" id="L182">            ApiResponse&lt;PagedResponse&lt;Ticket&gt;&gt; response = apiClient.get(</span>
-<span class="nc" id="L183">                &quot;/api/tickets?technicianId=&quot; + technicianId, </span>
+                &quot;/api/tickets?technicianId=&quot; + technicianId, 
 <span class="nc" id="L184">                new TypeReference&lt;PagedResponse&lt;Ticket&gt;&gt;() {}</span>
             );
             
@@ -208,7 +208,7 @@ public class ApiService implements AutoCloseable {
         try {
             // Note: /api/technicians/available?serviceType=X returns a plain array, not a PagedResponse
 <span class="nc" id="L210">            ApiResponse&lt;List&lt;Technician&gt;&gt; response = apiClient.get(</span>
-<span class="nc" id="L211">                &quot;/api/technicians/available?serviceType=&quot; + serviceType, </span>
+                &quot;/api/technicians/available?serviceType=&quot; + serviceType, 
 <span class="nc" id="L212">                new TypeReference&lt;List&lt;Technician&gt;&gt;() {}</span>
             );
             
@@ -235,7 +235,7 @@ public class ApiService implements AutoCloseable {
         try {
             // Note: /api/technicians/available returns a plain array, not a PagedResponse
 <span class="nc" id="L237">            ApiResponse&lt;List&lt;Technician&gt;&gt; response = apiClient.get(</span>
-<span class="nc" id="L238">                &quot;/api/technicians/available&quot;, </span>
+                &quot;/api/technicians/available&quot;, 
 <span class="nc" id="L239">                new TypeReference&lt;List&lt;Technician&gt;&gt;() {}</span>
             );
             
@@ -262,7 +262,7 @@ public class ApiService implements AutoCloseable {
         try {
             // Note: /api/tickets/overdue returns a plain array, not a PagedResponse
 <span class="nc" id="L264">            ApiResponse&lt;List&lt;Ticket&gt;&gt; response = apiClient.get(</span>
-<span class="nc" id="L265">                &quot;/api/tickets/overdue&quot;, </span>
+                &quot;/api/tickets/overdue&quot;, 
 <span class="nc" id="L266">                new TypeReference&lt;List&lt;Ticket&gt;&gt;() {}</span>
             );
             
@@ -289,7 +289,7 @@ public class ApiService implements AutoCloseable {
         
         try {
 <span class="nc" id="L291">            ApiResponse&lt;PagedResponse&lt;Appointment&gt;&gt; response = apiClient.get(</span>
-<span class="nc" id="L292">                &quot;/api/appointments?technicianId=&quot; + technicianId, </span>
+                &quot;/api/appointments?technicianId=&quot; + technicianId, 
 <span class="nc" id="L293">                new TypeReference&lt;PagedResponse&lt;Appointment&gt;&gt;() {}</span>
             );
             
@@ -315,7 +315,7 @@ public class ApiService implements AutoCloseable {
         
         try {
 <span class="nc" id="L317">            ApiResponse&lt;PagedResponse&lt;Ticket&gt;&gt; response = apiClient.get(</span>
-<span class="nc" id="L318">                &quot;/api/tickets&quot;, </span>
+                &quot;/api/tickets&quot;, 
 <span class="nc" id="L319">                new TypeReference&lt;PagedResponse&lt;Ticket&gt;&gt;() {}</span>
             );
             
@@ -341,7 +341,7 @@ public class ApiService implements AutoCloseable {
         
         try {
 <span class="nc" id="L343">            ApiResponse&lt;PagedResponse&lt;Appointment&gt;&gt; response = apiClient.get(</span>
-<span class="nc" id="L344">                &quot;/api/appointments&quot;, </span>
+                &quot;/api/appointments&quot;, 
 <span class="nc" id="L345">                new TypeReference&lt;PagedResponse&lt;Appointment&gt;&gt;() {}</span>
             );
             

@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>InteractiveMenuCommand.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Local Tech Support CLI Client</a> &gt; <a href="index.source.html" class="el_package">com.localtechsupport.cli.command</a> &gt; <span class="el_source">InteractiveMenuCommand.java</span></div><h1>InteractiveMenuCommand.java</h1><pre class="source lang-java linenums">package com.localtechsupport.cli.command;
+
+import com.localtechsupport.cli.CliApplication;
+import com.localtechsupport.cli.menu.MenuManager;
+import com.localtechsupport.cli.service.ApiService;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.ParentCommand;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.concurrent.Callable;
+
+/**
+ * Interactive menu command for the Tech Support CLI.
+ * 
+ * This command launches the menu-driven interface while maintaining
+ * full compatibility with the existing PicoCLI command structure.
+ * 
+ * Usage: tech-support-cli interactive
+ */
+@Command(
+    name = &quot;interactive&quot;,
+    aliases = {&quot;menu&quot;, &quot;i&quot;},
+    description = &quot;Launch interactive menu-driven interface for full system access&quot;,
+    mixinStandardHelpOptions = true
+)
+<span class="nc" id="L27">public class InteractiveMenuCommand implements Callable&lt;Integer&gt; {</span>
+
+<span class="nc" id="L29">    private static final Logger logger = LoggerFactory.getLogger(InteractiveMenuCommand.class);</span>
+
+    @ParentCommand
+    private CliApplication parent;
+
+    @Override
+    public Integer call() {
+<span class="nc" id="L36">        logger.info(&quot;Launching interactive menu system&quot;);</span>
+        
+        try {
+            // Get configuration from parent
+<span class="nc" id="L40">            String serverUrl = parent.getServerUrl();</span>
+<span class="nc" id="L41">            boolean verbose = parent.isVerbose();</span>
+            
+<span class="nc bnc" id="L43" title="All 2 branches missed.">            if (verbose) {</span>
+<span class="nc" id="L44">                System.out.println(&quot;🚀 Launching interactive menu system...&quot;);</span>
+<span class="nc" id="L45">                System.out.println(&quot;🔍 Server: &quot; + serverUrl);</span>
+            }
+
+            // Create API service with the configured server URL
+<span class="nc" id="L49">            try (ApiService apiService = new ApiService(serverUrl)) {</span>
+                
+                // Create and start menu manager
+<span class="nc" id="L52">                MenuManager menuManager = new MenuManager(apiService);</span>
+<span class="nc" id="L53">                int exitCode = menuManager.start();</span>
+                
+<span class="nc" id="L55">                logger.info(&quot;Interactive menu system exited with code: {}&quot;, exitCode);</span>
+<span class="nc" id="L56">                return exitCode;</span>
+                
+<span class="nc" id="L58">            } catch (Exception e) {</span>
+<span class="nc" id="L59">                logger.error(&quot;Error in interactive menu system: {}&quot;, e.getMessage(), e);</span>
+<span class="nc" id="L60">                System.err.println(&quot;❌ Error in menu system: &quot; + e.getMessage());</span>
+                
+<span class="nc bnc" id="L62" title="All 2 branches missed.">                if (verbose) {</span>
+<span class="nc" id="L63">                    e.printStackTrace();</span>
+                }
+                
+<span class="nc" id="L66">                return 1;</span>
+            }
+
+<span class="nc" id="L69">        } catch (Exception e) {</span>
+<span class="nc" id="L70">            logger.error(&quot;Fatal error launching interactive menu: {}&quot;, e.getMessage(), e);</span>
+<span class="nc" id="L71">            System.err.println(&quot;❌ Fatal error: &quot; + e.getMessage());</span>
+            
+<span class="nc bnc" id="L73" title="All 2 branches missed.">            if (parent.isVerbose()) {</span>
+<span class="nc" id="L74">                e.printStackTrace();</span>
+            }
+            
+<span class="nc" id="L77">            return 1;</span>
+        }
+    }
+} 
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

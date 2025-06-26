@@ -92,7 +92,7 @@ import java.util.stream.Collectors;
                 // Show clients with no tickets
 <span class="nc" id="L93">                String clientName = truncate(client.getFullName(), 19);</span>
 <span class="nc" id="L94">                System.out.printf(&quot;│ %-19s │ %-24s │ %-7s │ %-8s │ %-11s │%n&quot;, </span>
-<span class="nc" id="L95">                    clientName, &quot;No tickets found&quot;, &quot;N/A&quot;, &quot;N/A&quot;, &quot;N/A&quot;);</span>
+                    clientName, &quot;No tickets found&quot;, &quot;N/A&quot;, &quot;N/A&quot;, &quot;N/A&quot;);
 <span class="nc" id="L96">            } else {</span>
 <span class="nc bnc" id="L97" title="All 2 branches missed.">                for (int i = 0; i &lt; tickets.size(); i++) {</span>
 <span class="nc" id="L98">                    Ticket ticket = tickets.get(i);</span>
@@ -103,12 +103,12 @@ import java.util.stream.Collectors;
 <span class="nc" id="L103">                    String technician = formatTechnician(ticket);</span>
                     
 <span class="nc" id="L105">                    System.out.printf(&quot;│ %-19s │ %-24s │ %-7s │ %-8s │ %-11s │%n&quot;, </span>
-<span class="nc" id="L106">                        clientName, description, status, serviceType, technician);</span>
+                        clientName, description, status, serviceType, technician);
                 }
             }
             
 <span class="nc" id="L110">            System.out.println(&quot;├─────────────────────┼──────────────────────────┼─────────┼──────────┼─────────────┤&quot;);</span>
-        }
+<span class="nc" id="L111">        }</span>
         
 <span class="nc" id="L113">        System.out.println(&quot;└─────────────────────┴──────────────────────────┴─────────┴──────────┴─────────────┘&quot;);</span>
 <span class="nc" id="L114">        System.out.println();</span>
@@ -135,8 +135,8 @@ import java.util.stream.Collectors;
 <span class="nc" id="L135">                    info.ticket.getId(),</span>
 <span class="nc" id="L136">                    info.client.getFullName(),</span>
 <span class="nc" id="L137">                    info.ticket.getServiceType(),</span>
-<span class="nc" id="L138">                    dueDate);</span>
-            }
+                    dueDate);
+<span class="nc" id="L139">            }</span>
 <span class="nc" id="L140">            System.out.println();</span>
         }
 <span class="nc" id="L142">    }</span>

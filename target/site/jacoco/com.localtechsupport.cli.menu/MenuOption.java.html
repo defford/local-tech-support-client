@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MenuOption.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Local Tech Support CLI Client</a> &gt; <a href="index.source.html" class="el_package">com.localtechsupport.cli.menu</a> &gt; <span class="el_source">MenuOption.java</span></div><h1>MenuOption.java</h1><pre class="source lang-java linenums">package com.localtechsupport.cli.menu;
+
+import java.util.function.Supplier;
+
+/**
+ * Represents a single option in a menu with display text and associated action.
+ * 
+ * Menu options can either navigate to a sub-menu or execute a direct action.
+ */
+public class MenuOption {
+    
+    private final int optionNumber;
+    private final String displayName;
+    private final String description;
+    private final Supplier&lt;Menu&gt; menuSupplier;  // For sub-menu navigation
+    private final Runnable action;              // For direct actions
+    private final boolean isExitOption;
+    
+    /**
+     * Create a menu option that navigates to a sub-menu
+     * 
+     * @param optionNumber the number displayed to the user
+     * @param displayName the text shown in the menu
+     * @param description optional description of what this option does
+     * @param menuSupplier supplier that creates the target menu
+     */
+<span class="nc" id="L27">    public MenuOption(int optionNumber, String displayName, String description, Supplier&lt;Menu&gt; menuSupplier) {</span>
+<span class="nc" id="L28">        this.optionNumber = optionNumber;</span>
+<span class="nc" id="L29">        this.displayName = displayName;</span>
+<span class="nc" id="L30">        this.description = description;</span>
+<span class="nc" id="L31">        this.menuSupplier = menuSupplier;</span>
+<span class="nc" id="L32">        this.action = null;</span>
+<span class="nc" id="L33">        this.isExitOption = false;</span>
+<span class="nc" id="L34">    }</span>
+    
+    /**
+     * Create a menu option that executes a direct action
+     * 
+     * @param optionNumber the number displayed to the user
+     * @param displayName the text shown in the menu
+     * @param description optional description of what this option does
+     * @param action the action to execute when selected
+     */
+<span class="nc" id="L44">    public MenuOption(int optionNumber, String displayName, String description, Runnable action) {</span>
+<span class="nc" id="L45">        this.optionNumber = optionNumber;</span>
+<span class="nc" id="L46">        this.displayName = displayName;</span>
+<span class="nc" id="L47">        this.description = description;</span>
+<span class="nc" id="L48">        this.menuSupplier = null;</span>
+<span class="nc" id="L49">        this.action = action;</span>
+<span class="nc" id="L50">        this.isExitOption = false;</span>
+<span class="nc" id="L51">    }</span>
+    
+    /**
+     * Create an exit menu option
+     * 
+     * @param optionNumber the number displayed to the user
+     * @param displayName the text shown in the menu
+     */
+<span class="nc" id="L59">    public MenuOption(int optionNumber, String displayName) {</span>
+<span class="nc" id="L60">        this.optionNumber = optionNumber;</span>
+<span class="nc" id="L61">        this.displayName = displayName;</span>
+<span class="nc" id="L62">        this.description = null;</span>
+<span class="nc" id="L63">        this.menuSupplier = null;</span>
+<span class="nc" id="L64">        this.action = null;</span>
+<span class="nc" id="L65">        this.isExitOption = true;</span>
+<span class="nc" id="L66">    }</span>
+    
+    /**
+     * Execute this menu option
+     * 
+     * @return the next menu to navigate to, or null if this was an action
+     */
+    public Menu execute() {
+<span class="nc bnc" id="L74" title="All 2 branches missed.">        if (isExitOption) {</span>
+<span class="nc" id="L75">            return null; // Signal exit</span>
+        }
+        
+<span class="nc bnc" id="L78" title="All 2 branches missed.">        if (menuSupplier != null) {</span>
+<span class="nc" id="L79">            return menuSupplier.get();</span>
+        }
+        
+<span class="nc bnc" id="L82" title="All 2 branches missed.">        if (action != null) {</span>
+<span class="nc" id="L83">            action.run();</span>
+        }
+        
+<span class="nc" id="L86">        return null; // Stay on current menu</span>
+    }
+    
+    // Getters
+    public int getOptionNumber() {
+<span class="nc" id="L91">        return optionNumber;</span>
+    }
+    
+    public String getDisplayName() {
+<span class="nc" id="L95">        return displayName;</span>
+    }
+    
+    public String getDescription() {
+<span class="nc" id="L99">        return description;</span>
+    }
+    
+    public boolean isSubMenu() {
+<span class="nc bnc" id="L103" title="All 2 branches missed.">        return menuSupplier != null;</span>
+    }
+    
+    public boolean isAction() {
+<span class="nc bnc" id="L107" title="All 2 branches missed.">        return action != null;</span>
+    }
+    
+    public boolean isExitOption() {
+<span class="nc" id="L111">        return isExitOption;</span>
+    }
+    
+    /**
+     * Get formatted display string for this option
+     * 
+     * @return formatted string for menu display
+     */
+    public String getFormattedDisplay() {
+<span class="nc" id="L120">        StringBuilder sb = new StringBuilder();</span>
+<span class="nc" id="L121">        sb.append(String.format(&quot;  %d. %s&quot;, optionNumber, displayName));</span>
+        
+<span class="nc bnc" id="L123" title="All 4 branches missed.">        if (description != null &amp;&amp; !description.trim().isEmpty()) {</span>
+<span class="nc" id="L124">            sb.append(String.format(&quot; - %s&quot;, description));</span>
+        }
+        
+<span class="nc" id="L127">        return sb.toString();</span>
+    }
+} 
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

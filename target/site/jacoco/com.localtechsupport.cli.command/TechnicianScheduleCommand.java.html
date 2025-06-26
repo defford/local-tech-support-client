@@ -58,11 +58,11 @@ import java.util.stream.Collectors;
     )
     private String appointmentStatus;
 
-    @Option(
+<span class="nc" id="L61">    @Option(</span>
         names = {&quot;--upcoming-only&quot;},
         description = &quot;Show only upcoming appointments&quot;
     )
-<span class="nc" id="L65">    private boolean upcomingOnly = false;</span>
+    private boolean upcomingOnly = false;
 
     @Override
     public Integer call() {
@@ -167,7 +167,7 @@ import java.util.stream.Collectors;
 <span class="nc" id="L167">                List&lt;Appointment&gt; appointments = apiService.getAppointmentsByTechnician(technician.getId());</span>
 <span class="nc" id="L168">                appointments = filterAppointments(appointments);</span>
 <span class="nc" id="L169">                technicianScheduleMap.put(technician, appointments);</span>
-            }
+<span class="nc" id="L170">            }</span>
         }
         
 <span class="nc" id="L173">        return technicianScheduleMap;</span>
@@ -217,10 +217,10 @@ import java.util.stream.Collectors;
 <span class="nc bnc" id="L217" title="All 3 branches missed.">        switch (format.toLowerCase()) {</span>
             case &quot;json&quot;:
 <span class="nc" id="L219">                return JsonFormatter.withMetadata(</span>
-<span class="nc" id="L220">                    &quot;Technician Schedule Report&quot;, </span>
-<span class="nc" id="L221">                    technicianScheduleMap, </span>
-<span class="nc" id="L222">                    serverUrl, </span>
-<span class="nc" id="L223">                    timestamp</span>
+                    &quot;Technician Schedule Report&quot;, 
+                    technicianScheduleMap, 
+                    serverUrl, 
+                    timestamp
                 );
                 
             case &quot;table&quot;:
@@ -327,7 +327,7 @@ import java.util.stream.Collectors;
 <span class="nc" id="L327">                        String.format(&quot;Ticket #%d&quot;, appointment.getTicketId());</span>
                     
 <span class="nc" id="L329">                    output.append(String.format(&quot;       %s %s | %s&quot;, </span>
-<span class="nc" id="L330">                        statusEmoji, timeRange, ticketInfo));</span>
+                        statusEmoji, timeRange, ticketInfo));
                     
 <span class="nc bnc" id="L332" title="All 4 branches missed.">                    if (appointment.getTicket() != null &amp;&amp; appointment.getTicket().getTitle() != null) {</span>
 <span class="nc" id="L333">                        String title = appointment.getTicket().getTitle();</span>
@@ -336,11 +336,11 @@ import java.util.stream.Collectors;
                     }
                     
 <span class="nc" id="L338">                    output.append(&quot;\n&quot;);</span>
-                }
-            }
+<span class="nc" id="L339">                }</span>
+<span class="nc" id="L340">            }</span>
             
 <span class="nc" id="L342">            output.append(&quot;\n&quot;);</span>
-        }
+<span class="nc" id="L343">        }</span>
         
         // Weekly statistics
 <span class="nc bnc" id="L346" title="All 2 branches missed.">        if (totalAppointments &gt; 0) {</span>

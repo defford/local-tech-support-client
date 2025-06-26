@@ -1035,3 +1035,119 @@ java.lang.NullPointerException: element cannot be mapped to a null key
 2025-06-25 23:00:00.393 [main] INFO  c.l.cli.client.TechSupportApiClient - TechSupportApiClient initialized with base URL: http://localhost:52576
 2025-06-25 23:00:00.402 [main] INFO  c.l.cli.client.TechSupportApiClient - TechSupportApiClient initialized with base URL: http://localhost:52577
 2025-06-25 23:00:00.406 [main] INFO  c.l.cli.client.TechSupportApiClient - TechSupportApiClient initialized with base URL: http://localhost:8080
+2025-06-25 23:15:38.160 [main] INFO  c.l.c.c.ClientTechnicianHistoryCommand - Executing client-technician-history command
+2025-06-25 23:15:38.468 [main] INFO  c.l.cli.client.TechSupportApiClient - TechSupportApiClient initialized with base URL: http://localhost:8080
+2025-06-25 23:15:38.469 [main] INFO  c.l.cli.service.ApiService - ApiService initialized with base URL: http://localhost:8080
+2025-06-25 23:15:39.170 [main] INFO  c.l.cli.service.ApiService - Successfully fetched 8 clients
+2025-06-25 23:15:39.284 [main] INFO  c.l.cli.service.ApiService - Successfully fetched 5 technicians
+2025-06-25 23:15:39.331 [main] INFO  c.l.cli.service.ApiService - Successfully fetched 17 tickets
+2025-06-25 23:15:39.353 [main] INFO  c.l.c.c.ClientTechnicianHistoryCommand - Client technician history command completed successfully
+2025-06-25 23:15:39.353 [main] INFO  c.l.cli.service.ApiService - Closing API service
+2025-06-25 23:15:48.643 [main] INFO  c.l.cli.command.ClientTicketsCommand - Executing client-tickets command
+2025-06-25 23:15:48.910 [main] INFO  c.l.cli.client.TechSupportApiClient - TechSupportApiClient initialized with base URL: http://localhost:8080
+2025-06-25 23:15:48.911 [main] INFO  c.l.cli.service.ApiService - ApiService initialized with base URL: http://localhost:8080
+2025-06-25 23:15:49.074 [main] INFO  c.l.cli.service.ApiService - Successfully fetched 8 clients
+2025-06-25 23:15:49.142 [main] INFO  c.l.cli.service.ApiService - Successfully fetched 4 tickets for client 1
+2025-06-25 23:15:49.153 [main] INFO  c.l.cli.service.ApiService - Successfully fetched 2 tickets for client 2
+2025-06-25 23:15:49.171 [main] INFO  c.l.cli.service.ApiService - Successfully fetched 2 tickets for client 3
+2025-06-25 23:15:49.181 [main] INFO  c.l.cli.service.ApiService - Successfully fetched 2 tickets for client 4
+2025-06-25 23:15:49.192 [main] INFO  c.l.cli.service.ApiService - Successfully fetched 2 tickets for client 5
+2025-06-25 23:15:49.203 [main] INFO  c.l.cli.service.ApiService - Successfully fetched 2 tickets for client 6
+2025-06-25 23:15:49.213 [main] INFO  c.l.cli.service.ApiService - Successfully fetched 1 tickets for client 7
+2025-06-25 23:15:49.226 [main] INFO  c.l.cli.service.ApiService - Successfully fetched 2 tickets for client 8
+2025-06-25 23:15:49.250 [main] INFO  c.l.cli.command.ClientTicketsCommand - Client tickets command completed successfully
+2025-06-25 23:15:49.251 [main] INFO  c.l.cli.service.ApiService - Closing API service
+2025-06-25 23:18:33.132 [main] INFO  c.l.cli.client.TechSupportApiClient - TechSupportApiClient initialized with base URL: http://localhost:53090
+2025-06-25 23:18:33.283 [main] INFO  c.l.cli.client.TechSupportApiClient - TechSupportApiClient initialized with base URL: http://localhost:53092
+2025-06-25 23:18:33.293 [main] INFO  c.l.cli.client.TechSupportApiClient - TechSupportApiClient initialized with base URL: http://localhost:53094
+2025-06-25 23:18:33.311 [main] INFO  c.l.cli.client.TechSupportApiClient - TechSupportApiClient initialized with base URL: http://localhost:53096
+2025-06-25 23:18:33.321 [main] INFO  c.l.cli.client.TechSupportApiClient - TechSupportApiClient initialized with base URL: http://localhost:53097
+2025-06-25 23:18:33.323 [main] INFO  c.l.cli.client.TechSupportApiClient - TechSupportApiClient initialized with base URL: http://localhost:8080
+2025-06-25 23:18:33.337 [main] INFO  c.l.cli.client.TechSupportApiClient - TechSupportApiClient initialized with base URL: http://localhost:53098
+2025-06-25 23:18:33.352 [main] ERROR c.l.cli.client.TechSupportApiClient - Unexpected error while calling http://localhost:53098/api/bad: API call failed with status 400: Bad request
+2025-06-25 23:18:33.364 [main] INFO  c.l.cli.client.TechSupportApiClient - TechSupportApiClient initialized with base URL: http://localhost:53100
+2025-06-25 23:18:33.371 [main] ERROR c.l.cli.client.TechSupportApiClient - Unexpected error while calling http://localhost:53100/api/nonexistent: API call failed with status 404: Resource not found
+2025-06-25 23:18:33.375 [main] INFO  c.l.cli.client.TechSupportApiClient - TechSupportApiClient initialized with base URL: http://localhost:53102
+2025-06-25 23:18:33.382 [main] ERROR c.l.cli.client.TechSupportApiClient - Network error while calling http://localhost:53102/api/test: Failed to connect to localhost/[0:0:0:0:0:0:0:1]:53102
+2025-06-25 23:18:33.385 [main] INFO  c.l.cli.client.TechSupportApiClient - TechSupportApiClient initialized with base URL: http://localhost:53105
+2025-06-25 23:18:33.488 [main] ERROR c.l.cli.client.TechSupportApiClient - Network error while calling http://localhost:53105/api/empty: No content to map due to end-of-input
+ at [Source: REDACTED (`StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION` disabled); line: 1]
+2025-06-25 23:18:33.635 [main] INFO  c.l.cli.client.TechSupportApiClient - TechSupportApiClient initialized with base URL: http://localhost:53107
+2025-06-25 23:18:33.769 [main] INFO  c.l.cli.client.TechSupportApiClient - TechSupportApiClient initialized with base URL: http://localhost:53108
+2025-06-25 23:18:33.876 [main] INFO  c.l.cli.client.TechSupportApiClient - TechSupportApiClient initialized with base URL: http://localhost:53110
+2025-06-25 23:31:12.232 [main] INFO  c.l.cli.client.TechSupportApiClient - TechSupportApiClient initialized with base URL: http://localhost:53389
+2025-06-25 23:31:12.385 [main] INFO  c.l.cli.client.TechSupportApiClient - TechSupportApiClient initialized with base URL: http://localhost:53391
+2025-06-25 23:31:12.397 [main] INFO  c.l.cli.client.TechSupportApiClient - TechSupportApiClient initialized with base URL: http://localhost:53393
+2025-06-25 23:31:12.409 [main] INFO  c.l.cli.client.TechSupportApiClient - TechSupportApiClient initialized with base URL: http://localhost:53395
+2025-06-25 23:31:12.413 [main] INFO  c.l.cli.client.TechSupportApiClient - TechSupportApiClient initialized with base URL: http://localhost:53396
+2025-06-25 23:31:12.414 [main] INFO  c.l.cli.client.TechSupportApiClient - TechSupportApiClient initialized with base URL: http://localhost:8080
+2025-06-25 23:31:12.420 [main] INFO  c.l.cli.client.TechSupportApiClient - TechSupportApiClient initialized with base URL: http://localhost:53397
+2025-06-25 23:31:12.426 [main] ERROR c.l.cli.client.TechSupportApiClient - Unexpected error while calling http://localhost:53397/api/bad: API call failed with status 400: Bad request
+2025-06-25 23:31:12.432 [main] INFO  c.l.cli.client.TechSupportApiClient - TechSupportApiClient initialized with base URL: http://localhost:53399
+2025-06-25 23:31:12.437 [main] ERROR c.l.cli.client.TechSupportApiClient - Unexpected error while calling http://localhost:53399/api/nonexistent: API call failed with status 404: Resource not found
+2025-06-25 23:31:12.442 [main] INFO  c.l.cli.client.TechSupportApiClient - TechSupportApiClient initialized with base URL: http://localhost:53401
+2025-06-25 23:31:12.451 [main] ERROR c.l.cli.client.TechSupportApiClient - Network error while calling http://localhost:53401/api/test: Failed to connect to localhost/[0:0:0:0:0:0:0:1]:53401
+2025-06-25 23:31:12.455 [main] INFO  c.l.cli.client.TechSupportApiClient - TechSupportApiClient initialized with base URL: http://localhost:53404
+2025-06-25 23:31:12.474 [main] ERROR c.l.cli.client.TechSupportApiClient - Network error while calling http://localhost:53404/api/empty: No content to map due to end-of-input
+ at [Source: REDACTED (`StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION` disabled); line: 1]
+2025-06-25 23:31:12.482 [main] INFO  c.l.cli.client.TechSupportApiClient - TechSupportApiClient initialized with base URL: http://localhost:53406
+2025-06-25 23:31:12.493 [main] INFO  c.l.cli.client.TechSupportApiClient - TechSupportApiClient initialized with base URL: http://localhost:53407
+2025-06-25 23:31:12.543 [main] INFO  c.l.cli.client.TechSupportApiClient - TechSupportApiClient initialized with base URL: http://localhost:53409
+2025-06-25 23:48:22.014 [main] INFO  c.l.c.command.InteractiveMenuCommand - Launching interactive menu system
+2025-06-25 23:48:22.345 [main] INFO  c.l.cli.client.TechSupportApiClient - TechSupportApiClient initialized with base URL: http://localhost:8080
+2025-06-25 23:48:22.345 [main] INFO  c.l.cli.service.ApiService - ApiService initialized with base URL: http://localhost:8080
+2025-06-25 23:48:22.347 [main] INFO  c.l.cli.menu.MenuManager - MenuManager initialized
+2025-06-25 23:48:22.347 [main] INFO  c.l.cli.menu.MenuManager - Starting interactive menu system
+2025-06-25 23:48:22.524 [main] INFO  c.l.c.command.InteractiveMenuCommand - Interactive menu system exited with code: 1
+2025-06-25 23:48:22.524 [main] INFO  c.l.cli.service.ApiService - Closing API service
+2025-06-25 23:49:48.943 [main] INFO  c.l.c.command.InteractiveMenuCommand - Launching interactive menu system
+2025-06-25 23:49:49.257 [main] INFO  c.l.cli.client.TechSupportApiClient - TechSupportApiClient initialized with base URL: http://localhost:8080
+2025-06-25 23:49:49.258 [main] INFO  c.l.cli.service.ApiService - ApiService initialized with base URL: http://localhost:8080
+2025-06-25 23:49:49.260 [main] INFO  c.l.cli.menu.MenuManager - MenuManager initialized
+2025-06-25 23:49:49.260 [main] INFO  c.l.cli.menu.MenuManager - Starting interactive menu system
+2025-06-25 23:49:49.578 [main] INFO  c.l.c.command.InteractiveMenuCommand - Interactive menu system exited with code: 1
+2025-06-25 23:49:49.579 [main] INFO  c.l.cli.service.ApiService - Closing API service
+2025-06-25 23:52:25.674 [main] INFO  c.l.c.command.InteractiveMenuCommand - Launching interactive menu system
+2025-06-25 23:52:25.977 [main] INFO  c.l.cli.client.TechSupportApiClient - TechSupportApiClient initialized with base URL: http://localhost:8080
+2025-06-25 23:52:25.978 [main] INFO  c.l.cli.service.ApiService - ApiService initialized with base URL: http://localhost:8080
+2025-06-25 23:52:25.980 [main] INFO  c.l.cli.menu.MenuManager - MenuManager initialized (demo mode: true)
+2025-06-25 23:52:25.980 [main] INFO  c.l.cli.menu.MenuManager - Starting interactive menu system
+2025-06-25 23:52:47.912 [main] INFO  c.l.c.command.InteractiveMenuCommand - Interactive menu system exited with code: 0
+2025-06-25 23:52:47.915 [main] INFO  c.l.cli.service.ApiService - Closing API service
+2025-06-25 23:53:08.947 [main] INFO  c.l.c.command.InteractiveMenuCommand - Launching interactive menu system
+2025-06-25 23:53:09.315 [main] INFO  c.l.cli.client.TechSupportApiClient - TechSupportApiClient initialized with base URL: http://localhost:8080
+2025-06-25 23:53:09.316 [main] INFO  c.l.cli.service.ApiService - ApiService initialized with base URL: http://localhost:8080
+2025-06-25 23:53:09.319 [main] INFO  c.l.cli.menu.MenuManager - MenuManager initialized (demo mode: true)
+2025-06-25 23:53:09.319 [main] INFO  c.l.cli.menu.MenuManager - Starting interactive menu system
+2025-06-25 23:53:09.331 [main] INFO  c.l.c.command.InteractiveMenuCommand - Interactive menu system exited with code: 0
+2025-06-25 23:53:09.331 [main] INFO  c.l.cli.service.ApiService - Closing API service
+2025-06-25 23:54:26.193 [main] INFO  c.l.c.c.ClientTechnicianHistoryCommand - Executing client-technician-history command
+2025-06-25 23:54:26.830 [main] INFO  c.l.cli.client.TechSupportApiClient - TechSupportApiClient initialized with base URL: http://localhost:8080
+2025-06-25 23:54:26.831 [main] INFO  c.l.cli.service.ApiService - ApiService initialized with base URL: http://localhost:8080
+2025-06-25 23:54:26.966 [main] INFO  c.l.cli.service.ApiService - Closing API service
+2025-06-25 23:55:19.814 [main] INFO  c.l.cli.command.ClientTicketsCommand - Executing client-tickets command
+2025-06-25 23:55:20.104 [main] INFO  c.l.cli.client.TechSupportApiClient - TechSupportApiClient initialized with base URL: http://localhost:8080
+2025-06-25 23:55:20.105 [main] INFO  c.l.cli.service.ApiService - ApiService initialized with base URL: http://localhost:8080
+2025-06-25 23:55:20.184 [main] INFO  c.l.cli.service.ApiService - Closing API service
+2025-06-25 23:55:48.139 [main] INFO  c.l.c.command.InteractiveMenuCommand - Launching interactive menu system
+2025-06-25 23:55:49.756 [main] INFO  c.l.cli.client.TechSupportApiClient - TechSupportApiClient initialized with base URL: http://localhost:8080
+2025-06-25 23:55:49.756 [main] INFO  c.l.cli.service.ApiService - ApiService initialized with base URL: http://localhost:8080
+2025-06-25 23:55:49.759 [main] INFO  c.l.cli.menu.MenuManager - MenuManager initialized
+2025-06-25 23:55:49.759 [main] INFO  c.l.cli.menu.MenuManager - Starting interactive menu system
+2025-06-25 23:56:06.925 [main] INFO  c.l.c.command.InteractiveMenuCommand - Interactive menu system exited with code: 0
+2025-06-25 23:56:06.926 [main] INFO  c.l.cli.service.ApiService - Closing API service
+2025-06-25 23:56:17.018 [main] INFO  c.l.c.c.ClientTechnicianHistoryCommand - Executing client-technician-history command
+2025-06-25 23:56:17.298 [main] INFO  c.l.cli.client.TechSupportApiClient - TechSupportApiClient initialized with base URL: http://localhost:8080
+2025-06-25 23:56:17.299 [main] INFO  c.l.cli.service.ApiService - ApiService initialized with base URL: http://localhost:8080
+2025-06-25 23:56:17.537 [main] INFO  c.l.cli.service.ApiService - Successfully fetched 8 clients
+2025-06-25 23:56:17.596 [main] INFO  c.l.cli.service.ApiService - Successfully fetched 5 technicians
+2025-06-25 23:56:17.676 [main] INFO  c.l.cli.service.ApiService - Successfully fetched 15 tickets
+2025-06-25 23:56:17.714 [main] INFO  c.l.c.c.ClientTechnicianHistoryCommand - Client technician history command completed successfully
+2025-06-25 23:56:17.715 [main] INFO  c.l.cli.service.ApiService - Closing API service
+2025-06-25 23:56:22.345 [main] INFO  c.l.c.command.InteractiveMenuCommand - Launching interactive menu system
+2025-06-25 23:56:24.754 [main] INFO  c.l.cli.client.TechSupportApiClient - TechSupportApiClient initialized with base URL: http://localhost:8080
+2025-06-25 23:56:24.755 [main] INFO  c.l.cli.service.ApiService - ApiService initialized with base URL: http://localhost:8080
+2025-06-25 23:56:24.757 [main] INFO  c.l.cli.menu.MenuManager - MenuManager initialized
+2025-06-25 23:56:24.757 [main] INFO  c.l.cli.menu.MenuManager - Starting interactive menu system
+2025-06-25 23:56:29.077 [main] INFO  c.l.c.command.InteractiveMenuCommand - Interactive menu system exited with code: 0
+2025-06-25 23:56:29.078 [main] INFO  c.l.cli.service.ApiService - Closing API service
