@@ -3,6 +3,7 @@ package com.localtechsupport.cli.util;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,6 +23,7 @@ public class JsonFormatter {
         objectMapper = new ObjectMapper();
         objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
         objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+        objectMapper.registerModule(new JavaTimeModule());
     }
 
     /**
@@ -47,7 +49,9 @@ public class JsonFormatter {
      */
     public static String toCompactJsonString(Object object) {
         try {
-            ObjectMapper compactMapper = new ObjectMapper();
+            ObjectMapper compactMapper = new ObjectMapper()
+                .registerModule(new JavaTimeModule())
+                .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
             return compactMapper.writeValueAsString(object);
         } catch (JsonProcessingException e) {
             logger.error("Error converting object to compact JSON: {}", e.getMessage());
