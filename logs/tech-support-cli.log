@@ -999,3 +999,39 @@ java.lang.NullPointerException: element cannot be mapped to a null key
 2025-06-25 22:19:11.693 [main] INFO  c.l.cli.service.ApiService - Successfully fetched 17 tickets
 2025-06-25 22:19:11.711 [main] INFO  c.l.c.c.TechnicianFeedbackCommand - Technician feedback command completed successfully
 2025-06-25 22:19:11.712 [main] INFO  c.l.cli.service.ApiService - Closing API service
+2025-06-25 22:54:39.978 [main] INFO  c.l.cli.client.TechSupportApiClient - TechSupportApiClient initialized with base URL: http://localhost:52387
+2025-06-25 22:54:40.107 [main] INFO  c.l.cli.client.TechSupportApiClient - TechSupportApiClient initialized with base URL: http://localhost:52388
+2025-06-25 22:54:40.283 [main] INFO  c.l.cli.client.TechSupportApiClient - TechSupportApiClient initialized with base URL: http://localhost:52390
+2025-06-25 22:54:40.297 [main] INFO  c.l.cli.client.TechSupportApiClient - TechSupportApiClient initialized with base URL: http://localhost:52392
+2025-06-25 22:54:40.316 [main] INFO  c.l.cli.client.TechSupportApiClient - TechSupportApiClient initialized with base URL: http://localhost:52394
+2025-06-25 22:54:40.323 [main] ERROR c.l.cli.client.TechSupportApiClient - Unexpected error while calling http://localhost:52394/api/bad: API call failed with status 400: Bad request
+2025-06-25 22:54:40.331 [main] INFO  c.l.cli.client.TechSupportApiClient - TechSupportApiClient initialized with base URL: http://localhost:52396
+2025-06-25 22:54:40.345 [main] ERROR c.l.cli.client.TechSupportApiClient - Unexpected error while calling http://localhost:52396/api/nonexistent: API call failed with status 404: Resource not found
+2025-06-25 22:54:40.360 [main] INFO  c.l.cli.client.TechSupportApiClient - TechSupportApiClient initialized with base URL: http://localhost:52398
+2025-06-25 22:54:40.381 [main] ERROR c.l.cli.client.TechSupportApiClient - Network error while calling http://localhost:52398/api/test: Failed to connect to localhost/[0:0:0:0:0:0:0:1]:52398
+2025-06-25 22:54:40.390 [main] INFO  c.l.cli.client.TechSupportApiClient - TechSupportApiClient initialized with base URL: http://localhost:52401
+2025-06-25 22:54:40.425 [main] ERROR c.l.cli.client.TechSupportApiClient - Network error while calling http://localhost:52401/api/empty: No content to map due to end-of-input
+ at [Source: REDACTED (`StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION` disabled); line: 1]
+2025-06-25 22:54:40.437 [main] INFO  c.l.cli.client.TechSupportApiClient - TechSupportApiClient initialized with base URL: http://localhost:52403
+2025-06-25 22:54:40.535 [main] INFO  c.l.cli.client.TechSupportApiClient - TechSupportApiClient initialized with base URL: http://localhost:52405
+2025-06-25 22:54:40.638 [main] INFO  c.l.cli.client.TechSupportApiClient - TechSupportApiClient initialized with base URL: http://localhost:52407
+2025-06-25 22:54:40.649 [main] INFO  c.l.cli.client.TechSupportApiClient - TechSupportApiClient initialized with base URL: http://localhost:52408
+2025-06-25 22:54:40.651 [main] INFO  c.l.cli.client.TechSupportApiClient - TechSupportApiClient initialized with base URL: http://localhost:8080
+2025-06-25 22:59:59.597 [main] INFO  c.l.cli.client.TechSupportApiClient - TechSupportApiClient initialized with base URL: http://localhost:52556
+2025-06-25 22:59:59.872 [main] INFO  c.l.cli.client.TechSupportApiClient - TechSupportApiClient initialized with base URL: http://localhost:52557
+2025-06-25 23:00:00.123 [main] INFO  c.l.cli.client.TechSupportApiClient - TechSupportApiClient initialized with base URL: http://localhost:52559
+2025-06-25 23:00:00.137 [main] INFO  c.l.cli.client.TechSupportApiClient - TechSupportApiClient initialized with base URL: http://localhost:52561
+2025-06-25 23:00:00.167 [main] INFO  c.l.cli.client.TechSupportApiClient - TechSupportApiClient initialized with base URL: http://localhost:52563
+2025-06-25 23:00:00.180 [main] ERROR c.l.cli.client.TechSupportApiClient - Unexpected error while calling http://localhost:52563/api/bad: API call failed with status 400: Bad request
+2025-06-25 23:00:00.194 [main] INFO  c.l.cli.client.TechSupportApiClient - TechSupportApiClient initialized with base URL: http://localhost:52565
+2025-06-25 23:00:00.200 [main] ERROR c.l.cli.client.TechSupportApiClient - Unexpected error while calling http://localhost:52565/api/nonexistent: API call failed with status 404: Resource not found
+2025-06-25 23:00:00.207 [main] INFO  c.l.cli.client.TechSupportApiClient - TechSupportApiClient initialized with base URL: http://localhost:52567
+2025-06-25 23:00:00.231 [main] ERROR c.l.cli.client.TechSupportApiClient - Network error while calling http://localhost:52567/api/test: Failed to connect to localhost/[0:0:0:0:0:0:0:1]:52567
+2025-06-25 23:00:00.237 [main] INFO  c.l.cli.client.TechSupportApiClient - TechSupportApiClient initialized with base URL: http://localhost:52570
+2025-06-25 23:00:00.261 [main] ERROR c.l.cli.client.TechSupportApiClient - Network error while calling http://localhost:52570/api/empty: No content to map due to end-of-input
+ at [Source: REDACTED (`StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION` disabled); line: 1]
+2025-06-25 23:00:00.270 [main] INFO  c.l.cli.client.TechSupportApiClient - TechSupportApiClient initialized with base URL: http://localhost:52572
+2025-06-25 23:00:00.318 [main] INFO  c.l.cli.client.TechSupportApiClient - TechSupportApiClient initialized with base URL: http://localhost:52574
+2025-06-25 23:00:00.393 [main] INFO  c.l.cli.client.TechSupportApiClient - TechSupportApiClient initialized with base URL: http://localhost:52576
+2025-06-25 23:00:00.402 [main] INFO  c.l.cli.client.TechSupportApiClient - TechSupportApiClient initialized with base URL: http://localhost:52577
+2025-06-25 23:00:00.406 [main] INFO  c.l.cli.client.TechSupportApiClient - TechSupportApiClient initialized with base URL: http://localhost:8080

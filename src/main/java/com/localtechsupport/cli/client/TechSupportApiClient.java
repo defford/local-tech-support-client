@@ -164,7 +164,7 @@ public class TechSupportApiClient {
     public boolean testConnection() {
         try {
             Request request = new Request.Builder()
-                .url(baseUrl + "/api/clients")
+                .url(baseUrl + "/actuator/health")
                 .header("Accept", "application/json")
                 .build();
 

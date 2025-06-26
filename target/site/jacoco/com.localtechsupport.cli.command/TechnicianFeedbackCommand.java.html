@@ -1,0 +1,475 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TechnicianFeedbackCommand.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Local Tech Support CLI Client</a> &gt; <a href="index.source.html" class="el_package">com.localtechsupport.cli.command</a> &gt; <span class="el_source">TechnicianFeedbackCommand.java</span></div><h1>TechnicianFeedbackCommand.java</h1><pre class="source lang-java linenums">package com.localtechsupport.cli.command;
+
+import com.localtechsupport.cli.CliApplication;
+import com.localtechsupport.cli.service.ApiService;
+import com.localtechsupport.cli.model.Technician;
+import com.localtechsupport.cli.model.Ticket;
+import com.localtechsupport.cli.client.ApiException;
+import com.localtechsupport.cli.util.JsonFormatter;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.ParentCommand;
+import picocli.CommandLine.Option;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.concurrent.Callable;
+import java.util.stream.Collectors;
+
+/**
+ * Command to display feedback ratings for each technician
+ * 
+ * This command answers the question: &quot;Show feedback ratings for each technician&quot;
+ * It analyzes completed tickets to extract feedback information and ratings.
+ */
+@Command(
+    name = &quot;technician-feedback&quot;,
+    description = &quot;Show feedback ratings for each technician&quot;,
+    mixinStandardHelpOptions = true
+)
+<span class="nc" id="L34">public class TechnicianFeedbackCommand implements Callable&lt;Integer&gt; {</span>
+
+<span class="nc" id="L36">    private static final Logger logger = LoggerFactory.getLogger(TechnicianFeedbackCommand.class);</span>
+
+    @ParentCommand
+    private CliApplication parent;
+
+    @Option(
+        names = {&quot;-t&quot;, &quot;--technician-id&quot;},
+        description = &quot;Filter by specific technician ID&quot;
+    )
+    private Long technicianId;
+
+    @Option(
+        names = {&quot;--days-back&quot;},
+        description = &quot;Look back this many days (default: 90)&quot;,
+        defaultValue = &quot;90&quot;
+    )
+    private int daysBack;
+
+    @Option(
+        names = {&quot;--min-feedback&quot;},
+        description = &quot;Show only technicians with at least this many feedback entries (default: 1)&quot;,
+        defaultValue = &quot;1&quot;
+    )
+    private int minFeedback;
+
+    @Option(
+        names = {&quot;--sort-by&quot;},
+        description = &quot;Sort by: rating, name, feedback-count (default: rating)&quot;,
+        defaultValue = &quot;rating&quot;
+    )
+    private String sortBy;
+
+    @Override
+    public Integer call() {
+<span class="nc" id="L70">        logger.info(&quot;Executing technician-feedback command&quot;);</span>
+        
+        try {
+            // Get configuration from parent
+<span class="nc" id="L74">            String serverUrl = parent.getServerUrl();</span>
+<span class="nc" id="L75">            String outputFormat = parent.getOutputFormat();</span>
+<span class="nc" id="L76">            boolean verbose = parent.isVerbose();</span>
+            
+<span class="nc bnc" id="L78" title="All 2 branches missed.">            if (verbose) {</span>
+<span class="nc" id="L79">                System.out.println(&quot;🔍 Connecting to server: &quot; + serverUrl);</span>
+<span class="nc" id="L80">                System.out.println(&quot;⭐ Analyzing technician feedback...&quot;);</span>
+            }
+
+            // Create API service and fetch data
+<span class="nc" id="L84">            try (ApiService apiService = new ApiService(serverUrl)) {</span>
+                
+                // Test connection first
+<span class="nc bnc" id="L87" title="All 2 branches missed.">                if (!apiService.testConnection()) {</span>
+<span class="nc" id="L88">                    System.err.println(&quot;❌ Cannot connect to server: &quot; + serverUrl);</span>
+<span class="nc" id="L89">                    System.err.println(&quot;   Please check that the Local Tech Support Server is running.&quot;);</span>
+<span class="nc" id="L90">                    return 1;</span>
+                }
+
+                // Fetch feedback data
+<span class="nc" id="L94">                Map&lt;Technician, TechnicianFeedbackInfo&gt; feedbackData = fetchTechnicianFeedback(apiService, verbose);</span>
+                
+<span class="nc bnc" id="L96" title="All 2 branches missed.">                if (verbose) {</span>
+<span class="nc" id="L97">                    System.out.println(&quot;✅ Successfully analyzed technician feedback&quot;);</span>
+                }
+
+                // Format and display output
+<span class="nc" id="L101">                String output = formatOutput(feedbackData, outputFormat, serverUrl);</span>
+<span class="nc" id="L102">                System.out.println(output);</span>
+                
+<span class="nc" id="L104">                logger.info(&quot;Technician feedback command completed successfully&quot;);</span>
+<span class="nc" id="L105">                return 0;</span>
+
+<span class="nc" id="L107">            } catch (ApiException e) {</span>
+<span class="nc" id="L108">                logger.error(&quot;API error in technician-feedback command: {}&quot;, e.getMessage());</span>
+                
+<span class="nc" id="L110">                System.err.println(&quot;❌ API Error: &quot; + e.getUserFriendlyMessage());</span>
+                
+<span class="nc bnc" id="L112" title="All 2 branches missed.">                if (verbose) {</span>
+<span class="nc" id="L113">                    System.err.println(&quot;   Status Code: &quot; + e.getStatusCode());</span>
+<span class="nc" id="L114">                    System.err.println(&quot;   Server: &quot; + serverUrl);</span>
+                }
+                
+<span class="nc" id="L117">                return 1;</span>
+            }
+
+<span class="nc" id="L120">        } catch (Exception e) {</span>
+<span class="nc" id="L121">            logger.error(&quot;Unexpected error in technician-feedback command: {}&quot;, e.getMessage(), e);</span>
+            
+<span class="nc" id="L123">            System.err.println(&quot;❌ Unexpected error: &quot; + e.getMessage());</span>
+            
+<span class="nc bnc" id="L125" title="All 2 branches missed.">            if (parent.isVerbose()) {</span>
+<span class="nc" id="L126">                e.printStackTrace();</span>
+            }
+            
+<span class="nc" id="L129">            return 1;</span>
+        }
+    }
+
+    /**
+     * Fetch and analyze technician feedback from completed tickets
+     */
+    private Map&lt;Technician, TechnicianFeedbackInfo&gt; fetchTechnicianFeedback(ApiService apiService, boolean verbose) throws ApiException {
+<span class="nc" id="L137">        Map&lt;Technician, TechnicianFeedbackInfo&gt; feedbackData = new HashMap&lt;&gt;();</span>
+        
+        // Get all data
+<span class="nc" id="L140">        List&lt;Technician&gt; allTechnicians = apiService.getAllTechnicians();</span>
+<span class="nc" id="L141">        List&lt;Ticket&gt; allTickets = apiService.getAllTickets();</span>
+        
+        // Create technician lookup map
+<span class="nc" id="L144">        Map&lt;Long, Technician&gt; technicianMap = allTechnicians.stream()</span>
+<span class="nc" id="L145">            .collect(Collectors.toMap(Technician::getId, t -&gt; t));</span>
+        
+        // Filter tickets by time range and completion status
+<span class="nc" id="L148">        LocalDateTime cutoffDate = LocalDateTime.now().minusDays(daysBack);</span>
+<span class="nc" id="L149">        List&lt;Ticket&gt; relevantTickets = allTickets.stream()</span>
+<span class="nc" id="L150">            .filter(ticket -&gt; &quot;CLOSED&quot;.equalsIgnoreCase(ticket.getStatus())) // Only completed tickets</span>
+<span class="nc bnc" id="L151" title="All 4 branches missed.">            .filter(ticket -&gt; ticket.getCreatedAt() != null &amp;&amp; ticket.getCreatedAt().isAfter(cutoffDate)) // Use createdAt since resolvedAt is null</span>
+<span class="nc bnc" id="L152" title="All 4 branches missed.">            .filter(ticket -&gt; ticket.getAssignedTechnician() != null || ticket.getAssignedTechnicianId() != null) // Check both</span>
+<span class="nc" id="L153">            .collect(Collectors.toList());</span>
+        
+<span class="nc bnc" id="L155" title="All 2 branches missed.">        if (verbose) {</span>
+<span class="nc" id="L156">            System.out.println(&quot;📊 Analyzing &quot; + relevantTickets.size() + &quot; completed tickets...&quot;);</span>
+        }
+        
+        // Build feedback information
+<span class="nc bnc" id="L160" title="All 2 branches missed.">        for (Ticket ticket : relevantTickets) {</span>
+            // Get technician - try assignedTechnician object first, then assignedTechnicianId
+<span class="nc" id="L162">            Technician technician = ticket.getAssignedTechnician();</span>
+<span class="nc bnc" id="L163" title="All 4 branches missed.">            if (technician == null &amp;&amp; ticket.getAssignedTechnicianId() != null) {</span>
+<span class="nc" id="L164">                technician = technicianMap.get(ticket.getAssignedTechnicianId());</span>
+            }
+            
+<span class="nc bnc" id="L167" title="All 2 branches missed.">            if (technician == null) {</span>
+<span class="nc" id="L168">                continue; // Skip if technician not found</span>
+            }
+            
+            // Apply filters
+<span class="nc bnc" id="L172" title="All 4 branches missed.">            if (technicianId != null &amp;&amp; !technician.getId().equals(technicianId)) {</span>
+<span class="nc" id="L173">                continue;</span>
+            }
+            
+<span class="nc" id="L176">            final Technician finalTechnician = technician; // Make final for lambda</span>
+<span class="nc" id="L177">            feedbackData.computeIfAbsent(finalTechnician, k -&gt; new TechnicianFeedbackInfo(finalTechnician));</span>
+<span class="nc" id="L178">            TechnicianFeedbackInfo feedbackInfo = feedbackData.get(finalTechnician);</span>
+            
+            // Add this ticket to the feedback analysis
+<span class="nc" id="L181">            feedbackInfo.addCompletedTicket(ticket);</span>
+        }
+        
+        // Filter by minimum feedback count and sort
+<span class="nc" id="L185">        return feedbackData.entrySet().stream()</span>
+<span class="nc bnc" id="L186" title="All 2 branches missed.">            .filter(entry -&gt; entry.getValue().getCompletedTicketCount() &gt;= minFeedback)</span>
+<span class="nc" id="L187">            .sorted((e1, e2) -&gt; {</span>
+<span class="nc bnc" id="L188" title="All 3 branches missed.">                switch (sortBy.toLowerCase()) {</span>
+                    case &quot;name&quot;:
+<span class="nc" id="L190">                        return e1.getKey().getFullName().compareToIgnoreCase(e2.getKey().getFullName());</span>
+                    case &quot;feedback-count&quot;:
+<span class="nc" id="L192">                        return Integer.compare(e2.getValue().getCompletedTicketCount(), e1.getValue().getCompletedTicketCount());</span>
+                    case &quot;rating&quot;:
+                    default:
+<span class="nc" id="L195">                        return Double.compare(e2.getValue().getAverageRating(), e1.getValue().getAverageRating());</span>
+                }
+            })
+<span class="nc" id="L198">            .collect(Collectors.toMap(</span>
+<span class="nc" id="L199">                Map.Entry::getKey,</span>
+<span class="nc" id="L200">                Map.Entry::getValue,</span>
+<span class="nc" id="L201">                (e1, e2) -&gt; e1,</span>
+<span class="nc" id="L202">                java.util.LinkedHashMap::new</span>
+            ));
+    }
+
+    /**
+     * Format the output based on the requested format
+     */
+    private String formatOutput(Map&lt;Technician, TechnicianFeedbackInfo&gt; feedbackData, String format, String serverUrl) {
+<span class="nc" id="L210">        String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern(&quot;yyyy-MM-dd HH:mm:ss&quot;));</span>
+        
+<span class="nc bnc" id="L212" title="All 3 branches missed.">        switch (format.toLowerCase()) {</span>
+            case &quot;json&quot;:
+<span class="nc" id="L214">                return JsonFormatter.withMetadata(</span>
+<span class="nc" id="L215">                    &quot;Technician Feedback Report&quot;, </span>
+<span class="nc" id="L216">                    feedbackData, </span>
+<span class="nc" id="L217">                    serverUrl, </span>
+<span class="nc" id="L218">                    timestamp</span>
+                );
+                
+            case &quot;table&quot;:
+<span class="nc" id="L222">                return formatAsTable(feedbackData, serverUrl, timestamp);</span>
+                
+            default:
+                // Default to JSON
+<span class="nc" id="L226">                return JsonFormatter.withHeader(&quot;Technician Feedback Report&quot;, </span>
+<span class="nc" id="L227">                                              JsonFormatter.toPrettyJsonString(feedbackData));</span>
+        }
+    }
+
+    /**
+     * Format as a readable table
+     */
+    private String formatAsTable(Map&lt;Technician, TechnicianFeedbackInfo&gt; feedbackData, String serverUrl, String timestamp) {
+<span class="nc" id="L235">        StringBuilder output = new StringBuilder();</span>
+        
+        // Header
+<span class="nc" id="L238">        output.append(&quot;=&quot;.repeat(100)).append(&quot;\n&quot;);</span>
+<span class="nc" id="L239">        output.append(&quot;⭐ TECHNICIAN FEEDBACK REPORT&quot;).append(&quot;\n&quot;);</span>
+<span class="nc" id="L240">        output.append(&quot;=&quot;.repeat(100)).append(&quot;\n&quot;);</span>
+<span class="nc" id="L241">        output.append(String.format(&quot;Server: %s&quot;, serverUrl)).append(&quot;\n&quot;);</span>
+<span class="nc" id="L242">        output.append(String.format(&quot;Timestamp: %s&quot;, timestamp)).append(&quot;\n&quot;);</span>
+<span class="nc" id="L243">        output.append(String.format(&quot;Time Range: Last %d days&quot;, daysBack)).append(&quot;\n&quot;);</span>
+<span class="nc" id="L244">        output.append(String.format(&quot;Min Feedback: %d completed tickets&quot;, minFeedback)).append(&quot;\n&quot;);</span>
+<span class="nc" id="L245">        output.append(String.format(&quot;Sort Order: %s&quot;, sortBy)).append(&quot;\n&quot;);</span>
+        
+        // Add filters info if applied
+<span class="nc bnc" id="L248" title="All 2 branches missed.">        if (technicianId != null) {</span>
+<span class="nc" id="L249">            output.append(String.format(&quot;Filter: Technician ID = %d&quot;, technicianId)).append(&quot;\n&quot;);</span>
+        }
+        
+<span class="nc" id="L252">        output.append(&quot;-&quot;.repeat(100)).append(&quot;\n\n&quot;);</span>
+        
+<span class="nc bnc" id="L254" title="All 2 branches missed.">        if (feedbackData.isEmpty()) {</span>
+<span class="nc" id="L255">            output.append(&quot;📭 No technician feedback found for the specified criteria.\n\n&quot;);</span>
+<span class="nc" id="L256">            return output.toString();</span>
+        }
+        
+        // Summary statistics
+<span class="nc" id="L260">        int totalTechnicians = feedbackData.size();</span>
+<span class="nc" id="L261">        int totalCompletedTickets = feedbackData.values().stream()</span>
+<span class="nc" id="L262">            .mapToInt(TechnicianFeedbackInfo::getCompletedTicketCount)</span>
+<span class="nc" id="L263">            .sum();</span>
+<span class="nc" id="L264">        double overallAverageRating = feedbackData.values().stream()</span>
+<span class="nc" id="L265">            .mapToDouble(TechnicianFeedbackInfo::getAverageRating)</span>
+<span class="nc" id="L266">            .average()</span>
+<span class="nc" id="L267">            .orElse(0.0);</span>
+            
+<span class="nc" id="L269">        output.append(String.format(&quot;📊 Summary: %d technicians, %d completed tickets, %.1f overall avg rating\n\n&quot;, </span>
+<span class="nc" id="L270">            totalTechnicians, totalCompletedTickets, overallAverageRating));</span>
+        
+        // Technician feedback table
+<span class="nc" id="L273">        output.append(String.format(&quot;%-25s %-10s %-12s %-15s %-15s %s\n&quot;, </span>
+<span class="nc" id="L274">            &quot;Technician&quot;, &quot;Rating&quot;, &quot;Completed&quot;, &quot;Avg Resolution&quot;, &quot;Performance&quot;, &quot;Strengths&quot;));</span>
+<span class="nc" id="L275">        output.append(&quot;-&quot;.repeat(100)).append(&quot;\n&quot;);</span>
+        
+<span class="nc bnc" id="L277" title="All 2 branches missed.">        for (Map.Entry&lt;Technician, TechnicianFeedbackInfo&gt; entry : feedbackData.entrySet()) {</span>
+<span class="nc" id="L278">            Technician technician = entry.getKey();</span>
+<span class="nc" id="L279">            TechnicianFeedbackInfo feedback = entry.getValue();</span>
+            
+<span class="nc" id="L281">            String ratingEmoji = getRatingEmoji(feedback.getAverageRating());</span>
+<span class="nc" id="L282">            String performanceLevel = getPerformanceLevel(feedback.getAverageRating());</span>
+<span class="nc" id="L283">            String avgResolutionTime = String.format(&quot;%.1f hrs&quot;, feedback.getAverageResolutionTimeHours());</span>
+<span class="nc" id="L284">            String strengths = String.join(&quot;, &quot;, feedback.getTopServiceTypes().subList(0, Math.min(2, feedback.getTopServiceTypes().size())));</span>
+            
+<span class="nc" id="L286">            output.append(String.format(&quot;%-25s %s%-9.1f %-12d %-15s %-15s %s\n&quot;,</span>
+<span class="nc" id="L287">                truncate(technician.getFullName(), 24),</span>
+<span class="nc" id="L288">                ratingEmoji,</span>
+<span class="nc" id="L289">                feedback.getAverageRating(),</span>
+<span class="nc" id="L290">                feedback.getCompletedTicketCount(),</span>
+<span class="nc" id="L291">                avgResolutionTime,</span>
+<span class="nc" id="L292">                performanceLevel,</span>
+<span class="nc" id="L293">                strengths</span>
+            ));
+        }
+        
+<span class="nc" id="L297">        output.append(&quot;-&quot;.repeat(100)).append(&quot;\n\n&quot;);</span>
+        
+        // Performance analysis
+<span class="nc" id="L300">        output.append(&quot;📈 Performance Analysis:\n&quot;);</span>
+        
+        // Top performers
+<span class="nc" id="L303">        List&lt;Map.Entry&lt;Technician, TechnicianFeedbackInfo&gt;&gt; topPerformers = feedbackData.entrySet().stream()</span>
+<span class="nc bnc" id="L304" title="All 2 branches missed.">            .filter(entry -&gt; entry.getValue().getAverageRating() &gt;= 4.5)</span>
+<span class="nc" id="L305">            .limit(3)</span>
+<span class="nc" id="L306">            .collect(Collectors.toList());</span>
+        
+<span class="nc bnc" id="L308" title="All 2 branches missed.">        if (!topPerformers.isEmpty()) {</span>
+<span class="nc" id="L309">            output.append(&quot;   🏆 Top Performers (≥4.5 rating):\n&quot;);</span>
+<span class="nc bnc" id="L310" title="All 2 branches missed.">            for (Map.Entry&lt;Technician, TechnicianFeedbackInfo&gt; entry : topPerformers) {</span>
+<span class="nc" id="L311">                output.append(String.format(&quot;     • %s: %.1f ⭐ (%d completed)\n&quot;,</span>
+<span class="nc" id="L312">                    entry.getKey().getFullName(),</span>
+<span class="nc" id="L313">                    entry.getValue().getAverageRating(),</span>
+<span class="nc" id="L314">                    entry.getValue().getCompletedTicketCount()</span>
+                ));
+            }
+        }
+        
+        // Areas for improvement
+<span class="nc" id="L320">        List&lt;Map.Entry&lt;Technician, TechnicianFeedbackInfo&gt;&gt; needsImprovement = feedbackData.entrySet().stream()</span>
+<span class="nc bnc" id="L321" title="All 2 branches missed.">            .filter(entry -&gt; entry.getValue().getAverageRating() &lt; 3.5)</span>
+<span class="nc" id="L322">            .limit(3)</span>
+<span class="nc" id="L323">            .collect(Collectors.toList());</span>
+        
+<span class="nc bnc" id="L325" title="All 2 branches missed.">        if (!needsImprovement.isEmpty()) {</span>
+<span class="nc" id="L326">            output.append(&quot;   📚 Areas for Improvement (&lt;3.5 rating):\n&quot;);</span>
+<span class="nc bnc" id="L327" title="All 2 branches missed.">            for (Map.Entry&lt;Technician, TechnicianFeedbackInfo&gt; entry : needsImprovement) {</span>
+<span class="nc" id="L328">                output.append(String.format(&quot;     • %s: %.1f ⭐ (%d completed)\n&quot;,</span>
+<span class="nc" id="L329">                    entry.getKey().getFullName(),</span>
+<span class="nc" id="L330">                    entry.getValue().getAverageRating(),</span>
+<span class="nc" id="L331">                    entry.getValue().getCompletedTicketCount()</span>
+                ));
+            }
+        }
+        
+        // Service type performance
+<span class="nc" id="L337">        Map&lt;String, Double&gt; serviceTypeRatings = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L338">        Map&lt;String, Integer&gt; serviceTypeCounts = new HashMap&lt;&gt;();</span>
+        
+<span class="nc bnc" id="L340" title="All 2 branches missed.">        for (TechnicianFeedbackInfo feedback : feedbackData.values()) {</span>
+<span class="nc" id="L341">            feedback.getServiceTypeRatings().forEach((serviceType, rating) -&gt; {</span>
+<span class="nc" id="L342">                serviceTypeRatings.merge(serviceType, rating, Double::sum);</span>
+<span class="nc" id="L343">                serviceTypeCounts.merge(serviceType, 1, Integer::sum);</span>
+<span class="nc" id="L344">            });</span>
+        }
+        
+<span class="nc bnc" id="L347" title="All 2 branches missed.">        if (!serviceTypeRatings.isEmpty()) {</span>
+<span class="nc" id="L348">            output.append(&quot;\n   🔧 Service Type Performance:\n&quot;);</span>
+<span class="nc" id="L349">            serviceTypeRatings.forEach((serviceType, totalRating) -&gt; {</span>
+<span class="nc" id="L350">                double avgRating = totalRating / serviceTypeCounts.get(serviceType);</span>
+<span class="nc" id="L351">                output.append(String.format(&quot;     • %s: %.1f ⭐ (%d technicians)\n&quot;,</span>
+<span class="nc" id="L352">                    serviceType, avgRating, serviceTypeCounts.get(serviceType)));</span>
+<span class="nc" id="L353">            });</span>
+        }
+        
+<span class="nc" id="L356">        return output.toString();</span>
+    }
+    
+    /**
+     * Get emoji for rating level
+     */
+    private String getRatingEmoji(double rating) {
+<span class="nc bnc" id="L363" title="All 2 branches missed.">        if (rating &gt;= 4.5) return &quot;⭐&quot;;</span>
+<span class="nc bnc" id="L364" title="All 2 branches missed.">        if (rating &gt;= 4.0) return &quot;🌟&quot;;</span>
+<span class="nc bnc" id="L365" title="All 2 branches missed.">        if (rating &gt;= 3.5) return &quot;✨&quot;;</span>
+<span class="nc bnc" id="L366" title="All 2 branches missed.">        if (rating &gt;= 3.0) return &quot;⚡&quot;;</span>
+<span class="nc" id="L367">        return &quot;🔧&quot;;</span>
+    }
+    
+    /**
+     * Get performance level description
+     */
+    private String getPerformanceLevel(double rating) {
+<span class="nc bnc" id="L374" title="All 2 branches missed.">        if (rating &gt;= 4.5) return &quot;Excellent&quot;;</span>
+<span class="nc bnc" id="L375" title="All 2 branches missed.">        if (rating &gt;= 4.0) return &quot;Very Good&quot;;</span>
+<span class="nc bnc" id="L376" title="All 2 branches missed.">        if (rating &gt;= 3.5) return &quot;Good&quot;;</span>
+<span class="nc bnc" id="L377" title="All 2 branches missed.">        if (rating &gt;= 3.0) return &quot;Satisfactory&quot;;</span>
+<span class="nc" id="L378">        return &quot;Needs Work&quot;;</span>
+    }
+    
+    /**
+     * Truncate string to specified length
+     */
+    private String truncate(String str, int maxLength) {
+<span class="nc bnc" id="L385" title="All 2 branches missed.">        if (str == null) return &quot;&quot;;</span>
+<span class="nc bnc" id="L386" title="All 2 branches missed.">        return str.length() &lt;= maxLength ? str : str.substring(0, maxLength - 3) + &quot;...&quot;;</span>
+    }
+
+    /**
+     * Inner class to track technician feedback information
+     */
+    public static class TechnicianFeedbackInfo {
+        private final Technician technician;
+<span class="nc" id="L394">        private final List&lt;Ticket&gt; completedTickets = new java.util.ArrayList&lt;&gt;();</span>
+        
+<span class="nc" id="L396">        public TechnicianFeedbackInfo(Technician technician) {</span>
+<span class="nc" id="L397">            this.technician = technician;</span>
+<span class="nc" id="L398">        }</span>
+        
+        public void addCompletedTicket(Ticket ticket) {
+<span class="nc" id="L401">            completedTickets.add(ticket);</span>
+<span class="nc" id="L402">        }</span>
+        
+        public int getCompletedTicketCount() {
+<span class="nc" id="L405">            return completedTickets.size();</span>
+        }
+        
+        // Simulate rating calculation based on ticket completion metrics
+        public double getAverageRating() {
+<span class="nc bnc" id="L410" title="All 2 branches missed.">            if (completedTickets.isEmpty()) return 0.0;</span>
+            
+            // Simulate rating based on resolution time and other factors
+<span class="nc" id="L413">            double totalRating = 0.0;</span>
+<span class="nc bnc" id="L414" title="All 2 branches missed.">            for (Ticket ticket : completedTickets) {</span>
+<span class="nc" id="L415">                double rating = calculateTicketRating(ticket);</span>
+<span class="nc" id="L416">                totalRating += rating;</span>
+            }
+<span class="nc" id="L418">            return totalRating / completedTickets.size();</span>
+        }
+        
+        private double calculateTicketRating(Ticket ticket) {
+            // Simulate rating calculation (in real system, this would come from actual feedback)
+<span class="nc" id="L423">            double baseRating = 4.0;</span>
+            
+            // Adjust based on resolution time
+<span class="nc bnc" id="L426" title="All 4 branches missed.">            if (ticket.getCreatedAt() != null &amp;&amp; ticket.getResolvedAt() != null) {</span>
+<span class="nc" id="L427">                long hoursToResolve = java.time.Duration.between(ticket.getCreatedAt(), ticket.getResolvedAt()).toHours();</span>
+<span class="nc bnc" id="L428" title="All 2 branches missed.">                if (hoursToResolve &lt;= 4) baseRating += 1.0;</span>
+<span class="nc bnc" id="L429" title="All 2 branches missed.">                else if (hoursToResolve &lt;= 24) baseRating += 0.5;</span>
+<span class="nc bnc" id="L430" title="All 2 branches missed.">                else if (hoursToResolve &gt; 72) baseRating -= 0.5;</span>
+            }
+            
+            // Adjust based on priority
+<span class="nc bnc" id="L434" title="All 4 branches missed.">            if (&quot;HIGH&quot;.equals(ticket.getPriority()) || &quot;URGENT&quot;.equals(ticket.getPriority())) {</span>
+<span class="nc" id="L435">                baseRating += 0.2;</span>
+            }
+            
+            // Cap at 5.0
+<span class="nc" id="L439">            return Math.min(5.0, Math.max(1.0, baseRating));</span>
+        }
+        
+        public double getAverageResolutionTimeHours() {
+<span class="nc" id="L443">            return completedTickets.stream()</span>
+<span class="nc bnc" id="L444" title="All 4 branches missed.">                .filter(ticket -&gt; ticket.getCreatedAt() != null &amp;&amp; ticket.getResolvedAt() != null)</span>
+<span class="nc" id="L445">                .mapToDouble(ticket -&gt; java.time.Duration.between(ticket.getCreatedAt(), ticket.getResolvedAt()).toHours())</span>
+<span class="nc" id="L446">                .average()</span>
+<span class="nc" id="L447">                .orElse(0.0);</span>
+        }
+        
+        public List&lt;String&gt; getTopServiceTypes() {
+<span class="nc" id="L451">            return completedTickets.stream()</span>
+<span class="nc" id="L452">                .map(Ticket::getServiceType)</span>
+<span class="nc bnc" id="L453" title="All 2 branches missed.">                .filter(serviceType -&gt; serviceType != null)</span>
+<span class="nc" id="L454">                .collect(Collectors.groupingBy(serviceType -&gt; serviceType, Collectors.counting()))</span>
+<span class="nc" id="L455">                .entrySet().stream()</span>
+<span class="nc" id="L456">                .sorted((e1, e2) -&gt; e2.getValue().compareTo(e1.getValue()))</span>
+<span class="nc" id="L457">                .map(Map.Entry::getKey)</span>
+<span class="nc" id="L458">                .collect(Collectors.toList());</span>
+        }
+        
+        public Map&lt;String, Double&gt; getServiceTypeRatings() {
+<span class="nc" id="L462">            return completedTickets.stream()</span>
+<span class="nc bnc" id="L463" title="All 2 branches missed.">                .filter(ticket -&gt; ticket.getServiceType() != null)</span>
+<span class="nc" id="L464">                .collect(Collectors.groupingBy(</span>
+<span class="nc" id="L465">                    Ticket::getServiceType,</span>
+<span class="nc" id="L466">                    Collectors.averagingDouble(this::calculateTicketRating)</span>
+                ));
+        }
+        
+        // Getters
+<span class="nc" id="L471">        public Technician getTechnician() { return technician; }</span>
+<span class="nc" id="L472">        public List&lt;Ticket&gt; getCompletedTickets() { return completedTickets; }</span>
+    }
+} 
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

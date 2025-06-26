@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SkillCoverage.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Local Tech Support CLI Client</a> &gt; <a href="index.source.html" class="el_package">com.localtechsupport.cli.model</a> &gt; <span class="el_source">SkillCoverage.java</span></div><h1>SkillCoverage.java</h1><pre class="source lang-java linenums">package com.localtechsupport.cli.model;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import java.util.List;
+import java.util.Map;
+
+/**
+ * Data Transfer Object for skill coverage analysis from the API
+ * 
+ * Represents the response from GET /api/skills/coverage
+ */
+public class SkillCoverage {
+
+    @JsonProperty(&quot;totalSkills&quot;)
+    private Integer totalSkills;
+
+    @JsonProperty(&quot;skillsByServiceType&quot;)
+    private Map&lt;String, SkillInfo&gt; skillsByServiceType;
+
+    @JsonProperty(&quot;overallCoveragePercentage&quot;)
+    private Double overallCoveragePercentage;
+
+    @JsonProperty(&quot;criticalGaps&quot;)
+    private List&lt;String&gt; criticalGaps;
+
+    @JsonProperty(&quot;recommendations&quot;)
+    private List&lt;String&gt; recommendations;
+
+    @JsonProperty(&quot;redundantSkills&quot;)
+    private List&lt;String&gt; redundantSkills;
+
+    @JsonProperty(&quot;trainingNeeds&quot;)
+    private Map&lt;String, Integer&gt; trainingNeeds;
+
+    // Default constructor
+<span class="nc" id="L37">    public SkillCoverage() {}</span>
+
+    // Getters and Setters
+
+    public Integer getTotalSkills() {
+<span class="nc" id="L42">        return totalSkills;</span>
+    }
+
+    public void setTotalSkills(Integer totalSkills) {
+<span class="nc" id="L46">        this.totalSkills = totalSkills;</span>
+<span class="nc" id="L47">    }</span>
+
+    public Map&lt;String, SkillInfo&gt; getSkillsByServiceType() {
+<span class="nc" id="L50">        return skillsByServiceType;</span>
+    }
+
+    public void setSkillsByServiceType(Map&lt;String, SkillInfo&gt; skillsByServiceType) {
+<span class="nc" id="L54">        this.skillsByServiceType = skillsByServiceType;</span>
+<span class="nc" id="L55">    }</span>
+
+    public Double getOverallCoveragePercentage() {
+<span class="nc" id="L58">        return overallCoveragePercentage;</span>
+    }
+
+    public void setOverallCoveragePercentage(Double overallCoveragePercentage) {
+<span class="nc" id="L62">        this.overallCoveragePercentage = overallCoveragePercentage;</span>
+<span class="nc" id="L63">    }</span>
+
+    public List&lt;String&gt; getCriticalGaps() {
+<span class="nc" id="L66">        return criticalGaps;</span>
+    }
+
+    public void setCriticalGaps(List&lt;String&gt; criticalGaps) {
+<span class="nc" id="L70">        this.criticalGaps = criticalGaps;</span>
+<span class="nc" id="L71">    }</span>
+
+    public List&lt;String&gt; getRecommendations() {
+<span class="nc" id="L74">        return recommendations;</span>
+    }
+
+    public void setRecommendations(List&lt;String&gt; recommendations) {
+<span class="nc" id="L78">        this.recommendations = recommendations;</span>
+<span class="nc" id="L79">    }</span>
+
+    public List&lt;String&gt; getRedundantSkills() {
+<span class="nc" id="L82">        return redundantSkills;</span>
+    }
+
+    public void setRedundantSkills(List&lt;String&gt; redundantSkills) {
+<span class="nc" id="L86">        this.redundantSkills = redundantSkills;</span>
+<span class="nc" id="L87">    }</span>
+
+    public Map&lt;String, Integer&gt; getTrainingNeeds() {
+<span class="nc" id="L90">        return trainingNeeds;</span>
+    }
+
+    public void setTrainingNeeds(Map&lt;String, Integer&gt; trainingNeeds) {
+<span class="nc" id="L94">        this.trainingNeeds = trainingNeeds;</span>
+<span class="nc" id="L95">    }</span>
+
+    // Utility methods
+
+    /**
+     * Get the coverage status based on overall percentage
+     * 
+     * @return coverage status as a string
+     */
+    public String getCoverageStatus() {
+<span class="nc bnc" id="L105" title="All 2 branches missed.">        if (overallCoveragePercentage == null) {</span>
+<span class="nc" id="L106">            return &quot;UNKNOWN&quot;;</span>
+        }
+        
+<span class="nc bnc" id="L109" title="All 2 branches missed.">        if (overallCoveragePercentage &gt;= 90.0) {</span>
+<span class="nc" id="L110">            return &quot;EXCELLENT&quot;;</span>
+<span class="nc bnc" id="L111" title="All 2 branches missed.">        } else if (overallCoveragePercentage &gt;= 80.0) {</span>
+<span class="nc" id="L112">            return &quot;GOOD&quot;;</span>
+<span class="nc bnc" id="L113" title="All 2 branches missed.">        } else if (overallCoveragePercentage &gt;= 70.0) {</span>
+<span class="nc" id="L114">            return &quot;ADEQUATE&quot;;</span>
+<span class="nc bnc" id="L115" title="All 2 branches missed.">        } else if (overallCoveragePercentage &gt;= 60.0) {</span>
+<span class="nc" id="L116">            return &quot;NEEDS_IMPROVEMENT&quot;;</span>
+        } else {
+<span class="nc" id="L118">            return &quot;CRITICAL&quot;;</span>
+        }
+    }
+
+    /**
+     * Check if there are critical skill gaps
+     * 
+     * @return true if critical gaps exist, false otherwise
+     */
+    public boolean hasCriticalGaps() {
+<span class="nc bnc" id="L128" title="All 4 branches missed.">        return criticalGaps != null &amp;&amp; !criticalGaps.isEmpty();</span>
+    }
+
+    /**
+     * Get the number of critical gaps
+     * 
+     * @return number of critical gaps
+     */
+    public int getCriticalGapCount() {
+<span class="nc bnc" id="L137" title="All 2 branches missed.">        return criticalGaps != null ? criticalGaps.size() : 0;</span>
+    }
+
+    /**
+     * Get coverage emoji based on overall percentage
+     * 
+     * @return emoji representation of coverage status
+     */
+    public String getCoverageEmoji() {
+<span class="nc" id="L146">        String status = getCoverageStatus();</span>
+<span class="nc bnc" id="L147" title="All 6 branches missed.">        return switch (status) {</span>
+<span class="nc" id="L148">            case &quot;EXCELLENT&quot; -&gt; &quot;🟢&quot;;</span>
+<span class="nc" id="L149">            case &quot;GOOD&quot; -&gt; &quot;🟡&quot;;</span>
+<span class="nc" id="L150">            case &quot;ADEQUATE&quot; -&gt; &quot;🟠&quot;;</span>
+<span class="nc" id="L151">            case &quot;NEEDS_IMPROVEMENT&quot; -&gt; &quot;🔴&quot;;</span>
+<span class="nc" id="L152">            case &quot;CRITICAL&quot; -&gt; &quot;🚨&quot;;</span>
+<span class="nc" id="L153">            default -&gt; &quot;❓&quot;;</span>
+        };
+    }
+
+    @Override
+    public String toString() {
+<span class="nc" id="L159">        return String.format(</span>
+            &quot;SkillCoverage{totalSkills=%d, overallCoverage=%.1f%%, criticalGaps=%d}&quot;,
+<span class="nc" id="L161">            totalSkills, overallCoveragePercentage, getCriticalGapCount()</span>
+        );
+    }
+
+    /**
+     * Nested class for skill information per service type
+     */
+    public static class SkillInfo {
+        
+        @JsonProperty(&quot;technicianCount&quot;)
+        private Integer technicianCount;
+        
+        @JsonProperty(&quot;coveragePercentage&quot;)
+        private Double coveragePercentage;
+        
+        @JsonProperty(&quot;status&quot;)
+        private String status;
+        
+        // Default constructor
+<span class="nc" id="L180">        public SkillInfo() {}</span>
+        
+        // Getters and Setters
+        
+        public Integer getTechnicianCount() {
+<span class="nc" id="L185">            return technicianCount;</span>
+        }
+        
+        public void setTechnicianCount(Integer technicianCount) {
+<span class="nc" id="L189">            this.technicianCount = technicianCount;</span>
+<span class="nc" id="L190">        }</span>
+        
+        public Double getCoveragePercentage() {
+<span class="nc" id="L193">            return coveragePercentage;</span>
+        }
+        
+        public void setCoveragePercentage(Double coveragePercentage) {
+<span class="nc" id="L197">            this.coveragePercentage = coveragePercentage;</span>
+<span class="nc" id="L198">        }</span>
+        
+        public String getStatus() {
+<span class="nc" id="L201">            return status;</span>
+        }
+        
+        public void setStatus(String status) {
+<span class="nc" id="L205">            this.status = status;</span>
+<span class="nc" id="L206">        }</span>
+        
+        @Override
+        public String toString() {
+<span class="nc" id="L210">            return String.format(</span>
+                &quot;SkillInfo{technicianCount=%d, coverage=%.1f%%, status='%s'}&quot;,
+                technicianCount, coveragePercentage, status
+            );
+        }
+    }
+} 
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

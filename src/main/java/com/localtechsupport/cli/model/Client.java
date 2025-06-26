@@ -123,7 +123,22 @@ public class Client {
     }
 
     public String getFullName() {
-        return fullName;
+        if (fullName != null && !fullName.trim().isEmpty()) {
+            return fullName.trim();
+        }
+        
+        String first = (firstName != null) ? firstName.trim() : "";
+        String last = (lastName != null) ? lastName.trim() : "";
+        
+        if (first.isEmpty() && last.isEmpty()) {
+            return "";
+        } else if (first.isEmpty()) {
+            return last;
+        } else if (last.isEmpty()) {
+            return first;
+        } else {
+            return first + " " + last;
+        }
     }
 
     public void setFullName(String fullName) {
@@ -161,7 +176,10 @@ public class Client {
 
     // Utility methods
     public boolean isActive() {
-        return active != null ? active : true; // Default to active if null
+        if (status != null && "ACTIVE".equalsIgnoreCase(status.trim())) {
+            return true;
+        }
+        return false;
     }
 
     @Override

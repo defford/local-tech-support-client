@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Client.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Local Tech Support CLI Client</a> &gt; <a href="index.source.html" class="el_package">com.localtechsupport.cli.model</a> &gt; <span class="el_source">Client.java</span></div><h1>Client.java</h1><pre class="source lang-java linenums">package com.localtechsupport.cli.model;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import java.time.LocalDateTime;
+
+/**
+ * Client entity from the API
+ * 
+ * Represents a client in the tech support system
+ */
+public class Client {
+
+    @JsonProperty(&quot;id&quot;)
+    private Long id;
+
+    @JsonProperty(&quot;firstName&quot;)
+    private String firstName;
+
+    @JsonProperty(&quot;lastName&quot;)
+    private String lastName;
+
+    @JsonProperty(&quot;email&quot;)
+    private String email;
+
+    @JsonProperty(&quot;phone&quot;)
+    private String phone;
+
+    @JsonProperty(&quot;address&quot;)
+    private String address;
+
+    @JsonProperty(&quot;notes&quot;)
+    private String notes;
+
+    @JsonProperty(&quot;status&quot;)
+    private String status; // ACTIVE, SUSPENDED, TERMINATED
+
+    @JsonProperty(&quot;active&quot;)
+    private Boolean active;
+
+    @JsonProperty(&quot;fullName&quot;)
+    private String fullName;
+
+    @JsonProperty(&quot;createdAt&quot;)
+    private LocalDateTime createdAt;
+
+    @JsonProperty(&quot;updatedAt&quot;)
+    private LocalDateTime updatedAt;
+
+    // Default constructor
+<span class="fc" id="L50">    public Client() {}</span>
+
+    // Getters and Setters
+    public Long getId() {
+<span class="fc" id="L54">        return id;</span>
+    }
+
+    public void setId(Long id) {
+<span class="fc" id="L58">        this.id = id;</span>
+<span class="fc" id="L59">    }</span>
+
+    public String getFirstName() {
+<span class="fc" id="L62">        return firstName;</span>
+    }
+
+    public void setFirstName(String firstName) {
+<span class="fc" id="L66">        this.firstName = firstName;</span>
+<span class="fc" id="L67">    }</span>
+
+    public String getLastName() {
+<span class="fc" id="L70">        return lastName;</span>
+    }
+
+    public void setLastName(String lastName) {
+<span class="fc" id="L74">        this.lastName = lastName;</span>
+<span class="fc" id="L75">    }</span>
+
+    public String getEmail() {
+<span class="fc" id="L78">        return email;</span>
+    }
+
+    public void setEmail(String email) {
+<span class="fc" id="L82">        this.email = email;</span>
+<span class="fc" id="L83">    }</span>
+
+    public String getPhone() {
+<span class="fc" id="L86">        return phone;</span>
+    }
+
+    public void setPhone(String phone) {
+<span class="fc" id="L90">        this.phone = phone;</span>
+<span class="fc" id="L91">    }</span>
+
+    public String getAddress() {
+<span class="nc" id="L94">        return address;</span>
+    }
+
+    public void setAddress(String address) {
+<span class="nc" id="L98">        this.address = address;</span>
+<span class="nc" id="L99">    }</span>
+
+    public String getNotes() {
+<span class="nc" id="L102">        return notes;</span>
+    }
+
+    public void setNotes(String notes) {
+<span class="nc" id="L106">        this.notes = notes;</span>
+<span class="nc" id="L107">    }</span>
+
+    public String getStatus() {
+<span class="fc" id="L110">        return status;</span>
+    }
+
+    public void setStatus(String status) {
+<span class="fc" id="L114">        this.status = status;</span>
+<span class="fc" id="L115">    }</span>
+
+    public Boolean getActive() {
+<span class="nc" id="L118">        return active;</span>
+    }
+
+    public void setActive(Boolean active) {
+<span class="nc" id="L122">        this.active = active;</span>
+<span class="nc" id="L123">    }</span>
+
+    public String getFullName() {
+<span class="pc bpc" id="L126" title="3 of 4 branches missed.">        if (fullName != null &amp;&amp; !fullName.trim().isEmpty()) {</span>
+<span class="nc" id="L127">            return fullName.trim();</span>
+        }
+        
+<span class="fc bfc" id="L130" title="All 2 branches covered.">        String first = (firstName != null) ? firstName.trim() : &quot;&quot;;</span>
+<span class="fc bfc" id="L131" title="All 2 branches covered.">        String last = (lastName != null) ? lastName.trim() : &quot;&quot;;</span>
+        
+<span class="fc bfc" id="L133" title="All 4 branches covered.">        if (first.isEmpty() &amp;&amp; last.isEmpty()) {</span>
+<span class="fc" id="L134">            return &quot;&quot;;</span>
+<span class="fc bfc" id="L135" title="All 2 branches covered.">        } else if (first.isEmpty()) {</span>
+<span class="fc" id="L136">            return last;</span>
+<span class="fc bfc" id="L137" title="All 2 branches covered.">        } else if (last.isEmpty()) {</span>
+<span class="fc" id="L138">            return first;</span>
+        } else {
+<span class="fc" id="L140">            return first + &quot; &quot; + last;</span>
+        }
+    }
+
+    public void setFullName(String fullName) {
+<span class="nc" id="L145">        this.fullName = fullName;</span>
+<span class="nc" id="L146">    }</span>
+
+    public LocalDateTime getCreatedAt() {
+<span class="fc" id="L149">        return createdAt;</span>
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+<span class="fc" id="L153">        this.createdAt = createdAt;</span>
+<span class="fc" id="L154">    }</span>
+
+    public LocalDateTime getUpdatedAt() {
+<span class="fc" id="L157">        return updatedAt;</span>
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+<span class="fc" id="L161">        this.updatedAt = updatedAt;</span>
+<span class="fc" id="L162">    }</span>
+
+    // Constructor with all parameters
+<span class="fc" id="L165">    public Client(Long id, String firstName, String lastName, String email, String phone, </span>
+                  String status, LocalDateTime createdAt, LocalDateTime updatedAt) {
+<span class="fc" id="L167">        this.id = id;</span>
+<span class="fc" id="L168">        this.firstName = firstName;</span>
+<span class="fc" id="L169">        this.lastName = lastName;</span>
+<span class="fc" id="L170">        this.email = email;</span>
+<span class="fc" id="L171">        this.phone = phone;</span>
+<span class="fc" id="L172">        this.status = status;</span>
+<span class="fc" id="L173">        this.createdAt = createdAt;</span>
+<span class="fc" id="L174">        this.updatedAt = updatedAt;</span>
+<span class="fc" id="L175">    }</span>
+
+    // Utility methods
+    public boolean isActive() {
+<span class="fc bfc" id="L179" title="All 4 branches covered.">        if (status != null &amp;&amp; &quot;ACTIVE&quot;.equalsIgnoreCase(status.trim())) {</span>
+<span class="fc" id="L180">            return true;</span>
+        }
+<span class="fc" id="L182">        return false;</span>
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+<span class="pc bpc" id="L187" title="1 of 2 branches missed.">        if (this == obj) return true;</span>
+<span class="fc bfc" id="L188" title="All 4 branches covered.">        if (obj == null || getClass() != obj.getClass()) return false;</span>
+        
+<span class="fc" id="L190">        Client client = (Client) obj;</span>
+        
+<span class="pc bpc" id="L192" title="1 of 6 branches missed.">        if (id != null ? !id.equals(client.id) : client.id != null) return false;</span>
+<span class="pc bpc" id="L193" title="2 of 6 branches missed.">        if (firstName != null ? !firstName.equals(client.firstName) : client.firstName != null) return false;</span>
+<span class="pc bpc" id="L194" title="2 of 6 branches missed.">        if (lastName != null ? !lastName.equals(client.lastName) : client.lastName != null) return false;</span>
+<span class="pc bpc" id="L195" title="1 of 4 branches missed.">        return email != null ? email.equals(client.email) : client.email == null;</span>
+    }
+
+    @Override
+    public int hashCode() {
+<span class="pc bpc" id="L200" title="1 of 2 branches missed.">        int result = id != null ? id.hashCode() : 0;</span>
+<span class="pc bpc" id="L201" title="1 of 2 branches missed.">        result = 31 * result + (firstName != null ? firstName.hashCode() : 0);</span>
+<span class="pc bpc" id="L202" title="1 of 2 branches missed.">        result = 31 * result + (lastName != null ? lastName.hashCode() : 0);</span>
+<span class="pc bpc" id="L203" title="1 of 2 branches missed.">        result = 31 * result + (email != null ? email.hashCode() : 0);</span>
+<span class="fc" id="L204">        return result;</span>
+    }
+
+    @Override
+    public String toString() {
+<span class="fc" id="L209">        return String.format(&quot;Client{id=%d, name='%s', email='%s', status='%s'}&quot;, </span>
+<span class="fc" id="L210">                           id, getFullName(), email, status);</span>
+    }
+
+    // Helper methods for formatting and display
+    
+    /**
+     * Get display name with status
+     */
+    public String getDisplayName() {
+<span class="nc bnc" id="L219" title="All 2 branches missed.">        return String.format(&quot;%s (%s)&quot;, getFullName(), isActive() ? &quot;Active&quot; : &quot;Inactive&quot;);</span>
+    }
+} 
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

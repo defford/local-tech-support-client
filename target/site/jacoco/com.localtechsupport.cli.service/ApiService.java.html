@@ -1,0 +1,359 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ApiService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Local Tech Support CLI Client</a> &gt; <a href="index.source.html" class="el_package">com.localtechsupport.cli.service</a> &gt; <span class="el_source">ApiService.java</span></div><h1>ApiService.java</h1><pre class="source lang-java linenums">package com.localtechsupport.cli.service;
+
+import com.localtechsupport.cli.client.TechSupportApiClient;
+import com.localtechsupport.cli.client.ApiResponse;
+import com.localtechsupport.cli.client.ApiException;
+import com.localtechsupport.cli.model.Client;
+import com.localtechsupport.cli.model.Technician;
+import com.localtechsupport.cli.model.Ticket;
+import com.localtechsupport.cli.model.Appointment;
+import com.localtechsupport.cli.model.PagedResponse;
+import com.fasterxml.jackson.core.type.TypeReference;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import java.util.List;
+
+/**
+ * Service layer for API communication and business logic
+ * 
+ * This service handles all interactions with the Tech Support API
+ * using the correct endpoints that exist on the actual Spring Boot server.
+ */
+public class ApiService implements AutoCloseable {
+
+<span class="nc" id="L24">    private static final Logger logger = LoggerFactory.getLogger(ApiService.class);</span>
+
+    private final TechSupportApiClient apiClient;
+
+<span class="nc" id="L28">    public ApiService(String baseUrl) {</span>
+<span class="nc" id="L29">        this.apiClient = new TechSupportApiClient(baseUrl);</span>
+<span class="nc" id="L30">        logger.info(&quot;ApiService initialized with base URL: {}&quot;, baseUrl);</span>
+<span class="nc" id="L31">    }</span>
+
+<span class="nc" id="L33">    public ApiService(TechSupportApiClient apiClient) {</span>
+<span class="nc" id="L34">        this.apiClient = apiClient;</span>
+<span class="nc" id="L35">        logger.info(&quot;ApiService initialized with custom API client&quot;);</span>
+<span class="nc" id="L36">    }</span>
+
+    /**
+     * Test connection to the API server
+     * 
+     * @return true if connection is successful, false otherwise
+     */
+    public boolean testConnection() {
+<span class="nc" id="L44">        logger.debug(&quot;Testing API connection&quot;);</span>
+<span class="nc" id="L45">        return apiClient.testConnection();</span>
+    }
+
+    /**
+     * Get the base URL of the API client
+     * 
+     * @return the base URL
+     */
+    public String getBaseUrl() {
+<span class="nc" id="L54">        return apiClient.getBaseUrl();</span>
+    }
+
+    /**
+     * Close the API service and release resources
+     */
+    public void close() {
+<span class="nc" id="L61">        logger.info(&quot;Closing API service&quot;);</span>
+<span class="nc" id="L62">        apiClient.close();</span>
+<span class="nc" id="L63">    }</span>
+
+    /**
+     * Get all clients from the API
+     * 
+     * @return List of all clients
+     * @throws ApiException if the API call fails
+     */
+    public List&lt;Client&gt; getAllClients() throws ApiException {
+<span class="nc" id="L72">        logger.debug(&quot;Fetching all clients&quot;);</span>
+        
+        try {
+<span class="nc" id="L75">            ApiResponse&lt;PagedResponse&lt;Client&gt;&gt; response = apiClient.get(</span>
+<span class="nc" id="L76">                &quot;/api/clients&quot;, </span>
+<span class="nc" id="L77">                new TypeReference&lt;PagedResponse&lt;Client&gt;&gt;() {}</span>
+            );
+            
+<span class="nc" id="L80">            List&lt;Client&gt; clients = response.getData().getContent();</span>
+<span class="nc" id="L81">            logger.info(&quot;Successfully fetched {} clients&quot;, clients.size());</span>
+            
+<span class="nc" id="L83">            return clients;</span>
+            
+<span class="nc" id="L85">        } catch (ApiException e) {</span>
+<span class="nc" id="L86">            logger.error(&quot;Failed to fetch clients: {}&quot;, e.getMessage());</span>
+<span class="nc" id="L87">            throw e;</span>
+        }
+    }
+
+    /**
+     * Get a specific client by ID
+     * 
+     * @param clientId the client ID
+     * @return the client
+     * @throws ApiException if the API call fails
+     */
+    public Client getClientById(Long clientId) throws ApiException {
+<span class="nc" id="L99">        logger.debug(&quot;Fetching client with ID: {}&quot;, clientId);</span>
+        
+        try {
+<span class="nc" id="L102">            ApiResponse&lt;Client&gt; response = apiClient.get(</span>
+<span class="nc" id="L103">                &quot;/api/clients/&quot; + clientId, </span>
+<span class="nc" id="L104">                Client.class</span>
+            );
+            
+<span class="nc" id="L107">            Client client = response.getData();</span>
+<span class="nc" id="L108">            logger.info(&quot;Successfully fetched client: {}&quot;, client.getId());</span>
+            
+<span class="nc" id="L110">            return client;</span>
+            
+<span class="nc" id="L112">        } catch (ApiException e) {</span>
+<span class="nc" id="L113">            logger.error(&quot;Failed to fetch client {}: {}&quot;, clientId, e.getMessage());</span>
+<span class="nc" id="L114">            throw e;</span>
+        }
+    }
+
+    /**
+     * Get tickets for a specific client using query parameter
+     * 
+     * @param clientId the client ID
+     * @return List of tickets for the client
+     * @throws ApiException if the API call fails
+     */
+    public List&lt;Ticket&gt; getTicketsByClient(Long clientId) throws ApiException {
+<span class="nc" id="L126">        logger.debug(&quot;Fetching tickets for client: {}&quot;, clientId);</span>
+        
+        try {
+<span class="nc" id="L129">            ApiResponse&lt;PagedResponse&lt;Ticket&gt;&gt; response = apiClient.get(</span>
+<span class="nc" id="L130">                &quot;/api/tickets?clientId=&quot; + clientId, </span>
+<span class="nc" id="L131">                new TypeReference&lt;PagedResponse&lt;Ticket&gt;&gt;() {}</span>
+            );
+            
+<span class="nc" id="L134">            List&lt;Ticket&gt; tickets = response.getData().getContent();</span>
+<span class="nc" id="L135">            logger.info(&quot;Successfully fetched {} tickets for client {}&quot;, tickets.size(), clientId);</span>
+            
+<span class="nc" id="L137">            return tickets;</span>
+            
+<span class="nc" id="L139">        } catch (ApiException e) {</span>
+<span class="nc" id="L140">            logger.error(&quot;Failed to fetch tickets for client {}: {}&quot;, clientId, e.getMessage());</span>
+<span class="nc" id="L141">            throw e;</span>
+        }
+    }
+
+    /**
+     * Get all technicians from the API
+     * 
+     * @return List of all technicians
+     * @throws ApiException if the API call fails
+     */
+    public List&lt;Technician&gt; getAllTechnicians() throws ApiException {
+<span class="nc" id="L152">        logger.debug(&quot;Fetching all technicians&quot;);</span>
+        
+        try {
+<span class="nc" id="L155">            ApiResponse&lt;PagedResponse&lt;Technician&gt;&gt; response = apiClient.get(</span>
+<span class="nc" id="L156">                &quot;/api/technicians&quot;, </span>
+<span class="nc" id="L157">                new TypeReference&lt;PagedResponse&lt;Technician&gt;&gt;() {}</span>
+            );
+            
+<span class="nc" id="L160">            List&lt;Technician&gt; technicians = response.getData().getContent();</span>
+<span class="nc" id="L161">            logger.info(&quot;Successfully fetched {} technicians&quot;, technicians.size());</span>
+            
+<span class="nc" id="L163">            return technicians;</span>
+            
+<span class="nc" id="L165">        } catch (ApiException e) {</span>
+<span class="nc" id="L166">            logger.error(&quot;Failed to fetch technicians: {}&quot;, e.getMessage());</span>
+<span class="nc" id="L167">            throw e;</span>
+        }
+    }
+
+    /**
+     * Get tickets for a specific technician using query parameter
+     * 
+     * @param technicianId the technician ID
+     * @return List of tickets assigned to the technician
+     * @throws ApiException if the API call fails
+     */
+    public List&lt;Ticket&gt; getTicketsByTechnician(Long technicianId) throws ApiException {
+<span class="nc" id="L179">        logger.debug(&quot;Fetching tickets for technician: {}&quot;, technicianId);</span>
+        
+        try {
+<span class="nc" id="L182">            ApiResponse&lt;PagedResponse&lt;Ticket&gt;&gt; response = apiClient.get(</span>
+<span class="nc" id="L183">                &quot;/api/tickets?technicianId=&quot; + technicianId, </span>
+<span class="nc" id="L184">                new TypeReference&lt;PagedResponse&lt;Ticket&gt;&gt;() {}</span>
+            );
+            
+<span class="nc" id="L187">            List&lt;Ticket&gt; tickets = response.getData().getContent();</span>
+<span class="nc" id="L188">            logger.info(&quot;Successfully fetched {} tickets for technician {}&quot;, tickets.size(), technicianId);</span>
+            
+<span class="nc" id="L190">            return tickets;</span>
+            
+<span class="nc" id="L192">        } catch (ApiException e) {</span>
+<span class="nc" id="L193">            logger.error(&quot;Failed to fetch tickets for technician {}: {}&quot;, technicianId, e.getMessage());</span>
+<span class="nc" id="L194">            throw e;</span>
+        }
+    }
+
+    /**
+     * Get available technicians for a specific service type
+     * 
+     * @param serviceType the service type (HARDWARE, SOFTWARE, etc.)
+     * @return List of available technicians
+     * @throws ApiException if the API call fails
+     */
+    public List&lt;Technician&gt; getAvailableTechniciansByServiceType(String serviceType) throws ApiException {
+<span class="nc" id="L206">        logger.debug(&quot;Fetching available technicians for service type: {}&quot;, serviceType);</span>
+        
+        try {
+            // Note: /api/technicians/available?serviceType=X returns a plain array, not a PagedResponse
+<span class="nc" id="L210">            ApiResponse&lt;List&lt;Technician&gt;&gt; response = apiClient.get(</span>
+<span class="nc" id="L211">                &quot;/api/technicians/available?serviceType=&quot; + serviceType, </span>
+<span class="nc" id="L212">                new TypeReference&lt;List&lt;Technician&gt;&gt;() {}</span>
+            );
+            
+<span class="nc" id="L215">            List&lt;Technician&gt; technicians = response.getData();</span>
+<span class="nc" id="L216">            logger.info(&quot;Successfully fetched {} available technicians for {}&quot;, technicians.size(), serviceType);</span>
+            
+<span class="nc" id="L218">            return technicians;</span>
+            
+<span class="nc" id="L220">        } catch (ApiException e) {</span>
+<span class="nc" id="L221">            logger.error(&quot;Failed to fetch available technicians for {}: {}&quot;, serviceType, e.getMessage());</span>
+<span class="nc" id="L222">            throw e;</span>
+        }
+    }
+
+    /**
+     * Get all available technicians
+     * 
+     * @return List of available technicians
+     * @throws ApiException if the API call fails
+     */
+    public List&lt;Technician&gt; getAvailableTechnicians() throws ApiException {
+<span class="nc" id="L233">        logger.debug(&quot;Fetching all available technicians&quot;);</span>
+        
+        try {
+            // Note: /api/technicians/available returns a plain array, not a PagedResponse
+<span class="nc" id="L237">            ApiResponse&lt;List&lt;Technician&gt;&gt; response = apiClient.get(</span>
+<span class="nc" id="L238">                &quot;/api/technicians/available&quot;, </span>
+<span class="nc" id="L239">                new TypeReference&lt;List&lt;Technician&gt;&gt;() {}</span>
+            );
+            
+<span class="nc" id="L242">            List&lt;Technician&gt; technicians = response.getData();</span>
+<span class="nc" id="L243">            logger.info(&quot;Successfully fetched {} available technicians&quot;, technicians.size());</span>
+            
+<span class="nc" id="L245">            return technicians;</span>
+            
+<span class="nc" id="L247">        } catch (ApiException e) {</span>
+<span class="nc" id="L248">            logger.error(&quot;Failed to fetch available technicians: {}&quot;, e.getMessage());</span>
+<span class="nc" id="L249">            throw e;</span>
+        }
+    }
+
+    /**
+     * Get overdue tickets
+     * 
+     * @return List of overdue tickets
+     * @throws ApiException if the API call fails
+     */
+    public List&lt;Ticket&gt; getOverdueTickets() throws ApiException {
+<span class="nc" id="L260">        logger.debug(&quot;Fetching overdue tickets&quot;);</span>
+        
+        try {
+            // Note: /api/tickets/overdue returns a plain array, not a PagedResponse
+<span class="nc" id="L264">            ApiResponse&lt;List&lt;Ticket&gt;&gt; response = apiClient.get(</span>
+<span class="nc" id="L265">                &quot;/api/tickets/overdue&quot;, </span>
+<span class="nc" id="L266">                new TypeReference&lt;List&lt;Ticket&gt;&gt;() {}</span>
+            );
+            
+<span class="nc" id="L269">            List&lt;Ticket&gt; tickets = response.getData();</span>
+<span class="nc" id="L270">            logger.info(&quot;Successfully fetched {} overdue tickets&quot;, tickets.size());</span>
+            
+<span class="nc" id="L272">            return tickets;</span>
+            
+<span class="nc" id="L274">        } catch (ApiException e) {</span>
+<span class="nc" id="L275">            logger.error(&quot;Failed to fetch overdue tickets: {}&quot;, e.getMessage());</span>
+<span class="nc" id="L276">            throw e;</span>
+        }
+    }
+
+    /**
+     * Get appointments for a specific technician using query parameter
+     * 
+     * @param technicianId the technician ID
+     * @return List of appointments for the technician
+     * @throws ApiException if the API call fails
+     */
+    public List&lt;Appointment&gt; getAppointmentsByTechnician(Long technicianId) throws ApiException {
+<span class="nc" id="L288">        logger.debug(&quot;Fetching appointments for technician: {}&quot;, technicianId);</span>
+        
+        try {
+<span class="nc" id="L291">            ApiResponse&lt;PagedResponse&lt;Appointment&gt;&gt; response = apiClient.get(</span>
+<span class="nc" id="L292">                &quot;/api/appointments?technicianId=&quot; + technicianId, </span>
+<span class="nc" id="L293">                new TypeReference&lt;PagedResponse&lt;Appointment&gt;&gt;() {}</span>
+            );
+            
+<span class="nc" id="L296">            List&lt;Appointment&gt; appointments = response.getData().getContent();</span>
+<span class="nc" id="L297">            logger.info(&quot;Successfully fetched {} appointments for technician {}&quot;, appointments.size(), technicianId);</span>
+            
+<span class="nc" id="L299">            return appointments;</span>
+            
+<span class="nc" id="L301">        } catch (ApiException e) {</span>
+<span class="nc" id="L302">            logger.error(&quot;Failed to fetch appointments for technician {}: {}&quot;, technicianId, e.getMessage());</span>
+<span class="nc" id="L303">            throw e;</span>
+        }
+    }
+
+    /**
+     * Get all tickets from the API
+     * 
+     * @return List of all tickets
+     * @throws ApiException if the API call fails
+     */
+    public List&lt;Ticket&gt; getAllTickets() throws ApiException {
+<span class="nc" id="L314">        logger.debug(&quot;Fetching all tickets&quot;);</span>
+        
+        try {
+<span class="nc" id="L317">            ApiResponse&lt;PagedResponse&lt;Ticket&gt;&gt; response = apiClient.get(</span>
+<span class="nc" id="L318">                &quot;/api/tickets&quot;, </span>
+<span class="nc" id="L319">                new TypeReference&lt;PagedResponse&lt;Ticket&gt;&gt;() {}</span>
+            );
+            
+<span class="nc" id="L322">            List&lt;Ticket&gt; tickets = response.getData().getContent();</span>
+<span class="nc" id="L323">            logger.info(&quot;Successfully fetched {} tickets&quot;, tickets.size());</span>
+            
+<span class="nc" id="L325">            return tickets;</span>
+            
+<span class="nc" id="L327">        } catch (ApiException e) {</span>
+<span class="nc" id="L328">            logger.error(&quot;Failed to fetch tickets: {}&quot;, e.getMessage());</span>
+<span class="nc" id="L329">            throw e;</span>
+        }
+    }
+
+    /**
+     * Get all appointments from the API
+     * 
+     * @return List of all appointments
+     * @throws ApiException if the API call fails
+     */
+    public List&lt;Appointment&gt; getAllAppointments() throws ApiException {
+<span class="nc" id="L340">        logger.debug(&quot;Fetching all appointments&quot;);</span>
+        
+        try {
+<span class="nc" id="L343">            ApiResponse&lt;PagedResponse&lt;Appointment&gt;&gt; response = apiClient.get(</span>
+<span class="nc" id="L344">                &quot;/api/appointments&quot;, </span>
+<span class="nc" id="L345">                new TypeReference&lt;PagedResponse&lt;Appointment&gt;&gt;() {}</span>
+            );
+            
+<span class="nc" id="L348">            List&lt;Appointment&gt; appointments = response.getData().getContent();</span>
+<span class="nc" id="L349">            logger.info(&quot;Successfully fetched {} appointments&quot;, appointments.size());</span>
+            
+<span class="nc" id="L351">            return appointments;</span>
+            
+<span class="nc" id="L353">        } catch (ApiException e) {</span>
+<span class="nc" id="L354">            logger.error(&quot;Failed to fetch appointments: {}&quot;, e.getMessage());</span>
+<span class="nc" id="L355">            throw e;</span>
+        }
+    }
+} 
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

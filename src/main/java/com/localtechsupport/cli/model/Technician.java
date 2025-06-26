@@ -109,7 +109,22 @@ public class Technician {
     }
 
     public String getFullName() {
-        return fullName;
+        if (fullName != null && !fullName.trim().isEmpty()) {
+            return fullName.trim();
+        }
+        
+        String first = (firstName != null) ? firstName.trim() : "";
+        String last = (lastName != null) ? lastName.trim() : "";
+        
+        if (first.isEmpty() && last.isEmpty()) {
+            return "";
+        } else if (first.isEmpty()) {
+            return last;
+        } else if (last.isEmpty()) {
+            return first;
+        } else {
+            return first + " " + last;
+        }
     }
 
     public void setFullName(String fullName) {
@@ -207,8 +222,17 @@ public class Technician {
 
     @Override
     public String toString() {
-        return String.format("Technician{id=%d, fullName='%s', email='%s'}", 
-                           id, fullName, email);
+        StringBuilder sb = new StringBuilder();
+        sb.append("Technician{");
+        sb.append("id=").append(id);
+        sb.append(", name='").append(getFullName()).append("'");
+        sb.append(", email='").append(email).append("'");
+        sb.append(", status='").append(status).append("'");
+        if (skills != null && !skills.isEmpty()) {
+            sb.append(", skills=").append(skills);
+        }
+        sb.append("}");
+        return sb.toString();
     }
     
     // Helper methods for formatting and display
