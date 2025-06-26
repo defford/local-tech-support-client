@@ -20,9 +20,8 @@
         </encoder>
     </appender>
     
-    <!-- Logger configuration -->
+    <!-- Logger configuration - Only log to file, not console for clean UX -->
     <logger name="com.localtechsupport.cli" level="INFO" additivity="false">
-        <appender-ref ref="CONSOLE" />
         <appender-ref ref="FILE" />
     </logger>
     

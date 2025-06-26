@@ -278,4 +278,26 @@ public class InputValidator {
             }
         }
     }
+    
+    // ==================== HELPER VALIDATION METHODS ====================
+    
+    /**
+     * Check if an email address is valid
+     * 
+     * @param email the email to validate
+     * @return true if valid, false otherwise
+     */
+    public static boolean isValidEmail(String email) {
+        return email != null && EMAIL_PATTERN.matcher(email.trim()).matches();
+    }
+    
+    /**
+     * Check if a phone number is valid
+     * 
+     * @param phone the phone number to validate
+     * @return true if valid, false otherwise
+     */
+    public static boolean isValidPhone(String phone) {
+        return phone != null && PHONE_PATTERN.matcher(phone.trim()).matches();
+    }
 } 

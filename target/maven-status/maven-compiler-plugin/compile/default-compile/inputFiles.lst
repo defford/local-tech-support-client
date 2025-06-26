@@ -16,7 +16,13 @@
 /Users/danielefford/Documents/SD12/04-DevOps/local-tech-support-client/src/main/java/com/localtechsupport/cli/menu/Menu.java
 /Users/danielefford/Documents/SD12/04-DevOps/local-tech-support-client/src/main/java/com/localtechsupport/cli/menu/MenuManager.java
 /Users/danielefford/Documents/SD12/04-DevOps/local-tech-support-client/src/main/java/com/localtechsupport/cli/menu/MenuOption.java
+/Users/danielefford/Documents/SD12/04-DevOps/local-tech-support-client/src/main/java/com/localtechsupport/cli/menu/client/ClientBuilder.java
+/Users/danielefford/Documents/SD12/04-DevOps/local-tech-support-client/src/main/java/com/localtechsupport/cli/menu/client/ClientManagementMenu.java
 /Users/danielefford/Documents/SD12/04-DevOps/local-tech-support-client/src/main/java/com/localtechsupport/cli/menu/main/MainMenu.java
+/Users/danielefford/Documents/SD12/04-DevOps/local-tech-support-client/src/main/java/com/localtechsupport/cli/menu/technician/TechnicianBuilder.java
+/Users/danielefford/Documents/SD12/04-DevOps/local-tech-support-client/src/main/java/com/localtechsupport/cli/menu/technician/TechnicianManagementMenu.java
+/Users/danielefford/Documents/SD12/04-DevOps/local-tech-support-client/src/main/java/com/localtechsupport/cli/menu/ticket/TicketBuilder.java
+/Users/danielefford/Documents/SD12/04-DevOps/local-tech-support-client/src/main/java/com/localtechsupport/cli/menu/ticket/TicketManagementMenu.java
 /Users/danielefford/Documents/SD12/04-DevOps/local-tech-support-client/src/main/java/com/localtechsupport/cli/model/Appointment.java
 /Users/danielefford/Documents/SD12/04-DevOps/local-tech-support-client/src/main/java/com/localtechsupport/cli/model/Client.java
 /Users/danielefford/Documents/SD12/04-DevOps/local-tech-support-client/src/main/java/com/localtechsupport/cli/model/FeedbackStatistics.java

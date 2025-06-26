@@ -6,6 +6,8 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
+import okhttp3.RequestBody;
+import okhttp3.MediaType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -137,6 +139,246 @@ public class TechSupportApiClient {
                 response.code(),
                 response.headers().toMultimap()
             );
+
+        } catch (IOException e) {
+            logger.error("Network error while calling {}: {}", url, e.getMessage());
+            throw new ApiException("Network error: " + e.getMessage(), e);
+        } catch (Exception e) {
+            logger.error("Unexpected error while calling {}: {}", url, e.getMessage());
+            throw new ApiException("Unexpected error: " + e.getMessage(), e);
+        }
+    }
+
+    /**
+     * Performs a POST request to the specified endpoint with JSON payload
+     * 
+     * @param endpoint The API endpoint (e.g., "/api/clients")
+     * @param payload The object to serialize as JSON and send in the request body
+     * @param responseType The class to deserialize the response into
+     * @return ApiResponse containing the parsed data and metadata
+     * @throws ApiException if the request fails or response cannot be parsed
+     */
+    public <T, R> ApiResponse<R> post(String endpoint, T payload, Class<R> responseType) throws ApiException {
+        String url = baseUrl + endpoint;
+        logger.debug("Making POST request to: {}", url);
+
+        try {
+            String jsonPayload = objectMapper.writeValueAsString(payload);
+            logger.info("Request payload: {}", jsonPayload);
+
+            RequestBody requestBody = RequestBody.create(
+                jsonPayload,
+                MediaType.parse("application/json")
+            );
+
+            Request request = new Request.Builder()
+                .url(url)
+                .post(requestBody)
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .header("User-Agent", "TechSupport-CLI/1.0")
+                .build();
+
+            try (Response response = httpClient.newCall(request).execute()) {
+                logger.debug("Response status: {} for URL: {}", response.code(), url);
+                
+                if (!response.isSuccessful()) {
+                    String errorBody = response.body() != null ? response.body().string() : "No error details";
+                    throw new ApiException(
+                        String.format("API call failed with status %d: %s", response.code(), errorBody),
+                        response.code()
+                    );
+                }
+
+                if (response.body() == null) {
+                    throw new ApiException("Response body is null", response.code());
+                }
+
+                String responseBody = response.body().string();
+                logger.debug("Response body length: {} characters", responseBody.length());
+
+                R data = objectMapper.readValue(responseBody, responseType);
+                
+                return new ApiResponse<>(
+                    data,
+                    response.code(),
+                    response.headers().toMultimap()
+                );
+            }
+
+        } catch (IOException e) {
+            logger.error("Network error while calling {}: {}", url, e.getMessage());
+            throw new ApiException("Network error: " + e.getMessage(), e);
+        } catch (Exception e) {
+            logger.error("Unexpected error while calling {}: {}", url, e.getMessage());
+            throw new ApiException("Unexpected error: " + e.getMessage(), e);
+        }
+    }
+
+    /**
+     * Performs a PUT request to the specified endpoint with JSON payload
+     * 
+     * @param endpoint The API endpoint (e.g., "/api/clients/1")
+     * @param payload The object to serialize as JSON and send in the request body
+     * @param responseType The class to deserialize the response into
+     * @return ApiResponse containing the parsed data and metadata
+     * @throws ApiException if the request fails or response cannot be parsed
+     */
+    public <T, R> ApiResponse<R> put(String endpoint, T payload, Class<R> responseType) throws ApiException {
+        String url = baseUrl + endpoint;
+        logger.debug("Making PUT request to: {}", url);
+
+        try {
+            String jsonPayload = objectMapper.writeValueAsString(payload);
+            logger.debug("Request payload: {}", jsonPayload);
+
+            RequestBody requestBody = RequestBody.create(
+                jsonPayload,
+                MediaType.parse("application/json")
+            );
+
+            Request request = new Request.Builder()
+                .url(url)
+                .put(requestBody)
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .header("User-Agent", "TechSupport-CLI/1.0")
+                .build();
+
+            try (Response response = httpClient.newCall(request).execute()) {
+                logger.debug("Response status: {} for URL: {}", response.code(), url);
+                
+                if (!response.isSuccessful()) {
+                    String errorBody = response.body() != null ? response.body().string() : "No error details";
+                    throw new ApiException(
+                        String.format("API call failed with status %d: %s", response.code(), errorBody),
+                        response.code()
+                    );
+                }
+
+                if (response.body() == null) {
+                    throw new ApiException("Response body is null", response.code());
+                }
+
+                String responseBody = response.body().string();
+                logger.debug("Response body length: {} characters", responseBody.length());
+
+                R data = objectMapper.readValue(responseBody, responseType);
+                
+                return new ApiResponse<>(
+                    data,
+                    response.code(),
+                    response.headers().toMultimap()
+                );
+            }
+
+        } catch (IOException e) {
+            logger.error("Network error while calling {}: {}", url, e.getMessage());
+            throw new ApiException("Network error: " + e.getMessage(), e);
+        } catch (Exception e) {
+            logger.error("Unexpected error while calling {}: {}", url, e.getMessage());
+            throw new ApiException("Unexpected error: " + e.getMessage(), e);
+        }
+    }
+
+    /**
+     * Performs a DELETE request to the specified endpoint
+     * 
+     * @param endpoint The API endpoint (e.g., "/api/clients/1")
+     * @throws ApiException if the request fails
+     */
+    public void delete(String endpoint) throws ApiException {
+        String url = baseUrl + endpoint;
+        logger.debug("Making DELETE request to: {}", url);
+
+        Request request = new Request.Builder()
+            .url(url)
+            .delete()
+            .header("Accept", "application/json")
+            .header("User-Agent", "TechSupport-CLI/1.0")
+            .build();
+
+        try (Response response = httpClient.newCall(request).execute()) {
+            logger.debug("Response status: {} for URL: {}", response.code(), url);
+            
+            if (!response.isSuccessful()) {
+                String errorBody = response.body() != null ? response.body().string() : "No error details";
+                throw new ApiException(
+                    String.format("API call failed with status %d: %s", response.code(), errorBody),
+                    response.code()
+                );
+            }
+
+            logger.info("DELETE request successful for: {}", url);
+
+        } catch (ApiException e) {
+            // Re-throw ApiException as-is to preserve status code
+            throw e;
+        } catch (IOException e) {
+            logger.error("Network error while calling {}: {}", url, e.getMessage());
+            throw new ApiException("Network error: " + e.getMessage(), e);
+        } catch (Exception e) {
+            logger.error("Unexpected error while calling {}: {}", url, e.getMessage());
+            throw new ApiException("Unexpected error: " + e.getMessage(), e);
+        }
+    }
+
+    /**
+     * Performs a DELETE request to the specified endpoint with JSON payload and returns response
+     * 
+     * @param endpoint The API endpoint (e.g., "/api/tickets/1/assign")
+     * @param payload The object to serialize as JSON and send in the request body
+     * @param responseType The class to deserialize the response into
+     * @return ApiResponse containing the parsed data and metadata
+     * @throws ApiException if the request fails or response cannot be parsed
+     */
+    public <T, R> ApiResponse<R> delete(String endpoint, T payload, Class<R> responseType) throws ApiException {
+        String url = baseUrl + endpoint;
+        logger.debug("Making DELETE request with payload to: {}", url);
+
+        try {
+            String jsonPayload = objectMapper.writeValueAsString(payload);
+            logger.debug("Request payload: {}", jsonPayload);
+
+            RequestBody requestBody = RequestBody.create(
+                jsonPayload,
+                MediaType.parse("application/json")
+            );
+
+            Request request = new Request.Builder()
+                .url(url)
+                .delete(requestBody)
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .header("User-Agent", "TechSupport-CLI/1.0")
+                .build();
+
+            try (Response response = httpClient.newCall(request).execute()) {
+                logger.debug("Response status: {} for URL: {}", response.code(), url);
+                
+                if (!response.isSuccessful()) {
+                    String errorBody = response.body() != null ? response.body().string() : "No error details";
+                    throw new ApiException(
+                        String.format("API call failed with status %d: %s", response.code(), errorBody),
+                        response.code()
+                    );
+                }
+
+                if (response.body() == null) {
+                    throw new ApiException("Response body is null", response.code());
+                }
+
+                String responseBody = response.body().string();
+                logger.debug("Response body length: {} characters", responseBody.length());
+
+                R data = objectMapper.readValue(responseBody, responseType);
+                
+                return new ApiResponse<>(
+                    data,
+                    response.code(),
+                    response.headers().toMultimap()
+                );
+            }
 
         } catch (IOException e) {
             logger.error("Network error while calling {}: {}", url, e.getMessage());

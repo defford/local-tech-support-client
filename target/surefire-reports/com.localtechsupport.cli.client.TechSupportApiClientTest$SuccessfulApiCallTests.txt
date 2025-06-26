@@ -1,4 +1,4 @@
 -------------------------------------------------------------------------------
 Test set: com.localtechsupport.cli.client.TechSupportApiClientTest$SuccessfulApiCallTests
 -------------------------------------------------------------------------------
-Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.141 s -- in com.localtechsupport.cli.client.TechSupportApiClientTest$SuccessfulApiCallTests
+Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.269 s -- in com.localtechsupport.cli.client.TechSupportApiClientTest$SuccessfulApiCallTests

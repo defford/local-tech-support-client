@@ -26,7 +26,7 @@ import com.localtechsupport.cli.menu.MenuOption;
 <span class="nc" id="L26">    private static final String SUB_HEADER_LINE = &quot;─&quot;.repeat(80);</span>
 <span class="nc" id="L27">    private static final String MENU_BORDER_TOP = &quot;╔&quot; + &quot;═&quot;.repeat(78) + &quot;╗&quot;;</span>
 <span class="nc" id="L28">    private static final String MENU_BORDER_BOTTOM = &quot;╚&quot; + &quot;═&quot;.repeat(78) + &quot;╝&quot;;</span>
-<span class="nc" id="L29">    private static final String MENU_BORDER_SIDE = &quot;║&quot;;</span>
+    private static final String MENU_BORDER_SIDE = &quot;║&quot;;
     
     /**
      * Print a professional header with ASCII art border
@@ -76,7 +76,7 @@ import com.localtechsupport.cli.menu.MenuOption;
     public static void printMenu(List&lt;MenuOption&gt; options) {
 <span class="nc bnc" id="L77" title="All 2 branches missed.">        for (MenuOption option : options) {</span>
 <span class="nc" id="L78">            System.out.println(option.getFormattedDisplay());</span>
-        }
+<span class="nc" id="L79">        }</span>
 <span class="nc" id="L80">    }</span>
     
     /**
@@ -141,7 +141,7 @@ import com.localtechsupport.cli.menu.MenuOption;
 <span class="nc" id="L141">            System.in.read();</span>
 <span class="nc" id="L142">        } catch (Exception e) {</span>
             // Ignore
-        }
+<span class="nc" id="L144">        }</span>
 <span class="nc" id="L145">    }</span>
     
     /**
@@ -168,7 +168,7 @@ import com.localtechsupport.cli.menu.MenuOption;
 <span class="nc" id="L168">        int padding = (width - text.length()) / 2;</span>
 <span class="nc" id="L169">        System.out.printf(&quot;%s%s%s%n&quot;, </span>
 <span class="nc" id="L170">            &quot; &quot;.repeat(Math.max(0, padding)),</span>
-<span class="nc" id="L171">            text,</span>
+            text,
 <span class="nc" id="L172">            &quot; &quot;.repeat(Math.max(0, width - text.length() - padding)));</span>
 <span class="nc" id="L173">    }</span>
     
@@ -209,7 +209,7 @@ import com.localtechsupport.cli.menu.MenuOption;
 <span class="nc bnc" id="L209" title="All 2 branches missed.">        for (int i = 0; i &lt; barLength; i++) {</span>
 <span class="nc bnc" id="L210" title="All 2 branches missed.">            if (i &lt; filledLength) {</span>
 <span class="nc" id="L211">                bar.append(&quot;█&quot;);</span>
-<span class="nc" id="L212">            } else {</span>
+            } else {
 <span class="nc" id="L213">                bar.append(&quot;░&quot;);</span>
             }
         }

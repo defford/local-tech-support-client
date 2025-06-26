@@ -15,12 +15,12 @@ import java.util.regex.Pattern;
 <span class="nc" id="L15">public class InputValidator {</span>
     
 <span class="nc" id="L17">    private static final Pattern EMAIL_PATTERN = Pattern.compile(</span>
-<span class="nc" id="L18">        &quot;^[A-Za-z0-9+_.-]+@([A-Za-z0-9.-]+\\.[A-Za-z]{2,})$&quot;</span>
+        &quot;^[A-Za-z0-9+_.-]+@([A-Za-z0-9.-]+\\.[A-Za-z]{2,})$&quot;
     );
     
 <span class="nc" id="L21">    private static final Pattern PHONE_PATTERN = Pattern.compile(</span>
-<span class="nc" id="L22">        &quot;^[\\d\\s\\-\\(\\)\\+\\.]{10,20}$&quot;</span>
-<span class="nc" id="L23">    );</span>
+        &quot;^[\\d\\s\\-\\(\\)\\+\\.]{10,20}$&quot;
+    );
     
     /**
      * Validate and get a Long input (for IDs)
@@ -30,7 +30,7 @@ import java.util.regex.Pattern;
      * @return the validated Long value
      */
     public static Long validateLongInput(Scanner scanner, String prompt) {
-<span class="nc" id="L33">        while (true) {</span>
+        while (true) {
 <span class="nc" id="L34">            System.out.print(prompt);</span>
 <span class="nc" id="L35">            String input = scanner.nextLine().trim();</span>
             
@@ -49,7 +49,7 @@ import java.util.regex.Pattern;
 <span class="nc" id="L49">            } catch (NumberFormatException e) {</span>
 <span class="nc" id="L50">                DisplayUtils.printError(&quot;Please enter a valid number.&quot;);</span>
             }
-        }
+<span class="nc" id="L52">        }</span>
     }
     
     /**
@@ -110,7 +110,7 @@ import java.util.regex.Pattern;
     public static LocalDateTime validateDateTimeInput(Scanner scanner, String prompt) {
 <span class="nc" id="L111">        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(&quot;yyyy-MM-dd HH:mm&quot;);</span>
         
-<span class="nc" id="L113">        while (true) {</span>
+        while (true) {
 <span class="nc" id="L114">            System.out.print(prompt + &quot; (format: yyyy-MM-dd HH:mm): &quot;);</span>
 <span class="nc" id="L115">            String input = scanner.nextLine().trim();</span>
             
@@ -124,7 +124,7 @@ import java.util.regex.Pattern;
 <span class="nc" id="L124">            } catch (DateTimeParseException e) {</span>
 <span class="nc" id="L125">                DisplayUtils.printError(&quot;Invalid date/time format. Please use yyyy-MM-dd HH:mm&quot;);</span>
             }
-        }
+<span class="nc" id="L127">        }</span>
     }
     
     /**
@@ -139,7 +139,7 @@ import java.util.regex.Pattern;
     public static &lt;T extends Enum&lt;T&gt;&gt; T validateEnumInput(Scanner scanner, String prompt, Class&lt;T&gt; enumClass) {
 <span class="nc" id="L140">        T[] values = enumClass.getEnumConstants();</span>
         
-<span class="nc" id="L142">        while (true) {</span>
+        while (true) {
 <span class="nc" id="L143">            System.out.println(prompt);</span>
 <span class="nc" id="L144">            System.out.println(&quot;Available options:&quot;);</span>
 <span class="nc bnc" id="L145" title="All 2 branches missed.">            for (int i = 0; i &lt; values.length; i++) {</span>
@@ -169,8 +169,8 @@ import java.util.regex.Pattern;
                     }
                 }
 <span class="nc" id="L171">                DisplayUtils.printError(&quot;Invalid selection. Please try again.&quot;);</span>
-            }
-        }
+<span class="nc" id="L172">            }</span>
+<span class="nc" id="L173">        }</span>
     }
     
     /**
@@ -233,7 +233,7 @@ import java.util.regex.Pattern;
      * @return true for yes, false for no
      */
     public static boolean getConfirmation(Scanner scanner, String prompt) {
-<span class="nc" id="L236">        while (true) {</span>
+        while (true) {
 <span class="nc" id="L237">            System.out.print(prompt + &quot; (y/n): &quot;);</span>
 <span class="nc" id="L238">            String input = scanner.nextLine().trim().toLowerCase();</span>
             
@@ -244,7 +244,7 @@ import java.util.regex.Pattern;
             } else {
 <span class="nc" id="L245">                DisplayUtils.printError(&quot;Please enter 'y' for yes or 'n' for no.&quot;);</span>
             }
-        }
+<span class="nc" id="L247">        }</span>
     }
     
     /**
@@ -257,7 +257,7 @@ import java.util.regex.Pattern;
      * @return the validated integer
      */
     public static int validateIntegerInput(Scanner scanner, String prompt, int min, int max) {
-<span class="nc" id="L260">        while (true) {</span>
+        while (true) {
 <span class="nc" id="L261">            System.out.print(prompt + String.format(&quot; (%d-%d): &quot;, min, max));</span>
 <span class="nc" id="L262">            String input = scanner.nextLine().trim();</span>
             
@@ -275,8 +275,30 @@ import java.util.regex.Pattern;
                 }
 <span class="nc" id="L276">            } catch (NumberFormatException e) {</span>
 <span class="nc" id="L277">                DisplayUtils.printError(&quot;Please enter a valid number.&quot;);</span>
-            }
-        }
+<span class="nc" id="L278">            }</span>
+<span class="nc" id="L279">        }</span>
+    }
+    
+    // ==================== HELPER VALIDATION METHODS ====================
+    
+    /**
+     * Check if an email address is valid
+     * 
+     * @param email the email to validate
+     * @return true if valid, false otherwise
+     */
+    public static boolean isValidEmail(String email) {
+<span class="nc bnc" id="L291" title="All 4 branches missed.">        return email != null &amp;&amp; EMAIL_PATTERN.matcher(email.trim()).matches();</span>
+    }
+    
+    /**
+     * Check if a phone number is valid
+     * 
+     * @param phone the phone number to validate
+     * @return true if valid, false otherwise
+     */
+    public static boolean isValidPhone(String phone) {
+<span class="nc bnc" id="L301" title="All 4 branches missed.">        return phone != null &amp;&amp; PHONE_PATTERN.matcher(phone.trim()).matches();</span>
     }
 } 
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

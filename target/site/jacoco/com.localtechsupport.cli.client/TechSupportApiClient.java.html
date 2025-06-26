@@ -6,6 +6,8 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
+import okhttp3.RequestBody;
+import okhttp3.MediaType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,26 +22,26 @@ import java.util.concurrent.TimeUnit;
  */
 public class TechSupportApiClient {
 
-<span class="nc" id="L23">    private static final Logger logger = LoggerFactory.getLogger(TechSupportApiClient.class);</span>
+<span class="fc" id="L25">    private static final Logger logger = LoggerFactory.getLogger(TechSupportApiClient.class);</span>
 
     private final OkHttpClient httpClient;
     private final ObjectMapper objectMapper;
     private final String baseUrl;
 
-<span class="nc" id="L29">    public TechSupportApiClient(String baseUrl) {</span>
-<span class="nc bnc" id="L30" title="All 2 branches missed.">        this.baseUrl = baseUrl.endsWith(&quot;/&quot;) ? baseUrl.substring(0, baseUrl.length() - 1) : baseUrl;</span>
+<span class="fc" id="L31">    public TechSupportApiClient(String baseUrl) {</span>
+<span class="fc bfc" id="L32" title="All 2 branches covered.">        this.baseUrl = baseUrl.endsWith(&quot;/&quot;) ? baseUrl.substring(0, baseUrl.length() - 1) : baseUrl;</span>
         
-<span class="nc" id="L32">        this.httpClient = new OkHttpClient.Builder()</span>
-<span class="nc" id="L33">            .connectTimeout(10, TimeUnit.SECONDS)</span>
-<span class="nc" id="L34">            .readTimeout(30, TimeUnit.SECONDS)</span>
-<span class="nc" id="L35">            .build();</span>
+<span class="fc" id="L34">        this.httpClient = new OkHttpClient.Builder()</span>
+<span class="fc" id="L35">            .connectTimeout(10, TimeUnit.SECONDS)</span>
+<span class="fc" id="L36">            .readTimeout(30, TimeUnit.SECONDS)</span>
+<span class="fc" id="L37">            .build();</span>
             
-<span class="nc" id="L37">        this.objectMapper = new ObjectMapper()</span>
-<span class="nc" id="L38">            .registerModule(new JavaTimeModule())</span>
-<span class="nc" id="L39">            .configure(com.fasterxml.jackson.databind.SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);</span>
+<span class="fc" id="L39">        this.objectMapper = new ObjectMapper()</span>
+<span class="fc" id="L40">            .registerModule(new JavaTimeModule())</span>
+<span class="fc" id="L41">            .configure(com.fasterxml.jackson.databind.SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);</span>
             
-<span class="nc" id="L41">        logger.info(&quot;TechSupportApiClient initialized with base URL: {}&quot;, this.baseUrl);</span>
-<span class="nc" id="L42">    }</span>
+<span class="fc" id="L43">        logger.info(&quot;TechSupportApiClient initialized with base URL: {}&quot;, this.baseUrl);</span>
+<span class="fc" id="L44">    }</span>
 
     /**
      * Performs a GET request to the specified endpoint and returns the parsed response
@@ -50,47 +52,47 @@ public class TechSupportApiClient {
      * @throws ApiException if the request fails or response cannot be parsed
      */
     public &lt;T&gt; ApiResponse&lt;T&gt; get(String endpoint, Class&lt;T&gt; responseType) throws ApiException {
-<span class="nc" id="L53">        String url = baseUrl + endpoint;</span>
-<span class="nc" id="L54">        logger.debug(&quot;Making GET request to: {}&quot;, url);</span>
+<span class="fc" id="L55">        String url = baseUrl + endpoint;</span>
+<span class="fc" id="L56">        logger.debug(&quot;Making GET request to: {}&quot;, url);</span>
 
-<span class="nc" id="L56">        Request request = new Request.Builder()</span>
-<span class="nc" id="L57">            .url(url)</span>
-<span class="nc" id="L58">            .header(&quot;Accept&quot;, &quot;application/json&quot;)</span>
-<span class="nc" id="L59">            .header(&quot;User-Agent&quot;, &quot;TechSupport-CLI/1.0&quot;)</span>
-<span class="nc" id="L60">            .build();</span>
+<span class="fc" id="L58">        Request request = new Request.Builder()</span>
+<span class="fc" id="L59">            .url(url)</span>
+<span class="fc" id="L60">            .header(&quot;Accept&quot;, &quot;application/json&quot;)</span>
+<span class="fc" id="L61">            .header(&quot;User-Agent&quot;, &quot;TechSupport-CLI/1.0&quot;)</span>
+<span class="fc" id="L62">            .build();</span>
 
-<span class="nc" id="L62">        try (Response response = httpClient.newCall(request).execute()) {</span>
-<span class="nc" id="L63">            logger.debug(&quot;Response status: {} for URL: {}&quot;, response.code(), url);</span>
+<span class="fc" id="L64">        try (Response response = httpClient.newCall(request).execute()) {</span>
+<span class="fc" id="L65">            logger.debug(&quot;Response status: {} for URL: {}&quot;, response.code(), url);</span>
             
-<span class="nc bnc" id="L65" title="All 2 branches missed.">            if (!response.isSuccessful()) {</span>
-<span class="nc bnc" id="L66" title="All 2 branches missed.">                String errorBody = response.body() != null ? response.body().string() : &quot;No error details&quot;;</span>
-<span class="nc" id="L67">                throw new ApiException(</span>
-<span class="nc" id="L68">                    String.format(&quot;API call failed with status %d: %s&quot;, response.code(), errorBody),</span>
-<span class="nc" id="L69">                    response.code()</span>
+<span class="fc bfc" id="L67" title="All 2 branches covered.">            if (!response.isSuccessful()) {</span>
+<span class="pc bpc" id="L68" title="1 of 2 branches missed.">                String errorBody = response.body() != null ? response.body().string() : &quot;No error details&quot;;</span>
+<span class="fc" id="L69">                throw new ApiException(</span>
+<span class="fc" id="L70">                    String.format(&quot;API call failed with status %d: %s&quot;, response.code(), errorBody),</span>
+<span class="fc" id="L71">                    response.code()</span>
                 );
             }
 
-<span class="nc bnc" id="L73" title="All 2 branches missed.">            if (response.body() == null) {</span>
-<span class="nc" id="L74">                throw new ApiException(&quot;Response body is null&quot;, response.code());</span>
+<span class="pc bpc" id="L75" title="1 of 2 branches missed.">            if (response.body() == null) {</span>
+<span class="nc" id="L76">                throw new ApiException(&quot;Response body is null&quot;, response.code());</span>
             }
 
-<span class="nc" id="L77">            String responseBody = response.body().string();</span>
-<span class="nc" id="L78">            logger.debug(&quot;Response body length: {} characters&quot;, responseBody.length());</span>
+<span class="fc" id="L79">            String responseBody = response.body().string();</span>
+<span class="fc" id="L80">            logger.debug(&quot;Response body length: {} characters&quot;, responseBody.length());</span>
 
-<span class="nc" id="L80">            T data = objectMapper.readValue(responseBody, responseType);</span>
+<span class="fc" id="L82">            T data = objectMapper.readValue(responseBody, responseType);</span>
             
-<span class="nc" id="L82">            return new ApiResponse&lt;&gt;(</span>
-<span class="nc" id="L83">                data,</span>
-<span class="nc" id="L84">                response.code(),</span>
-<span class="nc" id="L85">                response.headers().toMultimap()</span>
+<span class="fc" id="L84">            return new ApiResponse&lt;&gt;(</span>
+                data,
+<span class="fc" id="L86">                response.code(),</span>
+<span class="fc" id="L87">                response.headers().toMultimap()</span>
             );
 
-<span class="nc" id="L88">        } catch (IOException e) {</span>
-<span class="nc" id="L89">            logger.error(&quot;Network error while calling {}: {}&quot;, url, e.getMessage());</span>
-<span class="nc" id="L90">            throw new ApiException(&quot;Network error: &quot; + e.getMessage(), e);</span>
-<span class="nc" id="L91">        } catch (Exception e) {</span>
-<span class="nc" id="L92">            logger.error(&quot;Unexpected error while calling {}: {}&quot;, url, e.getMessage());</span>
-<span class="nc" id="L93">            throw new ApiException(&quot;Unexpected error: &quot; + e.getMessage(), e);</span>
+<span class="fc" id="L90">        } catch (IOException e) {</span>
+<span class="fc" id="L91">            logger.error(&quot;Network error while calling {}: {}&quot;, url, e.getMessage());</span>
+<span class="fc" id="L92">            throw new ApiException(&quot;Network error: &quot; + e.getMessage(), e);</span>
+<span class="fc" id="L93">        } catch (Exception e) {</span>
+<span class="fc" id="L94">            logger.error(&quot;Unexpected error while calling {}: {}&quot;, url, e.getMessage());</span>
+<span class="fc" id="L95">            throw new ApiException(&quot;Unexpected error: &quot; + e.getMessage(), e);</span>
         }
     }
 
@@ -103,47 +105,287 @@ public class TechSupportApiClient {
      * @throws ApiException if the request fails or response cannot be parsed
      */
     public &lt;T&gt; ApiResponse&lt;T&gt; get(String endpoint, TypeReference&lt;T&gt; typeReference) throws ApiException {
-<span class="nc" id="L106">        String url = baseUrl + endpoint;</span>
-<span class="nc" id="L107">        logger.debug(&quot;Making GET request to: {}&quot;, url);</span>
+<span class="nc" id="L108">        String url = baseUrl + endpoint;</span>
+<span class="nc" id="L109">        logger.debug(&quot;Making GET request to: {}&quot;, url);</span>
 
-<span class="nc" id="L109">        Request request = new Request.Builder()</span>
-<span class="nc" id="L110">            .url(url)</span>
-<span class="nc" id="L111">            .header(&quot;Accept&quot;, &quot;application/json&quot;)</span>
-<span class="nc" id="L112">            .header(&quot;User-Agent&quot;, &quot;TechSupport-CLI/1.0&quot;)</span>
-<span class="nc" id="L113">            .build();</span>
+<span class="nc" id="L111">        Request request = new Request.Builder()</span>
+<span class="nc" id="L112">            .url(url)</span>
+<span class="nc" id="L113">            .header(&quot;Accept&quot;, &quot;application/json&quot;)</span>
+<span class="nc" id="L114">            .header(&quot;User-Agent&quot;, &quot;TechSupport-CLI/1.0&quot;)</span>
+<span class="nc" id="L115">            .build();</span>
 
-<span class="nc" id="L115">        try (Response response = httpClient.newCall(request).execute()) {</span>
-<span class="nc" id="L116">            logger.debug(&quot;Response status: {} for URL: {}&quot;, response.code(), url);</span>
+<span class="nc" id="L117">        try (Response response = httpClient.newCall(request).execute()) {</span>
+<span class="nc" id="L118">            logger.debug(&quot;Response status: {} for URL: {}&quot;, response.code(), url);</span>
             
-<span class="nc bnc" id="L118" title="All 2 branches missed.">            if (!response.isSuccessful()) {</span>
-<span class="nc bnc" id="L119" title="All 2 branches missed.">                String errorBody = response.body() != null ? response.body().string() : &quot;No error details&quot;;</span>
-<span class="nc" id="L120">                throw new ApiException(</span>
-<span class="nc" id="L121">                    String.format(&quot;API call failed with status %d: %s&quot;, response.code(), errorBody),</span>
-<span class="nc" id="L122">                    response.code()</span>
+<span class="nc bnc" id="L120" title="All 2 branches missed.">            if (!response.isSuccessful()) {</span>
+<span class="nc bnc" id="L121" title="All 2 branches missed.">                String errorBody = response.body() != null ? response.body().string() : &quot;No error details&quot;;</span>
+<span class="nc" id="L122">                throw new ApiException(</span>
+<span class="nc" id="L123">                    String.format(&quot;API call failed with status %d: %s&quot;, response.code(), errorBody),</span>
+<span class="nc" id="L124">                    response.code()</span>
                 );
             }
 
-<span class="nc bnc" id="L126" title="All 2 branches missed.">            if (response.body() == null) {</span>
-<span class="nc" id="L127">                throw new ApiException(&quot;Response body is null&quot;, response.code());</span>
+<span class="nc bnc" id="L128" title="All 2 branches missed.">            if (response.body() == null) {</span>
+<span class="nc" id="L129">                throw new ApiException(&quot;Response body is null&quot;, response.code());</span>
             }
 
-<span class="nc" id="L130">            String responseBody = response.body().string();</span>
-<span class="nc" id="L131">            logger.debug(&quot;Response body length: {} characters&quot;, responseBody.length());</span>
+<span class="nc" id="L132">            String responseBody = response.body().string();</span>
+<span class="nc" id="L133">            logger.debug(&quot;Response body length: {} characters&quot;, responseBody.length());</span>
 
-<span class="nc" id="L133">            T data = objectMapper.readValue(responseBody, typeReference);</span>
+<span class="nc" id="L135">            T data = objectMapper.readValue(responseBody, typeReference);</span>
             
-<span class="nc" id="L135">            return new ApiResponse&lt;&gt;(</span>
-<span class="nc" id="L136">                data,</span>
-<span class="nc" id="L137">                response.code(),</span>
-<span class="nc" id="L138">                response.headers().toMultimap()</span>
+<span class="nc" id="L137">            return new ApiResponse&lt;&gt;(</span>
+                data,
+<span class="nc" id="L139">                response.code(),</span>
+<span class="nc" id="L140">                response.headers().toMultimap()</span>
             );
 
-<span class="nc" id="L141">        } catch (IOException e) {</span>
-<span class="nc" id="L142">            logger.error(&quot;Network error while calling {}: {}&quot;, url, e.getMessage());</span>
-<span class="nc" id="L143">            throw new ApiException(&quot;Network error: &quot; + e.getMessage(), e);</span>
-<span class="nc" id="L144">        } catch (Exception e) {</span>
-<span class="nc" id="L145">            logger.error(&quot;Unexpected error while calling {}: {}&quot;, url, e.getMessage());</span>
-<span class="nc" id="L146">            throw new ApiException(&quot;Unexpected error: &quot; + e.getMessage(), e);</span>
+<span class="nc" id="L143">        } catch (IOException e) {</span>
+<span class="nc" id="L144">            logger.error(&quot;Network error while calling {}: {}&quot;, url, e.getMessage());</span>
+<span class="nc" id="L145">            throw new ApiException(&quot;Network error: &quot; + e.getMessage(), e);</span>
+<span class="nc" id="L146">        } catch (Exception e) {</span>
+<span class="nc" id="L147">            logger.error(&quot;Unexpected error while calling {}: {}&quot;, url, e.getMessage());</span>
+<span class="nc" id="L148">            throw new ApiException(&quot;Unexpected error: &quot; + e.getMessage(), e);</span>
+        }
+    }
+
+    /**
+     * Performs a POST request to the specified endpoint with JSON payload
+     * 
+     * @param endpoint The API endpoint (e.g., &quot;/api/clients&quot;)
+     * @param payload The object to serialize as JSON and send in the request body
+     * @param responseType The class to deserialize the response into
+     * @return ApiResponse containing the parsed data and metadata
+     * @throws ApiException if the request fails or response cannot be parsed
+     */
+    public &lt;T, R&gt; ApiResponse&lt;R&gt; post(String endpoint, T payload, Class&lt;R&gt; responseType) throws ApiException {
+<span class="nc" id="L162">        String url = baseUrl + endpoint;</span>
+<span class="nc" id="L163">        logger.debug(&quot;Making POST request to: {}&quot;, url);</span>
+
+        try {
+<span class="nc" id="L166">            String jsonPayload = objectMapper.writeValueAsString(payload);</span>
+<span class="nc" id="L167">            logger.info(&quot;Request payload: {}&quot;, jsonPayload);</span>
+
+<span class="nc" id="L169">            RequestBody requestBody = RequestBody.create(</span>
+                jsonPayload,
+<span class="nc" id="L171">                MediaType.parse(&quot;application/json&quot;)</span>
+            );
+
+<span class="nc" id="L174">            Request request = new Request.Builder()</span>
+<span class="nc" id="L175">                .url(url)</span>
+<span class="nc" id="L176">                .post(requestBody)</span>
+<span class="nc" id="L177">                .header(&quot;Accept&quot;, &quot;application/json&quot;)</span>
+<span class="nc" id="L178">                .header(&quot;Content-Type&quot;, &quot;application/json&quot;)</span>
+<span class="nc" id="L179">                .header(&quot;User-Agent&quot;, &quot;TechSupport-CLI/1.0&quot;)</span>
+<span class="nc" id="L180">                .build();</span>
+
+<span class="nc" id="L182">            try (Response response = httpClient.newCall(request).execute()) {</span>
+<span class="nc" id="L183">                logger.debug(&quot;Response status: {} for URL: {}&quot;, response.code(), url);</span>
+                
+<span class="nc bnc" id="L185" title="All 2 branches missed.">                if (!response.isSuccessful()) {</span>
+<span class="nc bnc" id="L186" title="All 2 branches missed.">                    String errorBody = response.body() != null ? response.body().string() : &quot;No error details&quot;;</span>
+<span class="nc" id="L187">                    throw new ApiException(</span>
+<span class="nc" id="L188">                        String.format(&quot;API call failed with status %d: %s&quot;, response.code(), errorBody),</span>
+<span class="nc" id="L189">                        response.code()</span>
+                    );
+                }
+
+<span class="nc bnc" id="L193" title="All 2 branches missed.">                if (response.body() == null) {</span>
+<span class="nc" id="L194">                    throw new ApiException(&quot;Response body is null&quot;, response.code());</span>
+                }
+
+<span class="nc" id="L197">                String responseBody = response.body().string();</span>
+<span class="nc" id="L198">                logger.debug(&quot;Response body length: {} characters&quot;, responseBody.length());</span>
+
+<span class="nc" id="L200">                R data = objectMapper.readValue(responseBody, responseType);</span>
+                
+<span class="nc" id="L202">                return new ApiResponse&lt;&gt;(</span>
+                    data,
+<span class="nc" id="L204">                    response.code(),</span>
+<span class="nc" id="L205">                    response.headers().toMultimap()</span>
+                );
+            }
+
+<span class="nc" id="L209">        } catch (IOException e) {</span>
+<span class="nc" id="L210">            logger.error(&quot;Network error while calling {}: {}&quot;, url, e.getMessage());</span>
+<span class="nc" id="L211">            throw new ApiException(&quot;Network error: &quot; + e.getMessage(), e);</span>
+<span class="nc" id="L212">        } catch (Exception e) {</span>
+<span class="nc" id="L213">            logger.error(&quot;Unexpected error while calling {}: {}&quot;, url, e.getMessage());</span>
+<span class="nc" id="L214">            throw new ApiException(&quot;Unexpected error: &quot; + e.getMessage(), e);</span>
+        }
+    }
+
+    /**
+     * Performs a PUT request to the specified endpoint with JSON payload
+     * 
+     * @param endpoint The API endpoint (e.g., &quot;/api/clients/1&quot;)
+     * @param payload The object to serialize as JSON and send in the request body
+     * @param responseType The class to deserialize the response into
+     * @return ApiResponse containing the parsed data and metadata
+     * @throws ApiException if the request fails or response cannot be parsed
+     */
+    public &lt;T, R&gt; ApiResponse&lt;R&gt; put(String endpoint, T payload, Class&lt;R&gt; responseType) throws ApiException {
+<span class="nc" id="L228">        String url = baseUrl + endpoint;</span>
+<span class="nc" id="L229">        logger.debug(&quot;Making PUT request to: {}&quot;, url);</span>
+
+        try {
+<span class="nc" id="L232">            String jsonPayload = objectMapper.writeValueAsString(payload);</span>
+<span class="nc" id="L233">            logger.debug(&quot;Request payload: {}&quot;, jsonPayload);</span>
+
+<span class="nc" id="L235">            RequestBody requestBody = RequestBody.create(</span>
+                jsonPayload,
+<span class="nc" id="L237">                MediaType.parse(&quot;application/json&quot;)</span>
+            );
+
+<span class="nc" id="L240">            Request request = new Request.Builder()</span>
+<span class="nc" id="L241">                .url(url)</span>
+<span class="nc" id="L242">                .put(requestBody)</span>
+<span class="nc" id="L243">                .header(&quot;Accept&quot;, &quot;application/json&quot;)</span>
+<span class="nc" id="L244">                .header(&quot;Content-Type&quot;, &quot;application/json&quot;)</span>
+<span class="nc" id="L245">                .header(&quot;User-Agent&quot;, &quot;TechSupport-CLI/1.0&quot;)</span>
+<span class="nc" id="L246">                .build();</span>
+
+<span class="nc" id="L248">            try (Response response = httpClient.newCall(request).execute()) {</span>
+<span class="nc" id="L249">                logger.debug(&quot;Response status: {} for URL: {}&quot;, response.code(), url);</span>
+                
+<span class="nc bnc" id="L251" title="All 2 branches missed.">                if (!response.isSuccessful()) {</span>
+<span class="nc bnc" id="L252" title="All 2 branches missed.">                    String errorBody = response.body() != null ? response.body().string() : &quot;No error details&quot;;</span>
+<span class="nc" id="L253">                    throw new ApiException(</span>
+<span class="nc" id="L254">                        String.format(&quot;API call failed with status %d: %s&quot;, response.code(), errorBody),</span>
+<span class="nc" id="L255">                        response.code()</span>
+                    );
+                }
+
+<span class="nc bnc" id="L259" title="All 2 branches missed.">                if (response.body() == null) {</span>
+<span class="nc" id="L260">                    throw new ApiException(&quot;Response body is null&quot;, response.code());</span>
+                }
+
+<span class="nc" id="L263">                String responseBody = response.body().string();</span>
+<span class="nc" id="L264">                logger.debug(&quot;Response body length: {} characters&quot;, responseBody.length());</span>
+
+<span class="nc" id="L266">                R data = objectMapper.readValue(responseBody, responseType);</span>
+                
+<span class="nc" id="L268">                return new ApiResponse&lt;&gt;(</span>
+                    data,
+<span class="nc" id="L270">                    response.code(),</span>
+<span class="nc" id="L271">                    response.headers().toMultimap()</span>
+                );
+            }
+
+<span class="nc" id="L275">        } catch (IOException e) {</span>
+<span class="nc" id="L276">            logger.error(&quot;Network error while calling {}: {}&quot;, url, e.getMessage());</span>
+<span class="nc" id="L277">            throw new ApiException(&quot;Network error: &quot; + e.getMessage(), e);</span>
+<span class="nc" id="L278">        } catch (Exception e) {</span>
+<span class="nc" id="L279">            logger.error(&quot;Unexpected error while calling {}: {}&quot;, url, e.getMessage());</span>
+<span class="nc" id="L280">            throw new ApiException(&quot;Unexpected error: &quot; + e.getMessage(), e);</span>
+        }
+    }
+
+    /**
+     * Performs a DELETE request to the specified endpoint
+     * 
+     * @param endpoint The API endpoint (e.g., &quot;/api/clients/1&quot;)
+     * @throws ApiException if the request fails
+     */
+    public void delete(String endpoint) throws ApiException {
+<span class="nc" id="L291">        String url = baseUrl + endpoint;</span>
+<span class="nc" id="L292">        logger.debug(&quot;Making DELETE request to: {}&quot;, url);</span>
+
+<span class="nc" id="L294">        Request request = new Request.Builder()</span>
+<span class="nc" id="L295">            .url(url)</span>
+<span class="nc" id="L296">            .delete()</span>
+<span class="nc" id="L297">            .header(&quot;Accept&quot;, &quot;application/json&quot;)</span>
+<span class="nc" id="L298">            .header(&quot;User-Agent&quot;, &quot;TechSupport-CLI/1.0&quot;)</span>
+<span class="nc" id="L299">            .build();</span>
+
+<span class="nc" id="L301">        try (Response response = httpClient.newCall(request).execute()) {</span>
+<span class="nc" id="L302">            logger.debug(&quot;Response status: {} for URL: {}&quot;, response.code(), url);</span>
+            
+<span class="nc bnc" id="L304" title="All 2 branches missed.">            if (!response.isSuccessful()) {</span>
+<span class="nc bnc" id="L305" title="All 2 branches missed.">                String errorBody = response.body() != null ? response.body().string() : &quot;No error details&quot;;</span>
+<span class="nc" id="L306">                throw new ApiException(</span>
+<span class="nc" id="L307">                    String.format(&quot;API call failed with status %d: %s&quot;, response.code(), errorBody),</span>
+<span class="nc" id="L308">                    response.code()</span>
+                );
+            }
+
+<span class="nc" id="L312">            logger.info(&quot;DELETE request successful for: {}&quot;, url);</span>
+
+<span class="nc" id="L314">        } catch (ApiException e) {</span>
+            // Re-throw ApiException as-is to preserve status code
+<span class="nc" id="L316">            throw e;</span>
+<span class="nc" id="L317">        } catch (IOException e) {</span>
+<span class="nc" id="L318">            logger.error(&quot;Network error while calling {}: {}&quot;, url, e.getMessage());</span>
+<span class="nc" id="L319">            throw new ApiException(&quot;Network error: &quot; + e.getMessage(), e);</span>
+<span class="nc" id="L320">        } catch (Exception e) {</span>
+<span class="nc" id="L321">            logger.error(&quot;Unexpected error while calling {}: {}&quot;, url, e.getMessage());</span>
+<span class="nc" id="L322">            throw new ApiException(&quot;Unexpected error: &quot; + e.getMessage(), e);</span>
+<span class="nc" id="L323">        }</span>
+<span class="nc" id="L324">    }</span>
+
+    /**
+     * Performs a DELETE request to the specified endpoint with JSON payload and returns response
+     * 
+     * @param endpoint The API endpoint (e.g., &quot;/api/tickets/1/assign&quot;)
+     * @param payload The object to serialize as JSON and send in the request body
+     * @param responseType The class to deserialize the response into
+     * @return ApiResponse containing the parsed data and metadata
+     * @throws ApiException if the request fails or response cannot be parsed
+     */
+    public &lt;T, R&gt; ApiResponse&lt;R&gt; delete(String endpoint, T payload, Class&lt;R&gt; responseType) throws ApiException {
+<span class="nc" id="L336">        String url = baseUrl + endpoint;</span>
+<span class="nc" id="L337">        logger.debug(&quot;Making DELETE request with payload to: {}&quot;, url);</span>
+
+        try {
+<span class="nc" id="L340">            String jsonPayload = objectMapper.writeValueAsString(payload);</span>
+<span class="nc" id="L341">            logger.debug(&quot;Request payload: {}&quot;, jsonPayload);</span>
+
+<span class="nc" id="L343">            RequestBody requestBody = RequestBody.create(</span>
+                jsonPayload,
+<span class="nc" id="L345">                MediaType.parse(&quot;application/json&quot;)</span>
+            );
+
+<span class="nc" id="L348">            Request request = new Request.Builder()</span>
+<span class="nc" id="L349">                .url(url)</span>
+<span class="nc" id="L350">                .delete(requestBody)</span>
+<span class="nc" id="L351">                .header(&quot;Accept&quot;, &quot;application/json&quot;)</span>
+<span class="nc" id="L352">                .header(&quot;Content-Type&quot;, &quot;application/json&quot;)</span>
+<span class="nc" id="L353">                .header(&quot;User-Agent&quot;, &quot;TechSupport-CLI/1.0&quot;)</span>
+<span class="nc" id="L354">                .build();</span>
+
+<span class="nc" id="L356">            try (Response response = httpClient.newCall(request).execute()) {</span>
+<span class="nc" id="L357">                logger.debug(&quot;Response status: {} for URL: {}&quot;, response.code(), url);</span>
+                
+<span class="nc bnc" id="L359" title="All 2 branches missed.">                if (!response.isSuccessful()) {</span>
+<span class="nc bnc" id="L360" title="All 2 branches missed.">                    String errorBody = response.body() != null ? response.body().string() : &quot;No error details&quot;;</span>
+<span class="nc" id="L361">                    throw new ApiException(</span>
+<span class="nc" id="L362">                        String.format(&quot;API call failed with status %d: %s&quot;, response.code(), errorBody),</span>
+<span class="nc" id="L363">                        response.code()</span>
+                    );
+                }
+
+<span class="nc bnc" id="L367" title="All 2 branches missed.">                if (response.body() == null) {</span>
+<span class="nc" id="L368">                    throw new ApiException(&quot;Response body is null&quot;, response.code());</span>
+                }
+
+<span class="nc" id="L371">                String responseBody = response.body().string();</span>
+<span class="nc" id="L372">                logger.debug(&quot;Response body length: {} characters&quot;, responseBody.length());</span>
+
+<span class="nc" id="L374">                R data = objectMapper.readValue(responseBody, responseType);</span>
+                
+<span class="nc" id="L376">                return new ApiResponse&lt;&gt;(</span>
+                    data,
+<span class="nc" id="L378">                    response.code(),</span>
+<span class="nc" id="L379">                    response.headers().toMultimap()</span>
+                );
+            }
+
+<span class="nc" id="L383">        } catch (IOException e) {</span>
+<span class="nc" id="L384">            logger.error(&quot;Network error while calling {}: {}&quot;, url, e.getMessage());</span>
+<span class="nc" id="L385">            throw new ApiException(&quot;Network error: &quot; + e.getMessage(), e);</span>
+<span class="nc" id="L386">        } catch (Exception e) {</span>
+<span class="nc" id="L387">            logger.error(&quot;Unexpected error while calling {}: {}&quot;, url, e.getMessage());</span>
+<span class="nc" id="L388">            throw new ApiException(&quot;Unexpected error: &quot; + e.getMessage(), e);</span>
         }
     }
 
@@ -153,7 +395,7 @@ public class TechSupportApiClient {
      * @return the base URL
      */
     public String getBaseUrl() {
-<span class="nc" id="L156">        return baseUrl;</span>
+<span class="fc" id="L398">        return baseUrl;</span>
     }
 
     /**
@@ -164,20 +406,20 @@ public class TechSupportApiClient {
     public boolean testConnection() {
         try {
             // Try the main API endpoint instead of actuator health which may not be available
-<span class="nc" id="L167">            Request request = new Request.Builder()</span>
-<span class="nc" id="L168">                .url(baseUrl + &quot;/api/clients&quot;)</span>
-<span class="nc" id="L169">                .header(&quot;Accept&quot;, &quot;application/json&quot;)</span>
-<span class="nc" id="L170">                .header(&quot;User-Agent&quot;, &quot;TechSupport-CLI/1.0&quot;)</span>
-<span class="nc" id="L171">                .build();</span>
+<span class="fc" id="L409">            Request request = new Request.Builder()</span>
+<span class="fc" id="L410">                .url(baseUrl + &quot;/api/clients&quot;)</span>
+<span class="fc" id="L411">                .header(&quot;Accept&quot;, &quot;application/json&quot;)</span>
+<span class="fc" id="L412">                .header(&quot;User-Agent&quot;, &quot;TechSupport-CLI/1.0&quot;)</span>
+<span class="fc" id="L413">                .build();</span>
 
-<span class="nc" id="L173">            try (Response response = httpClient.newCall(request).execute()) {</span>
+<span class="fc" id="L415">            try (Response response = httpClient.newCall(request).execute()) {</span>
                 // Accept any response from 200-299 or even 401/403 as &quot;connected&quot;
                 // We just want to verify the server is reachable, not that we can access data
-<span class="nc bnc" id="L176" title="All 4 branches missed.">                return response.code() &gt;= 200 &amp;&amp; response.code() &lt; 500;</span>
+<span class="pc bpc" id="L418" title="1 of 4 branches missed.">                return response.code() &gt;= 200 &amp;&amp; response.code() &lt; 500;</span>
             }
-<span class="nc" id="L178">        } catch (Exception e) {</span>
-<span class="nc" id="L179">            logger.warn(&quot;Connection test failed: {}&quot;, e.getMessage());</span>
-<span class="nc" id="L180">            return false;</span>
+<span class="nc" id="L420">        } catch (Exception e) {</span>
+<span class="nc" id="L421">            logger.warn(&quot;Connection test failed: {}&quot;, e.getMessage());</span>
+<span class="nc" id="L422">            return false;</span>
         }
     }
 
@@ -185,10 +427,10 @@ public class TechSupportApiClient {
      * Close the HTTP client and release resources
      */
     public void close() {
-<span class="nc bnc" id="L188" title="All 2 branches missed.">        if (httpClient != null) {</span>
-<span class="nc" id="L189">            httpClient.dispatcher().executorService().shutdown();</span>
-<span class="nc" id="L190">            httpClient.connectionPool().evictAll();</span>
+<span class="pc bpc" id="L430" title="1 of 2 branches missed.">        if (httpClient != null) {</span>
+<span class="fc" id="L431">            httpClient.dispatcher().executorService().shutdown();</span>
+<span class="fc" id="L432">            httpClient.connectionPool().evictAll();</span>
         }
-<span class="nc" id="L192">    }</span>
+<span class="fc" id="L434">    }</span>
 } 
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

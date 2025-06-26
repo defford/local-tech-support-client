@@ -1,0 +1,518 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TechnicianBuilder.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Local Tech Support CLI Client</a> &gt; <a href="index.source.html" class="el_package">com.localtechsupport.cli.menu.technician</a> &gt; <span class="el_source">TechnicianBuilder.java</span></div><h1>TechnicianBuilder.java</h1><pre class="source lang-java linenums">package com.localtechsupport.cli.menu.technician;
+
+import com.localtechsupport.cli.model.Technician;
+import com.localtechsupport.cli.util.InputValidator;
+import com.localtechsupport.cli.util.DisplayUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
+import java.util.Scanner;
+
+/**
+ * Utility class for building technician objects from user input
+ * 
+ * Handles collection and validation of technician data for create/update operations
+ */
+public class TechnicianBuilder {
+    
+<span class="nc" id="L22">    private static final Logger logger = LoggerFactory.getLogger(TechnicianBuilder.class);</span>
+    private final Scanner scanner;
+    
+    // Available skills/service types
+<span class="nc" id="L26">    private static final List&lt;String&gt; AVAILABLE_SKILLS = Arrays.asList(</span>
+        &quot;HARDWARE&quot;, &quot;SOFTWARE&quot;
+    );
+    
+    // Available status options
+<span class="nc" id="L31">    private static final List&lt;String&gt; AVAILABLE_STATUSES = Arrays.asList(</span>
+        &quot;ACTIVE&quot;, &quot;INACTIVE&quot;, &quot;IN_TRAINING&quot;, &quot;ON_VACATION&quot;, &quot;TERMINATED&quot;
+    );
+    
+<span class="nc" id="L35">    public TechnicianBuilder(Scanner scanner) {</span>
+<span class="nc" id="L36">        this.scanner = scanner;</span>
+<span class="nc" id="L37">    }</span>
+    
+    /**
+     * Build a new technician from user input
+     * 
+     * @return populated Technician object or null if cancelled
+     */
+    public Technician buildNewTechnician() {
+<span class="nc" id="L45">        DisplayUtils.printHeader(&quot;NEW TECHNICIAN REGISTRATION&quot;);</span>
+        
+<span class="nc" id="L47">        System.out.println(&quot;📋 Please provide the following information:&quot;);</span>
+<span class="nc" id="L48">        System.out.println(&quot;   (Enter 'cancel' at any time to abort)&quot;);</span>
+<span class="nc" id="L49">        System.out.println();</span>
+        
+        try {
+            // Collect required fields
+<span class="nc" id="L53">            String fullName = collectFullName();</span>
+<span class="nc bnc" id="L54" title="All 2 branches missed.">            if (fullName == null) return null;</span>
+            
+<span class="nc" id="L56">            String email = collectEmail();</span>
+<span class="nc bnc" id="L57" title="All 2 branches missed.">            if (email == null) return null;</span>
+            
+<span class="nc" id="L59">            String phone = collectPhone();</span>
+<span class="nc bnc" id="L60" title="All 2 branches missed.">            if (phone == null) return null;</span>
+            
+<span class="nc" id="L62">            List&lt;String&gt; skills = collectSkills();</span>
+<span class="nc bnc" id="L63" title="All 2 branches missed.">            if (skills == null) return null;</span>
+            
+            // Optional fields
+<span class="nc" id="L66">            String status = collectStatus();</span>
+<span class="nc bnc" id="L67" title="All 2 branches missed.">            if (status == null) return null;</span>
+            
+            // Create technician object
+<span class="nc" id="L70">            Technician technician = new Technician();</span>
+<span class="nc" id="L71">            technician.setFullName(fullName);</span>
+<span class="nc" id="L72">            technician.setEmail(email);</span>
+<span class="nc" id="L73">            technician.setPhone(phone);</span>
+<span class="nc" id="L74">            technician.setSkills(skills);</span>
+<span class="nc" id="L75">            technician.setStatus(status);</span>
+            
+            // Show confirmation
+<span class="nc" id="L78">            displayTechnicianSummary(technician, &quot;NEW TECHNICIAN SUMMARY&quot;);</span>
+            
+<span class="nc" id="L80">            System.out.print(&quot;✅ Create this technician? (y/n): &quot;);</span>
+<span class="nc" id="L81">            String confirm = scanner.nextLine().trim().toLowerCase();</span>
+            
+<span class="nc bnc" id="L83" title="All 4 branches missed.">            if (confirm.equals(&quot;y&quot;) || confirm.equals(&quot;yes&quot;)) {</span>
+<span class="nc" id="L84">                return technician;</span>
+            } else {
+<span class="nc" id="L86">                System.out.println(&quot;❌ Technician creation cancelled.&quot;);</span>
+<span class="nc" id="L87">                return null;</span>
+            }
+            
+<span class="nc" id="L90">        } catch (Exception e) {</span>
+<span class="nc" id="L91">            logger.error(&quot;Error building new technician&quot;, e);</span>
+<span class="nc" id="L92">            DisplayUtils.printError(&quot;An error occurred while collecting technician information.&quot;);</span>
+<span class="nc" id="L93">            return null;</span>
+        }
+    }
+    
+    /**
+     * Build updated technician data from user input
+     * 
+     * @param existing the existing technician to update
+     * @return updated Technician object or null if cancelled
+     */
+    public Technician buildTechnicianUpdate(Technician existing) {
+<span class="nc" id="L104">        DisplayUtils.printHeader(&quot;EDIT TECHNICIAN - &quot; + existing.getFullName());</span>
+        
+<span class="nc" id="L106">        System.out.println(&quot;📋 Current information (press Enter to keep current value):&quot;);</span>
+<span class="nc" id="L107">        System.out.println(&quot;   (Enter 'cancel' at any time to abort)&quot;);</span>
+<span class="nc" id="L108">        System.out.println();</span>
+        
+        try {
+            // Create copy of existing technician
+<span class="nc" id="L112">            Technician updated = new Technician();</span>
+<span class="nc" id="L113">            updated.setId(existing.getId());</span>
+            
+            // Update fields
+<span class="nc" id="L116">            String fullName = collectFullNameUpdate(existing.getFullName());</span>
+<span class="nc bnc" id="L117" title="All 2 branches missed.">            if (fullName == null) return null;</span>
+<span class="nc" id="L118">            updated.setFullName(fullName);</span>
+            
+<span class="nc" id="L120">            String email = collectEmailUpdate(existing.getEmail());</span>
+<span class="nc bnc" id="L121" title="All 2 branches missed.">            if (email == null) return null;</span>
+<span class="nc" id="L122">            updated.setEmail(email);</span>
+            
+<span class="nc" id="L124">            String phone = collectPhoneUpdate(existing.getPhone());</span>
+<span class="nc bnc" id="L125" title="All 2 branches missed.">            if (phone == null) return null;</span>
+<span class="nc" id="L126">            updated.setPhone(phone);</span>
+            
+<span class="nc" id="L128">            List&lt;String&gt; skills = collectSkillsUpdate(existing.getSkills());</span>
+<span class="nc bnc" id="L129" title="All 2 branches missed.">            if (skills == null) return null;</span>
+<span class="nc" id="L130">            updated.setSkills(skills);</span>
+            
+<span class="nc" id="L132">            String status = collectStatusUpdate(existing.getStatus());</span>
+<span class="nc bnc" id="L133" title="All 2 branches missed.">            if (status == null) return null;</span>
+<span class="nc" id="L134">            updated.setStatus(status);</span>
+            
+            // Show changes summary
+<span class="nc" id="L137">            displayUpdateSummary(existing, updated);</span>
+            
+<span class="nc" id="L139">            System.out.print(&quot;✅ Save these changes? (y/n): &quot;);</span>
+<span class="nc" id="L140">            String confirm = scanner.nextLine().trim().toLowerCase();</span>
+            
+<span class="nc bnc" id="L142" title="All 4 branches missed.">            if (confirm.equals(&quot;y&quot;) || confirm.equals(&quot;yes&quot;)) {</span>
+<span class="nc" id="L143">                return updated;</span>
+            } else {
+<span class="nc" id="L145">                System.out.println(&quot;❌ Update cancelled.&quot;);</span>
+<span class="nc" id="L146">                return null;</span>
+            }
+            
+<span class="nc" id="L149">        } catch (Exception e) {</span>
+<span class="nc" id="L150">            logger.error(&quot;Error building technician update&quot;, e);</span>
+<span class="nc" id="L151">            DisplayUtils.printError(&quot;An error occurred while updating technician information.&quot;);</span>
+<span class="nc" id="L152">            return null;</span>
+        }
+    }
+    
+    // ==================== FIELD COLLECTION METHODS ====================
+    
+    private String collectFullName() {
+        while (true) {
+<span class="nc" id="L160">            System.out.print(&quot;Full Name: &quot;);</span>
+<span class="nc" id="L161">            String input = scanner.nextLine().trim();</span>
+            
+<span class="nc bnc" id="L163" title="All 2 branches missed.">            if (input.equalsIgnoreCase(&quot;cancel&quot;)) {</span>
+<span class="nc" id="L164">                return null;</span>
+            }
+            
+<span class="nc bnc" id="L167" title="All 2 branches missed.">            if (input.isEmpty()) {</span>
+<span class="nc" id="L168">                DisplayUtils.printError(&quot;Full name is required.&quot;);</span>
+<span class="nc" id="L169">                continue;</span>
+            }
+            
+<span class="nc bnc" id="L172" title="All 2 branches missed.">            if (input.length() &gt; 100) {</span>
+<span class="nc" id="L173">                DisplayUtils.printError(&quot;Full name must be 100 characters or less.&quot;);</span>
+<span class="nc" id="L174">                continue;</span>
+            }
+            
+<span class="nc" id="L177">            return input;</span>
+        }
+    }
+    
+    
+    
+    private String collectEmail() {
+        while (true) {
+<span class="nc" id="L185">            System.out.print(&quot;Email Address: &quot;);</span>
+<span class="nc" id="L186">            String input = scanner.nextLine().trim();</span>
+            
+<span class="nc bnc" id="L188" title="All 2 branches missed.">            if (input.equalsIgnoreCase(&quot;cancel&quot;)) {</span>
+<span class="nc" id="L189">                return null;</span>
+            }
+            
+<span class="nc bnc" id="L192" title="All 2 branches missed.">            if (input.isEmpty()) {</span>
+<span class="nc" id="L193">                DisplayUtils.printError(&quot;Email address is required.&quot;);</span>
+<span class="nc" id="L194">                continue;</span>
+            }
+            
+<span class="nc bnc" id="L197" title="All 2 branches missed.">            if (!InputValidator.isValidEmail(input)) {</span>
+<span class="nc" id="L198">                DisplayUtils.printError(&quot;Please enter a valid email address (e.g., user@example.com).&quot;);</span>
+<span class="nc" id="L199">                continue;</span>
+            }
+            
+<span class="nc" id="L202">            return input;</span>
+        }
+    }
+    
+    private String collectPhone() {
+        while (true) {
+<span class="nc" id="L208">            System.out.print(&quot;Phone Number: &quot;);</span>
+<span class="nc" id="L209">            String input = scanner.nextLine().trim();</span>
+            
+<span class="nc bnc" id="L211" title="All 2 branches missed.">            if (input.equalsIgnoreCase(&quot;cancel&quot;)) {</span>
+<span class="nc" id="L212">                return null;</span>
+            }
+            
+<span class="nc bnc" id="L215" title="All 2 branches missed.">            if (input.isEmpty()) {</span>
+<span class="nc" id="L216">                DisplayUtils.printError(&quot;Phone number is required.&quot;);</span>
+<span class="nc" id="L217">                continue;</span>
+            }
+            
+<span class="nc bnc" id="L220" title="All 2 branches missed.">            if (!InputValidator.isValidPhone(input)) {</span>
+<span class="nc" id="L221">                DisplayUtils.printError(&quot;Please enter a valid phone number (e.g., 555-0123 or +1-555-0123).&quot;);</span>
+<span class="nc" id="L222">                continue;</span>
+            }
+            
+<span class="nc" id="L225">            return input;</span>
+        }
+    }
+    
+    private List&lt;String&gt; collectSkills() {
+<span class="nc" id="L230">        System.out.println(&quot;📚 Available Skills:&quot;);</span>
+<span class="nc bnc" id="L231" title="All 2 branches missed.">        for (int i = 0; i &lt; AVAILABLE_SKILLS.size(); i++) {</span>
+<span class="nc" id="L232">            System.out.printf(&quot;   %d. %s\n&quot;, i + 1, AVAILABLE_SKILLS.get(i));</span>
+        }
+<span class="nc" id="L234">        System.out.println();</span>
+        
+        while (true) {
+<span class="nc" id="L237">            System.out.print(&quot;Select skills (e.g., 1,3,5 or 'all' for all skills): &quot;);</span>
+<span class="nc" id="L238">            String input = scanner.nextLine().trim();</span>
+            
+<span class="nc bnc" id="L240" title="All 2 branches missed.">            if (input.equalsIgnoreCase(&quot;cancel&quot;)) {</span>
+<span class="nc" id="L241">                return null;</span>
+            }
+            
+<span class="nc bnc" id="L244" title="All 2 branches missed.">            if (input.isEmpty()) {</span>
+<span class="nc" id="L245">                DisplayUtils.printError(&quot;At least one skill is required.&quot;);</span>
+<span class="nc" id="L246">                continue;</span>
+            }
+            
+<span class="nc bnc" id="L249" title="All 2 branches missed.">            if (input.equalsIgnoreCase(&quot;all&quot;)) {</span>
+<span class="nc" id="L250">                return new ArrayList&lt;&gt;(AVAILABLE_SKILLS);</span>
+            }
+            
+            try {
+<span class="nc" id="L254">                List&lt;String&gt; selectedSkills = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L255">                String[] selections = input.split(&quot;,&quot;);</span>
+                
+<span class="nc bnc" id="L257" title="All 2 branches missed.">                for (String selection : selections) {</span>
+<span class="nc" id="L258">                    int index = Integer.parseInt(selection.trim()) - 1;</span>
+<span class="nc bnc" id="L259" title="All 4 branches missed.">                    if (index &lt; 0 || index &gt;= AVAILABLE_SKILLS.size()) {</span>
+<span class="nc" id="L260">                        throw new NumberFormatException(&quot;Invalid skill number: &quot; + (index + 1));</span>
+                    }
+<span class="nc" id="L262">                    String skill = AVAILABLE_SKILLS.get(index);</span>
+<span class="nc bnc" id="L263" title="All 2 branches missed.">                    if (!selectedSkills.contains(skill)) {</span>
+<span class="nc" id="L264">                        selectedSkills.add(skill);</span>
+                    }
+                }
+                
+<span class="nc bnc" id="L268" title="All 2 branches missed.">                if (selectedSkills.isEmpty()) {</span>
+<span class="nc" id="L269">                    DisplayUtils.printError(&quot;At least one skill is required.&quot;);</span>
+<span class="nc" id="L270">                    continue;</span>
+                }
+                
+<span class="nc" id="L273">                return selectedSkills;</span>
+                
+<span class="nc" id="L275">            } catch (NumberFormatException e) {</span>
+<span class="nc" id="L276">                DisplayUtils.printError(&quot;Please enter valid skill numbers (e.g., 1,3,5).&quot;);</span>
+            }
+<span class="nc" id="L278">        }</span>
+    }
+    
+    private String collectStatus() {
+<span class="nc" id="L282">        System.out.println(&quot;📊 Available Status Options:&quot;);</span>
+<span class="nc bnc" id="L283" title="All 2 branches missed.">        for (int i = 0; i &lt; AVAILABLE_STATUSES.size(); i++) {</span>
+<span class="nc" id="L284">            System.out.printf(&quot;   %d. %s\n&quot;, i + 1, AVAILABLE_STATUSES.get(i));</span>
+        }
+<span class="nc" id="L286">        System.out.println();</span>
+        
+        while (true) {
+<span class="nc" id="L289">            System.out.print(&quot;Select status (default: ACTIVE): &quot;);</span>
+<span class="nc" id="L290">            String input = scanner.nextLine().trim();</span>
+            
+<span class="nc bnc" id="L292" title="All 2 branches missed.">            if (input.equalsIgnoreCase(&quot;cancel&quot;)) {</span>
+<span class="nc" id="L293">                return null;</span>
+            }
+            
+<span class="nc bnc" id="L296" title="All 2 branches missed.">            if (input.isEmpty()) {</span>
+<span class="nc" id="L297">                return &quot;ACTIVE&quot;; // Default status</span>
+            }
+            
+            try {
+<span class="nc" id="L301">                int index = Integer.parseInt(input) - 1;</span>
+<span class="nc bnc" id="L302" title="All 4 branches missed.">                if (index &lt; 0 || index &gt;= AVAILABLE_STATUSES.size()) {</span>
+<span class="nc" id="L303">                    throw new NumberFormatException(&quot;Invalid status number&quot;);</span>
+                }
+<span class="nc" id="L305">                return AVAILABLE_STATUSES.get(index);</span>
+                
+<span class="nc" id="L307">            } catch (NumberFormatException e) {</span>
+<span class="nc" id="L308">                DisplayUtils.printError(&quot;Please enter a valid status number (1-&quot; + AVAILABLE_STATUSES.size() + &quot;).&quot;);</span>
+            }
+<span class="nc" id="L310">        }</span>
+    }
+    
+    // ==================== UPDATE FIELD COLLECTION METHODS ====================
+    
+    private String collectFullNameUpdate(String current) {
+<span class="nc" id="L316">        System.out.printf(&quot;Full Name [%s]: &quot;, current);</span>
+<span class="nc" id="L317">        String input = scanner.nextLine().trim();</span>
+        
+<span class="nc bnc" id="L319" title="All 2 branches missed.">        if (input.equalsIgnoreCase(&quot;cancel&quot;)) {</span>
+<span class="nc" id="L320">            return null;</span>
+        }
+        
+<span class="nc bnc" id="L323" title="All 2 branches missed.">        if (input.isEmpty()) {</span>
+<span class="nc" id="L324">            return current;</span>
+        }
+        
+<span class="nc bnc" id="L327" title="All 2 branches missed.">        if (input.length() &gt; 100) {</span>
+<span class="nc" id="L328">            DisplayUtils.printError(&quot;Full name must be 100 characters or less. Keeping current value.&quot;);</span>
+<span class="nc" id="L329">            return current;</span>
+        }
+        
+<span class="nc" id="L332">        return input;</span>
+    }
+    
+    private String collectLastNameUpdate(String current) {
+<span class="nc" id="L336">        System.out.printf(&quot;Last Name [%s]: &quot;, current);</span>
+<span class="nc" id="L337">        String input = scanner.nextLine().trim();</span>
+        
+<span class="nc bnc" id="L339" title="All 2 branches missed.">        if (input.equalsIgnoreCase(&quot;cancel&quot;)) {</span>
+<span class="nc" id="L340">            return null;</span>
+        }
+        
+<span class="nc bnc" id="L343" title="All 2 branches missed.">        if (input.isEmpty()) {</span>
+<span class="nc" id="L344">            return current;</span>
+        }
+        
+<span class="nc bnc" id="L347" title="All 2 branches missed.">        if (input.length() &gt; 50) {</span>
+<span class="nc" id="L348">            DisplayUtils.printError(&quot;Last name must be 50 characters or less. Keeping current value.&quot;);</span>
+<span class="nc" id="L349">            return current;</span>
+        }
+        
+<span class="nc" id="L352">        return input;</span>
+    }
+    
+    private String collectEmailUpdate(String current) {
+<span class="nc" id="L356">        System.out.printf(&quot;Email Address [%s]: &quot;, current);</span>
+<span class="nc" id="L357">        String input = scanner.nextLine().trim();</span>
+        
+<span class="nc bnc" id="L359" title="All 2 branches missed.">        if (input.equalsIgnoreCase(&quot;cancel&quot;)) {</span>
+<span class="nc" id="L360">            return null;</span>
+        }
+        
+<span class="nc bnc" id="L363" title="All 2 branches missed.">        if (input.isEmpty()) {</span>
+<span class="nc" id="L364">            return current;</span>
+        }
+        
+<span class="nc bnc" id="L367" title="All 2 branches missed.">        if (!InputValidator.isValidEmail(input)) {</span>
+<span class="nc" id="L368">            DisplayUtils.printError(&quot;Invalid email format. Keeping current value.&quot;);</span>
+<span class="nc" id="L369">            return current;</span>
+        }
+        
+<span class="nc" id="L372">        return input;</span>
+    }
+    
+    private String collectPhoneUpdate(String current) {
+<span class="nc" id="L376">        System.out.printf(&quot;Phone Number [%s]: &quot;, current);</span>
+<span class="nc" id="L377">        String input = scanner.nextLine().trim();</span>
+        
+<span class="nc bnc" id="L379" title="All 2 branches missed.">        if (input.equalsIgnoreCase(&quot;cancel&quot;)) {</span>
+<span class="nc" id="L380">            return null;</span>
+        }
+        
+<span class="nc bnc" id="L383" title="All 2 branches missed.">        if (input.isEmpty()) {</span>
+<span class="nc" id="L384">            return current;</span>
+        }
+        
+<span class="nc bnc" id="L387" title="All 2 branches missed.">        if (!InputValidator.isValidPhone(input)) {</span>
+<span class="nc" id="L388">            DisplayUtils.printError(&quot;Invalid phone format. Keeping current value.&quot;);</span>
+<span class="nc" id="L389">            return current;</span>
+        }
+        
+<span class="nc" id="L392">        return input;</span>
+    }
+    
+    private List&lt;String&gt; collectSkillsUpdate(List&lt;String&gt; current) {
+<span class="nc bnc" id="L396" title="All 2 branches missed.">        System.out.println(&quot;📚 Current Skills: &quot; + (current != null ? String.join(&quot;, &quot;, current) : &quot;None&quot;));</span>
+<span class="nc" id="L397">        System.out.println(&quot;Available Skills:&quot;);</span>
+<span class="nc bnc" id="L398" title="All 2 branches missed.">        for (int i = 0; i &lt; AVAILABLE_SKILLS.size(); i++) {</span>
+<span class="nc" id="L399">            System.out.printf(&quot;   %d. %s\n&quot;, i + 1, AVAILABLE_SKILLS.get(i));</span>
+        }
+<span class="nc" id="L401">        System.out.print(&quot;Update skills (e.g., 1,3,5 or 'all' or Enter to keep current): &quot;);</span>
+<span class="nc" id="L402">        String input = scanner.nextLine().trim();</span>
+        
+<span class="nc bnc" id="L404" title="All 2 branches missed.">        if (input.equalsIgnoreCase(&quot;cancel&quot;)) {</span>
+<span class="nc" id="L405">            return null;</span>
+        }
+        
+<span class="nc bnc" id="L408" title="All 2 branches missed.">        if (input.isEmpty()) {</span>
+<span class="nc" id="L409">            return current;</span>
+        }
+        
+<span class="nc bnc" id="L412" title="All 2 branches missed.">        if (input.equalsIgnoreCase(&quot;all&quot;)) {</span>
+<span class="nc" id="L413">            return new ArrayList&lt;&gt;(AVAILABLE_SKILLS);</span>
+        }
+        
+        try {
+<span class="nc" id="L417">            List&lt;String&gt; selectedSkills = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L418">            String[] selections = input.split(&quot;,&quot;);</span>
+            
+<span class="nc bnc" id="L420" title="All 2 branches missed.">            for (String selection : selections) {</span>
+<span class="nc" id="L421">                int index = Integer.parseInt(selection.trim()) - 1;</span>
+<span class="nc bnc" id="L422" title="All 4 branches missed.">                if (index &lt; 0 || index &gt;= AVAILABLE_SKILLS.size()) {</span>
+<span class="nc" id="L423">                    throw new NumberFormatException(&quot;Invalid skill number&quot;);</span>
+                }
+<span class="nc" id="L425">                String skill = AVAILABLE_SKILLS.get(index);</span>
+<span class="nc bnc" id="L426" title="All 2 branches missed.">                if (!selectedSkills.contains(skill)) {</span>
+<span class="nc" id="L427">                    selectedSkills.add(skill);</span>
+                }
+            }
+            
+<span class="nc bnc" id="L431" title="All 2 branches missed.">            return selectedSkills.isEmpty() ? current : selectedSkills;</span>
+            
+<span class="nc" id="L433">        } catch (NumberFormatException e) {</span>
+<span class="nc" id="L434">            DisplayUtils.printError(&quot;Invalid skill selection. Keeping current skills.&quot;);</span>
+<span class="nc" id="L435">            return current;</span>
+        }
+    }
+    
+    private String collectStatusUpdate(String current) {
+<span class="nc" id="L440">        System.out.printf(&quot;Current Status: %s\n&quot;, current);</span>
+<span class="nc" id="L441">        System.out.println(&quot;Available Status Options:&quot;);</span>
+<span class="nc bnc" id="L442" title="All 2 branches missed.">        for (int i = 0; i &lt; AVAILABLE_STATUSES.size(); i++) {</span>
+<span class="nc" id="L443">            System.out.printf(&quot;   %d. %s\n&quot;, i + 1, AVAILABLE_STATUSES.get(i));</span>
+        }
+<span class="nc" id="L445">        System.out.print(&quot;Update status (Enter to keep current): &quot;);</span>
+<span class="nc" id="L446">        String input = scanner.nextLine().trim();</span>
+        
+<span class="nc bnc" id="L448" title="All 2 branches missed.">        if (input.equalsIgnoreCase(&quot;cancel&quot;)) {</span>
+<span class="nc" id="L449">            return null;</span>
+        }
+        
+<span class="nc bnc" id="L452" title="All 2 branches missed.">        if (input.isEmpty()) {</span>
+<span class="nc" id="L453">            return current;</span>
+        }
+        
+        try {
+<span class="nc" id="L457">            int index = Integer.parseInt(input) - 1;</span>
+<span class="nc bnc" id="L458" title="All 4 branches missed.">            if (index &lt; 0 || index &gt;= AVAILABLE_STATUSES.size()) {</span>
+<span class="nc" id="L459">                throw new NumberFormatException(&quot;Invalid status number&quot;);</span>
+            }
+<span class="nc" id="L461">            return AVAILABLE_STATUSES.get(index);</span>
+            
+<span class="nc" id="L463">        } catch (NumberFormatException e) {</span>
+<span class="nc" id="L464">            DisplayUtils.printError(&quot;Invalid status selection. Keeping current status.&quot;);</span>
+<span class="nc" id="L465">            return current;</span>
+        }
+    }
+    
+    // ==================== DISPLAY METHODS ====================
+    
+    private void displayTechnicianSummary(Technician technician, String title) {
+<span class="nc" id="L472">        System.out.println();</span>
+<span class="nc" id="L473">        DisplayUtils.printHeader(title);</span>
+        
+<span class="nc" id="L475">        System.out.printf(&quot;Name:        %s\n&quot;, technician.getFullName());</span>
+<span class="nc" id="L476">        System.out.printf(&quot;Email:       %s\n&quot;, technician.getEmail());</span>
+<span class="nc" id="L477">        System.out.printf(&quot;Phone:       %s\n&quot;, technician.getPhone());</span>
+<span class="nc" id="L478">        System.out.printf(&quot;Status:      %s\n&quot;, technician.getStatus());</span>
+<span class="nc bnc" id="L479" title="All 2 branches missed.">        System.out.printf(&quot;Skills:      %s\n&quot;, technician.getSkills() != null ? </span>
+<span class="nc" id="L480">            String.join(&quot;, &quot;, technician.getSkills()) : &quot;None&quot;);</span>
+<span class="nc" id="L481">        System.out.println();</span>
+<span class="nc" id="L482">    }</span>
+    
+    private void displayUpdateSummary(Technician existing, Technician updated) {
+<span class="nc" id="L485">        System.out.println();</span>
+<span class="nc" id="L486">        DisplayUtils.printHeader(&quot;UPDATE SUMMARY&quot;);</span>
+        
+<span class="nc" id="L488">        System.out.println(&quot;📋 Changes to be made:&quot;);</span>
+        
+<span class="nc bnc" id="L490" title="All 2 branches missed.">        if (!Objects.equals(existing.getFullName(), updated.getFullName())) {</span>
+<span class="nc" id="L491">            System.out.printf(&quot;   Name:     %s → %s\n&quot;, existing.getFullName(), updated.getFullName());</span>
+        }
+        
+<span class="nc bnc" id="L494" title="All 2 branches missed.">        if (!Objects.equals(existing.getEmail(), updated.getEmail())) {</span>
+<span class="nc" id="L495">            System.out.printf(&quot;   Email:    %s → %s\n&quot;, existing.getEmail(), updated.getEmail());</span>
+        }
+        
+<span class="nc bnc" id="L498" title="All 2 branches missed.">        if (!Objects.equals(existing.getPhone(), updated.getPhone())) {</span>
+<span class="nc" id="L499">            System.out.printf(&quot;   Phone:    %s → %s\n&quot;, existing.getPhone(), updated.getPhone());</span>
+        }
+        
+<span class="nc bnc" id="L502" title="All 2 branches missed.">        if (!Objects.equals(existing.getStatus(), updated.getStatus())) {</span>
+<span class="nc" id="L503">            System.out.printf(&quot;   Status:   %s → %s\n&quot;, existing.getStatus(), updated.getStatus());</span>
+        }
+        
+<span class="nc bnc" id="L506" title="All 2 branches missed.">        List&lt;String&gt; existingSkills = existing.getSkills() != null ? existing.getSkills() : new ArrayList&lt;&gt;();</span>
+<span class="nc bnc" id="L507" title="All 2 branches missed.">        List&lt;String&gt; updatedSkills = updated.getSkills() != null ? updated.getSkills() : new ArrayList&lt;&gt;();</span>
+        
+<span class="nc bnc" id="L509" title="All 2 branches missed.">        if (!existingSkills.equals(updatedSkills)) {</span>
+<span class="nc" id="L510">            System.out.printf(&quot;   Skills:   %s → %s\n&quot;, </span>
+<span class="nc" id="L511">                String.join(&quot;, &quot;, existingSkills), </span>
+<span class="nc" id="L512">                String.join(&quot;, &quot;, updatedSkills));</span>
+        }
+        
+<span class="nc" id="L515">        System.out.println();</span>
+<span class="nc" id="L516">    }</span>
+} 
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

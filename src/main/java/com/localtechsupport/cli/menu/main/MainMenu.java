@@ -2,6 +2,9 @@ package com.localtechsupport.cli.menu.main;
 
 import com.localtechsupport.cli.menu.BaseMenu;
 import com.localtechsupport.cli.menu.Menu;
+import com.localtechsupport.cli.menu.client.ClientManagementMenu;
+import com.localtechsupport.cli.menu.technician.TechnicianManagementMenu;
+import com.localtechsupport.cli.menu.ticket.TicketManagementMenu;
 import com.localtechsupport.cli.util.DisplayUtils;
 
 /**
@@ -38,20 +41,17 @@ public class MainMenu extends BaseMenu {
         // Client Management
         addMenuOption(1, "Client Management", 
             "Manage clients, view client information, and handle client-related operations",
-            () -> new PlaceholderMenu(this, "Client Management", 
-                "Client operations will be available in Phase 2 implementation"));
+            () -> new ClientManagementMenu(this));
         
         // Technician Management  
         addMenuOption(2, "Technician Management",
             "Manage technicians, skills, schedules, and technician-related operations", 
-            () -> new PlaceholderMenu(this, "Technician Management",
-                "Technician operations will be available in Phase 3 implementation"));
+            () -> new TechnicianManagementMenu(this));
         
         // Ticket Management
         addMenuOption(3, "Ticket Management",
             "Create, update, assign, and track support tickets",
-            () -> new PlaceholderMenu(this, "Ticket Management", 
-                "Ticket operations will be available in Phase 4 implementation"));
+            () -> new TicketManagementMenu(this));
         
         // Appointment Management
         addMenuOption(4, "Appointment Management", 

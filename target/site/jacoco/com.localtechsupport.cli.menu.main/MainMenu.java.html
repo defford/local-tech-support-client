@@ -2,6 +2,9 @@
 
 import com.localtechsupport.cli.menu.BaseMenu;
 import com.localtechsupport.cli.menu.Menu;
+import com.localtechsupport.cli.menu.client.ClientManagementMenu;
+import com.localtechsupport.cli.menu.technician.TechnicianManagementMenu;
+import com.localtechsupport.cli.menu.ticket.TicketManagementMenu;
 import com.localtechsupport.cli.util.DisplayUtils;
 
 /**
@@ -14,60 +17,57 @@ import com.localtechsupport.cli.util.DisplayUtils;
 public class MainMenu extends BaseMenu {
     
     public MainMenu() {
-<span class="nc" id="L17">        super(null); // Root menu has no parent</span>
-<span class="nc" id="L18">    }</span>
+<span class="nc" id="L20">        super(null); // Root menu has no parent</span>
+<span class="nc" id="L21">    }</span>
     
     @Override
     protected String getMenuTitle() {
-<span class="nc" id="L22">        return &quot;Tech Support CLI System - Main Menu&quot;;</span>
+<span class="nc" id="L25">        return &quot;Tech Support CLI System - Main Menu&quot;;</span>
     }
     
     @Override
     protected void displayCustomContent() {
         // Display system information and connection status
-<span class="nc" id="L28">        System.out.println(&quot;🖥️  Welcome to the Local Tech Support System&quot;);</span>
-<span class="nc" id="L29">        System.out.println(&quot;    Server: &quot; + apiService.getBaseUrl());</span>
-<span class="nc" id="L30">        System.out.println(&quot;    Connection: ✅ Active&quot;);</span>
-<span class="nc" id="L31">        System.out.println();  </span>
-<span class="nc" id="L32">        System.out.println(&quot;📋 This interactive menu system provides access to all&quot;);</span>
-<span class="nc" id="L33">        System.out.println(&quot;    system functions with an intuitive navigation interface.&quot;);</span>
-<span class="nc" id="L34">    }</span>
+<span class="nc" id="L31">        System.out.println(&quot;🖥️  Welcome to the Local Tech Support System&quot;);</span>
+<span class="nc" id="L32">        System.out.println(&quot;    Server: &quot; + apiService.getBaseUrl());</span>
+<span class="nc" id="L33">        System.out.println(&quot;    Connection: ✅ Active&quot;);</span>
+<span class="nc" id="L34">        System.out.println();  </span>
+<span class="nc" id="L35">        System.out.println(&quot;📋 This interactive menu system provides access to all&quot;);</span>
+<span class="nc" id="L36">        System.out.println(&quot;    system functions with an intuitive navigation interface.&quot;);</span>
+<span class="nc" id="L37">    }</span>
     
     @Override
     protected void initializeMenuOptions() {
         // Client Management
-<span class="nc" id="L39">        addMenuOption(1, &quot;Client Management&quot;, </span>
-<span class="nc" id="L40">            &quot;Manage clients, view client information, and handle client-related operations&quot;,</span>
-<span class="nc" id="L41">            () -&gt; new PlaceholderMenu(this, &quot;Client Management&quot;, </span>
-<span class="nc" id="L42">                &quot;Client operations will be available in Phase 2 implementation&quot;));</span>
+<span class="nc" id="L42">        addMenuOption(1, &quot;Client Management&quot;, </span>
+            &quot;Manage clients, view client information, and handle client-related operations&quot;,
+<span class="nc" id="L44">            () -&gt; new ClientManagementMenu(this));</span>
         
         // Technician Management  
-<span class="nc" id="L45">        addMenuOption(2, &quot;Technician Management&quot;,</span>
-<span class="nc" id="L46">            &quot;Manage technicians, skills, schedules, and technician-related operations&quot;, </span>
-<span class="nc" id="L47">            () -&gt; new PlaceholderMenu(this, &quot;Technician Management&quot;,</span>
-<span class="nc" id="L48">                &quot;Technician operations will be available in Phase 3 implementation&quot;));</span>
+<span class="nc" id="L47">        addMenuOption(2, &quot;Technician Management&quot;,</span>
+            &quot;Manage technicians, skills, schedules, and technician-related operations&quot;, 
+<span class="nc" id="L49">            () -&gt; new TechnicianManagementMenu(this));</span>
         
         // Ticket Management
-<span class="nc" id="L51">        addMenuOption(3, &quot;Ticket Management&quot;,</span>
-<span class="nc" id="L52">            &quot;Create, update, assign, and track support tickets&quot;,</span>
-<span class="nc" id="L53">            () -&gt; new PlaceholderMenu(this, &quot;Ticket Management&quot;, </span>
-<span class="nc" id="L54">                &quot;Ticket operations will be available in Phase 4 implementation&quot;));</span>
+<span class="nc" id="L52">        addMenuOption(3, &quot;Ticket Management&quot;,</span>
+            &quot;Create, update, assign, and track support tickets&quot;,
+<span class="nc" id="L54">            () -&gt; new TicketManagementMenu(this));</span>
         
         // Appointment Management
 <span class="nc" id="L57">        addMenuOption(4, &quot;Appointment Management&quot;, </span>
-<span class="nc" id="L58">            &quot;Schedule, manage, and track client appointments&quot;,</span>
+            &quot;Schedule, manage, and track client appointments&quot;,
 <span class="nc" id="L59">            () -&gt; new PlaceholderMenu(this, &quot;Appointment Management&quot;,</span>
-<span class="nc" id="L60">                &quot;Appointment operations will be available in Phase 5 implementation&quot;));</span>
+                &quot;Appointment operations will be available in Phase 5 implementation&quot;));
         
         // Reports &amp; Analytics
 <span class="nc" id="L63">        addMenuOption(5, &quot;Reports &amp; Analytics&quot;,</span>
-<span class="nc" id="L64">            &quot;View system reports, statistics, and analytics&quot;,</span>
+            &quot;View system reports, statistics, and analytics&quot;,
 <span class="nc" id="L65">            () -&gt; new PlaceholderMenu(this, &quot;Reports &amp; Analytics&quot;,</span>
-<span class="nc" id="L66">                &quot;Advanced reporting will be available in Phase 6 implementation&quot;));</span>
+                &quot;Advanced reporting will be available in Phase 6 implementation&quot;));
         
         // View Current Data - Links to existing functionality
 <span class="nc" id="L69">        addMenuOption(6, &quot;View Current Data&quot;,</span>
-<span class="nc" id="L70">            &quot;Quick access to current system data using existing commands&quot;,</span>
+            &quot;Quick access to current system data using existing commands&quot;,
 <span class="nc" id="L71">            () -&gt; new ViewCurrentDataMenu(this));</span>
         
         // Exit option
@@ -132,43 +132,43 @@ public class MainMenu extends BaseMenu {
         protected void initializeMenuOptions() {
             // Client Tickets
 <span class="nc" id="L134">            addActionOption(1, &quot;Client Tickets&quot;, </span>
-<span class="nc" id="L135">                &quot;Show tickets for each client in the system&quot;,</span>
-<span class="nc" id="L136">                this::showClientTickets);</span>
+                &quot;Show tickets for each client in the system&quot;,
+                this::showClientTickets);
             
             // Overdue Tickets
 <span class="nc" id="L139">            addActionOption(2, &quot;Overdue Tickets&quot;,</span>
-<span class="nc" id="L140">                &quot;Show tickets that are currently overdue&quot;, </span>
-<span class="nc" id="L141">                this::showOverdueTickets);</span>
+                &quot;Show tickets that are currently overdue&quot;, 
+                this::showOverdueTickets);
             
             // Technician Workload
 <span class="nc" id="L144">            addActionOption(3, &quot;Technician Workload&quot;,</span>
-<span class="nc" id="L145">                &quot;Show tickets assigned to each technician&quot;,</span>
-<span class="nc" id="L146">                this::showTechnicianWorkload);</span>
+                &quot;Show tickets assigned to each technician&quot;,
+                this::showTechnicianWorkload);
             
             // Available Technicians
 <span class="nc" id="L149">            addActionOption(4, &quot;Available Technicians&quot;, </span>
-<span class="nc" id="L150">                &quot;Show technicians available for each service type&quot;,</span>
-<span class="nc" id="L151">                this::showAvailableTechnicians);</span>
+                &quot;Show technicians available for each service type&quot;,
+                this::showAvailableTechnicians);
             
             // Technician Schedule
 <span class="nc" id="L154">            addActionOption(5, &quot;Technician Schedule&quot;,</span>
-<span class="nc" id="L155">                &quot;Show appointments for each technician&quot;,</span>
-<span class="nc" id="L156">                this::showTechnicianSchedule);</span>
+                &quot;Show appointments for each technician&quot;,
+                this::showTechnicianSchedule);
             
             // Client Appointments
 <span class="nc" id="L159">            addActionOption(6, &quot;Client Appointments&quot;,</span>
-<span class="nc" id="L160">                &quot;Show appointments scheduled by each client&quot;, </span>
-<span class="nc" id="L161">                this::showClientAppointments);</span>
+                &quot;Show appointments scheduled by each client&quot;, 
+                this::showClientAppointments);
             
             // Client-Technician History
 <span class="nc" id="L164">            addActionOption(7, &quot;Client-Technician History&quot;,</span>
-<span class="nc" id="L165">                &quot;Show which clients have worked with which technicians&quot;,</span>
-<span class="nc" id="L166">                this::showClientTechnicianHistory);</span>
+                &quot;Show which clients have worked with which technicians&quot;,
+                this::showClientTechnicianHistory);
             
             // Technician Feedback
 <span class="nc" id="L169">            addActionOption(8, &quot;Technician Feedback&quot;, </span>
-<span class="nc" id="L170">                &quot;Show feedback ratings for each technician&quot;,</span>
-<span class="nc" id="L171">                this::showTechnicianFeedback);</span>
+                &quot;Show feedback ratings for each technician&quot;,
+                this::showTechnicianFeedback);
 <span class="nc" id="L172">        }</span>
         
         private void showClientTickets() {

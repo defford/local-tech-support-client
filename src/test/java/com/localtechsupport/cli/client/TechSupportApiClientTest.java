@@ -195,7 +195,7 @@ class TechSupportApiClientTest {
             apiClient.testConnection();
 
             RecordedRequest request = mockWebServer.takeRequest(1, TimeUnit.SECONDS);
-            assertThat(request.getPath()).isEqualTo("/actuator/health");
+            assertThat(request.getPath()).isEqualTo("/api/clients");
         }
     }
 

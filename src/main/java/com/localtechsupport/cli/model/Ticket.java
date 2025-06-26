@@ -1,6 +1,8 @@
 package com.localtechsupport.cli.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import java.time.LocalDateTime;
 
 /**
@@ -8,6 +10,7 @@ import java.time.LocalDateTime;
  * 
  * Represents a support ticket in the system
  */
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class Ticket {
 
     @JsonProperty("id")
@@ -192,14 +195,17 @@ public class Ticket {
     }
 
     // Utility methods
+    @JsonIgnore
     public boolean isOpen() {
         return "OPEN".equalsIgnoreCase(status);
     }
 
+    @JsonIgnore
     public boolean isClosed() {
         return "CLOSED".equals(status);
     }
 
+    @JsonIgnore
     public boolean isOverdue() {
         // Use the overdue field from JSON if available
         if (overdue != null) {
@@ -210,6 +216,7 @@ public class Ticket {
         return isOpen() && dueAt != null && dueAt.isBefore(java.time.LocalDateTime.now());
     }
 
+    @JsonIgnore
     public boolean isAssigned() {
         // Use the assigned field from JSON if available
         if (assigned != null) {
@@ -220,6 +227,7 @@ public class Ticket {
         return assignedTechnician != null || assignedTechnicianId != null;
     }
 
+    @JsonIgnore
     public String getFormattedDueDate() {
         if (dueAt == null) return "N/A";
         java.time.format.DateTimeFormatter formatter = 
@@ -227,6 +235,7 @@ public class Ticket {
         return dueAt.format(formatter);
     }
 
+    @JsonIgnore
     public String getPriorityIndicator() {
         if (isOverdue()) return "🔴 OVERDUE";
         if (isOpen() && !isAssigned()) return "🟡 UNASSIGNED";
