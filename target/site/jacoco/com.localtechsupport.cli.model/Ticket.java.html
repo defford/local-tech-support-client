@@ -1,0 +1,243 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Ticket.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Local Tech Support CLI Client</a> &gt; <a href="index.source.html" class="el_package">com.localtechsupport.cli.model</a> &gt; <span class="el_source">Ticket.java</span></div><h1>Ticket.java</h1><pre class="source lang-java linenums">package com.localtechsupport.cli.model;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import java.time.LocalDateTime;
+
+/**
+ * Ticket entity from the API
+ * 
+ * Represents a support ticket in the system
+ */
+public class Ticket {
+
+    @JsonProperty(&quot;id&quot;)
+    private Long id;
+
+    @JsonProperty(&quot;title&quot;)
+    private String title;
+
+    @JsonProperty(&quot;description&quot;)
+    private String description;
+
+    @JsonProperty(&quot;serviceType&quot;)
+    private String serviceType; // HARDWARE, SOFTWARE, NETWORK, etc.
+
+    @JsonProperty(&quot;status&quot;)
+    private String status; // OPEN, CLOSED
+
+    @JsonProperty(&quot;priority&quot;)
+    private String priority; // LOW, MEDIUM, HIGH, URGENT
+
+    @JsonProperty(&quot;clientId&quot;)
+    private Long clientId;
+
+    @JsonProperty(&quot;assignedTechnicianId&quot;)
+    private Long assignedTechnicianId;
+
+    @JsonProperty(&quot;createdAt&quot;)
+    private LocalDateTime createdAt;
+
+    @JsonProperty(&quot;updatedAt&quot;)
+    private LocalDateTime updatedAt;
+
+    @JsonProperty(&quot;dueAt&quot;)
+    private LocalDateTime dueAt;
+
+    @JsonProperty(&quot;resolvedAt&quot;)
+    private LocalDateTime resolvedAt;
+
+    @JsonProperty(&quot;overdue&quot;)
+    private Boolean overdue;
+
+    @JsonProperty(&quot;assigned&quot;)
+    private Boolean assigned;
+
+    // Navigation properties (may be included in responses)
+    @JsonProperty(&quot;client&quot;)
+    private Client client;
+
+    @JsonProperty(&quot;assignedTechnician&quot;)
+    private Technician assignedTechnician;
+
+    // Default constructor
+<span class="nc" id="L63">    public Ticket() {}</span>
+
+    // Getters and Setters
+    public Long getId() {
+<span class="nc" id="L67">        return id;</span>
+    }
+
+    public void setId(Long id) {
+<span class="nc" id="L71">        this.id = id;</span>
+<span class="nc" id="L72">    }</span>
+
+    public String getTitle() {
+<span class="nc" id="L75">        return title;</span>
+    }
+
+    public void setTitle(String title) {
+<span class="nc" id="L79">        this.title = title;</span>
+<span class="nc" id="L80">    }</span>
+
+    public String getDescription() {
+<span class="nc" id="L83">        return description;</span>
+    }
+
+    public void setDescription(String description) {
+<span class="nc" id="L87">        this.description = description;</span>
+<span class="nc" id="L88">    }</span>
+
+    public String getServiceType() {
+<span class="nc" id="L91">        return serviceType;</span>
+    }
+
+    public void setServiceType(String serviceType) {
+<span class="nc" id="L95">        this.serviceType = serviceType;</span>
+<span class="nc" id="L96">    }</span>
+
+    public String getStatus() {
+<span class="nc" id="L99">        return status;</span>
+    }
+
+    public void setStatus(String status) {
+<span class="nc" id="L103">        this.status = status;</span>
+<span class="nc" id="L104">    }</span>
+
+    public String getPriority() {
+<span class="nc" id="L107">        return priority;</span>
+    }
+
+    public void setPriority(String priority) {
+<span class="nc" id="L111">        this.priority = priority;</span>
+<span class="nc" id="L112">    }</span>
+
+    public Long getClientId() {
+<span class="nc" id="L115">        return clientId;</span>
+    }
+
+    public void setClientId(Long clientId) {
+<span class="nc" id="L119">        this.clientId = clientId;</span>
+<span class="nc" id="L120">    }</span>
+
+    public Long getAssignedTechnicianId() {
+<span class="nc" id="L123">        return assignedTechnicianId;</span>
+    }
+
+    public void setAssignedTechnicianId(Long assignedTechnicianId) {
+<span class="nc" id="L127">        this.assignedTechnicianId = assignedTechnicianId;</span>
+<span class="nc" id="L128">    }</span>
+
+    public LocalDateTime getCreatedAt() {
+<span class="nc" id="L131">        return createdAt;</span>
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+<span class="nc" id="L135">        this.createdAt = createdAt;</span>
+<span class="nc" id="L136">    }</span>
+
+    public LocalDateTime getUpdatedAt() {
+<span class="nc" id="L139">        return updatedAt;</span>
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+<span class="nc" id="L143">        this.updatedAt = updatedAt;</span>
+<span class="nc" id="L144">    }</span>
+
+    public LocalDateTime getDueAt() {
+<span class="nc" id="L147">        return dueAt;</span>
+    }
+
+    public void setDueAt(LocalDateTime dueAt) {
+<span class="nc" id="L151">        this.dueAt = dueAt;</span>
+<span class="nc" id="L152">    }</span>
+
+    public LocalDateTime getResolvedAt() {
+<span class="nc" id="L155">        return resolvedAt;</span>
+    }
+
+    public void setResolvedAt(LocalDateTime resolvedAt) {
+<span class="nc" id="L159">        this.resolvedAt = resolvedAt;</span>
+<span class="nc" id="L160">    }</span>
+
+    public Boolean getOverdue() {
+<span class="nc" id="L163">        return overdue;</span>
+    }
+
+    public void setOverdue(Boolean overdue) {
+<span class="nc" id="L167">        this.overdue = overdue;</span>
+<span class="nc" id="L168">    }</span>
+
+    public Boolean getAssigned() {
+<span class="nc" id="L171">        return assigned;</span>
+    }
+
+    public void setAssigned(Boolean assigned) {
+<span class="nc" id="L175">        this.assigned = assigned;</span>
+<span class="nc" id="L176">    }</span>
+
+    public Client getClient() {
+<span class="nc" id="L179">        return client;</span>
+    }
+
+    public void setClient(Client client) {
+<span class="nc" id="L183">        this.client = client;</span>
+<span class="nc" id="L184">    }</span>
+
+    public Technician getAssignedTechnician() {
+<span class="nc" id="L187">        return assignedTechnician;</span>
+    }
+
+    public void setAssignedTechnician(Technician assignedTechnician) {
+<span class="nc" id="L191">        this.assignedTechnician = assignedTechnician;</span>
+<span class="nc" id="L192">    }</span>
+
+    // Utility methods
+    public boolean isOpen() {
+<span class="nc" id="L196">        return &quot;OPEN&quot;.equalsIgnoreCase(status);</span>
+    }
+
+    public boolean isClosed() {
+<span class="nc" id="L200">        return &quot;CLOSED&quot;.equals(status);</span>
+    }
+
+    public boolean isOverdue() {
+        // Use the overdue field from JSON if available
+<span class="nc bnc" id="L205" title="All 2 branches missed.">        if (overdue != null) {</span>
+<span class="nc" id="L206">            return overdue;</span>
+        }
+        
+        // Fallback to computing based on status and due date
+<span class="nc bnc" id="L210" title="All 6 branches missed.">        return isOpen() &amp;&amp; dueAt != null &amp;&amp; dueAt.isBefore(java.time.LocalDateTime.now());</span>
+    }
+
+    public boolean isAssigned() {
+        // Use the assigned field from JSON if available
+<span class="nc bnc" id="L215" title="All 2 branches missed.">        if (assigned != null) {</span>
+<span class="nc" id="L216">            return assigned;</span>
+        }
+        
+        // Fallback to checking technician assignment
+<span class="nc bnc" id="L220" title="All 4 branches missed.">        return assignedTechnician != null || assignedTechnicianId != null;</span>
+    }
+
+    public String getFormattedDueDate() {
+<span class="nc bnc" id="L224" title="All 2 branches missed.">        if (dueAt == null) return &quot;N/A&quot;;</span>
+<span class="nc" id="L225">        java.time.format.DateTimeFormatter formatter = </span>
+<span class="nc" id="L226">            java.time.format.DateTimeFormatter.ofPattern(&quot;MMM dd, HH:mm&quot;);</span>
+<span class="nc" id="L227">        return dueAt.format(formatter);</span>
+    }
+
+    public String getPriorityIndicator() {
+<span class="nc bnc" id="L231" title="All 2 branches missed.">        if (isOverdue()) return &quot;🔴 OVERDUE&quot;;</span>
+<span class="nc bnc" id="L232" title="All 4 branches missed.">        if (isOpen() &amp;&amp; !isAssigned()) return &quot;🟡 UNASSIGNED&quot;;</span>
+<span class="nc bnc" id="L233" title="All 2 branches missed.">        if (isOpen()) return &quot;🟢 ACTIVE&quot;;</span>
+<span class="nc" id="L234">        return &quot;✅ CLOSED&quot;;</span>
+    }
+
+    @Override
+    public String toString() {
+<span class="nc" id="L239">        return String.format(&quot;Ticket{id=%d, description='%s', status=%s, serviceType=%s}&quot;, </span>
+<span class="nc" id="L240">                           id, description, status, serviceType);</span>
+    }
+} 
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

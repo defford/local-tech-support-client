@@ -1,9 +1,13 @@
 package com.localtechsupport.cli;
 
-import com.localtechsupport.cli.command.SystemHealthCommand;
-import com.localtechsupport.cli.command.TechnicianStatsCommand;
-import com.localtechsupport.cli.command.FeedbackStatsCommand;
-import com.localtechsupport.cli.command.SkillCoverageCommand;
+import com.localtechsupport.cli.command.ClientTicketsCommand;
+import com.localtechsupport.cli.command.OverdueTicketsCommand;
+import com.localtechsupport.cli.command.TechnicianWorkloadCommand;
+import com.localtechsupport.cli.command.AvailableTechniciansCommand;
+import com.localtechsupport.cli.command.TechnicianScheduleCommand;
+import com.localtechsupport.cli.command.ClientAppointmentsCommand;
+import com.localtechsupport.cli.command.ClientTechnicianHistoryCommand;
+import com.localtechsupport.cli.command.TechnicianFeedbackCommand;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
@@ -17,16 +21,22 @@ import java.util.concurrent.Callable;
  * 
  * This application provides command-line access to key system metrics
  * and reporting capabilities from the Local Tech Support Server API.
+ * 
+ * All commands correspond to actual endpoints available on the Spring Boot server.
  */
 @Command(
     name = "tech-support-cli",
     description = "Local Tech Support System CLI Client - Access key system metrics and reports",
     version = "1.0",
     subcommands = {
-        SystemHealthCommand.class,
-        TechnicianStatsCommand.class,
-        FeedbackStatsCommand.class,
-        SkillCoverageCommand.class,
+        ClientTicketsCommand.class,
+        OverdueTicketsCommand.class,
+        TechnicianWorkloadCommand.class,
+        AvailableTechniciansCommand.class,
+        TechnicianScheduleCommand.class,
+        ClientAppointmentsCommand.class,
+        ClientTechnicianHistoryCommand.class,
+        TechnicianFeedbackCommand.class,
         CommandLine.HelpCommand.class
     },
     mixinStandardHelpOptions = true
@@ -73,11 +83,15 @@ public class CliApplication implements Callable<Integer> {
         System.out.println("🖥️  Local Tech Support CLI v1.0");
         System.out.println("=====================================");
         System.out.println();
-        System.out.println("Available commands:");
-        System.out.println("  system-health    - Display system health and ticket statistics");
-        System.out.println("  technician-stats - Show technician performance analytics");
-        System.out.println("  feedback-stats   - View customer satisfaction metrics");
-        System.out.println("  skill-coverage   - Analyze skill coverage and gaps");
+        System.out.println("Available commands (8 core business questions):");
+        System.out.println("  client-tickets                    - What tickets does each client have?");
+        System.out.println("  overdue-tickets                   - What tickets are currently overdue?");
+        System.out.println("  technician-workload               - What tickets are assigned to each technician?");
+        System.out.println("  available-technicians             - What technicians are available for each service type?");
+        System.out.println("  technician-schedule               - What appointments does each technician have?");
+        System.out.println("  client-appointments               - What appointments has each client scheduled?");
+        System.out.println("  client-technician-history         - What clients have used which technicians?");
+        System.out.println("  technician-feedback               - What feedback ratings has each technician received?");
         System.out.println();
         System.out.println("Use 'tech-support-cli <command> --help' for detailed command usage.");
         System.out.println("Use 'tech-support-cli --help' for global options.");

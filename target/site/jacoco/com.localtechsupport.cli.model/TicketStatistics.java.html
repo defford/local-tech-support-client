@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TicketStatistics.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Local Tech Support CLI Client</a> &gt; <a href="index.source.html" class="el_package">com.localtechsupport.cli.model</a> &gt; <span class="el_source">TicketStatistics.java</span></div><h1>TicketStatistics.java</h1><pre class="source lang-java linenums">package com.localtechsupport.cli.model;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import java.util.Map;
+
+/**
+ * Data Transfer Object for ticket statistics from the API
+ * 
+ * Represents the response from GET /api/tickets/statistics
+ */
+public class TicketStatistics {
+
+    @JsonProperty(&quot;totalTickets&quot;)
+    private Long totalTickets;
+
+    @JsonProperty(&quot;openTickets&quot;)
+    private Long openTickets;
+
+    @JsonProperty(&quot;inProgressTickets&quot;)
+    private Long inProgressTickets;
+
+    @JsonProperty(&quot;resolvedTickets&quot;)
+    private Long resolvedTickets;
+
+    @JsonProperty(&quot;closedTickets&quot;)
+    private Long closedTickets;
+
+    @JsonProperty(&quot;averageResolutionTimeHours&quot;)
+    private Double averageResolutionTimeHours;
+
+    @JsonProperty(&quot;ticketsResolvedToday&quot;)
+    private Long ticketsResolvedToday;
+
+    @JsonProperty(&quot;ticketsByPriority&quot;)
+    private Map&lt;String, Long&gt; ticketsByPriority;
+
+    @JsonProperty(&quot;ticketsByStatus&quot;)
+    private Map&lt;String, Long&gt; ticketsByStatus;
+
+    @JsonProperty(&quot;ticketsByServiceType&quot;)
+    private Map&lt;String, Long&gt; ticketsByServiceType;
+
+    // Default constructor
+<span class="fc" id="L45">    public TicketStatistics() {}</span>
+
+    // Getters and Setters
+
+    public Long getTotalTickets() {
+<span class="fc" id="L50">        return totalTickets;</span>
+    }
+
+    public void setTotalTickets(Long totalTickets) {
+<span class="fc" id="L54">        this.totalTickets = totalTickets;</span>
+<span class="fc" id="L55">    }</span>
+
+    public Long getOpenTickets() {
+<span class="fc" id="L58">        return openTickets;</span>
+    }
+
+    public void setOpenTickets(Long openTickets) {
+<span class="fc" id="L62">        this.openTickets = openTickets;</span>
+<span class="fc" id="L63">    }</span>
+
+    public Long getInProgressTickets() {
+<span class="nc" id="L66">        return inProgressTickets;</span>
+    }
+
+    public void setInProgressTickets(Long inProgressTickets) {
+<span class="nc" id="L70">        this.inProgressTickets = inProgressTickets;</span>
+<span class="nc" id="L71">    }</span>
+
+    public Long getResolvedTickets() {
+<span class="fc" id="L74">        return resolvedTickets;</span>
+    }
+
+    public void setResolvedTickets(Long resolvedTickets) {
+<span class="fc" id="L78">        this.resolvedTickets = resolvedTickets;</span>
+<span class="fc" id="L79">    }</span>
+
+    public Long getClosedTickets() {
+<span class="nc" id="L82">        return closedTickets;</span>
+    }
+
+    public void setClosedTickets(Long closedTickets) {
+<span class="nc" id="L86">        this.closedTickets = closedTickets;</span>
+<span class="nc" id="L87">    }</span>
+
+    public Double getAverageResolutionTimeHours() {
+<span class="nc" id="L90">        return averageResolutionTimeHours;</span>
+    }
+
+    public void setAverageResolutionTimeHours(Double averageResolutionTimeHours) {
+<span class="fc" id="L94">        this.averageResolutionTimeHours = averageResolutionTimeHours;</span>
+<span class="fc" id="L95">    }</span>
+
+    public Long getTicketsResolvedToday() {
+<span class="nc" id="L98">        return ticketsResolvedToday;</span>
+    }
+
+    public void setTicketsResolvedToday(Long ticketsResolvedToday) {
+<span class="fc" id="L102">        this.ticketsResolvedToday = ticketsResolvedToday;</span>
+<span class="fc" id="L103">    }</span>
+
+    public Map&lt;String, Long&gt; getTicketsByPriority() {
+<span class="nc" id="L106">        return ticketsByPriority;</span>
+    }
+
+    public void setTicketsByPriority(Map&lt;String, Long&gt; ticketsByPriority) {
+<span class="nc" id="L110">        this.ticketsByPriority = ticketsByPriority;</span>
+<span class="nc" id="L111">    }</span>
+
+    public Map&lt;String, Long&gt; getTicketsByStatus() {
+<span class="nc" id="L114">        return ticketsByStatus;</span>
+    }
+
+    public void setTicketsByStatus(Map&lt;String, Long&gt; ticketsByStatus) {
+<span class="nc" id="L118">        this.ticketsByStatus = ticketsByStatus;</span>
+<span class="nc" id="L119">    }</span>
+
+    public Map&lt;String, Long&gt; getTicketsByServiceType() {
+<span class="nc" id="L122">        return ticketsByServiceType;</span>
+    }
+
+    public void setTicketsByServiceType(Map&lt;String, Long&gt; ticketsByServiceType) {
+<span class="nc" id="L126">        this.ticketsByServiceType = ticketsByServiceType;</span>
+<span class="nc" id="L127">    }</span>
+
+    // Utility methods
+
+    /**
+     * Calculate the current system load based on open vs total tickets
+     * 
+     * @return system load level as a string
+     */
+    public String getSystemLoadLevel() {
+<span class="nc bnc" id="L137" title="All 4 branches missed.">        if (totalTickets == null || totalTickets == 0) {</span>
+<span class="nc" id="L138">            return &quot;NONE&quot;;</span>
+        }
+        
+<span class="nc bnc" id="L141" title="All 2 branches missed.">        double loadRatio = (double) (openTickets != null ? openTickets : 0) / totalTickets;</span>
+        
+<span class="nc bnc" id="L143" title="All 2 branches missed.">        if (loadRatio &lt; 0.3) {</span>
+<span class="nc" id="L144">            return &quot;LOW&quot;;</span>
+<span class="nc bnc" id="L145" title="All 2 branches missed.">        } else if (loadRatio &lt; 0.6) {</span>
+<span class="nc" id="L146">            return &quot;MEDIUM&quot;;</span>
+        } else {
+<span class="nc" id="L148">            return &quot;HIGH&quot;;</span>
+        }
+    }
+
+    /**
+     * Get the percentage of tickets that are open
+     * 
+     * @return percentage as a double, or 0.0 if no tickets
+     */
+    public double getOpenTicketPercentage() {
+<span class="nc bnc" id="L158" title="All 4 branches missed.">        if (totalTickets == null || totalTickets == 0) {</span>
+<span class="nc" id="L159">            return 0.0;</span>
+        }
+<span class="nc bnc" id="L161" title="All 2 branches missed.">        return ((double) (openTickets != null ? openTickets : 0) / totalTickets) * 100;</span>
+    }
+
+    /**
+     * Get the percentage of tickets that are resolved
+     * 
+     * @return percentage as a double, or 0.0 if no tickets
+     */
+    public double getResolvedTicketPercentage() {
+<span class="nc bnc" id="L170" title="All 4 branches missed.">        if (totalTickets == null || totalTickets == 0) {</span>
+<span class="nc" id="L171">            return 0.0;</span>
+        }
+<span class="nc bnc" id="L173" title="All 2 branches missed.">        return ((double) (resolvedTickets != null ? resolvedTickets : 0) / totalTickets) * 100;</span>
+    }
+
+    @Override
+    public String toString() {
+<span class="nc" id="L178">        return String.format(</span>
+            &quot;TicketStatistics{totalTickets=%d, openTickets=%d, resolvedTickets=%d, avgResolutionTime=%.1fh}&quot;,
+            totalTickets, openTickets, resolvedTickets, averageResolutionTimeHours
+        );
+    }
+} 
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

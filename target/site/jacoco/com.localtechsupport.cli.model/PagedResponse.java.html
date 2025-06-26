@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>PagedResponse.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Local Tech Support CLI Client</a> &gt; <a href="index.source.html" class="el_package">com.localtechsupport.cli.model</a> &gt; <span class="el_source">PagedResponse.java</span></div><h1>PagedResponse.java</h1><pre class="source lang-java linenums">package com.localtechsupport.cli.model;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.List;
+
+/**
+ * Generic paged response wrapper for API responses
+ * 
+ * @param &lt;T&gt; The type of content in the response
+ */
+public class PagedResponse&lt;T&gt; {
+
+    @JsonProperty(&quot;content&quot;)
+    private List&lt;T&gt; content;
+
+    @JsonProperty(&quot;totalElements&quot;)
+    private Long totalElements;
+
+    @JsonProperty(&quot;totalPages&quot;)
+    private Integer totalPages;
+
+    @JsonProperty(&quot;size&quot;)
+    private Integer size;
+
+    @JsonProperty(&quot;number&quot;)
+    private Integer number;
+
+    @JsonProperty(&quot;numberOfElements&quot;)
+    private Integer numberOfElements;
+
+    @JsonProperty(&quot;first&quot;)
+    private Boolean first;
+
+    @JsonProperty(&quot;last&quot;)
+    private Boolean last;
+
+    @JsonProperty(&quot;empty&quot;)
+    private Boolean empty;
+
+    @JsonProperty(&quot;pageable&quot;)
+    private Object pageable;
+
+    @JsonProperty(&quot;sort&quot;)
+    private Object sort;
+
+    // Default constructor
+<span class="nc" id="L47">    public PagedResponse() {}</span>
+
+    // Getters and Setters
+    public List&lt;T&gt; getContent() {
+<span class="nc" id="L51">        return content;</span>
+    }
+
+    public void setContent(List&lt;T&gt; content) {
+<span class="nc" id="L55">        this.content = content;</span>
+<span class="nc" id="L56">    }</span>
+
+    public Long getTotalElements() {
+<span class="nc" id="L59">        return totalElements;</span>
+    }
+
+    public void setTotalElements(Long totalElements) {
+<span class="nc" id="L63">        this.totalElements = totalElements;</span>
+<span class="nc" id="L64">    }</span>
+
+    public Integer getTotalPages() {
+<span class="nc" id="L67">        return totalPages;</span>
+    }
+
+    public void setTotalPages(Integer totalPages) {
+<span class="nc" id="L71">        this.totalPages = totalPages;</span>
+<span class="nc" id="L72">    }</span>
+
+    public Integer getSize() {
+<span class="nc" id="L75">        return size;</span>
+    }
+
+    public void setSize(Integer size) {
+<span class="nc" id="L79">        this.size = size;</span>
+<span class="nc" id="L80">    }</span>
+
+    public Integer getNumber() {
+<span class="nc" id="L83">        return number;</span>
+    }
+
+    public void setNumber(Integer number) {
+<span class="nc" id="L87">        this.number = number;</span>
+<span class="nc" id="L88">    }</span>
+
+    public Integer getNumberOfElements() {
+<span class="nc" id="L91">        return numberOfElements;</span>
+    }
+
+    public void setNumberOfElements(Integer numberOfElements) {
+<span class="nc" id="L95">        this.numberOfElements = numberOfElements;</span>
+<span class="nc" id="L96">    }</span>
+
+    public Boolean isFirst() {
+<span class="nc" id="L99">        return first;</span>
+    }
+
+    public void setFirst(Boolean first) {
+<span class="nc" id="L103">        this.first = first;</span>
+<span class="nc" id="L104">    }</span>
+
+    public Boolean isLast() {
+<span class="nc" id="L107">        return last;</span>
+    }
+
+    public void setLast(Boolean last) {
+<span class="nc" id="L111">        this.last = last;</span>
+<span class="nc" id="L112">    }</span>
+
+    public Boolean isEmpty() {
+<span class="nc" id="L115">        return empty;</span>
+    }
+
+    public void setEmpty(Boolean empty) {
+<span class="nc" id="L119">        this.empty = empty;</span>
+<span class="nc" id="L120">    }</span>
+
+    // Utility methods
+    public boolean hasContent() {
+<span class="nc bnc" id="L124" title="All 4 branches missed.">        return content != null &amp;&amp; !content.isEmpty();</span>
+    }
+
+    public boolean hasNext() {
+<span class="nc bnc" id="L128" title="All 2 branches missed.">        return !Boolean.TRUE.equals(last);</span>
+    }
+
+    public boolean hasPrevious() {
+<span class="nc bnc" id="L132" title="All 2 branches missed.">        return !Boolean.TRUE.equals(first);</span>
+    }
+
+    @Override
+    public String toString() {
+<span class="nc" id="L137">        return String.format(&quot;PagedResponse{totalElements=%d, totalPages=%d, size=%d, number=%d}&quot;, </span>
+                           totalElements, totalPages, size, number);
+    }
+} 
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

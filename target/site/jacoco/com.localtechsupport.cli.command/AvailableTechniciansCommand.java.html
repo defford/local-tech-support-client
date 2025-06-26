@@ -1,0 +1,360 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AvailableTechniciansCommand.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Local Tech Support CLI Client</a> &gt; <a href="index.source.html" class="el_package">com.localtechsupport.cli.command</a> &gt; <span class="el_source">AvailableTechniciansCommand.java</span></div><h1>AvailableTechniciansCommand.java</h1><pre class="source lang-java linenums">package com.localtechsupport.cli.command;
+
+import com.localtechsupport.cli.CliApplication;
+import com.localtechsupport.cli.service.ApiService;
+import com.localtechsupport.cli.model.Technician;
+import com.localtechsupport.cli.client.ApiException;
+import com.localtechsupport.cli.util.JsonFormatter;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.ParentCommand;
+import picocli.CommandLine.Option;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.stream.Collectors;
+
+/**
+ * Command to display available technicians
+ * 
+ * This command answers the question: &quot;Which technicians are available for hardware issues?&quot;
+ * It fetches available technicians, optionally filtered by service type/skill.
+ */
+@Command(
+    name = &quot;available-technicians&quot;,
+    description = &quot;Show technicians available for service assignments&quot;,
+    mixinStandardHelpOptions = true
+)
+<span class="nc" id="L32">public class AvailableTechniciansCommand implements Callable&lt;Integer&gt; {</span>
+
+<span class="nc" id="L34">    private static final Logger logger = LoggerFactory.getLogger(AvailableTechniciansCommand.class);</span>
+
+    @ParentCommand
+    private CliApplication parent;
+
+    @Option(
+        names = {&quot;-t&quot;, &quot;--service-type&quot;},
+        description = &quot;Filter by service type skill (HARDWARE, SOFTWARE, NETWORK)&quot;
+    )
+    private String serviceType;
+
+    @Option(
+        names = {&quot;-s&quot;, &quot;--skill&quot;},
+        description = &quot;Filter by specific skill (alias for --service-type)&quot;
+    )
+    private String skill;
+
+    @Option(
+        names = {&quot;--show-skills&quot;},
+        description = &quot;Show detailed skill breakdown&quot;
+    )
+<span class="nc" id="L55">    private boolean showSkills = false;</span>
+
+    @Option(
+        names = {&quot;--sort-by&quot;},
+        description = &quot;Sort by: name, skill-count, status (default: name)&quot;,
+        defaultValue = &quot;name&quot;
+    )
+    private String sortBy;
+
+    @Override
+    public Integer call() {
+<span class="nc" id="L66">        logger.info(&quot;Executing available-technicians command&quot;);</span>
+        
+        try {
+            // Get configuration from parent
+<span class="nc" id="L70">            String serverUrl = parent.getServerUrl();</span>
+<span class="nc" id="L71">            String outputFormat = parent.getOutputFormat();</span>
+<span class="nc" id="L72">            boolean verbose = parent.isVerbose();</span>
+            
+            // Use skill parameter if service-type not specified
+<span class="nc bnc" id="L75" title="All 2 branches missed.">            String filterSkill = serviceType != null ? serviceType : skill;</span>
+            
+<span class="nc bnc" id="L77" title="All 2 branches missed.">            if (verbose) {</span>
+<span class="nc" id="L78">                System.out.println(&quot;🔍 Connecting to server: &quot; + serverUrl);</span>
+<span class="nc" id="L79">                System.out.println(&quot;👨‍🔧 Fetching available technicians...&quot;);</span>
+<span class="nc bnc" id="L80" title="All 2 branches missed.">                if (filterSkill != null) {</span>
+<span class="nc" id="L81">                    System.out.println(&quot;🎯 Filtering by skill: &quot; + filterSkill);</span>
+                }
+            }
+
+            // Create API service and fetch data
+<span class="nc" id="L86">            try (ApiService apiService = new ApiService(serverUrl)) {</span>
+                
+                // Test connection first
+<span class="nc bnc" id="L89" title="All 2 branches missed.">                if (!apiService.testConnection()) {</span>
+<span class="nc" id="L90">                    System.err.println(&quot;❌ Cannot connect to server: &quot; + serverUrl);</span>
+<span class="nc" id="L91">                    System.err.println(&quot;   Please check that the Local Tech Support Server is running.&quot;);</span>
+<span class="nc" id="L92">                    return 1;</span>
+                }
+
+                // Fetch available technicians
+<span class="nc" id="L96">                List&lt;Technician&gt; availableTechnicians = fetchAvailableTechnicians(apiService, filterSkill, verbose);</span>
+                
+<span class="nc bnc" id="L98" title="All 2 branches missed.">                if (verbose) {</span>
+<span class="nc" id="L99">                    System.out.println(&quot;✅ Successfully fetched &quot; + availableTechnicians.size() + &quot; available technicians&quot;);</span>
+                }
+
+                // Format and display output
+<span class="nc" id="L103">                String output = formatOutput(availableTechnicians, outputFormat, serverUrl, filterSkill);</span>
+<span class="nc" id="L104">                System.out.println(output);</span>
+                
+<span class="nc" id="L106">                logger.info(&quot;Available technicians command completed successfully&quot;);</span>
+<span class="nc" id="L107">                return 0;</span>
+
+<span class="nc" id="L109">            } catch (ApiException e) {</span>
+<span class="nc" id="L110">                logger.error(&quot;API error in available-technicians command: {}&quot;, e.getMessage());</span>
+                
+<span class="nc" id="L112">                System.err.println(&quot;❌ API Error: &quot; + e.getUserFriendlyMessage());</span>
+                
+<span class="nc bnc" id="L114" title="All 2 branches missed.">                if (verbose) {</span>
+<span class="nc" id="L115">                    System.err.println(&quot;   Status Code: &quot; + e.getStatusCode());</span>
+<span class="nc" id="L116">                    System.err.println(&quot;   Server: &quot; + serverUrl);</span>
+                }
+                
+<span class="nc" id="L119">                return 1;</span>
+            }
+
+<span class="nc" id="L122">        } catch (Exception e) {</span>
+<span class="nc" id="L123">            logger.error(&quot;Unexpected error in available-technicians command: {}&quot;, e.getMessage(), e);</span>
+            
+<span class="nc" id="L125">            System.err.println(&quot;❌ Unexpected error: &quot; + e.getMessage());</span>
+            
+<span class="nc bnc" id="L127" title="All 2 branches missed.">            if (parent.isVerbose()) {</span>
+<span class="nc" id="L128">                e.printStackTrace();</span>
+            }
+            
+<span class="nc" id="L131">            return 1;</span>
+        }
+    }
+
+    /**
+     * Fetch available technicians from the API
+     */
+    private List&lt;Technician&gt; fetchAvailableTechnicians(ApiService apiService, String filterSkill, boolean verbose) throws ApiException {
+        List&lt;Technician&gt; availableTechnicians;
+        
+<span class="nc bnc" id="L141" title="All 2 branches missed.">        if (filterSkill != null) {</span>
+            // Fetch technicians with specific skill
+<span class="nc" id="L143">            availableTechnicians = apiService.getAvailableTechniciansByServiceType(filterSkill);</span>
+<span class="nc" id="L144">        } else {</span>
+            // Fetch all available technicians
+<span class="nc" id="L146">            availableTechnicians = apiService.getAvailableTechnicians();</span>
+        }
+        
+        // Apply sorting
+<span class="nc" id="L150">        availableTechnicians = applySorting(availableTechnicians);</span>
+        
+<span class="nc bnc" id="L152" title="All 4 branches missed.">        if (verbose &amp;&amp; !availableTechnicians.isEmpty()) {</span>
+<span class="nc" id="L153">            System.out.println(&quot;🔍 Found &quot; + availableTechnicians.size() + &quot; matching technicians&quot;);</span>
+        }
+        
+<span class="nc" id="L156">        return availableTechnicians;</span>
+    }
+
+    /**
+     * Apply sorting to the technician list
+     */
+    private List&lt;Technician&gt; applySorting(List&lt;Technician&gt; technicians) {
+<span class="nc" id="L163">        return technicians.stream()</span>
+<span class="nc" id="L164">            .sorted((t1, t2) -&gt; {</span>
+<span class="nc bnc" id="L165" title="All 3 branches missed.">                switch (sortBy.toLowerCase()) {</span>
+                    case &quot;skill-count&quot;:
+<span class="nc bnc" id="L167" title="All 2 branches missed.">                        int skillCount1 = t1.getSkills() != null ? t1.getSkills().size() : 0;</span>
+<span class="nc bnc" id="L168" title="All 2 branches missed.">                        int skillCount2 = t2.getSkills() != null ? t2.getSkills().size() : 0;</span>
+<span class="nc" id="L169">                        return Integer.compare(skillCount2, skillCount1); // Descending</span>
+                    case &quot;status&quot;:
+<span class="nc" id="L171">                        return t1.getStatus().compareToIgnoreCase(t2.getStatus());</span>
+                    case &quot;name&quot;:
+                    default:
+<span class="nc" id="L174">                        return t1.getFullName().compareToIgnoreCase(t2.getFullName());</span>
+                }
+            })
+<span class="nc" id="L177">            .collect(Collectors.toList());</span>
+    }
+
+    /**
+     * Format the output based on the requested format
+     */
+    private String formatOutput(List&lt;Technician&gt; availableTechnicians, String format, String serverUrl, String filterSkill) {
+<span class="nc" id="L184">        String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern(&quot;yyyy-MM-dd HH:mm:ss&quot;));</span>
+        
+<span class="nc bnc" id="L186" title="All 3 branches missed.">        switch (format.toLowerCase()) {</span>
+            case &quot;json&quot;:
+<span class="nc" id="L188">                return JsonFormatter.withMetadata(</span>
+<span class="nc" id="L189">                    &quot;Available Technicians Report&quot;, </span>
+<span class="nc" id="L190">                    availableTechnicians, </span>
+<span class="nc" id="L191">                    serverUrl, </span>
+<span class="nc" id="L192">                    timestamp</span>
+                );
+                
+            case &quot;table&quot;:
+<span class="nc" id="L196">                return formatAsTable(availableTechnicians, serverUrl, timestamp, filterSkill);</span>
+                
+            default:
+                // Default to JSON
+<span class="nc" id="L200">                return JsonFormatter.withHeader(&quot;Available Technicians Report&quot;, </span>
+<span class="nc" id="L201">                                              JsonFormatter.toPrettyJsonString(availableTechnicians));</span>
+        }
+    }
+
+    /**
+     * Format as a readable table
+     */
+    private String formatAsTable(List&lt;Technician&gt; availableTechnicians, String serverUrl, String timestamp, String filterSkill) {
+<span class="nc" id="L209">        StringBuilder output = new StringBuilder();</span>
+        
+        // Header
+<span class="nc" id="L212">        output.append(&quot;=&quot;.repeat(90)).append(&quot;\n&quot;);</span>
+<span class="nc" id="L213">        output.append(&quot;👨‍🔧 AVAILABLE TECHNICIANS REPORT&quot;).append(&quot;\n&quot;);</span>
+<span class="nc" id="L214">        output.append(&quot;=&quot;.repeat(90)).append(&quot;\n&quot;);</span>
+<span class="nc" id="L215">        output.append(String.format(&quot;Server: %s&quot;, serverUrl)).append(&quot;\n&quot;);</span>
+<span class="nc" id="L216">        output.append(String.format(&quot;Timestamp: %s&quot;, timestamp)).append(&quot;\n&quot;);</span>
+<span class="nc" id="L217">        output.append(String.format(&quot;Sort Order: %s&quot;, sortBy)).append(&quot;\n&quot;);</span>
+        
+        // Add filters info if applied
+<span class="nc bnc" id="L220" title="All 2 branches missed.">        if (filterSkill != null) {</span>
+<span class="nc" id="L221">            output.append(String.format(&quot;Filter: Service Type/Skill = %s&quot;, filterSkill)).append(&quot;\n&quot;);</span>
+        }
+        
+<span class="nc" id="L224">        output.append(&quot;-&quot;.repeat(90)).append(&quot;\n\n&quot;);</span>
+        
+<span class="nc bnc" id="L226" title="All 2 branches missed.">        if (availableTechnicians.isEmpty()) {</span>
+<span class="nc bnc" id="L227" title="All 2 branches missed.">            String message = filterSkill != null ? </span>
+<span class="nc" id="L228">                &quot;No available technicians found with skill: &quot; + filterSkill :</span>
+<span class="nc" id="L229">                &quot;No available technicians found&quot;;</span>
+<span class="nc" id="L230">            output.append(&quot;🚫 &quot;).append(message).append(&quot;\n\n&quot;);</span>
+<span class="nc" id="L231">            return output.toString();</span>
+        }
+        
+        // Summary statistics
+<span class="nc" id="L235">        output.append(String.format(&quot;📊 Total Available Technicians: %d\n&quot;, availableTechnicians.size()));</span>
+        
+        // Skill coverage analysis
+<span class="nc bnc" id="L238" title="All 2 branches missed.">        if (showSkills) {</span>
+<span class="nc" id="L239">            Map&lt;String, Long&gt; skillCoverage = availableTechnicians.stream()</span>
+<span class="nc bnc" id="L240" title="All 2 branches missed.">                .filter(t -&gt; t.getSkills() != null)</span>
+<span class="nc" id="L241">                .flatMap(t -&gt; t.getSkills().stream())</span>
+<span class="nc" id="L242">                .collect(Collectors.groupingBy(skill -&gt; skill, Collectors.counting()));</span>
+            
+<span class="nc bnc" id="L244" title="All 2 branches missed.">            if (!skillCoverage.isEmpty()) {</span>
+<span class="nc" id="L245">                output.append(&quot;Skill Coverage: &quot;);</span>
+<span class="nc" id="L246">                skillCoverage.entrySet().stream()</span>
+<span class="nc" id="L247">                    .sorted((e1, e2) -&gt; e2.getValue().compareTo(e1.getValue()))</span>
+<span class="nc" id="L248">                    .forEach(entry -&gt; output.append(String.format(&quot;%s:%d &quot;, entry.getKey(), entry.getValue())));</span>
+<span class="nc" id="L249">                output.append(&quot;\n&quot;);</span>
+            }
+        }
+        
+<span class="nc" id="L253">        output.append(&quot;\n&quot;);</span>
+        
+        // Technician details table
+<span class="nc bnc" id="L256" title="All 2 branches missed.">        String headerFormat = showSkills ? &quot;%-20s %-15s %-12s %-30s %s\n&quot; : &quot;%-25s %-15s %-15s %-20s %s\n&quot;;</span>
+<span class="nc bnc" id="L257" title="All 2 branches missed.">        String[] headers = showSkills ? </span>
+<span class="nc" id="L258">            new String[]{&quot;Name&quot;, &quot;Status&quot;, &quot;Skill Count&quot;, &quot;Skills&quot;, &quot;Contact&quot;} :</span>
+<span class="nc" id="L259">            new String[]{&quot;Name&quot;, &quot;Status&quot;, &quot;Email&quot;, &quot;Phone&quot;, &quot;Primary Skills&quot;};</span>
+            
+<span class="nc" id="L261">        output.append(String.format(headerFormat, (Object[]) headers));</span>
+<span class="nc" id="L262">        output.append(&quot;-&quot;.repeat(90)).append(&quot;\n&quot;);</span>
+        
+<span class="nc bnc" id="L264" title="All 2 branches missed.">        for (Technician technician : availableTechnicians) {</span>
+<span class="nc" id="L265">            String statusEmoji = getStatusEmoji(technician.getStatus());</span>
+<span class="nc" id="L266">            String skillInfo = getSkillInfo(technician, showSkills);</span>
+<span class="nc bnc" id="L267" title="All 2 branches missed.">            String contact = showSkills ? technician.getEmail() : technician.getPhone();</span>
+            
+<span class="nc bnc" id="L269" title="All 2 branches missed.">            if (showSkills) {</span>
+<span class="nc" id="L270">                output.append(String.format(&quot;%-20s %s%-14s %-12s %-30s %s\n&quot;,</span>
+<span class="nc" id="L271">                    truncate(technician.getFullName(), 19),</span>
+<span class="nc" id="L272">                    statusEmoji,</span>
+<span class="nc" id="L273">                    technician.getStatus(),</span>
+<span class="nc bnc" id="L274" title="All 2 branches missed.">                    technician.getSkills() != null ? technician.getSkills().size() : 0,</span>
+<span class="nc" id="L275">                    skillInfo,</span>
+<span class="nc bnc" id="L276" title="All 2 branches missed.">                    contact != null ? contact : &quot;N/A&quot;</span>
+                ));
+<span class="nc" id="L278">            } else {</span>
+<span class="nc" id="L279">                output.append(String.format(&quot;%-25s %s%-14s %-15s %-20s %s\n&quot;,</span>
+<span class="nc" id="L280">                    truncate(technician.getFullName(), 24),</span>
+<span class="nc" id="L281">                    statusEmoji,</span>
+<span class="nc" id="L282">                    technician.getStatus(),</span>
+<span class="nc" id="L283">                    technician.getEmail(),</span>
+<span class="nc bnc" id="L284" title="All 2 branches missed.">                    contact != null ? contact : &quot;N/A&quot;,</span>
+<span class="nc" id="L285">                    skillInfo</span>
+                ));
+            }
+        }
+        
+<span class="nc" id="L290">        output.append(&quot;-&quot;.repeat(90)).append(&quot;\n&quot;);</span>
+        
+        // Recommendations
+<span class="nc bnc" id="L293" title="All 2 branches missed.">        if (availableTechnicians.size() &gt; 0) {</span>
+<span class="nc" id="L294">            output.append(&quot;\n💡 Assignment Recommendations:\n&quot;);</span>
+            
+<span class="nc bnc" id="L296" title="All 2 branches missed.">            if (filterSkill != null) {</span>
+<span class="nc" id="L297">                output.append(String.format(&quot;   • %d technician(s) available for %s issues\n&quot;, </span>
+<span class="nc" id="L298">                    availableTechnicians.size(), filterSkill));</span>
+                    
+                // Find technicians with multiple relevant skills
+<span class="nc" id="L301">                long multiSkillTechs = availableTechnicians.stream()</span>
+<span class="nc bnc" id="L302" title="All 4 branches missed.">                    .filter(t -&gt; t.getSkills() != null &amp;&amp; t.getSkills().size() &gt; 1)</span>
+<span class="nc" id="L303">                    .count();</span>
+                    
+<span class="nc bnc" id="L305" title="All 2 branches missed.">                if (multiSkillTechs &gt; 0) {</span>
+<span class="nc" id="L306">                    output.append(String.format(&quot;   • %d technician(s) have additional skills for cross-training\n&quot;, multiSkillTechs));</span>
+                }
+<span class="nc" id="L308">            } else {</span>
+<span class="nc" id="L309">                output.append(&quot;   • Consider skill requirements when assigning tickets\n&quot;);</span>
+<span class="nc" id="L310">                output.append(&quot;   • Use --service-type filter to find specialists\n&quot;);</span>
+            }
+        }
+        
+<span class="nc" id="L314">        return output.toString();</span>
+    }
+    
+    /**
+     * Get emoji for technician status
+     */
+    private String getStatusEmoji(String status) {
+<span class="nc bnc" id="L321" title="All 4 branches missed.">        return switch (status.toUpperCase()) {</span>
+<span class="nc" id="L322">            case &quot;ACTIVE&quot; -&gt; &quot;🟢&quot;;</span>
+<span class="nc" id="L323">            case &quot;ON_VACATION&quot; -&gt; &quot;🏖️&quot;;</span>
+<span class="nc" id="L324">            case &quot;SICK_LEAVE&quot; -&gt; &quot;🤒&quot;;</span>
+<span class="nc" id="L325">            default -&gt; &quot;❓&quot;;</span>
+        };
+    }
+    
+    /**
+     * Get skill information for display
+     */
+    private String getSkillInfo(Technician technician, boolean showAll) {
+<span class="nc bnc" id="L333" title="All 4 branches missed.">        if (technician.getSkills() == null || technician.getSkills().isEmpty()) {</span>
+<span class="nc" id="L334">            return &quot;None&quot;;</span>
+        }
+        
+<span class="nc bnc" id="L337" title="All 2 branches missed.">        if (showAll) {</span>
+<span class="nc" id="L338">            String skills = String.join(&quot;, &quot;, technician.getSkills());</span>
+<span class="nc" id="L339">            return truncate(skills, 28);</span>
+        } else {
+            // Show up to 2 primary skills
+<span class="nc" id="L342">            String skills = technician.getSkills().stream()</span>
+<span class="nc" id="L343">                .limit(2)</span>
+<span class="nc" id="L344">                .collect(Collectors.joining(&quot;, &quot;));</span>
+<span class="nc bnc" id="L345" title="All 2 branches missed.">            if (technician.getSkills().size() &gt; 2) {</span>
+<span class="nc" id="L346">                skills += &quot; +more&quot;;</span>
+            }
+<span class="nc" id="L348">            return truncate(skills, 18);</span>
+        }
+    }
+    
+    /**
+     * Truncate string to specified length
+     */
+    private String truncate(String str, int maxLength) {
+<span class="nc bnc" id="L356" title="All 2 branches missed.">        if (str == null) return &quot;&quot;;</span>
+<span class="nc bnc" id="L357" title="All 2 branches missed.">        return str.length() &lt;= maxLength ? str : str.substring(0, maxLength - 3) + &quot;...&quot;;</span>
+    }
+} 
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>
