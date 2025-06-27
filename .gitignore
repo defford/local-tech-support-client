@@ -1,3 +1,8 @@
+# Ignore all markdown files
 *.md
+
+# But allow README.md to be committed
+!README.md
+
 #Ignore cursor AI rules
 .cursor/rules/codacy.mdc
