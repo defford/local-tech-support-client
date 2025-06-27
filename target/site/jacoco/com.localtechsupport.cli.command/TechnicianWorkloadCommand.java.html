@@ -19,6 +19,7 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
+import java.util.LinkedHashMap;
 
 /**
  * Command to display current workload for each technician
@@ -31,9 +32,9 @@ import java.util.stream.Collectors;
     description = &quot;Show current workload for each technician&quot;,
     mixinStandardHelpOptions = true
 )
-<span class="nc" id="L34">public class TechnicianWorkloadCommand implements Callable&lt;Integer&gt; {</span>
+<span class="nc" id="L35">public class TechnicianWorkloadCommand implements Callable&lt;Integer&gt; {</span>
 
-<span class="nc" id="L36">    private static final Logger logger = LoggerFactory.getLogger(TechnicianWorkloadCommand.class);</span>
+<span class="nc" id="L37">    private static final Logger logger = LoggerFactory.getLogger(TechnicianWorkloadCommand.class);</span>
 
     @ParentCommand
     private CliApplication parent;
@@ -50,11 +51,11 @@ import java.util.stream.Collectors;
     )
     private String technicianStatus;
 
-    @Option(
+<span class="nc" id="L54">    @Option(</span>
         names = {&quot;--include-closed&quot;},
         description = &quot;Include closed tickets in workload calculation&quot;
     )
-<span class="nc" id="L57">    private boolean includeClosedTickets = false;</span>
+    private boolean includeClosedTickets = false;
 
     @Option(
         names = {&quot;--sort-by&quot;},
@@ -64,152 +65,101 @@ import java.util.stream.Collectors;
     private String sortBy;
 
     @Override
-    public Integer call() {
-<span class="nc" id="L68">        logger.info(&quot;Executing technician-workload command&quot;);</span>
-        
+    public Integer call() throws Exception {
         try {
-            // Get configuration from parent
-<span class="nc" id="L72">            String serverUrl = parent.getServerUrl();</span>
-<span class="nc" id="L73">            String outputFormat = parent.getOutputFormat();</span>
-<span class="nc" id="L74">            boolean verbose = parent.isVerbose();</span>
-            
-<span class="nc bnc" id="L76" title="All 2 branches missed.">            if (verbose) {</span>
-<span class="nc" id="L77">                System.out.println(&quot;🔍 Connecting to server: &quot; + serverUrl);</span>
-<span class="nc" id="L78">                System.out.println(&quot;👨‍💻 Fetching technician workload data...&quot;);</span>
-            }
-
-            // Create API service and fetch data
-<span class="nc" id="L82">            try (ApiService apiService = new ApiService(serverUrl)) {</span>
-                
-                // Test connection first
-<span class="nc bnc" id="L85" title="All 2 branches missed.">                if (!apiService.testConnection()) {</span>
-<span class="nc" id="L86">                    System.err.println(&quot;❌ Cannot connect to server: &quot; + serverUrl);</span>
-<span class="nc" id="L87">                    System.err.println(&quot;   Please check that the Local Tech Support Server is running.&quot;);</span>
-<span class="nc" id="L88">                    return 1;</span>
-                }
-
-                // Fetch data
-<span class="nc" id="L92">                Map&lt;Technician, WorkloadInfo&gt; technicianWorkloadMap = fetchTechnicianWorkloadData(apiService, verbose);</span>
-                
-<span class="nc bnc" id="L94" title="All 2 branches missed.">                if (verbose) {</span>
-<span class="nc" id="L95">                    System.out.println(&quot;✅ Successfully fetched technician workload data&quot;);</span>
-                }
-
-                // Format and display output
-<span class="nc" id="L99">                String output = formatOutput(technicianWorkloadMap, outputFormat, serverUrl);</span>
-<span class="nc" id="L100">                System.out.println(output);</span>
-                
-<span class="nc" id="L102">                logger.info(&quot;Technician workload command completed successfully&quot;);</span>
-<span class="nc" id="L103">                return 0;</span>
-
-<span class="nc" id="L105">            } catch (ApiException e) {</span>
-<span class="nc" id="L106">                logger.error(&quot;API error in technician-workload command: {}&quot;, e.getMessage());</span>
-                
-<span class="nc" id="L108">                System.err.println(&quot;❌ API Error: &quot; + e.getUserFriendlyMessage());</span>
-                
-<span class="nc bnc" id="L110" title="All 2 branches missed.">                if (verbose) {</span>
-<span class="nc" id="L111">                    System.err.println(&quot;   Status Code: &quot; + e.getStatusCode());</span>
-<span class="nc" id="L112">                    System.err.println(&quot;   Server: &quot; + serverUrl);</span>
-                }
-                
-<span class="nc" id="L115">                return 1;</span>
-            }
-
-<span class="nc" id="L118">        } catch (Exception e) {</span>
-<span class="nc" id="L119">            logger.error(&quot;Unexpected error in technician-workload command: {}&quot;, e.getMessage(), e);</span>
-            
-<span class="nc" id="L121">            System.err.println(&quot;❌ Unexpected error: &quot; + e.getMessage());</span>
-            
-<span class="nc bnc" id="L123" title="All 2 branches missed.">            if (parent.isVerbose()) {</span>
-<span class="nc" id="L124">                e.printStackTrace();</span>
+<span class="nc bnc" id="L70" title="All 2 branches missed.">            if (parent.isVerbose()) {</span>
+<span class="nc" id="L71">                System.out.println(&quot;🔍 Connecting to server: &quot; + parent.getServerUrl());</span>
+<span class="nc" id="L72">                System.out.println(&quot;👨‍💻 Fetching technician workload data...&quot;);</span>
             }
             
-<span class="nc" id="L127">            return 1;</span>
+<span class="nc" id="L75">            ApiService apiService = new ApiService(parent.getServerUrl());</span>
+            
+            // Fetch technicians
+<span class="nc" id="L78">            List&lt;Technician&gt; technicians = apiService.getAllTechnicians();</span>
+            
+            // Filter technicians if needed - handle the __no_default_value__ case
+<span class="nc bnc" id="L81" title="All 4 branches missed.">            if (technicianStatus != null &amp;&amp; !technicianStatus.equals(&quot;__no_default_value__&quot;)) {</span>
+<span class="nc" id="L82">                technicians = technicians.stream()</span>
+<span class="nc" id="L83">                    .filter(t -&gt; technicianStatus.equalsIgnoreCase(t.getStatus()))</span>
+<span class="nc" id="L84">                    .collect(Collectors.toList());</span>
+            }
+            
+            // Filter by technician ID if specified
+<span class="nc bnc" id="L88" title="All 2 branches missed.">            if (technicianId != null) {</span>
+<span class="nc" id="L89">                technicians = technicians.stream()</span>
+<span class="nc" id="L90">                    .filter(t -&gt; t.getId().equals(technicianId))</span>
+<span class="nc" id="L91">                    .collect(Collectors.toList());</span>
+            }
+            
+<span class="nc bnc" id="L94" title="All 2 branches missed.">            if (parent.isVerbose()) {</span>
+<span class="nc" id="L95">                System.out.println(&quot;📊 Processing &quot; + technicians.size() + &quot; technicians...&quot;);</span>
+            }
+            
+            // Build workload map
+<span class="nc" id="L99">            Map&lt;Technician, WorkloadInfo&gt; technicianWorkloadMap = new LinkedHashMap&lt;&gt;();</span>
+            
+<span class="nc bnc" id="L101" title="All 2 branches missed.">            for (Technician technician : technicians) {</span>
+<span class="nc" id="L102">                List&lt;Ticket&gt; tickets = apiService.getTicketsByTechnician(technician.getId());</span>
+<span class="nc" id="L103">                WorkloadInfo workloadInfo = calculateWorkloadInfo(tickets);</span>
+<span class="nc" id="L104">                technicianWorkloadMap.put(technician, workloadInfo);</span>
+<span class="nc" id="L105">            }</span>
+            
+            // Apply sorting
+<span class="nc" id="L108">            technicianWorkloadMap = applySorting(technicianWorkloadMap);</span>
+            
+<span class="nc bnc" id="L110" title="All 2 branches missed.">            if (parent.isVerbose()) {</span>
+<span class="nc" id="L111">                System.out.println(&quot;✅ Successfully fetched technician workload data&quot;);</span>
+            }
+            
+            // Format and display output
+<span class="nc" id="L115">            String output = formatOutput(technicianWorkloadMap, &quot;table&quot;, parent.getServerUrl());</span>
+<span class="nc" id="L116">            System.out.println(output);</span>
+            
+<span class="nc" id="L118">            return 0;</span>
+            
+<span class="nc" id="L120">        } catch (Exception e) {</span>
+<span class="nc" id="L121">            System.err.println(&quot;❌ Error fetching technician workload: &quot; + e.getMessage());</span>
+<span class="nc bnc" id="L122" title="All 2 branches missed.">            if (parent.isVerbose()) {</span>
+<span class="nc" id="L123">                e.printStackTrace();</span>
+            }
+<span class="nc" id="L125">            return 1;</span>
         }
-    }
-
-    /**
-     * Fetch technician workload data from the API
-     */
-    private Map&lt;Technician, WorkloadInfo&gt; fetchTechnicianWorkloadData(ApiService apiService, boolean verbose) throws ApiException {
-<span class="nc" id="L135">        Map&lt;Technician, WorkloadInfo&gt; technicianWorkloadMap = new HashMap&lt;&gt;();</span>
-        
-<span class="nc bnc" id="L137" title="All 2 branches missed.">        if (technicianId != null) {</span>
-            // Fetch specific technician and their workload
-<span class="nc" id="L139">            List&lt;Technician&gt; allTechnicians = apiService.getAllTechnicians();</span>
-<span class="nc" id="L140">            Technician targetTechnician = allTechnicians.stream()</span>
-<span class="nc" id="L141">                .filter(t -&gt; t.getId().equals(technicianId))</span>
-<span class="nc" id="L142">                .findFirst()</span>
-<span class="nc" id="L143">                .orElse(null);</span>
-                
-<span class="nc bnc" id="L145" title="All 2 branches missed.">            if (targetTechnician == null) {</span>
-<span class="nc" id="L146">                throw new ApiException(&quot;Technician with ID &quot; + technicianId + &quot; not found&quot;, 404);</span>
-            }
-            
-<span class="nc" id="L149">            List&lt;Ticket&gt; tickets = apiService.getTicketsByTechnician(technicianId);</span>
-<span class="nc" id="L150">            WorkloadInfo workloadInfo = calculateWorkloadInfo(tickets);</span>
-<span class="nc" id="L151">            technicianWorkloadMap.put(targetTechnician, workloadInfo);</span>
-            
-<span class="nc" id="L153">        } else {</span>
-            // Fetch all technicians and their workloads
-<span class="nc" id="L155">            List&lt;Technician&gt; technicians = apiService.getAllTechnicians();</span>
-            
-            // Filter technicians if needed
-<span class="nc bnc" id="L158" title="All 2 branches missed.">            if (technicianStatus != null) {</span>
-<span class="nc" id="L159">                technicians = technicians.stream()</span>
-<span class="nc" id="L160">                    .filter(t -&gt; technicianStatus.equalsIgnoreCase(t.getStatus()))</span>
-<span class="nc" id="L161">                    .collect(Collectors.toList());</span>
-            }
-            
-<span class="nc bnc" id="L164" title="All 2 branches missed.">            if (verbose) {</span>
-<span class="nc" id="L165">                System.out.println(&quot;📊 Processing &quot; + technicians.size() + &quot; technicians...&quot;);</span>
-            }
-            
-            // Fetch workload for each technician
-<span class="nc bnc" id="L169" title="All 2 branches missed.">            for (Technician technician : technicians) {</span>
-<span class="nc" id="L170">                List&lt;Ticket&gt; tickets = apiService.getTicketsByTechnician(technician.getId());</span>
-<span class="nc" id="L171">                WorkloadInfo workloadInfo = calculateWorkloadInfo(tickets);</span>
-<span class="nc" id="L172">                technicianWorkloadMap.put(technician, workloadInfo);</span>
-            }
-        }
-        
-<span class="nc" id="L176">        return applySorting(technicianWorkloadMap);</span>
     }
 
     /**
      * Calculate workload information from tickets
      */
     private WorkloadInfo calculateWorkloadInfo(List&lt;Ticket&gt; allTickets) {
-<span class="nc bnc" id="L183" title="All 2 branches missed.">        List&lt;Ticket&gt; activeTickets = includeClosedTickets ? </span>
-<span class="nc" id="L184">            allTickets : </span>
-<span class="nc" id="L185">            allTickets.stream().filter(Ticket::isOpen).collect(Collectors.toList());</span>
+<span class="nc bnc" id="L133" title="All 2 branches missed.">        List&lt;Ticket&gt; activeTickets = includeClosedTickets ? </span>
+<span class="nc" id="L134">            allTickets : </span>
+<span class="nc" id="L135">            allTickets.stream().filter(Ticket::isOpen).collect(Collectors.toList());</span>
             
         // Use null-safe grouping to handle tickets with null fields
-<span class="nc" id="L188">        Map&lt;String, Long&gt; ticketsByStatus = allTickets.stream()</span>
-<span class="nc" id="L189">            .collect(Collectors.groupingBy(</span>
-<span class="nc bnc" id="L190" title="All 2 branches missed.">                ticket -&gt; ticket.getStatus() != null ? ticket.getStatus() : &quot;UNKNOWN&quot;, </span>
-<span class="nc" id="L191">                Collectors.counting()));</span>
+<span class="nc" id="L138">        Map&lt;String, Long&gt; ticketsByStatus = allTickets.stream()</span>
+<span class="nc" id="L139">            .collect(Collectors.groupingBy(</span>
+<span class="nc bnc" id="L140" title="All 2 branches missed.">                ticket -&gt; ticket.getStatus() != null ? ticket.getStatus() : &quot;UNKNOWN&quot;, </span>
+<span class="nc" id="L141">                Collectors.counting()));</span>
             
-<span class="nc" id="L193">        Map&lt;String, Long&gt; ticketsByPriority = activeTickets.stream()</span>
-<span class="nc" id="L194">            .collect(Collectors.groupingBy(</span>
-<span class="nc bnc" id="L195" title="All 2 branches missed.">                ticket -&gt; ticket.getPriority() != null ? ticket.getPriority() : &quot;UNKNOWN&quot;, </span>
-<span class="nc" id="L196">                Collectors.counting()));</span>
+<span class="nc" id="L143">        Map&lt;String, Long&gt; ticketsByPriority = activeTickets.stream()</span>
+<span class="nc" id="L144">            .collect(Collectors.groupingBy(</span>
+<span class="nc bnc" id="L145" title="All 2 branches missed.">                ticket -&gt; ticket.getPriority() != null ? ticket.getPriority() : &quot;UNKNOWN&quot;, </span>
+<span class="nc" id="L146">                Collectors.counting()));</span>
             
-<span class="nc" id="L198">        Map&lt;String, Long&gt; ticketsByServiceType = activeTickets.stream()</span>
-<span class="nc" id="L199">            .collect(Collectors.groupingBy(</span>
-<span class="nc bnc" id="L200" title="All 2 branches missed.">                ticket -&gt; ticket.getServiceType() != null ? ticket.getServiceType() : &quot;UNKNOWN&quot;, </span>
-<span class="nc" id="L201">                Collectors.counting()));</span>
+<span class="nc" id="L148">        Map&lt;String, Long&gt; ticketsByServiceType = activeTickets.stream()</span>
+<span class="nc" id="L149">            .collect(Collectors.groupingBy(</span>
+<span class="nc bnc" id="L150" title="All 2 branches missed.">                ticket -&gt; ticket.getServiceType() != null ? ticket.getServiceType() : &quot;UNKNOWN&quot;, </span>
+<span class="nc" id="L151">                Collectors.counting()));</span>
             
-<span class="nc" id="L203">        long overdueCount = activeTickets.stream()</span>
-<span class="nc bnc" id="L204" title="All 2 branches missed.">            .mapToLong(t -&gt; t.isOverdue() ? 1 : 0)</span>
-<span class="nc" id="L205">            .sum();</span>
+<span class="nc" id="L153">        long overdueCount = activeTickets.stream()</span>
+<span class="nc bnc" id="L154" title="All 2 branches missed.">            .mapToLong(t -&gt; t.isOverdue() ? 1 : 0)</span>
+<span class="nc" id="L155">            .sum();</span>
             
-<span class="nc" id="L207">        return new WorkloadInfo(</span>
-<span class="nc" id="L208">            activeTickets.size(),</span>
-<span class="nc" id="L209">            (int) overdueCount,</span>
-<span class="nc" id="L210">            ticketsByStatus,</span>
-<span class="nc" id="L211">            ticketsByPriority,</span>
-<span class="nc" id="L212">            ticketsByServiceType</span>
+<span class="nc" id="L157">        return new WorkloadInfo(</span>
+<span class="nc" id="L158">            activeTickets.size(),</span>
+            (int) overdueCount,
+            ticketsByStatus,
+            ticketsByPriority,
+            ticketsByServiceType
         );
     }
 
@@ -217,23 +167,23 @@ import java.util.stream.Collectors;
      * Apply sorting to the technician workload map
      */
     private Map&lt;Technician, WorkloadInfo&gt; applySorting(Map&lt;Technician, WorkloadInfo&gt; originalMap) {
-<span class="nc" id="L220">        return originalMap.entrySet().stream()</span>
-<span class="nc" id="L221">            .sorted((e1, e2) -&gt; {</span>
-<span class="nc bnc" id="L222" title="All 3 branches missed.">                switch (sortBy.toLowerCase()) {</span>
+<span class="nc" id="L170">        return originalMap.entrySet().stream()</span>
+<span class="nc" id="L171">            .sorted((e1, e2) -&gt; {</span>
+<span class="nc bnc" id="L172" title="All 3 branches missed.">                switch (sortBy.toLowerCase()) {</span>
                     case &quot;name&quot;:
-<span class="nc" id="L224">                        return e1.getKey().getFullName().compareToIgnoreCase(e2.getKey().getFullName());</span>
+<span class="nc" id="L174">                        return e1.getKey().getFullName().compareToIgnoreCase(e2.getKey().getFullName());</span>
                     case &quot;status&quot;:
-<span class="nc" id="L226">                        return e1.getKey().getStatus().compareToIgnoreCase(e2.getKey().getStatus());</span>
+<span class="nc" id="L176">                        return e1.getKey().getStatus().compareToIgnoreCase(e2.getKey().getStatus());</span>
                     case &quot;workload&quot;:
                     default:
-<span class="nc" id="L229">                        return Integer.compare(e2.getValue().getActiveTicketCount(), e1.getValue().getActiveTicketCount());</span>
+<span class="nc" id="L179">                        return Integer.compare(e2.getValue().getActiveTicketCount(), e1.getValue().getActiveTicketCount());</span>
                 }
             })
-<span class="nc" id="L232">            .collect(Collectors.toMap(</span>
-<span class="nc" id="L233">                Map.Entry::getKey,</span>
-<span class="nc" id="L234">                Map.Entry::getValue,</span>
-<span class="nc" id="L235">                (e1, e2) -&gt; e1,</span>
-<span class="nc" id="L236">                java.util.LinkedHashMap::new</span>
+<span class="nc" id="L182">            .collect(Collectors.toMap(</span>
+                Map.Entry::getKey,
+                Map.Entry::getValue,
+<span class="nc" id="L185">                (e1, e2) -&gt; e1,</span>
+                java.util.LinkedHashMap::new
             ));
     }
 
@@ -241,24 +191,24 @@ import java.util.stream.Collectors;
      * Format the output based on the requested format
      */
     private String formatOutput(Map&lt;Technician, WorkloadInfo&gt; technicianWorkloadMap, String format, String serverUrl) {
-<span class="nc" id="L244">        String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern(&quot;yyyy-MM-dd HH:mm:ss&quot;));</span>
+<span class="nc" id="L194">        String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern(&quot;yyyy-MM-dd HH:mm:ss&quot;));</span>
         
-<span class="nc bnc" id="L246" title="All 3 branches missed.">        switch (format.toLowerCase()) {</span>
+<span class="nc bnc" id="L196" title="All 3 branches missed.">        switch (format.toLowerCase()) {</span>
             case &quot;json&quot;:
-<span class="nc" id="L248">                return JsonFormatter.withMetadata(</span>
-<span class="nc" id="L249">                    &quot;Technician Workload Report&quot;, </span>
-<span class="nc" id="L250">                    technicianWorkloadMap, </span>
-<span class="nc" id="L251">                    serverUrl, </span>
-<span class="nc" id="L252">                    timestamp</span>
+<span class="nc" id="L198">                return JsonFormatter.withMetadata(</span>
+                    &quot;Technician Workload Report&quot;, 
+                    technicianWorkloadMap, 
+                    serverUrl, 
+                    timestamp
                 );
                 
             case &quot;table&quot;:
-<span class="nc" id="L256">                return formatAsTable(technicianWorkloadMap, serverUrl, timestamp);</span>
+<span class="nc" id="L206">                return formatAsTable(technicianWorkloadMap, serverUrl, timestamp);</span>
                 
             default:
                 // Default to JSON
-<span class="nc" id="L260">                return JsonFormatter.withHeader(&quot;Technician Workload Report&quot;, </span>
-<span class="nc" id="L261">                                              JsonFormatter.toPrettyJsonString(technicianWorkloadMap));</span>
+<span class="nc" id="L210">                return JsonFormatter.withHeader(&quot;Technician Workload Report&quot;, </span>
+<span class="nc" id="L211">                                              JsonFormatter.toPrettyJsonString(technicianWorkloadMap));</span>
         }
     }
 
@@ -266,101 +216,101 @@ import java.util.stream.Collectors;
      * Format as a readable table
      */
     private String formatAsTable(Map&lt;Technician, WorkloadInfo&gt; technicianWorkloadMap, String serverUrl, String timestamp) {
-<span class="nc" id="L269">        StringBuilder output = new StringBuilder();</span>
+<span class="nc" id="L219">        StringBuilder output = new StringBuilder();</span>
         
         // Header
-<span class="nc" id="L272">        output.append(&quot;=&quot;.repeat(100)).append(&quot;\n&quot;);</span>
-<span class="nc" id="L273">        output.append(&quot;👨‍💻 TECHNICIAN WORKLOAD REPORT&quot;).append(&quot;\n&quot;);</span>
-<span class="nc" id="L274">        output.append(&quot;=&quot;.repeat(100)).append(&quot;\n&quot;);</span>
-<span class="nc" id="L275">        output.append(String.format(&quot;Server: %s&quot;, serverUrl)).append(&quot;\n&quot;);</span>
-<span class="nc" id="L276">        output.append(String.format(&quot;Timestamp: %s&quot;, timestamp)).append(&quot;\n&quot;);</span>
-<span class="nc" id="L277">        output.append(String.format(&quot;Sort Order: %s&quot;, sortBy)).append(&quot;\n&quot;);</span>
+<span class="nc" id="L222">        output.append(&quot;=&quot;.repeat(100)).append(&quot;\n&quot;);</span>
+<span class="nc" id="L223">        output.append(&quot;👨‍💻 TECHNICIAN WORKLOAD REPORT&quot;).append(&quot;\n&quot;);</span>
+<span class="nc" id="L224">        output.append(&quot;=&quot;.repeat(100)).append(&quot;\n&quot;);</span>
+<span class="nc" id="L225">        output.append(String.format(&quot;Server: %s&quot;, serverUrl)).append(&quot;\n&quot;);</span>
+<span class="nc" id="L226">        output.append(String.format(&quot;Timestamp: %s&quot;, timestamp)).append(&quot;\n&quot;);</span>
+<span class="nc" id="L227">        output.append(String.format(&quot;Sort Order: %s&quot;, sortBy)).append(&quot;\n&quot;);</span>
         
         // Add filters info if applied
-<span class="nc bnc" id="L280" title="All 2 branches missed.">        if (technicianId != null) {</span>
-<span class="nc" id="L281">            output.append(String.format(&quot;Filter: Technician ID = %d&quot;, technicianId)).append(&quot;\n&quot;);</span>
+<span class="nc bnc" id="L230" title="All 2 branches missed.">        if (technicianId != null) {</span>
+<span class="nc" id="L231">            output.append(String.format(&quot;Filter: Technician ID = %d&quot;, technicianId)).append(&quot;\n&quot;);</span>
         }
-<span class="nc bnc" id="L283" title="All 2 branches missed.">        if (technicianStatus != null) {</span>
-<span class="nc" id="L284">            output.append(String.format(&quot;Filter: Status = %s&quot;, technicianStatus)).append(&quot;\n&quot;);</span>
+<span class="nc bnc" id="L233" title="All 2 branches missed.">        if (technicianStatus != null) {</span>
+<span class="nc" id="L234">            output.append(String.format(&quot;Filter: Status = %s&quot;, technicianStatus)).append(&quot;\n&quot;);</span>
         }
-<span class="nc bnc" id="L286" title="All 2 branches missed.">        if (includeClosedTickets) {</span>
-<span class="nc" id="L287">            output.append(&quot;Including: Closed tickets in workload&quot;).append(&quot;\n&quot;);</span>
+<span class="nc bnc" id="L236" title="All 2 branches missed.">        if (includeClosedTickets) {</span>
+<span class="nc" id="L237">            output.append(&quot;Including: Closed tickets in workload&quot;).append(&quot;\n&quot;);</span>
         }
         
-<span class="nc" id="L290">        output.append(&quot;-&quot;.repeat(100)).append(&quot;\n\n&quot;);</span>
+<span class="nc" id="L240">        output.append(&quot;-&quot;.repeat(100)).append(&quot;\n\n&quot;);</span>
         
         // Summary
-<span class="nc" id="L293">        int totalTechnicians = technicianWorkloadMap.size();</span>
-<span class="nc" id="L294">        int totalActiveTickets = technicianWorkloadMap.values().stream()</span>
-<span class="nc" id="L295">            .mapToInt(WorkloadInfo::getActiveTicketCount)</span>
-<span class="nc" id="L296">            .sum();</span>
-<span class="nc" id="L297">        int totalOverdueTickets = technicianWorkloadMap.values().stream()</span>
-<span class="nc" id="L298">            .mapToInt(WorkloadInfo::getOverdueTicketCount)</span>
-<span class="nc" id="L299">            .sum();</span>
+<span class="nc" id="L243">        int totalTechnicians = technicianWorkloadMap.size();</span>
+<span class="nc" id="L244">        int totalActiveTickets = technicianWorkloadMap.values().stream()</span>
+<span class="nc" id="L245">            .mapToInt(WorkloadInfo::getActiveTicketCount)</span>
+<span class="nc" id="L246">            .sum();</span>
+<span class="nc" id="L247">        int totalOverdueTickets = technicianWorkloadMap.values().stream()</span>
+<span class="nc" id="L248">            .mapToInt(WorkloadInfo::getOverdueTicketCount)</span>
+<span class="nc" id="L249">            .sum();</span>
             
-<span class="nc" id="L301">        output.append(String.format(&quot;📊 Summary: %d technicians, %d active tickets, %d overdue\n\n&quot;, </span>
-<span class="nc" id="L302">            totalTechnicians, totalActiveTickets, totalOverdueTickets));</span>
+<span class="nc" id="L251">        output.append(String.format(&quot;📊 Summary: %d technicians, %d active tickets, %d overdue\n\n&quot;, </span>
+<span class="nc" id="L252">            totalTechnicians, totalActiveTickets, totalOverdueTickets));</span>
         
         // Technician details table
-<span class="nc" id="L305">        output.append(String.format(&quot;%-25s %-12s %-8s %-8s %-20s %s\n&quot;, </span>
-<span class="nc" id="L306">            &quot;Technician&quot;, &quot;Status&quot;, &quot;Active&quot;, &quot;Overdue&quot;, &quot;Skills&quot;, &quot;Priority Breakdown&quot;));</span>
-<span class="nc" id="L307">        output.append(&quot;-&quot;.repeat(100)).append(&quot;\n&quot;);</span>
+<span class="nc" id="L255">        output.append(String.format(&quot;%-25s %-12s %-8s %-8s %-20s %s\n&quot;, </span>
+            &quot;Technician&quot;, &quot;Status&quot;, &quot;Active&quot;, &quot;Overdue&quot;, &quot;Skills&quot;, &quot;Priority Breakdown&quot;));
+<span class="nc" id="L257">        output.append(&quot;-&quot;.repeat(100)).append(&quot;\n&quot;);</span>
         
-<span class="nc bnc" id="L309" title="All 2 branches missed.">        for (Map.Entry&lt;Technician, WorkloadInfo&gt; entry : technicianWorkloadMap.entrySet()) {</span>
-<span class="nc" id="L310">            Technician technician = entry.getKey();</span>
-<span class="nc" id="L311">            WorkloadInfo workload = entry.getValue();</span>
+<span class="nc bnc" id="L259" title="All 2 branches missed.">        for (Map.Entry&lt;Technician, WorkloadInfo&gt; entry : technicianWorkloadMap.entrySet()) {</span>
+<span class="nc" id="L260">            Technician technician = entry.getKey();</span>
+<span class="nc" id="L261">            WorkloadInfo workload = entry.getValue();</span>
             
-<span class="nc" id="L313">            String statusEmoji = getStatusEmoji(technician.getStatus());</span>
-<span class="nc" id="L314">            String workloadEmoji = getWorkloadEmoji(workload.getActiveTicketCount());</span>
-<span class="nc bnc" id="L315" title="All 2 branches missed.">            String skills = technician.getSkills() != null ? </span>
-<span class="nc" id="L316">                String.join(&quot;,&quot;, technician.getSkills().subList(0, Math.min(2, technician.getSkills().size()))) : &quot;None&quot;;</span>
-<span class="nc bnc" id="L317" title="All 2 branches missed.">            if (skills.length() &gt; 18) skills = skills.substring(0, 15) + &quot;...&quot;;</span>
+<span class="nc" id="L263">            String statusEmoji = getStatusEmoji(technician.getStatus());</span>
+<span class="nc" id="L264">            String workloadEmoji = getWorkloadEmoji(workload.getActiveTicketCount());</span>
+<span class="nc bnc" id="L265" title="All 2 branches missed.">            String skills = technician.getSkills() != null ? </span>
+<span class="nc" id="L266">                String.join(&quot;,&quot;, technician.getSkills().subList(0, Math.min(2, technician.getSkills().size()))) : &quot;None&quot;;</span>
+<span class="nc bnc" id="L267" title="All 2 branches missed.">            if (skills.length() &gt; 18) skills = skills.substring(0, 15) + &quot;...&quot;;</span>
             
-<span class="nc" id="L319">            String priorityBreakdown = workload.getTicketsByPriority().entrySet().stream()</span>
-<span class="nc" id="L320">                .map(e -&gt; e.getKey().charAt(0) + &quot;:&quot; + e.getValue())</span>
-<span class="nc" id="L321">                .collect(Collectors.joining(&quot; &quot;));</span>
+<span class="nc" id="L269">            String priorityBreakdown = workload.getTicketsByPriority().entrySet().stream()</span>
+<span class="nc" id="L270">                .map(e -&gt; e.getKey().charAt(0) + &quot;:&quot; + e.getValue())</span>
+<span class="nc" id="L271">                .collect(Collectors.joining(&quot; &quot;));</span>
             
-<span class="nc" id="L323">            output.append(String.format(&quot;%-25s %s%-11s %-8s %-8s %-20s %s\n&quot;,</span>
-<span class="nc" id="L324">                technician.getFullName(),</span>
-<span class="nc" id="L325">                statusEmoji,</span>
-<span class="nc" id="L326">                technician.getStatus(),</span>
-<span class="nc" id="L327">                workloadEmoji + workload.getActiveTicketCount(),</span>
-<span class="nc bnc" id="L328" title="All 2 branches missed.">                workload.getOverdueTicketCount() &gt; 0 ? &quot;⚠️&quot; + workload.getOverdueTicketCount() : workload.getOverdueTicketCount(),</span>
-<span class="nc" id="L329">                skills,</span>
-<span class="nc" id="L330">                priorityBreakdown</span>
+<span class="nc" id="L273">            output.append(String.format(&quot;%-25s %s%-11s %-8s %-8s %-20s %s\n&quot;,</span>
+<span class="nc" id="L274">                technician.getFullName(),</span>
+                statusEmoji,
+<span class="nc" id="L276">                technician.getStatus(),</span>
+<span class="nc" id="L277">                workloadEmoji + workload.getActiveTicketCount(),</span>
+<span class="nc bnc" id="L278" title="All 2 branches missed.">                workload.getOverdueTicketCount() &gt; 0 ? &quot;⚠️&quot; + workload.getOverdueTicketCount() : workload.getOverdueTicketCount(),</span>
+                skills,
+                priorityBreakdown
             ));
-        }
+<span class="nc" id="L282">        }</span>
         
-<span class="nc" id="L334">        output.append(&quot;-&quot;.repeat(100)).append(&quot;\n&quot;);</span>
+<span class="nc" id="L284">        output.append(&quot;-&quot;.repeat(100)).append(&quot;\n&quot;);</span>
         
         // Workload analysis
-<span class="nc bnc" id="L337" title="All 2 branches missed.">        if (totalTechnicians &gt; 1) {</span>
-<span class="nc" id="L338">            output.append(&quot;\n📈 Workload Analysis:\n&quot;);</span>
-<span class="nc" id="L339">            double avgWorkload = (double) totalActiveTickets / totalTechnicians;</span>
-<span class="nc" id="L340">            output.append(String.format(&quot;   Average tickets per technician: %.1f\n&quot;, avgWorkload));</span>
+<span class="nc bnc" id="L287" title="All 2 branches missed.">        if (totalTechnicians &gt; 1) {</span>
+<span class="nc" id="L288">            output.append(&quot;\n📈 Workload Analysis:\n&quot;);</span>
+<span class="nc" id="L289">            double avgWorkload = (double) totalActiveTickets / totalTechnicians;</span>
+<span class="nc" id="L290">            output.append(String.format(&quot;   Average tickets per technician: %.1f\n&quot;, avgWorkload));</span>
             
-<span class="nc" id="L342">            long overloadedTechs = technicianWorkloadMap.values().stream()</span>
-<span class="nc bnc" id="L343" title="All 2 branches missed.">                .mapToLong(w -&gt; w.getActiveTicketCount() &gt; avgWorkload * 1.5 ? 1 : 0)</span>
-<span class="nc" id="L344">                .sum();</span>
+<span class="nc" id="L292">            long overloadedTechs = technicianWorkloadMap.values().stream()</span>
+<span class="nc bnc" id="L293" title="All 2 branches missed.">                .mapToLong(w -&gt; w.getActiveTicketCount() &gt; avgWorkload * 1.5 ? 1 : 0)</span>
+<span class="nc" id="L294">                .sum();</span>
             
-<span class="nc bnc" id="L346" title="All 2 branches missed.">            if (overloadedTechs &gt; 0) {</span>
-<span class="nc" id="L347">                output.append(String.format(&quot;   ⚠️  %d technician(s) are overloaded (&gt;%.1f tickets)\n&quot;, overloadedTechs, avgWorkload * 1.5));</span>
+<span class="nc bnc" id="L296" title="All 2 branches missed.">            if (overloadedTechs &gt; 0) {</span>
+<span class="nc" id="L297">                output.append(String.format(&quot;   ⚠️  %d technician(s) are overloaded (&gt;%.1f tickets)\n&quot;, overloadedTechs, avgWorkload * 1.5));</span>
             }
         }
         
-<span class="nc" id="L351">        return output.toString();</span>
+<span class="nc" id="L301">        return output.toString();</span>
     }
     
     /**
      * Get emoji for technician status
      */
     private String getStatusEmoji(String status) {
-<span class="nc bnc" id="L358" title="All 5 branches missed.">        return switch (status.toUpperCase()) {</span>
-<span class="nc" id="L359">            case &quot;ACTIVE&quot; -&gt; &quot;🟢&quot;;</span>
-<span class="nc" id="L360">            case &quot;ON_VACATION&quot; -&gt; &quot;🏖️&quot;;</span>
-<span class="nc" id="L361">            case &quot;SICK_LEAVE&quot; -&gt; &quot;🤒&quot;;</span>
-<span class="nc" id="L362">            case &quot;TERMINATED&quot; -&gt; &quot;⛔&quot;;</span>
-<span class="nc" id="L363">            default -&gt; &quot;❓&quot;;</span>
+<span class="nc bnc" id="L308" title="All 5 branches missed.">        return switch (status.toUpperCase()) {</span>
+<span class="nc" id="L309">            case &quot;ACTIVE&quot; -&gt; &quot;🟢&quot;;</span>
+<span class="nc" id="L310">            case &quot;ON_VACATION&quot; -&gt; &quot;🏖️&quot;;</span>
+<span class="nc" id="L311">            case &quot;SICK_LEAVE&quot; -&gt; &quot;🤒&quot;;</span>
+<span class="nc" id="L312">            case &quot;TERMINATED&quot; -&gt; &quot;⛔&quot;;</span>
+<span class="nc" id="L313">            default -&gt; &quot;❓&quot;;</span>
         };
     }
     
@@ -368,11 +318,11 @@ import java.util.stream.Collectors;
      * Get emoji for workload level
      */
     private String getWorkloadEmoji(int ticketCount) {
-<span class="nc bnc" id="L371" title="All 2 branches missed.">        if (ticketCount == 0) return &quot;😴&quot;;</span>
-<span class="nc bnc" id="L372" title="All 2 branches missed.">        if (ticketCount &lt;= 3) return &quot;😊&quot;;</span>
-<span class="nc bnc" id="L373" title="All 2 branches missed.">        if (ticketCount &lt;= 6) return &quot;😐&quot;;</span>
-<span class="nc bnc" id="L374" title="All 2 branches missed.">        if (ticketCount &lt;= 10) return &quot;😰&quot;;</span>
-<span class="nc" id="L375">        return &quot;🔥&quot;;</span>
+<span class="nc bnc" id="L321" title="All 2 branches missed.">        if (ticketCount == 0) return &quot;😴&quot;;</span>
+<span class="nc bnc" id="L322" title="All 2 branches missed.">        if (ticketCount &lt;= 3) return &quot;😊&quot;;</span>
+<span class="nc bnc" id="L323" title="All 2 branches missed.">        if (ticketCount &lt;= 6) return &quot;😐&quot;;</span>
+<span class="nc bnc" id="L324" title="All 2 branches missed.">        if (ticketCount &lt;= 10) return &quot;😰&quot;;</span>
+<span class="nc" id="L325">        return &quot;🔥&quot;;</span>
     }
 
     /**
@@ -385,22 +335,22 @@ import java.util.stream.Collectors;
         private final Map&lt;String, Long&gt; ticketsByPriority;
         private final Map&lt;String, Long&gt; ticketsByServiceType;
 
-<span class="nc" id="L388">        public WorkloadInfo(int activeTicketCount, int overdueTicketCount, </span>
+        public WorkloadInfo(int activeTicketCount, int overdueTicketCount, 
                           Map&lt;String, Long&gt; ticketsByStatus, Map&lt;String, Long&gt; ticketsByPriority,
-                          Map&lt;String, Long&gt; ticketsByServiceType) {
-<span class="nc" id="L391">            this.activeTicketCount = activeTicketCount;</span>
-<span class="nc" id="L392">            this.overdueTicketCount = overdueTicketCount;</span>
-<span class="nc" id="L393">            this.ticketsByStatus = ticketsByStatus;</span>
-<span class="nc" id="L394">            this.ticketsByPriority = ticketsByPriority;</span>
-<span class="nc" id="L395">            this.ticketsByServiceType = ticketsByServiceType;</span>
-<span class="nc" id="L396">        }</span>
+<span class="nc" id="L340">                          Map&lt;String, Long&gt; ticketsByServiceType) {</span>
+<span class="nc" id="L341">            this.activeTicketCount = activeTicketCount;</span>
+<span class="nc" id="L342">            this.overdueTicketCount = overdueTicketCount;</span>
+<span class="nc" id="L343">            this.ticketsByStatus = ticketsByStatus;</span>
+<span class="nc" id="L344">            this.ticketsByPriority = ticketsByPriority;</span>
+<span class="nc" id="L345">            this.ticketsByServiceType = ticketsByServiceType;</span>
+<span class="nc" id="L346">        }</span>
 
         // Getters
-<span class="nc" id="L399">        public int getActiveTicketCount() { return activeTicketCount; }</span>
-<span class="nc" id="L400">        public int getOverdueTicketCount() { return overdueTicketCount; }</span>
-<span class="nc" id="L401">        public Map&lt;String, Long&gt; getTicketsByStatus() { return ticketsByStatus; }</span>
-<span class="nc" id="L402">        public Map&lt;String, Long&gt; getTicketsByPriority() { return ticketsByPriority; }</span>
-<span class="nc" id="L403">        public Map&lt;String, Long&gt; getTicketsByServiceType() { return ticketsByServiceType; }</span>
+<span class="nc" id="L349">        public int getActiveTicketCount() { return activeTicketCount; }</span>
+<span class="nc" id="L350">        public int getOverdueTicketCount() { return overdueTicketCount; }</span>
+<span class="nc" id="L351">        public Map&lt;String, Long&gt; getTicketsByStatus() { return ticketsByStatus; }</span>
+<span class="nc" id="L352">        public Map&lt;String, Long&gt; getTicketsByPriority() { return ticketsByPriority; }</span>
+<span class="nc" id="L353">        public Map&lt;String, Long&gt; getTicketsByServiceType() { return ticketsByServiceType; }</span>
     }
 } 
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

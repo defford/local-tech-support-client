@@ -20,6 +20,7 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
+import java.util.LinkedHashMap;
 
 /**
  * Command to display tickets for each client
@@ -52,66 +53,49 @@ public class ClientTicketsCommand implements Callable<Integer> {
     private String ticketStatus;
 
     @Override
-    public Integer call() {
-        logger.info("Executing client-tickets command");
-        
+    public Integer call() throws Exception {
         try {
-            // Get configuration from parent
-            String serverUrl = parent.getServerUrl();
-            String outputFormat = parent.getOutputFormat();
-            boolean verbose = parent.isVerbose();
+            if (parent.isVerbose()) {
+                System.out.println("🔍 Connecting to server: " + parent.getServerUrl());
+            }
             
-            if (verbose) {
-                System.out.println("🔍 Connecting to server: " + serverUrl);
+            ApiService apiService = new ApiService(parent.getServerUrl());
+            
+            if (parent.isVerbose()) {
                 System.out.println("📋 Fetching client tickets data...");
             }
-
-            // Create API service and fetch data
-            try (ApiService apiService = new ApiService(serverUrl)) {
-                
-                // Test connection first
-                if (!apiService.testConnection()) {
-                    System.err.println("❌ Cannot connect to server: " + serverUrl);
-                    System.err.println("   Please check that the Local Tech Support Server is running.");
-                    return 1;
-                }
-
-                // Fetch data
-                Map<Client, List<Ticket>> clientTicketsMap = fetchClientTicketsData(apiService, verbose);
-                
-                if (verbose) {
-                    System.out.println("✅ Successfully fetched client tickets data");
-                }
-
-                // Format and display output
-                String output = formatOutput(clientTicketsMap, outputFormat, serverUrl);
-                System.out.println(output);
-                
-                logger.info("Client tickets command completed successfully");
-                return 0;
-
-            } catch (ApiException e) {
-                logger.error("API error in client-tickets command: {}", e.getMessage());
-                
-                System.err.println("❌ API Error: " + e.getUserFriendlyMessage());
-                
-                if (verbose) {
-                    System.err.println("   Status Code: " + e.getStatusCode());
-                    System.err.println("   Server: " + serverUrl);
-                }
-                
-                return 1;
+            
+            // Fetch all clients
+            List<Client> clients = apiService.getAllClients();
+            if (parent.isVerbose()) {
+                System.out.printf("📊 Processing %d clients...%n", clients.size());
             }
-
+            
+            // Build map of client -> tickets
+            Map<Client, List<Ticket>> clientTicketsMap = new LinkedHashMap<>();
+            
+            for (Client client : clients) {
+                List<Ticket> tickets = apiService.getTicketsByClient(client.getId());
+                clientTicketsMap.put(client, tickets);
+            }
+            
+            if (parent.isVerbose()) {
+                System.out.println("✅ Successfully fetched client tickets data");
+            }
+            
+            // Format and display output
+            String output = formatOutput(clientTicketsMap, parent.getOutputFormat(), parent.getServerUrl());
+            if (!output.trim().isEmpty()) {
+                System.out.println(output);
+            }
+            
+            return 0;
+            
         } catch (Exception e) {
-            logger.error("Unexpected error in client-tickets command: {}", e.getMessage(), e);
-            
-            System.err.println("❌ Unexpected error: " + e.getMessage());
-            
+            System.err.println("❌ Error fetching client tickets: " + e.getMessage());
             if (parent.isVerbose()) {
                 e.printStackTrace();
             }
-            
             return 1;
         }
     }
@@ -187,16 +171,13 @@ public class ClientTicketsCommand implements Callable<Integer> {
             default:
                 // Use professional formatter for table output (and as default)
                 ClientTicketsFormatter formatter = new ClientTicketsFormatter();
-                // Capture output to string instead of printing directly
-                java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
-                java.io.PrintStream originalOut = System.out;
-                try {
-                    System.setOut(new java.io.PrintStream(baos));
-                    formatter.displayClientTicketsReport(clientTicketsMap, serverUrl);
-                    return baos.toString();
-                } finally {
-                    System.setOut(originalOut);
-                }
+                // Display the table AND return summary data
+                formatter.displayClientTicketsReport(clientTicketsMap, serverUrl);
+                
+                // Return a simple summary for menu context
+                long totalTickets = clientTicketsMap.values().stream().mapToLong(List::size).sum();
+                return String.format("Displayed report for %d clients with %d total tickets", 
+                    clientTicketsMap.size(), totalTickets);
         }
     }
 } 

@@ -1,0 +1,504 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TicketBuilder.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Local Tech Support CLI Client</a> &gt; <a href="index.source.html" class="el_package">com.localtechsupport.cli.menu.ticket</a> &gt; <span class="el_source">TicketBuilder.java</span></div><h1>TicketBuilder.java</h1><pre class="source lang-java linenums">package com.localtechsupport.cli.menu.ticket;
+
+import com.localtechsupport.cli.model.Ticket;
+import com.localtechsupport.cli.model.Client;
+import com.localtechsupport.cli.model.Technician;
+import com.localtechsupport.cli.util.InputValidator;
+import com.localtechsupport.cli.util.DisplayUtils;
+import com.localtechsupport.cli.service.ApiService;
+import com.localtechsupport.cli.client.ApiException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
+import java.util.Scanner;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+
+/**
+ * Utility class for building ticket objects from user input
+ * 
+ * Handles collection and validation of ticket data for create/update operations
+ */
+public class TicketBuilder {
+    
+<span class="nc" id="L28">    private static final Logger logger = LoggerFactory.getLogger(TicketBuilder.class);</span>
+    private final Scanner scanner;
+    private final ApiService apiService;
+    
+    // Available service types
+<span class="nc" id="L33">    private static final List&lt;String&gt; SERVICE_TYPES = Arrays.asList(</span>
+        &quot;HARDWARE&quot;, &quot;SOFTWARE&quot;, &quot;NETWORK&quot;
+    );
+    
+    // Available statuses (used only for updates)
+<span class="nc" id="L38">    private static final List&lt;String&gt; STATUSES = Arrays.asList(</span>
+        &quot;OPEN&quot;, &quot;CLOSED&quot;
+    );
+    
+<span class="nc" id="L42">    public TicketBuilder(Scanner scanner, ApiService apiService) {</span>
+<span class="nc" id="L43">        this.scanner = scanner;</span>
+<span class="nc" id="L44">        this.apiService = apiService;</span>
+<span class="nc" id="L45">    }</span>
+    
+    /**
+     * Build a new ticket from user input
+     * 
+     * @return populated Ticket object or null if cancelled
+     */
+    public Ticket buildNewTicket() {
+<span class="nc" id="L53">        DisplayUtils.printHeader(&quot;NEW TICKET CREATION&quot;);</span>
+        
+<span class="nc" id="L55">        System.out.println(&quot;📋 Please provide the following information:&quot;);</span>
+<span class="nc" id="L56">        System.out.println(&quot;   (Enter 'cancel' at any time to abort)&quot;);</span>
+<span class="nc" id="L57">        System.out.println();</span>
+        
+        try {
+            // Collect required fields (matching server expectations)
+<span class="nc" id="L61">            String description = collectDescription();</span>
+<span class="nc bnc" id="L62" title="All 2 branches missed.">            if (description == null) return null;</span>
+            
+<span class="nc" id="L64">            String serviceType = collectServiceType();</span>
+<span class="nc bnc" id="L65" title="All 2 branches missed.">            if (serviceType == null) return null;</span>
+            
+<span class="nc" id="L67">            Long clientId = collectClientId();</span>
+<span class="nc bnc" id="L68" title="All 2 branches missed.">            if (clientId == null) return null;</span>
+            
+            // Create ticket object (only fields the server expects)
+<span class="nc" id="L71">            Ticket ticket = new Ticket();</span>
+<span class="nc" id="L72">            ticket.setDescription(description);</span>
+<span class="nc" id="L73">            ticket.setServiceType(serviceType);</span>
+<span class="nc" id="L74">            ticket.setClientId(clientId);</span>
+            // Server automatically sets: id, status=OPEN, createdAt, updatedAt, dueAt (SLA-based)
+            
+            // Debug logging to verify ticket object creation
+<span class="nc" id="L78">            logger.info(&quot;TicketBuilder created ticket: description='{}', serviceType='{}', clientId={}&quot;, </span>
+<span class="nc" id="L79">                ticket.getDescription(), ticket.getServiceType(), ticket.getClientId());</span>
+            
+            // Show confirmation
+<span class="nc" id="L82">            displayTicketSummary(ticket, &quot;NEW TICKET SUMMARY&quot;);</span>
+            
+<span class="nc" id="L84">            System.out.print(&quot;✅ Create this ticket? (y/n): &quot;);</span>
+<span class="nc" id="L85">            String confirm = scanner.nextLine().trim().toLowerCase();</span>
+            
+<span class="nc bnc" id="L87" title="All 4 branches missed.">            if (confirm.equals(&quot;y&quot;) || confirm.equals(&quot;yes&quot;)) {</span>
+<span class="nc" id="L88">                return ticket;</span>
+            } else {
+<span class="nc" id="L90">                System.out.println(&quot;❌ Ticket creation cancelled.&quot;);</span>
+<span class="nc" id="L91">                return null;</span>
+            }
+            
+<span class="nc" id="L94">        } catch (Exception e) {</span>
+<span class="nc" id="L95">            logger.error(&quot;Error building new ticket&quot;, e);</span>
+<span class="nc" id="L96">            DisplayUtils.printError(&quot;An error occurred while collecting ticket information.&quot;);</span>
+<span class="nc" id="L97">            return null;</span>
+        }
+    }
+    
+    /**
+     * Build updated ticket data from user input
+     * 
+     * @param existing the existing ticket to update
+     * @return updated Ticket object or null if cancelled
+     */
+    public Ticket buildTicketUpdate(Ticket existing) {
+<span class="nc" id="L108">        DisplayUtils.printHeader(&quot;EDIT TICKET - #&quot; + existing.getId());</span>
+        
+<span class="nc" id="L110">        System.out.println(&quot;📋 Current information (press Enter to keep current value):&quot;);</span>
+<span class="nc" id="L111">        System.out.println(&quot;   (Enter 'cancel' at any time to abort)&quot;);</span>
+<span class="nc" id="L112">        System.out.println();</span>
+        
+        try {
+            // Create copy of existing ticket
+<span class="nc" id="L116">            Ticket updated = new Ticket();</span>
+<span class="nc" id="L117">            updated.setId(existing.getId());</span>
+            
+            // Update fields (only description and service type are editable)
+<span class="nc" id="L120">            String description = collectDescriptionUpdate(existing.getDescription());</span>
+<span class="nc bnc" id="L121" title="All 2 branches missed.">            if (description == null) return null;</span>
+<span class="nc" id="L122">            updated.setDescription(description);</span>
+            
+<span class="nc" id="L124">            String serviceType = collectServiceTypeUpdate(existing.getServiceType());</span>
+<span class="nc bnc" id="L125" title="All 2 branches missed.">            if (serviceType == null) return null;</span>
+<span class="nc" id="L126">            updated.setServiceType(serviceType);</span>
+            
+            // Server-managed fields - preserve existing values
+<span class="nc" id="L129">            updated.setTitle(existing.getTitle());</span>
+<span class="nc" id="L130">            updated.setPriority(existing.getPriority());</span>
+            
+<span class="nc" id="L132">            String status = collectStatusUpdate(existing.getStatus());</span>
+<span class="nc bnc" id="L133" title="All 2 branches missed.">            if (status == null) return null;</span>
+<span class="nc" id="L134">            updated.setStatus(status);</span>
+            
+<span class="nc" id="L136">            Long effectiveClientId = getEffectiveClientId(existing);</span>
+<span class="nc" id="L137">            Long clientId = collectClientIdUpdate(effectiveClientId);</span>
+<span class="nc bnc" id="L138" title="All 2 branches missed.">            if (clientId == null) return null;</span>
+<span class="nc" id="L139">            updated.setClientId(clientId);</span>
+            
+<span class="nc" id="L141">            LocalDateTime dueAt = collectDueDateUpdate(existing.getDueAt());</span>
+<span class="nc" id="L142">            updated.setDueAt(dueAt);</span>
+            
+            // Preserve other fields
+<span class="nc" id="L145">            updated.setAssignedTechnicianId(existing.getAssignedTechnicianId());</span>
+<span class="nc" id="L146">            updated.setCreatedAt(existing.getCreatedAt());</span>
+<span class="nc" id="L147">            updated.setResolvedAt(existing.getResolvedAt());</span>
+            
+            // Show changes summary
+<span class="nc" id="L150">            displayUpdateSummary(existing, updated);</span>
+            
+<span class="nc" id="L152">            System.out.print(&quot;✅ Save these changes? (y/n): &quot;);</span>
+<span class="nc" id="L153">            String confirm = scanner.nextLine().trim().toLowerCase();</span>
+            
+<span class="nc bnc" id="L155" title="All 4 branches missed.">            if (confirm.equals(&quot;y&quot;) || confirm.equals(&quot;yes&quot;)) {</span>
+<span class="nc" id="L156">                return updated;</span>
+            } else {
+<span class="nc" id="L158">                System.out.println(&quot;❌ Update cancelled.&quot;);</span>
+<span class="nc" id="L159">                return null;</span>
+            }
+            
+<span class="nc" id="L162">        } catch (Exception e) {</span>
+<span class="nc" id="L163">            logger.error(&quot;Error building ticket update&quot;, e);</span>
+<span class="nc" id="L164">            DisplayUtils.printError(&quot;An error occurred while updating ticket information.&quot;);</span>
+<span class="nc" id="L165">            return null;</span>
+        }
+    }
+    
+    // ==================== FIELD COLLECTION METHODS ====================
+    
+
+    
+    private String collectDescription() {
+        while (true) {
+<span class="nc" id="L175">            System.out.print(&quot;Description: &quot;);</span>
+<span class="nc" id="L176">            String input = scanner.nextLine().trim();</span>
+            
+<span class="nc bnc" id="L178" title="All 2 branches missed.">            if (input.equalsIgnoreCase(&quot;cancel&quot;)) {</span>
+<span class="nc" id="L179">                return null;</span>
+            }
+            
+<span class="nc bnc" id="L182" title="All 2 branches missed.">            if (input.isEmpty()) {</span>
+<span class="nc" id="L183">                DisplayUtils.printError(&quot;Description is required.&quot;);</span>
+<span class="nc" id="L184">                continue;</span>
+            }
+            
+<span class="nc bnc" id="L187" title="All 2 branches missed.">            if (input.length() &gt; 1000) {</span>
+<span class="nc" id="L188">                DisplayUtils.printError(&quot;Description must be 1000 characters or less.&quot;);</span>
+<span class="nc" id="L189">                continue;</span>
+            }
+            
+<span class="nc" id="L192">            return input;</span>
+        }
+    }
+    
+    private String collectServiceType() {
+        while (true) {
+<span class="nc" id="L198">            System.out.println(&quot;Available Service Types:&quot;);</span>
+<span class="nc bnc" id="L199" title="All 2 branches missed.">            for (int i = 0; i &lt; SERVICE_TYPES.size(); i++) {</span>
+<span class="nc" id="L200">                System.out.printf(&quot;  %d. %s\n&quot;, i + 1, SERVICE_TYPES.get(i));</span>
+            }
+<span class="nc" id="L202">            System.out.print(&quot;Select service type (1-&quot; + SERVICE_TYPES.size() + &quot;): &quot;);</span>
+<span class="nc" id="L203">            String input = scanner.nextLine().trim();</span>
+            
+<span class="nc bnc" id="L205" title="All 2 branches missed.">            if (input.equalsIgnoreCase(&quot;cancel&quot;)) {</span>
+<span class="nc" id="L206">                return null;</span>
+            }
+            
+            try {
+<span class="nc" id="L210">                int choice = Integer.parseInt(input);</span>
+<span class="nc bnc" id="L211" title="All 4 branches missed.">                if (choice &gt;= 1 &amp;&amp; choice &lt;= SERVICE_TYPES.size()) {</span>
+<span class="nc" id="L212">                    return SERVICE_TYPES.get(choice - 1);</span>
+                } else {
+<span class="nc" id="L214">                    DisplayUtils.printError(&quot;Please enter a number between 1 and &quot; + SERVICE_TYPES.size());</span>
+                }
+<span class="nc" id="L216">            } catch (NumberFormatException e) {</span>
+<span class="nc" id="L217">                DisplayUtils.printError(&quot;Please enter a valid number.&quot;);</span>
+<span class="nc" id="L218">            }</span>
+<span class="nc" id="L219">        }</span>
+    }
+    
+
+    
+    private Long collectClientId() {
+        try {
+<span class="nc" id="L226">            List&lt;Client&gt; clients = apiService.getAllClients();</span>
+            
+<span class="nc bnc" id="L228" title="All 2 branches missed.">            if (clients.isEmpty()) {</span>
+<span class="nc" id="L229">                DisplayUtils.printError(&quot;No clients found in the system. Please create a client first.&quot;);</span>
+<span class="nc" id="L230">                return null;</span>
+            }
+            
+            while (true) {
+<span class="nc" id="L234">                System.out.println(&quot;Available Clients:&quot;);</span>
+<span class="nc bnc" id="L235" title="All 2 branches missed.">                for (int i = 0; i &lt; Math.min(clients.size(), 10); i++) {</span>
+<span class="nc" id="L236">                    Client client = clients.get(i);</span>
+<span class="nc" id="L237">                    System.out.printf(&quot;  %d. %s (%s)\n&quot;, i + 1, client.getFullName(), client.getEmail());</span>
+                }
+                
+<span class="nc bnc" id="L240" title="All 2 branches missed.">                if (clients.size() &gt; 10) {</span>
+<span class="nc" id="L241">                    System.out.printf(&quot;  ... and %d more clients\n&quot;, clients.size() - 10);</span>
+<span class="nc" id="L242">                    System.out.println(&quot;  Or enter client ID directly&quot;);</span>
+                }
+                
+<span class="nc" id="L245">                System.out.print(&quot;Select client (1-&quot; + Math.min(clients.size(), 10) + &quot;) or enter ID: &quot;);</span>
+<span class="nc" id="L246">                String input = scanner.nextLine().trim();</span>
+                
+<span class="nc bnc" id="L248" title="All 2 branches missed.">                if (input.equalsIgnoreCase(&quot;cancel&quot;)) {</span>
+<span class="nc" id="L249">                    return null;</span>
+                }
+                
+                try {
+<span class="nc" id="L253">                    int choice = Integer.parseInt(input);</span>
+<span class="nc bnc" id="L254" title="All 4 branches missed.">                    if (choice &gt;= 1 &amp;&amp; choice &lt;= Math.min(clients.size(), 10)) {</span>
+<span class="nc" id="L255">                        return clients.get(choice - 1).getId();</span>
+<span class="nc bnc" id="L256" title="All 4 branches missed.">                    } else if (choice &gt; 10 &amp;&amp; choice &lt;= clients.size()) {</span>
+                        // Direct ID entry for clients beyond the display limit
+<span class="nc" id="L258">                        return clients.stream()</span>
+<span class="nc" id="L259">                            .filter(c -&gt; c.getId().equals((long) choice))</span>
+<span class="nc" id="L260">                            .findFirst()</span>
+<span class="nc" id="L261">                            .map(Client::getId)</span>
+<span class="nc" id="L262">                            .orElse(null);</span>
+                    } else {
+                        // Treat as direct ID
+<span class="nc" id="L265">                        Long clientId = Long.parseLong(input);</span>
+<span class="nc" id="L266">                        boolean exists = clients.stream().anyMatch(c -&gt; c.getId().equals(clientId));</span>
+<span class="nc bnc" id="L267" title="All 2 branches missed.">                        if (exists) {</span>
+<span class="nc" id="L268">                            return clientId;</span>
+                        } else {
+<span class="nc" id="L270">                            DisplayUtils.printError(&quot;Client ID &quot; + clientId + &quot; not found.&quot;);</span>
+                        }
+                    }
+<span class="nc" id="L273">                } catch (NumberFormatException e) {</span>
+<span class="nc" id="L274">                    DisplayUtils.printError(&quot;Please enter a valid number or client ID.&quot;);</span>
+<span class="nc" id="L275">                }</span>
+<span class="nc" id="L276">            }</span>
+            
+<span class="nc" id="L278">        } catch (ApiException e) {</span>
+<span class="nc" id="L279">            logger.error(&quot;Failed to fetch clients for ticket creation&quot;, e);</span>
+<span class="nc" id="L280">            DisplayUtils.printError(&quot;Failed to retrieve clients: &quot; + e.getMessage());</span>
+<span class="nc" id="L281">            return null;</span>
+        }
+    }
+    
+
+    
+    // ==================== UPDATE METHODS ====================
+    
+
+    
+    private String collectDescriptionUpdate(String current) {
+<span class="nc bnc" id="L292" title="All 2 branches missed.">        System.out.printf(&quot;Description [%s]: &quot;, current != null ? </span>
+<span class="nc bnc" id="L293" title="All 2 branches missed.">            (current.length() &gt; 50 ? current.substring(0, 50) + &quot;...&quot; : current) : &quot;None&quot;);</span>
+<span class="nc" id="L294">        String input = scanner.nextLine().trim();</span>
+        
+<span class="nc bnc" id="L296" title="All 2 branches missed.">        if (input.equalsIgnoreCase(&quot;cancel&quot;)) {</span>
+<span class="nc" id="L297">            return null;</span>
+        }
+        
+<span class="nc bnc" id="L300" title="All 2 branches missed.">        if (input.isEmpty()) {</span>
+<span class="nc" id="L301">            return current;</span>
+        }
+        
+<span class="nc bnc" id="L304" title="All 2 branches missed.">        if (input.length() &gt; 1000) {</span>
+<span class="nc" id="L305">            DisplayUtils.printError(&quot;Description must be 1000 characters or less.&quot;);</span>
+<span class="nc" id="L306">            return collectDescriptionUpdate(current);</span>
+        }
+        
+<span class="nc" id="L309">        return input;</span>
+    }
+    
+    private String collectServiceTypeUpdate(String current) {
+<span class="nc" id="L313">        System.out.printf(&quot;Service Type [%s] - Available: %s: &quot;, </span>
+<span class="nc" id="L314">            current, String.join(&quot;, &quot;, SERVICE_TYPES));</span>
+<span class="nc" id="L315">        String input = scanner.nextLine().trim();</span>
+        
+<span class="nc bnc" id="L317" title="All 2 branches missed.">        if (input.equalsIgnoreCase(&quot;cancel&quot;)) {</span>
+<span class="nc" id="L318">            return null;</span>
+        }
+        
+<span class="nc bnc" id="L321" title="All 2 branches missed.">        if (input.isEmpty()) {</span>
+<span class="nc" id="L322">            return current;</span>
+        }
+        
+<span class="nc" id="L325">        String upperInput = input.toUpperCase();</span>
+<span class="nc bnc" id="L326" title="All 2 branches missed.">        if (SERVICE_TYPES.contains(upperInput)) {</span>
+<span class="nc" id="L327">            return upperInput;</span>
+        } else {
+<span class="nc" id="L329">            DisplayUtils.printError(&quot;Invalid service type. Available: &quot; + String.join(&quot;, &quot;, SERVICE_TYPES));</span>
+<span class="nc" id="L330">            return collectServiceTypeUpdate(current);</span>
+        }
+    }
+    
+
+    
+    private String collectStatusUpdate(String current) {
+<span class="nc" id="L337">        System.out.printf(&quot;Status [%s] - Available: %s: &quot;, </span>
+<span class="nc" id="L338">            current, String.join(&quot;, &quot;, STATUSES));</span>
+<span class="nc" id="L339">        String input = scanner.nextLine().trim();</span>
+        
+<span class="nc bnc" id="L341" title="All 2 branches missed.">        if (input.equalsIgnoreCase(&quot;cancel&quot;)) {</span>
+<span class="nc" id="L342">            return null;</span>
+        }
+        
+<span class="nc bnc" id="L345" title="All 2 branches missed.">        if (input.isEmpty()) {</span>
+<span class="nc" id="L346">            return current;</span>
+        }
+        
+<span class="nc" id="L349">        String upperInput = input.toUpperCase();</span>
+<span class="nc bnc" id="L350" title="All 2 branches missed.">        if (STATUSES.contains(upperInput)) {</span>
+<span class="nc" id="L351">            return upperInput;</span>
+        } else {
+<span class="nc" id="L353">            DisplayUtils.printError(&quot;Invalid status. Available: &quot; + String.join(&quot;, &quot;, STATUSES));</span>
+<span class="nc" id="L354">            return collectStatusUpdate(current);</span>
+        }
+    }
+    
+    private Long collectClientIdUpdate(Long current) {
+        try {
+<span class="nc" id="L360">            List&lt;Client&gt; clients = apiService.getAllClients();</span>
+<span class="nc" id="L361">            Client currentClient = clients.stream()</span>
+<span class="nc" id="L362">                .filter(c -&gt; c.getId().equals(current))</span>
+<span class="nc" id="L363">                .findFirst()</span>
+<span class="nc" id="L364">                .orElse(null);</span>
+                
+<span class="nc" id="L366">            System.out.printf(&quot;Client [%s]: &quot;, </span>
+<span class="nc bnc" id="L367" title="All 2 branches missed.">                currentClient != null ? currentClient.getFullName() : &quot;ID: &quot; + current);</span>
+<span class="nc" id="L368">            String input = scanner.nextLine().trim();</span>
+            
+<span class="nc bnc" id="L370" title="All 2 branches missed.">            if (input.equalsIgnoreCase(&quot;cancel&quot;)) {</span>
+<span class="nc" id="L371">                return null;</span>
+            }
+            
+<span class="nc bnc" id="L374" title="All 2 branches missed.">            if (input.isEmpty()) {</span>
+<span class="nc" id="L375">                return current;</span>
+            }
+            
+            try {
+<span class="nc" id="L379">                Long newClientId = Long.parseLong(input);</span>
+<span class="nc" id="L380">                boolean exists = clients.stream().anyMatch(c -&gt; c.getId().equals(newClientId));</span>
+<span class="nc bnc" id="L381" title="All 2 branches missed.">                if (exists) {</span>
+<span class="nc" id="L382">                    return newClientId;</span>
+                } else {
+<span class="nc" id="L384">                    DisplayUtils.printError(&quot;Client ID &quot; + newClientId + &quot; not found.&quot;);</span>
+<span class="nc" id="L385">                    return collectClientIdUpdate(current);</span>
+                }
+<span class="nc" id="L387">            } catch (NumberFormatException e) {</span>
+<span class="nc" id="L388">                DisplayUtils.printError(&quot;Please enter a valid client ID.&quot;);</span>
+<span class="nc" id="L389">                return collectClientIdUpdate(current);</span>
+            }
+            
+<span class="nc" id="L392">        } catch (ApiException e) {</span>
+<span class="nc" id="L393">            logger.error(&quot;Failed to fetch clients for ticket update&quot;, e);</span>
+<span class="nc" id="L394">            DisplayUtils.printError(&quot;Failed to retrieve clients: &quot; + e.getMessage());</span>
+<span class="nc" id="L395">            return current;</span>
+        }
+    }
+    
+    private LocalDateTime collectDueDateUpdate(LocalDateTime current) {
+<span class="nc bnc" id="L400" title="All 2 branches missed.">        String currentStr = current != null ? </span>
+<span class="nc" id="L401">            current.format(DateTimeFormatter.ofPattern(&quot;yyyy-MM-dd HH:mm&quot;)) : &quot;None&quot;;</span>
+<span class="nc" id="L402">        System.out.printf(&quot;Due Date [%s] (format: yyyy-MM-dd HH:mm): &quot;, currentStr);</span>
+<span class="nc" id="L403">        String input = scanner.nextLine().trim();</span>
+        
+<span class="nc bnc" id="L405" title="All 2 branches missed.">        if (input.isEmpty()) {</span>
+<span class="nc" id="L406">            return current;</span>
+        }
+        
+<span class="nc bnc" id="L409" title="All 4 branches missed.">        if (input.equalsIgnoreCase(&quot;none&quot;) || input.equalsIgnoreCase(&quot;null&quot;)) {</span>
+<span class="nc" id="L410">            return null;</span>
+        }
+        
+        try {
+<span class="nc" id="L414">            DateTimeFormatter formatter = DateTimeFormatter.ofPattern(&quot;yyyy-MM-dd HH:mm&quot;);</span>
+<span class="nc" id="L415">            LocalDateTime dueDate = LocalDateTime.parse(input, formatter);</span>
+            
+<span class="nc bnc" id="L417" title="All 2 branches missed.">            if (dueDate.isBefore(LocalDateTime.now())) {</span>
+<span class="nc" id="L418">                DisplayUtils.printError(&quot;Due date cannot be in the past.&quot;);</span>
+<span class="nc" id="L419">                return collectDueDateUpdate(current);</span>
+            }
+            
+<span class="nc" id="L422">            return dueDate;</span>
+            
+<span class="nc" id="L424">        } catch (DateTimeParseException e) {</span>
+<span class="nc" id="L425">            DisplayUtils.printError(&quot;Invalid date format. Please use: yyyy-MM-dd HH:mm&quot;);</span>
+<span class="nc" id="L426">            return collectDueDateUpdate(current);</span>
+        }
+    }
+    
+    // ==================== DISPLAY METHODS ====================
+    
+    private void displayTicketSummary(Ticket ticket, String title) {
+<span class="nc" id="L433">        System.out.println();</span>
+<span class="nc" id="L434">        DisplayUtils.printHeader(title);</span>
+<span class="nc" id="L435">        System.out.printf(&quot;  Description:  %s\n&quot;, ticket.getDescription());</span>
+<span class="nc" id="L436">        System.out.printf(&quot;  Service Type: %s\n&quot;, ticket.getServiceType());</span>
+<span class="nc" id="L437">        System.out.printf(&quot;  Client ID:    %s\n&quot;, ticket.getClientId());</span>
+<span class="nc" id="L438">        System.out.println();</span>
+<span class="nc" id="L439">        System.out.println(&quot;📝 Note: Server will automatically set:&quot;);</span>
+<span class="nc" id="L440">        System.out.println(&quot;   • Status: OPEN&quot;);</span>
+<span class="nc" id="L441">        System.out.printf(&quot;   • Due Date: %s hours from creation\n&quot;, </span>
+<span class="nc bnc" id="L442" title="All 2 branches missed.">            &quot;HARDWARE&quot;.equals(ticket.getServiceType()) ? &quot;24&quot; : &quot;48&quot;);</span>
+<span class="nc" id="L443">        System.out.println();</span>
+<span class="nc" id="L444">    }</span>
+    
+    private void displayUpdateSummary(Ticket existing, Ticket updated) {
+<span class="nc" id="L447">        System.out.println();</span>
+<span class="nc" id="L448">        DisplayUtils.printHeader(&quot;TICKET UPDATE SUMMARY&quot;);</span>
+        
+<span class="nc bnc" id="L450" title="All 2 branches missed.">        if (!Objects.equals(existing.getDescription(), updated.getDescription())) {</span>
+<span class="nc" id="L451">            System.out.printf(&quot;  Description:  %s → %s\n&quot;, </span>
+<span class="nc" id="L452">                truncate(existing.getDescription(), 30), truncate(updated.getDescription(), 30));</span>
+        }
+<span class="nc bnc" id="L454" title="All 2 branches missed.">        if (!Objects.equals(existing.getServiceType(), updated.getServiceType())) {</span>
+<span class="nc" id="L455">            System.out.printf(&quot;  Service Type: %s → %s\n&quot;, existing.getServiceType(), updated.getServiceType());</span>
+        }
+<span class="nc bnc" id="L457" title="All 2 branches missed.">        if (!Objects.equals(existing.getStatus(), updated.getStatus())) {</span>
+<span class="nc" id="L458">            System.out.printf(&quot;  Status:       %s → %s\n&quot;, existing.getStatus(), updated.getStatus());</span>
+        }
+<span class="nc" id="L460">        Long existingEffectiveClientId = getEffectiveClientId(existing);</span>
+<span class="nc bnc" id="L461" title="All 2 branches missed.">        if (!Objects.equals(existingEffectiveClientId, updated.getClientId())) {</span>
+<span class="nc" id="L462">            System.out.printf(&quot;  Client ID:    %s → %s\n&quot;, existingEffectiveClientId, updated.getClientId());</span>
+        }
+<span class="nc bnc" id="L464" title="All 2 branches missed.">        if (!Objects.equals(existing.getDueAt(), updated.getDueAt())) {</span>
+<span class="nc bnc" id="L465" title="All 2 branches missed.">            String oldDate = existing.getDueAt() != null ? </span>
+<span class="nc" id="L466">                existing.getDueAt().format(DateTimeFormatter.ofPattern(&quot;yyyy-MM-dd HH:mm&quot;)) : &quot;Not set&quot;;</span>
+<span class="nc bnc" id="L467" title="All 2 branches missed.">            String newDate = updated.getDueAt() != null ? </span>
+<span class="nc" id="L468">                updated.getDueAt().format(DateTimeFormatter.ofPattern(&quot;yyyy-MM-dd HH:mm&quot;)) : &quot;Not set&quot;;</span>
+<span class="nc" id="L469">            System.out.printf(&quot;  Due Date:     %s → %s\n&quot;, oldDate, newDate);</span>
+        }
+<span class="nc" id="L471">        System.out.println();</span>
+<span class="nc" id="L472">    }</span>
+    
+    private String truncate(String text, int maxLength) {
+<span class="nc bnc" id="L475" title="All 2 branches missed.">        if (text == null) return &quot;None&quot;;</span>
+<span class="nc bnc" id="L476" title="All 2 branches missed.">        return text.length() &gt; maxLength ? text.substring(0, maxLength - 3) + &quot;...&quot; : text;</span>
+    }
+    
+    /**
+     * Helper method to get the effective client ID from a ticket.
+     * Checks both the clientId field and the nested client object.
+     * 
+     * @param ticket the ticket to check
+     * @return the client ID if found, null otherwise
+     */
+    private Long getEffectiveClientId(Ticket ticket) {
+<span class="nc bnc" id="L487" title="All 2 branches missed.">        if (ticket == null) {</span>
+<span class="nc" id="L488">            return null;</span>
+        }
+        
+        // First check the direct clientId field
+<span class="nc bnc" id="L492" title="All 2 branches missed.">        if (ticket.getClientId() != null) {</span>
+<span class="nc" id="L493">            return ticket.getClientId();</span>
+        }
+        
+        // Then check the nested client object
+<span class="nc bnc" id="L497" title="All 4 branches missed.">        if (ticket.getClient() != null &amp;&amp; ticket.getClient().getId() != null) {</span>
+<span class="nc" id="L498">            return ticket.getClient().getId();</span>
+        }
+        
+<span class="nc" id="L501">        return null;</span>
+    }
+} 
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

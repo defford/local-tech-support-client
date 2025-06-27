@@ -8,6 +8,7 @@ import com.localtechsupport.cli.command.TechnicianScheduleCommand;
 import com.localtechsupport.cli.command.ClientAppointmentsCommand;
 import com.localtechsupport.cli.command.ClientTechnicianHistoryCommand;
 import com.localtechsupport.cli.command.TechnicianFeedbackCommand;
+import com.localtechsupport.cli.command.InteractiveMenuCommand;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
@@ -37,13 +38,14 @@ import java.util.concurrent.Callable;
         ClientAppointmentsCommand.class,
         ClientTechnicianHistoryCommand.class,
         TechnicianFeedbackCommand.class,
+        InteractiveMenuCommand.class,
         CommandLine.HelpCommand.class
     },
     mixinStandardHelpOptions = true
 )
-<span class="nc" id="L44">public class CliApplication implements Callable&lt;Integer&gt; {</span>
+<span class="nc" id="L46">public class CliApplication implements Callable&lt;Integer&gt; {</span>
 
-<span class="nc" id="L46">    private static final Logger logger = LoggerFactory.getLogger(CliApplication.class);</span>
+<span class="nc" id="L48">    private static final Logger logger = LoggerFactory.getLogger(CliApplication.class);</span>
 
     @Option(
         names = {&quot;-s&quot;, &quot;--server&quot;},
@@ -67,52 +69,56 @@ import java.util.concurrent.Callable;
 
     public static void main(String[] args) {
         try {
-<span class="nc" id="L70">            int exitCode = new CommandLine(new CliApplication()).execute(args);</span>
-<span class="nc" id="L71">            System.exit(exitCode);</span>
-<span class="nc" id="L72">        } catch (Exception e) {</span>
-<span class="nc" id="L73">            System.err.println(&quot;Fatal error: &quot; + e.getMessage());</span>
-<span class="nc bnc" id="L74" title="All 2 branches missed.">            if (Boolean.getBoolean(&quot;debug&quot;)) {</span>
-<span class="nc" id="L75">                e.printStackTrace();</span>
+<span class="nc" id="L72">            int exitCode = new CommandLine(new CliApplication()).execute(args);</span>
+<span class="nc" id="L73">            System.exit(exitCode);</span>
+<span class="nc" id="L74">        } catch (Exception e) {</span>
+<span class="nc" id="L75">            System.err.println(&quot;Fatal error: &quot; + e.getMessage());</span>
+<span class="nc bnc" id="L76" title="All 2 branches missed.">            if (Boolean.getBoolean(&quot;debug&quot;)) {</span>
+<span class="nc" id="L77">                e.printStackTrace();</span>
             }
-<span class="nc" id="L77">            System.exit(1);</span>
-        }
-<span class="nc" id="L79">    }</span>
+<span class="nc" id="L79">            System.exit(1);</span>
+<span class="nc" id="L80">        }</span>
+<span class="nc" id="L81">    }</span>
 
     @Override
     public Integer call() {
-<span class="nc" id="L83">        System.out.println(&quot;🖥️  Local Tech Support CLI v1.0&quot;);</span>
-<span class="nc" id="L84">        System.out.println(&quot;=====================================&quot;);</span>
-<span class="nc" id="L85">        System.out.println();</span>
-<span class="nc" id="L86">        System.out.println(&quot;Available commands (8 core business questions):&quot;);</span>
-<span class="nc" id="L87">        System.out.println(&quot;  client-tickets                    - What tickets does each client have?&quot;);</span>
-<span class="nc" id="L88">        System.out.println(&quot;  overdue-tickets                   - What tickets are currently overdue?&quot;);</span>
-<span class="nc" id="L89">        System.out.println(&quot;  technician-workload               - What tickets are assigned to each technician?&quot;);</span>
-<span class="nc" id="L90">        System.out.println(&quot;  available-technicians             - What technicians are available for each service type?&quot;);</span>
-<span class="nc" id="L91">        System.out.println(&quot;  technician-schedule               - What appointments does each technician have?&quot;);</span>
-<span class="nc" id="L92">        System.out.println(&quot;  client-appointments               - What appointments has each client scheduled?&quot;);</span>
-<span class="nc" id="L93">        System.out.println(&quot;  client-technician-history         - What clients have used which technicians?&quot;);</span>
-<span class="nc" id="L94">        System.out.println(&quot;  technician-feedback               - What feedback ratings has each technician received?&quot;);</span>
-<span class="nc" id="L95">        System.out.println();</span>
-<span class="nc" id="L96">        System.out.println(&quot;Use 'tech-support-cli &lt;command&gt; --help' for detailed command usage.&quot;);</span>
-<span class="nc" id="L97">        System.out.println(&quot;Use 'tech-support-cli --help' for global options.&quot;);</span>
-<span class="nc" id="L98">        System.out.println();</span>
-<span class="nc" id="L99">        System.out.println(&quot;Server: &quot; + serverUrl);</span>
-<span class="nc" id="L100">        System.out.println(&quot;Format: &quot; + outputFormat);</span>
+<span class="nc" id="L85">        System.out.println(&quot;🖥️  Local Tech Support CLI v1.0&quot;);</span>
+<span class="nc" id="L86">        System.out.println(&quot;=====================================&quot;);</span>
+<span class="nc" id="L87">        System.out.println();</span>
+<span class="nc" id="L88">        System.out.println(&quot;🎯 INTERACTIVE MODE (Recommended):&quot;);</span>
+<span class="nc" id="L89">        System.out.println(&quot;  interactive, menu, i              - Launch full interactive menu system&quot;);</span>
+<span class="nc" id="L90">        System.out.println();</span>
+<span class="nc" id="L91">        System.out.println(&quot;📋 DIRECT COMMANDS (8 core business questions):&quot;);</span>
+<span class="nc" id="L92">        System.out.println(&quot;  client-tickets                    - What tickets does each client have?&quot;);</span>
+<span class="nc" id="L93">        System.out.println(&quot;  overdue-tickets                   - What tickets are currently overdue?&quot;);</span>
+<span class="nc" id="L94">        System.out.println(&quot;  technician-workload               - What tickets are assigned to each technician?&quot;);</span>
+<span class="nc" id="L95">        System.out.println(&quot;  available-technicians             - What technicians are available for each service type?&quot;);</span>
+<span class="nc" id="L96">        System.out.println(&quot;  technician-schedule               - What appointments does each technician have?&quot;);</span>
+<span class="nc" id="L97">        System.out.println(&quot;  client-appointments               - What appointments has each client scheduled?&quot;);</span>
+<span class="nc" id="L98">        System.out.println(&quot;  client-technician-history         - What clients have used which technicians?&quot;);</span>
+<span class="nc" id="L99">        System.out.println(&quot;  technician-feedback               - What feedback ratings has each technician received?&quot;);</span>
+<span class="nc" id="L100">        System.out.println();</span>
+<span class="nc" id="L101">        System.out.println(&quot;💡 TIP: Use 'tech-support-cli interactive' for the full menu experience!&quot;);</span>
+<span class="nc" id="L102">        System.out.println(&quot;Use 'tech-support-cli &lt;command&gt; --help' for detailed command usage.&quot;);</span>
+<span class="nc" id="L103">        System.out.println(&quot;Use 'tech-support-cli --help' for global options.&quot;);</span>
+<span class="nc" id="L104">        System.out.println();</span>
+<span class="nc" id="L105">        System.out.println(&quot;Server: &quot; + serverUrl);</span>
+<span class="nc" id="L106">        System.out.println(&quot;Format: &quot; + outputFormat);</span>
         
-<span class="nc" id="L102">        return 0;</span>
+<span class="nc" id="L108">        return 0;</span>
     }
 
     // Getters for subcommands to access parent options
     public String getServerUrl() {
-<span class="nc" id="L107">        return serverUrl;</span>
+<span class="nc" id="L113">        return serverUrl;</span>
     }
 
     public boolean isVerbose() {
-<span class="nc" id="L111">        return verbose;</span>
+<span class="nc" id="L117">        return verbose;</span>
     }
 
     public String getOutputFormat() {
-<span class="nc" id="L115">        return outputFormat;</span>
+<span class="nc" id="L121">        return outputFormat;</span>
     }
 } 
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

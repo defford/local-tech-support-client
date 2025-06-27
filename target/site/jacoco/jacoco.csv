@@ -1,18 +1,22 @@
 GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_COVERED,LINE_MISSED,LINE_COVERED,COMPLEXITY_MISSED,COMPLEXITY_COVERED,METHOD_MISSED,METHOD_COVERED
-Local Tech Support CLI Client,com.localtechsupport.cli.client,ApiException,108,15,15,0,23,6,17,2,6,2
-Local Tech Support CLI Client,com.localtechsupport.cli.client,TechSupportApiClient,153,221,9,7,33,51,7,8,1,6
-Local Tech Support CLI Client,com.localtechsupport.cli.client,ApiResponse,38,29,6,2,4,8,7,4,3,4
-Local Tech Support CLI Client,com.localtechsupport.cli.model,Ticket,222,0,24,0,67,0,52,0,40,0
+Local Tech Support CLI Client,com.localtechsupport.cli.menu.client,ClientBuilder,385,0,44,0,92,0,35,0,13,0
+Local Tech Support CLI Client,com.localtechsupport.cli.menu.client,ClientManagementMenu,2875,0,212,0,659,0,136,0,28,0
+Local Tech Support CLI Client,com.localtechsupport.cli.model,Ticket,236,0,24,0,72,0,56,0,44,0
 Local Tech Support CLI Client,com.localtechsupport.cli.model,Technician,81,381,24,58,16,80,25,50,6,28
+Local Tech Support CLI Client,com.localtechsupport.cli.model,TechnicianStatistics,193,0,20,0,56,0,37,0,27,0
 Local Tech Support CLI Client,com.localtechsupport.cli.model,TicketStatistics,162,32,22,0,32,14,27,9,16,9
-Local Tech Support CLI Client,com.localtechsupport.cli.model,Appointment,139,0,4,0,40,0,30,0,28,0
+Local Tech Support CLI Client,com.localtechsupport.cli.model,Appointment,159,0,12,0,43,0,34,0,28,0
 Local Tech Support CLI Client,com.localtechsupport.cli.model,Client,66,282,16,42,13,62,22,38,8,23
 Local Tech Support CLI Client,com.localtechsupport.cli.model,PagedResponse,120,0,8,0,32,0,27,0,23,0
 Local Tech Support CLI Client,com.localtechsupport.cli.model,SkillCoverage,155,0,22,0,45,0,33,0,20,0
 Local Tech Support CLI Client,com.localtechsupport.cli.model,SkillCoverage.SkillInfo,44,0,0,0,11,0,8,0,8,0
 Local Tech Support CLI Client,com.localtechsupport.cli.model,FeedbackStatistics,228,0,34,0,59,0,41,0,24,0
-Local Tech Support CLI Client,com.localtechsupport.cli.model,TechnicianStatistics,193,0,20,0,56,0,37,0,27,0
-Local Tech Support CLI Client,com.localtechsupport.cli.service,ApiService,422,0,0,0,125,0,17,0,17,0
+Local Tech Support CLI Client,com.localtechsupport.cli.menu,MenuOption,155,0,14,0,42,0,18,0,11,0
+Local Tech Support CLI Client,com.localtechsupport.cli.menu,BaseMenu,216,0,12,0,67,0,23,0,17,0
+Local Tech Support CLI Client,com.localtechsupport.cli.menu,MenuManager,313,0,36,0,95,0,33,0,14,0
+Local Tech Support CLI Client,com.localtechsupport.cli.service,ApiService.new TypeReference() {...},6,0,0,0,1,0,1,0,1,0
+Local Tech Support CLI Client,com.localtechsupport.cli.service,ApiService.new TypeReference() {...},6,0,0,0,1,0,1,0,1,0
+Local Tech Support CLI Client,com.localtechsupport.cli.service,ApiService,1864,0,54,0,451,0,73,0,46,0
 Local Tech Support CLI Client,com.localtechsupport.cli.service,ApiService.new TypeReference() {...},6,0,0,0,1,0,1,0,1,0
 Local Tech Support CLI Client,com.localtechsupport.cli.service,ApiService.new TypeReference() {...},6,0,0,0,1,0,1,0,1,0
 Local Tech Support CLI Client,com.localtechsupport.cli.service,ApiService.new TypeReference() {...},6,0,0,0,1,0,1,0,1,0
@@ -22,20 +26,39 @@ Local Tech Support CLI Client,com.localtechsupport.cli.service,ApiService.new Ty
 Local Tech Support CLI Client,com.localtechsupport.cli.service,ApiService.new TypeReference() {...},6,0,0,0,1,0,1,0,1,0
 Local Tech Support CLI Client,com.localtechsupport.cli.service,ApiService.new TypeReference() {...},6,0,0,0,1,0,1,0,1,0
 Local Tech Support CLI Client,com.localtechsupport.cli.service,ApiService.new TypeReference() {...},6,0,0,0,1,0,1,0,1,0
-Local Tech Support CLI Client,com.localtechsupport.cli.service,ApiService.new TypeReference() {...},6,0,0,0,1,0,1,0,1,0
+Local Tech Support CLI Client,com.localtechsupport.cli.menu.ticket,TicketManagementMenu,3922,0,359,0,915,0,238,0,54,0
+Local Tech Support CLI Client,com.localtechsupport.cli.menu.ticket,TicketBuilder,1117,0,122,0,252,0,81,0,20,0
 Local Tech Support CLI Client,com.localtechsupport.cli.formatter,ClientTicketsFormatter.OverdueTicketInfo,9,0,0,0,4,0,1,0,1,0
-Local Tech Support CLI Client,com.localtechsupport.cli.formatter,ClientTicketsFormatter,518,0,40,0,108,0,35,0,15,0
+Local Tech Support CLI Client,com.localtechsupport.cli.formatter,ClientTicketsFormatter,517,0,40,0,107,0,35,0,15,0
+Local Tech Support CLI Client,com.localtechsupport.cli.util,DisplayUtils,458,0,18,0,76,0,27,0,18,0
 Local Tech Support CLI Client,com.localtechsupport.cli.util,JsonFormatter,254,0,4,0,40,0,9,0,7,0
-Local Tech Support CLI Client,com.localtechsupport.cli,CliApplication,100,0,2,0,32,0,8,0,7,0
-Local Tech Support CLI Client,com.localtechsupport.cli.command,ClientTicketsCommand,280,0,22,0,71,0,19,0,8,0
-Local Tech Support CLI Client,com.localtechsupport.cli.command,TechnicianWorkloadCommand,842,0,69,0,172,0,57,0,20,0
-Local Tech Support CLI Client,com.localtechsupport.cli.command,OverdueTicketsCommand,587,0,43,0,109,0,33,0,11,0
-Local Tech Support CLI Client,com.localtechsupport.cli.command,ClientTechnicianHistoryCommand.ClientTechnicianPair,12,0,0,0,5,0,1,0,1,0
-Local Tech Support CLI Client,com.localtechsupport.cli.command,AvailableTechniciansCommand,800,0,84,0,153,0,61,0,17,0
+Local Tech Support CLI Client,com.localtechsupport.cli.util,InputValidator,370,0,54,0,102,0,40,0,13,0
+Local Tech Support CLI Client,com.localtechsupport.cli.client,TechSupportApiClient,720,229,32,10,160,51,23,9,5,6
+Local Tech Support CLI Client,com.localtechsupport.cli.client,ApiException,108,15,15,0,23,6,17,2,6,2
+Local Tech Support CLI Client,com.localtechsupport.cli.client,ApiResponse,38,29,6,2,4,8,7,4,3,4
+Local Tech Support CLI Client,com.localtechsupport.cli.menu.main,MainMenu.ViewCurrentDataMenu,366,0,22,0,75,0,30,0,19,0
+Local Tech Support CLI Client,com.localtechsupport.cli.menu.main,MainMenu.PlaceholderMenu,26,0,0,0,11,0,4,0,4,0
+Local Tech Support CLI Client,com.localtechsupport.cli.menu.main,MainMenu,108,0,0,0,25,0,11,0,11,0
+Local Tech Support CLI Client,com.localtechsupport.cli.menu.main,MainMenu.ViewCurrentDataMenu.new CliApplication() {...},15,0,0,0,4,0,4,0,4,0
+Local Tech Support CLI Client,com.localtechsupport.cli.menu.technician,TechnicianManagementMenu,2348,0,152,0,567,0,124,0,43,0
+Local Tech Support CLI Client,com.localtechsupport.cli.menu.technician,TechnicianBuilder,1127,0,144,0,259,0,89,0,17,0
+Local Tech Support CLI Client,com.localtechsupport.cli.menu.appointment,AppointmentBuilder,1687,0,168,0,394,0,109,0,25,0
+Local Tech Support CLI Client,com.localtechsupport.cli.menu.appointment,AppointmentManagementMenu,3994,0,280,0,917,0,209,0,63,0
+Local Tech Support CLI Client,com.localtechsupport.cli.menu.reports,ReportsAnalyticsMenu.ServiceTypeStats,20,0,0,0,6,0,1,0,1,0
+Local Tech Support CLI Client,com.localtechsupport.cli.menu.reports,ReportsAnalyticsMenu.SystemDataBundle,16,0,8,0,1,0,5,0,1,0
+Local Tech Support CLI Client,com.localtechsupport.cli.menu.reports,ReportsAnalyticsMenu.WorkloadStats,18,0,0,0,6,0,1,0,1,0
+Local Tech Support CLI Client,com.localtechsupport.cli.menu.reports,ReportsAnalyticsMenu,3555,0,386,0,717,0,261,0,68,0
+Local Tech Support CLI Client,com.localtechsupport.cli,CliApplication,111,0,2,0,37,0,8,0,7,0
+Local Tech Support CLI Client,com.localtechsupport.cli.command,TechnicianWorkloadCommand,765,0,65,0,133,0,54,0,19,0
+Local Tech Support CLI Client,com.localtechsupport.cli.command,OverdueTicketsCommand,607,0,51,0,109,0,37,0,11,0
 Local Tech Support CLI Client,com.localtechsupport.cli.command,ClientTechnicianHistoryCommand.TechnicianInteraction,91,0,6,0,25,0,15,0,12,0
-Local Tech Support CLI Client,com.localtechsupport.cli.command,ClientAppointmentsCommand,968,0,92,0,197,0,66,0,17,0
-Local Tech Support CLI Client,com.localtechsupport.cli.command,TechnicianFeedbackCommand,968,0,82,0,175,0,63,0,21,0
+Local Tech Support CLI Client,com.localtechsupport.cli.command,ClientAppointmentsCommand,975,0,92,0,194,0,66,0,17,0
+Local Tech Support CLI Client,com.localtechsupport.cli.command,InteractiveMenuCommand,90,0,6,0,25,0,6,0,3,0
+Local Tech Support CLI Client,com.localtechsupport.cli.command,ClientTicketsCommand,276,0,26,0,61,0,21,0,8,0
+Local Tech Support CLI Client,com.localtechsupport.cli.command,ClientTechnicianHistoryCommand.ClientTechnicianPair,12,0,0,0,5,0,1,0,1,0
+Local Tech Support CLI Client,com.localtechsupport.cli.command,AvailableTechniciansCommand,888,0,106,0,155,0,75,0,20,0
+Local Tech Support CLI Client,com.localtechsupport.cli.command,TechnicianFeedbackCommand,976,0,82,0,168,0,63,0,21,0
 Local Tech Support CLI Client,com.localtechsupport.cli.command,TechnicianWorkloadCommand.WorkloadInfo,33,0,0,0,12,0,6,0,6,0
-Local Tech Support CLI Client,com.localtechsupport.cli.command,TechnicianScheduleCommand,902,0,78,0,183,0,56,0,14,0
-Local Tech Support CLI Client,com.localtechsupport.cli.command,ClientTechnicianHistoryCommand,855,0,69,0,159,0,54,0,19,0
+Local Tech Support CLI Client,com.localtechsupport.cli.command,TechnicianScheduleCommand,909,0,78,0,182,0,56,0,14,0
+Local Tech Support CLI Client,com.localtechsupport.cli.command,ClientTechnicianHistoryCommand,860,0,69,0,156,0,54,0,19,0
 Local Tech Support CLI Client,com.localtechsupport.cli.command,TechnicianFeedbackCommand.TechnicianFeedbackInfo,210,0,26,0,42,0,29,0,16,0

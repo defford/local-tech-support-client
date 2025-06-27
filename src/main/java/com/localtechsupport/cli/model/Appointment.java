@@ -19,10 +19,10 @@ public class Appointment {
     @JsonProperty("technicianId")
     private Long technicianId;
 
-    @JsonProperty("scheduledStartTime")
+    @JsonProperty("startTime")
     private LocalDateTime scheduledStartTime;
 
-    @JsonProperty("scheduledEndTime")
+    @JsonProperty("endTime")
     private LocalDateTime scheduledEndTime;
 
     @JsonProperty("status")
@@ -57,6 +57,10 @@ public class Appointment {
     }
 
     public Long getTicketId() {
+        // If ticketId is null but we have an embedded ticket object, extract the ID
+        if (ticketId == null && ticket != null) {
+            return ticket.getId();
+        }
         return ticketId;
     }
 
@@ -65,6 +69,10 @@ public class Appointment {
     }
 
     public Long getTechnicianId() {
+        // If technicianId is null but we have an embedded technician object, extract the ID
+        if (technicianId == null && technician != null) {
+            return technician.getId();
+        }
         return technicianId;
     }
 

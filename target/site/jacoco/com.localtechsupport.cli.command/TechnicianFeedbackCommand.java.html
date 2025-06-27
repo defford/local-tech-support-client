@@ -179,7 +179,7 @@ import java.util.stream.Collectors;
             
             // Add this ticket to the feedback analysis
 <span class="nc" id="L181">            feedbackInfo.addCompletedTicket(ticket);</span>
-        }
+<span class="nc" id="L182">        }</span>
         
         // Filter by minimum feedback count and sort
 <span class="nc" id="L185">        return feedbackData.entrySet().stream()</span>
@@ -196,10 +196,10 @@ import java.util.stream.Collectors;
                 }
             })
 <span class="nc" id="L198">            .collect(Collectors.toMap(</span>
-<span class="nc" id="L199">                Map.Entry::getKey,</span>
-<span class="nc" id="L200">                Map.Entry::getValue,</span>
+                Map.Entry::getKey,
+                Map.Entry::getValue,
 <span class="nc" id="L201">                (e1, e2) -&gt; e1,</span>
-<span class="nc" id="L202">                java.util.LinkedHashMap::new</span>
+                java.util.LinkedHashMap::new
             ));
     }
 
@@ -212,10 +212,10 @@ import java.util.stream.Collectors;
 <span class="nc bnc" id="L212" title="All 3 branches missed.">        switch (format.toLowerCase()) {</span>
             case &quot;json&quot;:
 <span class="nc" id="L214">                return JsonFormatter.withMetadata(</span>
-<span class="nc" id="L215">                    &quot;Technician Feedback Report&quot;, </span>
-<span class="nc" id="L216">                    feedbackData, </span>
-<span class="nc" id="L217">                    serverUrl, </span>
-<span class="nc" id="L218">                    timestamp</span>
+                    &quot;Technician Feedback Report&quot;, 
+                    feedbackData, 
+                    serverUrl, 
+                    timestamp
                 );
                 
             case &quot;table&quot;:
@@ -271,7 +271,7 @@ import java.util.stream.Collectors;
         
         // Technician feedback table
 <span class="nc" id="L273">        output.append(String.format(&quot;%-25s %-10s %-12s %-15s %-15s %s\n&quot;, </span>
-<span class="nc" id="L274">            &quot;Technician&quot;, &quot;Rating&quot;, &quot;Completed&quot;, &quot;Avg Resolution&quot;, &quot;Performance&quot;, &quot;Strengths&quot;));</span>
+            &quot;Technician&quot;, &quot;Rating&quot;, &quot;Completed&quot;, &quot;Avg Resolution&quot;, &quot;Performance&quot;, &quot;Strengths&quot;));
 <span class="nc" id="L275">        output.append(&quot;-&quot;.repeat(100)).append(&quot;\n&quot;);</span>
         
 <span class="nc bnc" id="L277" title="All 2 branches missed.">        for (Map.Entry&lt;Technician, TechnicianFeedbackInfo&gt; entry : feedbackData.entrySet()) {</span>
@@ -285,14 +285,14 @@ import java.util.stream.Collectors;
             
 <span class="nc" id="L286">            output.append(String.format(&quot;%-25s %s%-9.1f %-12d %-15s %-15s %s\n&quot;,</span>
 <span class="nc" id="L287">                truncate(technician.getFullName(), 24),</span>
-<span class="nc" id="L288">                ratingEmoji,</span>
+                ratingEmoji,
 <span class="nc" id="L289">                feedback.getAverageRating(),</span>
 <span class="nc" id="L290">                feedback.getCompletedTicketCount(),</span>
-<span class="nc" id="L291">                avgResolutionTime,</span>
-<span class="nc" id="L292">                performanceLevel,</span>
-<span class="nc" id="L293">                strengths</span>
+                avgResolutionTime,
+                performanceLevel,
+                strengths
             ));
-        }
+<span class="nc" id="L295">        }</span>
         
 <span class="nc" id="L297">        output.append(&quot;-&quot;.repeat(100)).append(&quot;\n\n&quot;);</span>
         
@@ -313,7 +313,7 @@ import java.util.stream.Collectors;
 <span class="nc" id="L313">                    entry.getValue().getAverageRating(),</span>
 <span class="nc" id="L314">                    entry.getValue().getCompletedTicketCount()</span>
                 ));
-            }
+<span class="nc" id="L316">            }</span>
         }
         
         // Areas for improvement
@@ -330,7 +330,7 @@ import java.util.stream.Collectors;
 <span class="nc" id="L330">                    entry.getValue().getAverageRating(),</span>
 <span class="nc" id="L331">                    entry.getValue().getCompletedTicketCount()</span>
                 ));
-            }
+<span class="nc" id="L333">            }</span>
         }
         
         // Service type performance
@@ -342,7 +342,7 @@ import java.util.stream.Collectors;
 <span class="nc" id="L342">                serviceTypeRatings.merge(serviceType, rating, Double::sum);</span>
 <span class="nc" id="L343">                serviceTypeCounts.merge(serviceType, 1, Integer::sum);</span>
 <span class="nc" id="L344">            });</span>
-        }
+<span class="nc" id="L345">        }</span>
         
 <span class="nc bnc" id="L347" title="All 2 branches missed.">        if (!serviceTypeRatings.isEmpty()) {</span>
 <span class="nc" id="L348">            output.append(&quot;\n   🔧 Service Type Performance:\n&quot;);</span>
@@ -414,7 +414,7 @@ import java.util.stream.Collectors;
 <span class="nc bnc" id="L414" title="All 2 branches missed.">            for (Ticket ticket : completedTickets) {</span>
 <span class="nc" id="L415">                double rating = calculateTicketRating(ticket);</span>
 <span class="nc" id="L416">                totalRating += rating;</span>
-            }
+<span class="nc" id="L417">            }</span>
 <span class="nc" id="L418">            return totalRating / completedTickets.size();</span>
         }
         
@@ -462,7 +462,7 @@ import java.util.stream.Collectors;
 <span class="nc" id="L462">            return completedTickets.stream()</span>
 <span class="nc bnc" id="L463" title="All 2 branches missed.">                .filter(ticket -&gt; ticket.getServiceType() != null)</span>
 <span class="nc" id="L464">                .collect(Collectors.groupingBy(</span>
-<span class="nc" id="L465">                    Ticket::getServiceType,</span>
+                    Ticket::getServiceType,
 <span class="nc" id="L466">                    Collectors.averagingDouble(this::calculateTicketRating)</span>
                 ));
         }

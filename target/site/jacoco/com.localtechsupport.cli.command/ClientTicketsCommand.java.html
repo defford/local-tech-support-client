@@ -20,6 +20,7 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
+import java.util.LinkedHashMap;
 
 /**
  * Command to display tickets for each client
@@ -32,9 +33,9 @@ import java.util.stream.Collectors;
     description = &quot;Show tickets for each client in the system&quot;,
     mixinStandardHelpOptions = true
 )
-<span class="nc" id="L35">public class ClientTicketsCommand implements Callable&lt;Integer&gt; {</span>
+<span class="nc" id="L36">public class ClientTicketsCommand implements Callable&lt;Integer&gt; {</span>
 
-<span class="nc" id="L37">    private static final Logger logger = LoggerFactory.getLogger(ClientTicketsCommand.class);</span>
+<span class="nc" id="L38">    private static final Logger logger = LoggerFactory.getLogger(ClientTicketsCommand.class);</span>
 
     @ParentCommand
     private CliApplication parent;
@@ -52,67 +53,50 @@ import java.util.stream.Collectors;
     private String ticketStatus;
 
     @Override
-    public Integer call() {
-<span class="nc" id="L56">        logger.info(&quot;Executing client-tickets command&quot;);</span>
-        
+    public Integer call() throws Exception {
         try {
-            // Get configuration from parent
-<span class="nc" id="L60">            String serverUrl = parent.getServerUrl();</span>
-<span class="nc" id="L61">            String outputFormat = parent.getOutputFormat();</span>
-<span class="nc" id="L62">            boolean verbose = parent.isVerbose();</span>
-            
-<span class="nc bnc" id="L64" title="All 2 branches missed.">            if (verbose) {</span>
-<span class="nc" id="L65">                System.out.println(&quot;🔍 Connecting to server: &quot; + serverUrl);</span>
-<span class="nc" id="L66">                System.out.println(&quot;📋 Fetching client tickets data...&quot;);</span>
-            }
-
-            // Create API service and fetch data
-<span class="nc" id="L70">            try (ApiService apiService = new ApiService(serverUrl)) {</span>
-                
-                // Test connection first
-<span class="nc bnc" id="L73" title="All 2 branches missed.">                if (!apiService.testConnection()) {</span>
-<span class="nc" id="L74">                    System.err.println(&quot;❌ Cannot connect to server: &quot; + serverUrl);</span>
-<span class="nc" id="L75">                    System.err.println(&quot;   Please check that the Local Tech Support Server is running.&quot;);</span>
-<span class="nc" id="L76">                    return 1;</span>
-                }
-
-                // Fetch data
-<span class="nc" id="L80">                Map&lt;Client, List&lt;Ticket&gt;&gt; clientTicketsMap = fetchClientTicketsData(apiService, verbose);</span>
-                
-<span class="nc bnc" id="L82" title="All 2 branches missed.">                if (verbose) {</span>
-<span class="nc" id="L83">                    System.out.println(&quot;✅ Successfully fetched client tickets data&quot;);</span>
-                }
-
-                // Format and display output
-<span class="nc" id="L87">                String output = formatOutput(clientTicketsMap, outputFormat, serverUrl);</span>
-<span class="nc" id="L88">                System.out.println(output);</span>
-                
-<span class="nc" id="L90">                logger.info(&quot;Client tickets command completed successfully&quot;);</span>
-<span class="nc" id="L91">                return 0;</span>
-
-<span class="nc" id="L93">            } catch (ApiException e) {</span>
-<span class="nc" id="L94">                logger.error(&quot;API error in client-tickets command: {}&quot;, e.getMessage());</span>
-                
-<span class="nc" id="L96">                System.err.println(&quot;❌ API Error: &quot; + e.getUserFriendlyMessage());</span>
-                
-<span class="nc bnc" id="L98" title="All 2 branches missed.">                if (verbose) {</span>
-<span class="nc" id="L99">                    System.err.println(&quot;   Status Code: &quot; + e.getStatusCode());</span>
-<span class="nc" id="L100">                    System.err.println(&quot;   Server: &quot; + serverUrl);</span>
-                }
-                
-<span class="nc" id="L103">                return 1;</span>
-            }
-
-<span class="nc" id="L106">        } catch (Exception e) {</span>
-<span class="nc" id="L107">            logger.error(&quot;Unexpected error in client-tickets command: {}&quot;, e.getMessage(), e);</span>
-            
-<span class="nc" id="L109">            System.err.println(&quot;❌ Unexpected error: &quot; + e.getMessage());</span>
-            
-<span class="nc bnc" id="L111" title="All 2 branches missed.">            if (parent.isVerbose()) {</span>
-<span class="nc" id="L112">                e.printStackTrace();</span>
+<span class="nc bnc" id="L58" title="All 2 branches missed.">            if (parent.isVerbose()) {</span>
+<span class="nc" id="L59">                System.out.println(&quot;🔍 Connecting to server: &quot; + parent.getServerUrl());</span>
             }
             
-<span class="nc" id="L115">            return 1;</span>
+<span class="nc" id="L62">            ApiService apiService = new ApiService(parent.getServerUrl());</span>
+            
+<span class="nc bnc" id="L64" title="All 2 branches missed.">            if (parent.isVerbose()) {</span>
+<span class="nc" id="L65">                System.out.println(&quot;📋 Fetching client tickets data...&quot;);</span>
+            }
+            
+            // Fetch all clients
+<span class="nc" id="L69">            List&lt;Client&gt; clients = apiService.getAllClients();</span>
+<span class="nc bnc" id="L70" title="All 2 branches missed.">            if (parent.isVerbose()) {</span>
+<span class="nc" id="L71">                System.out.printf(&quot;📊 Processing %d clients...%n&quot;, clients.size());</span>
+            }
+            
+            // Build map of client -&gt; tickets
+<span class="nc" id="L75">            Map&lt;Client, List&lt;Ticket&gt;&gt; clientTicketsMap = new LinkedHashMap&lt;&gt;();</span>
+            
+<span class="nc bnc" id="L77" title="All 2 branches missed.">            for (Client client : clients) {</span>
+<span class="nc" id="L78">                List&lt;Ticket&gt; tickets = apiService.getTicketsByClient(client.getId());</span>
+<span class="nc" id="L79">                clientTicketsMap.put(client, tickets);</span>
+<span class="nc" id="L80">            }</span>
+            
+<span class="nc bnc" id="L82" title="All 2 branches missed.">            if (parent.isVerbose()) {</span>
+<span class="nc" id="L83">                System.out.println(&quot;✅ Successfully fetched client tickets data&quot;);</span>
+            }
+            
+            // Format and display output
+<span class="nc" id="L87">            String output = formatOutput(clientTicketsMap, parent.getOutputFormat(), parent.getServerUrl());</span>
+<span class="nc bnc" id="L88" title="All 2 branches missed.">            if (!output.trim().isEmpty()) {</span>
+<span class="nc" id="L89">                System.out.println(output);</span>
+            }
+            
+<span class="nc" id="L92">            return 0;</span>
+            
+<span class="nc" id="L94">        } catch (Exception e) {</span>
+<span class="nc" id="L95">            System.err.println(&quot;❌ Error fetching client tickets: &quot; + e.getMessage());</span>
+<span class="nc bnc" id="L96" title="All 2 branches missed.">            if (parent.isVerbose()) {</span>
+<span class="nc" id="L97">                e.printStackTrace();</span>
+            }
+<span class="nc" id="L99">            return 1;</span>
         }
     }
 
@@ -120,63 +104,63 @@ import java.util.stream.Collectors;
      * Fetch client tickets data from the API
      */
     private Map&lt;Client, List&lt;Ticket&gt;&gt; fetchClientTicketsData(ApiService apiService, boolean verbose) throws ApiException {
-<span class="nc" id="L123">        Map&lt;Client, List&lt;Ticket&gt;&gt; clientTicketsMap = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L107">        Map&lt;Client, List&lt;Ticket&gt;&gt; clientTicketsMap = new HashMap&lt;&gt;();</span>
         
-<span class="nc bnc" id="L125" title="All 2 branches missed.">        if (clientId != null) {</span>
+<span class="nc bnc" id="L109" title="All 2 branches missed.">        if (clientId != null) {</span>
             // Fetch specific client and their tickets
-<span class="nc" id="L127">            List&lt;Client&gt; allClients = apiService.getAllClients();</span>
-<span class="nc" id="L128">            Client targetClient = allClients.stream()</span>
-<span class="nc" id="L129">                .filter(c -&gt; c.getId().equals(clientId))</span>
-<span class="nc" id="L130">                .findFirst()</span>
-<span class="nc" id="L131">                .orElse(null);</span>
+<span class="nc" id="L111">            List&lt;Client&gt; allClients = apiService.getAllClients();</span>
+<span class="nc" id="L112">            Client targetClient = allClients.stream()</span>
+<span class="nc" id="L113">                .filter(c -&gt; c.getId().equals(clientId))</span>
+<span class="nc" id="L114">                .findFirst()</span>
+<span class="nc" id="L115">                .orElse(null);</span>
                 
-<span class="nc bnc" id="L133" title="All 2 branches missed.">            if (targetClient == null) {</span>
-<span class="nc" id="L134">                throw new ApiException(&quot;Client with ID &quot; + clientId + &quot; not found&quot;, 404);</span>
+<span class="nc bnc" id="L117" title="All 2 branches missed.">            if (targetClient == null) {</span>
+<span class="nc" id="L118">                throw new ApiException(&quot;Client with ID &quot; + clientId + &quot; not found&quot;, 404);</span>
             }
             
-<span class="nc" id="L137">            List&lt;Ticket&gt; tickets = apiService.getTicketsByClient(clientId);</span>
-<span class="nc" id="L138">            tickets = filterTickets(tickets);</span>
-<span class="nc" id="L139">            clientTicketsMap.put(targetClient, tickets);</span>
+<span class="nc" id="L121">            List&lt;Ticket&gt; tickets = apiService.getTicketsByClient(clientId);</span>
+<span class="nc" id="L122">            tickets = filterTickets(tickets);</span>
+<span class="nc" id="L123">            clientTicketsMap.put(targetClient, tickets);</span>
             
-<span class="nc" id="L141">        } else {</span>
+<span class="nc" id="L125">        } else {</span>
             // Fetch all clients and their tickets
-<span class="nc" id="L143">            List&lt;Client&gt; clients = apiService.getAllClients();</span>
+<span class="nc" id="L127">            List&lt;Client&gt; clients = apiService.getAllClients();</span>
             
-<span class="nc bnc" id="L145" title="All 2 branches missed.">            if (verbose) {</span>
-<span class="nc" id="L146">                System.out.println(&quot;📊 Processing &quot; + clients.size() + &quot; clients...&quot;);</span>
+<span class="nc bnc" id="L129" title="All 2 branches missed.">            if (verbose) {</span>
+<span class="nc" id="L130">                System.out.println(&quot;📊 Processing &quot; + clients.size() + &quot; clients...&quot;);</span>
             }
             
             // Fetch tickets for each client
-<span class="nc bnc" id="L150" title="All 2 branches missed.">            for (Client client : clients) {</span>
-<span class="nc" id="L151">                List&lt;Ticket&gt; tickets = apiService.getTicketsByClient(client.getId());</span>
-<span class="nc" id="L152">                tickets = filterTickets(tickets);</span>
-<span class="nc" id="L153">                clientTicketsMap.put(client, tickets);</span>
-<span class="nc" id="L154">            }</span>
+<span class="nc bnc" id="L134" title="All 2 branches missed.">            for (Client client : clients) {</span>
+<span class="nc" id="L135">                List&lt;Ticket&gt; tickets = apiService.getTicketsByClient(client.getId());</span>
+<span class="nc" id="L136">                tickets = filterTickets(tickets);</span>
+<span class="nc" id="L137">                clientTicketsMap.put(client, tickets);</span>
+<span class="nc" id="L138">            }</span>
         }
         
-<span class="nc" id="L157">        return clientTicketsMap;</span>
+<span class="nc" id="L141">        return clientTicketsMap;</span>
     }
 
     /**
      * Filter tickets based on command options
      */
     private List&lt;Ticket&gt; filterTickets(List&lt;Ticket&gt; tickets) {
-<span class="nc bnc" id="L164" title="All 2 branches missed.">        if (ticketStatus != null) {</span>
-<span class="nc" id="L165">            return tickets.stream()</span>
-<span class="nc" id="L166">                .filter(t -&gt; ticketStatus.equalsIgnoreCase(t.getStatus()))</span>
-<span class="nc" id="L167">                .collect(Collectors.toList());</span>
+<span class="nc bnc" id="L148" title="All 2 branches missed.">        if (ticketStatus != null) {</span>
+<span class="nc" id="L149">            return tickets.stream()</span>
+<span class="nc" id="L150">                .filter(t -&gt; ticketStatus.equalsIgnoreCase(t.getStatus()))</span>
+<span class="nc" id="L151">                .collect(Collectors.toList());</span>
         }
-<span class="nc" id="L169">        return tickets;</span>
+<span class="nc" id="L153">        return tickets;</span>
     }
 
     /**
      * Format the output based on the requested format
      */
     private String formatOutput(Map&lt;Client, List&lt;Ticket&gt;&gt; clientTicketsMap, String format, String serverUrl) {
-<span class="nc bnc" id="L176" title="All 2 branches missed.">        switch (format.toLowerCase()) {</span>
+<span class="nc bnc" id="L160" title="All 2 branches missed.">        switch (format.toLowerCase()) {</span>
             case &quot;json&quot;:
-<span class="nc" id="L178">                String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern(&quot;yyyy-MM-dd HH:mm:ss&quot;));</span>
-<span class="nc" id="L179">                return JsonFormatter.withMetadata(</span>
+<span class="nc" id="L162">                String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern(&quot;yyyy-MM-dd HH:mm:ss&quot;));</span>
+<span class="nc" id="L163">                return JsonFormatter.withMetadata(</span>
                     &quot;Client Tickets Report&quot;, 
                     clientTicketsMap, 
                     serverUrl, 
@@ -186,17 +170,14 @@ import java.util.stream.Collectors;
             case &quot;table&quot;:
             default:
                 // Use professional formatter for table output (and as default)
-<span class="nc" id="L189">                ClientTicketsFormatter formatter = new ClientTicketsFormatter();</span>
-                // Capture output to string instead of printing directly
-<span class="nc" id="L191">                java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();</span>
-<span class="nc" id="L192">                java.io.PrintStream originalOut = System.out;</span>
-                try {
-<span class="nc" id="L194">                    System.setOut(new java.io.PrintStream(baos));</span>
-<span class="nc" id="L195">                    formatter.displayClientTicketsReport(clientTicketsMap, serverUrl);</span>
-<span class="nc" id="L196">                    return baos.toString();</span>
-                } finally {
-<span class="nc" id="L198">                    System.setOut(originalOut);</span>
-                }
+<span class="nc" id="L173">                ClientTicketsFormatter formatter = new ClientTicketsFormatter();</span>
+                // Display the table AND return summary data
+<span class="nc" id="L175">                formatter.displayClientTicketsReport(clientTicketsMap, serverUrl);</span>
+                
+                // Return a simple summary for menu context
+<span class="nc" id="L178">                long totalTickets = clientTicketsMap.values().stream().mapToLong(List::size).sum();</span>
+<span class="nc" id="L179">                return String.format(&quot;Displayed report for %d clients with %d total tickets&quot;, </span>
+<span class="nc" id="L180">                    clientTicketsMap.size(), totalTickets);</span>
         }
     }
 } 

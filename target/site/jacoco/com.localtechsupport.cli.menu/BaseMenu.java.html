@@ -1,0 +1,242 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BaseMenu.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Local Tech Support CLI Client</a> &gt; <a href="index.source.html" class="el_package">com.localtechsupport.cli.menu</a> &gt; <span class="el_source">BaseMenu.java</span></div><h1>BaseMenu.java</h1><pre class="source lang-java linenums">package com.localtechsupport.cli.menu;
+
+import com.localtechsupport.cli.service.ApiService;
+import com.localtechsupport.cli.util.DisplayUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
+
+/**
+ * Abstract base class for all menu implementations.
+ * 
+ * Provides common functionality for menu display, input handling,
+ * and navigation while allowing concrete menus to implement
+ * their specific behavior.
+ */
+public abstract class BaseMenu implements Menu {
+    
+<span class="nc" id="L21">    private static final Logger logger = LoggerFactory.getLogger(BaseMenu.class);</span>
+    
+    protected MenuManager menuManager;
+    protected ApiService apiService;
+    protected Scanner scanner;
+    protected List&lt;MenuOption&gt; menuOptions;
+    protected Menu parentMenu;
+<span class="nc" id="L28">    protected boolean exitRequested = false;</span>
+    
+    /**
+     * Constructor for base menu
+     * 
+     * @param parentMenu the parent menu for back navigation (null for root)
+     */
+<span class="nc" id="L35">    protected BaseMenu(Menu parentMenu) {</span>
+<span class="nc" id="L36">        this.parentMenu = parentMenu;</span>
+<span class="nc" id="L37">        this.menuOptions = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L38">    }</span>
+    
+    @Override
+    public void initialize(MenuManager menuManager) {
+<span class="nc" id="L42">        this.menuManager = menuManager;</span>
+<span class="nc" id="L43">        this.apiService = menuManager.getApiService();</span>
+<span class="nc" id="L44">        this.scanner = menuManager.getScanner();</span>
+        
+        // Initialize menu options - template method
+<span class="nc" id="L47">        initializeMenuOptions();</span>
+        
+<span class="nc" id="L49">        logger.debug(&quot;Menu initialized: {}&quot;, getTitle());</span>
+<span class="nc" id="L50">    }</span>
+    
+    @Override
+    public void display() {
+        // Display header
+<span class="nc" id="L55">        DisplayUtils.printHeader(getTitle());</span>
+        
+        // Display custom content (template method)
+<span class="nc" id="L58">        displayCustomContent();</span>
+        
+        // Display menu options
+<span class="nc bnc" id="L61" title="All 2 branches missed.">        if (!menuOptions.isEmpty()) {</span>
+<span class="nc" id="L62">            DisplayUtils.printSubHeader(&quot;Available Options&quot;);</span>
+<span class="nc" id="L63">            DisplayUtils.printMenu(menuOptions);</span>
+        }
+        
+        // Display footer with navigation hints
+<span class="nc" id="L67">        displayNavigationFooter();</span>
+<span class="nc" id="L68">    }</span>
+    
+    @Override
+    public Menu handleInput(String input) {
+        try {
+            // Try to parse as menu option number
+<span class="nc" id="L74">            int choice = Integer.parseInt(input);</span>
+            
+            // Find matching menu option
+<span class="nc bnc" id="L77" title="All 2 branches missed.">            for (MenuOption option : menuOptions) {</span>
+<span class="nc bnc" id="L78" title="All 2 branches missed.">                if (option.getOptionNumber() == choice) {</span>
+<span class="nc" id="L79">                    logger.debug(&quot;Selected menu option: {} - {}&quot;, choice, option.getDisplayName());</span>
+                    
+<span class="nc bnc" id="L81" title="All 2 branches missed.">                    if (option.isExitOption()) {</span>
+<span class="nc" id="L82">                        exitRequested = true;</span>
+<span class="nc" id="L83">                        return null;</span>
+                    }
+                    
+<span class="nc" id="L86">                    Menu result = option.execute();</span>
+                    
+                    // If it was an action (not navigation), handle post-action
+<span class="nc bnc" id="L89" title="All 4 branches missed.">                    if (result == null &amp;&amp; option.isAction()) {</span>
+<span class="nc" id="L90">                        handlePostAction();</span>
+                    }
+                    
+<span class="nc" id="L93">                    return result;</span>
+                }
+<span class="nc" id="L95">            }</span>
+            
+            // Invalid option number
+<span class="nc" id="L98">            DisplayUtils.printError(&quot;Invalid option. Please try again.&quot;);</span>
+<span class="nc" id="L99">            waitForEnter();</span>
+<span class="nc" id="L100">            return null;</span>
+            
+<span class="nc" id="L102">        } catch (NumberFormatException e) {</span>
+            // Not a number - handle custom input (template method)
+<span class="nc" id="L104">            return handleCustomInput(input);</span>
+        }
+    }
+    
+    @Override
+    public String getTitle() {
+        // Abstract method - must be implemented by concrete menus
+<span class="nc" id="L111">        return getMenuTitle();</span>
+    }
+    
+    @Override
+    public Menu getParentMenu() {
+<span class="nc" id="L116">        return parentMenu;</span>
+    }
+    
+    @Override
+    public boolean isExitRequested() {
+<span class="nc" id="L121">        return exitRequested;</span>
+    }
+    
+    /**
+     * Template method: Initialize menu-specific options
+     * Concrete menus should override this to add their options
+     */
+    protected abstract void initializeMenuOptions();
+    
+    /**
+     * Template method: Get the title for this menu
+     * 
+     * @return the menu title
+     */
+    protected abstract String getMenuTitle();
+    
+    /**
+     * Template method: Display custom content before menu options
+     * Override to show menu-specific information
+     */
+    protected void displayCustomContent() {
+        // Default: no custom content
+<span class="nc" id="L143">    }</span>
+    
+    /**
+     * Template method: Handle custom input that's not a menu option
+     * Override to handle special commands or shortcuts
+     * 
+     * @param input the user input
+     * @return the next menu to navigate to, or null to stay
+     */
+    protected Menu handleCustomInput(String input) {
+<span class="nc" id="L153">        DisplayUtils.printError(&quot;Invalid input. Please enter a number from the menu or use global commands (h for help).&quot;);</span>
+<span class="nc" id="L154">        waitForEnter();</span>
+<span class="nc" id="L155">        return null;</span>
+    }
+    
+    /**
+     * Template method: Handle post-action processing
+     * Called after an action menu option is executed
+     */
+    protected void handlePostAction() {
+<span class="nc" id="L163">        waitForEnter();</span>
+<span class="nc" id="L164">    }</span>
+    
+    /**
+     * Wait for user to press Enter using the same Scanner instance
+     * Use this instead of DisplayUtils.waitForEnter() to avoid input conflicts
+     */
+    protected void waitForEnter() {
+<span class="nc" id="L171">        System.out.print(&quot;\nPress Enter to continue...&quot;);</span>
+<span class="nc" id="L172">        scanner.nextLine();</span>
+<span class="nc" id="L173">    }</span>
+    
+    /**
+     * Display navigation footer with helpful hints
+     */
+    private void displayNavigationFooter() {
+<span class="nc" id="L179">        System.out.println();</span>
+<span class="nc" id="L180">        DisplayUtils.printSeparator();</span>
+<span class="nc" id="L181">        System.out.println(&quot;💡 Navigation: 'b' = back, 'q' = quit, 'h' = help&quot;);</span>
+<span class="nc" id="L182">        DisplayUtils.printSeparator();</span>
+<span class="nc" id="L183">    }</span>
+    
+    /**
+     * Helper method to add a menu option for sub-menu navigation
+     * 
+     * @param optionNumber the option number
+     * @param displayName the display name
+     * @param description optional description
+     * @param menuSupplier supplier for the target menu
+     */
+    protected void addMenuOption(int optionNumber, String displayName, String description, 
+                                 java.util.function.Supplier&lt;Menu&gt; menuSupplier) {
+<span class="nc" id="L195">        menuOptions.add(new MenuOption(optionNumber, displayName, description, menuSupplier));</span>
+<span class="nc" id="L196">    }</span>
+    
+    /**
+     * Helper method to add a menu option for direct action
+     * 
+     * @param optionNumber the option number
+     * @param displayName the display name
+     * @param description optional description
+     * @param action the action to execute
+     */
+    protected void addActionOption(int optionNumber, String displayName, String description, 
+                                   Runnable action) {
+<span class="nc" id="L208">        menuOptions.add(new MenuOption(optionNumber, displayName, description, action));</span>
+<span class="nc" id="L209">    }</span>
+    
+    /**
+     * Helper method to add an exit option
+     * 
+     * @param optionNumber the option number
+     * @param displayName the display name (typically &quot;Exit&quot;)
+     */
+    protected void addExitOption(int optionNumber, String displayName) {
+<span class="nc" id="L218">        menuOptions.add(new MenuOption(optionNumber, displayName));</span>
+<span class="nc" id="L219">    }</span>
+    
+    /**
+     * Helper method to safely execute API operations with error handling
+     * 
+     * @param operation the operation to execute
+     * @param operationName name for logging/error messages
+     * @param &lt;T&gt; the return type
+     * @return the result of the operation, or null if failed
+     */
+    protected &lt;T&gt; T executeApiOperation(java.util.function.Supplier&lt;T&gt; operation, String operationName) {
+        try {
+<span class="nc" id="L231">            DisplayUtils.printLoading(operationName);</span>
+<span class="nc" id="L232">            T result = operation.get();</span>
+<span class="nc" id="L233">            DisplayUtils.printSuccess(operationName + &quot; completed successfully&quot;);</span>
+<span class="nc" id="L234">            return result;</span>
+<span class="nc" id="L235">        } catch (Exception e) {</span>
+<span class="nc" id="L236">            logger.error(&quot;Error in {} operation: {}&quot;, operationName, e.getMessage(), e);</span>
+<span class="nc" id="L237">            DisplayUtils.printError(operationName + &quot; failed: &quot; + e.getMessage());</span>
+<span class="nc" id="L238">            return null;</span>
+        }
+    }
+} 
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>
