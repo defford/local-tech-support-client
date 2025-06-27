@@ -109,7 +109,7 @@ public class TechnicianManagementMenu extends BaseMenu {
             
             if (technicians.isEmpty()) {
                 System.out.println("📭 No technicians found in the system.");
-                DisplayUtils.waitForEnter();
+                waitForEnter();
                 return;
             }
             
@@ -143,7 +143,7 @@ public class TechnicianManagementMenu extends BaseMenu {
             DisplayUtils.printError("Failed to retrieve technicians: " + e.getMessage());
         }
         
-        DisplayUtils.waitForEnter();
+        waitForEnter();
     }
     
     private void searchTechnicians() {
@@ -217,7 +217,7 @@ public class TechnicianManagementMenu extends BaseMenu {
                     
                 default:
                     DisplayUtils.printError("Invalid search option.");
-                    DisplayUtils.waitForEnter();
+                    waitForEnter();
                     return;
             }
             
@@ -260,7 +260,7 @@ public class TechnicianManagementMenu extends BaseMenu {
             DisplayUtils.printError("Failed to search technicians: " + e.getMessage());
         }
         
-        DisplayUtils.waitForEnter();
+        waitForEnter();
     }
     
     private void viewTechnicianDetails() {
@@ -271,7 +271,7 @@ public class TechnicianManagementMenu extends BaseMenu {
             
             if (technicians.isEmpty()) {
                 System.out.println("📭 No technicians found in the system.");
-                DisplayUtils.waitForEnter();
+                waitForEnter();
                 return;
             }
             
@@ -305,7 +305,7 @@ public class TechnicianManagementMenu extends BaseMenu {
             DisplayUtils.printError("Failed to retrieve technicians: " + e.getMessage());
         }
         
-        DisplayUtils.waitForEnter();
+        waitForEnter();
     }
     
     private void createNewTechnician() {
@@ -336,7 +336,7 @@ public class TechnicianManagementMenu extends BaseMenu {
             DisplayUtils.printError("An unexpected error occurred while creating the technician.");
         }
         
-        DisplayUtils.waitForEnter();
+        waitForEnter();
     }
     
     private void editTechnician() {
@@ -347,7 +347,7 @@ public class TechnicianManagementMenu extends BaseMenu {
             
             if (technicians.isEmpty()) {
                 System.out.println("📭 No technicians found in the system.");
-                DisplayUtils.waitForEnter();
+                waitForEnter();
                 return;
             }
             
@@ -372,7 +372,7 @@ public class TechnicianManagementMenu extends BaseMenu {
                     
                 if (selectedTechnician == null) {
                     DisplayUtils.printError("Technician not found with ID: " + technicianId);
-                    DisplayUtils.waitForEnter();
+                    waitForEnter();
                     return;
                 }
                 
@@ -402,7 +402,7 @@ public class TechnicianManagementMenu extends BaseMenu {
             DisplayUtils.printError("An unexpected error occurred while editing the technician.");
         }
         
-        DisplayUtils.waitForEnter();
+        waitForEnter();
     }
     
     private void manageTechnicianStatus() {
@@ -421,7 +421,7 @@ public class TechnicianManagementMenu extends BaseMenu {
             
             if (technicians.isEmpty()) {
                 System.out.println("📭 No technicians found in the system.");
-                DisplayUtils.waitForEnter();
+                waitForEnter();
                 return;
             }
             
@@ -446,7 +446,7 @@ public class TechnicianManagementMenu extends BaseMenu {
                     
                 if (selectedTechnician == null) {
                     DisplayUtils.printError("Technician not found with ID: " + technicianId);
-                    DisplayUtils.waitForEnter();
+                    waitForEnter();
                     return;
                 }
                 
@@ -482,13 +482,13 @@ public class TechnicianManagementMenu extends BaseMenu {
                         break;
                     default:
                         DisplayUtils.printError("Invalid status selection.");
-                        DisplayUtils.waitForEnter();
+                        waitForEnter();
                         return;
                 }
                 
                 if (newStatus.equals(selectedTechnician.getStatus())) {
                     System.out.println("ℹ️  Technician already has this status.");
-                    DisplayUtils.waitForEnter();
+                    waitForEnter();
                     return;
                 }
                 
@@ -548,7 +548,7 @@ public class TechnicianManagementMenu extends BaseMenu {
             DisplayUtils.printError("Failed to retrieve technicians: " + e.getMessage());
         }
         
-        DisplayUtils.waitForEnter();
+        waitForEnter();
     }
     
     private void deleteTechnician() {
@@ -564,7 +564,7 @@ public class TechnicianManagementMenu extends BaseMenu {
             
             if (technicians.isEmpty()) {
                 System.out.println("📭 No technicians found in the system.");
-                DisplayUtils.waitForEnter();
+                waitForEnter();
                 return;
             }
             
@@ -589,7 +589,7 @@ public class TechnicianManagementMenu extends BaseMenu {
                     
                 if (selectedTechnician == null) {
                     DisplayUtils.printError("Technician not found with ID: " + technicianId);
-                    DisplayUtils.waitForEnter();
+                    waitForEnter();
                     return;
                 }
                 
@@ -617,7 +617,7 @@ public class TechnicianManagementMenu extends BaseMenu {
                 
                 if (!confirm1.equals("y") && !confirm1.equals("yes")) {
                     System.out.println("Deletion cancelled.");
-                    DisplayUtils.waitForEnter();
+                    waitForEnter();
                     return;
                 }
                 
@@ -628,7 +628,7 @@ public class TechnicianManagementMenu extends BaseMenu {
                 
                 if (!nameVerification.equals(selectedTechnician.getFullName())) {
                     DisplayUtils.printError("Name verification failed. Deletion cancelled.");
-                    DisplayUtils.waitForEnter();
+                    waitForEnter();
                     return;
                 }
                 
@@ -638,7 +638,7 @@ public class TechnicianManagementMenu extends BaseMenu {
                 
                 if (!finalConfirm.equals("DELETE")) {
                     System.out.println("Final confirmation failed. Deletion cancelled.");
-                    DisplayUtils.waitForEnter();
+                    waitForEnter();
                     return;
                 }
                 
@@ -678,7 +678,7 @@ public class TechnicianManagementMenu extends BaseMenu {
             DisplayUtils.printError("Failed to retrieve technicians: " + e.getMessage());
         }
         
-        DisplayUtils.waitForEnter();
+        waitForEnter();
     }
     
     private void technicianReports() {
@@ -689,7 +689,7 @@ public class TechnicianManagementMenu extends BaseMenu {
             
             if (technicians.isEmpty()) {
                 System.out.println("📭 No technicians found in the system.");
-                DisplayUtils.waitForEnter();
+                waitForEnter();
                 return;
             }
             
@@ -795,7 +795,7 @@ public class TechnicianManagementMenu extends BaseMenu {
             DisplayUtils.printError("Failed to generate reports: " + e.getMessage());
         }
         
-        DisplayUtils.waitForEnter();
+        waitForEnter();
     }
     
     // ==================== HELPER METHODS ====================

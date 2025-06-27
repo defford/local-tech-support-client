@@ -96,7 +96,7 @@ public abstract class BaseMenu implements Menu {
             
             // Invalid option number
             DisplayUtils.printError("Invalid option. Please try again.");
-            DisplayUtils.waitForEnter();
+            waitForEnter();
             return null;
             
         } catch (NumberFormatException e) {
@@ -151,7 +151,7 @@ public abstract class BaseMenu implements Menu {
      */
     protected Menu handleCustomInput(String input) {
         DisplayUtils.printError("Invalid input. Please enter a number from the menu or use global commands (h for help).");
-        DisplayUtils.waitForEnter();
+        waitForEnter();
         return null;
     }
     
@@ -160,7 +160,16 @@ public abstract class BaseMenu implements Menu {
      * Called after an action menu option is executed
      */
     protected void handlePostAction() {
-        DisplayUtils.waitForEnter();
+        waitForEnter();
+    }
+    
+    /**
+     * Wait for user to press Enter using the same Scanner instance
+     * Use this instead of DisplayUtils.waitForEnter() to avoid input conflicts
+     */
+    protected void waitForEnter() {
+        System.out.print("\nPress Enter to continue...");
+        scanner.nextLine();
     }
     
     /**

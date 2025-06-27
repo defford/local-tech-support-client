@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
+import java.time.LocalDateTime;
 
 /**
  * Service layer for API communication and business logic
@@ -911,4 +912,401 @@ public class ApiService implements AutoCloseable {
     }
 
     // ==================== END TICKET CRUD OPERATIONS ====================
+
+    // ==================== APPOINTMENT WRITE OPERATIONS ====================
+    
+    /**
+     * Create a new appointment
+     * 
+     * @param appointment the appointment to create
+     * @return the created appointment
+     * @throws ApiException if the API call fails
+     */
+    public Appointment createAppointment(Appointment appointment) throws ApiException {
+        logger.debug("Creating new appointment for ticket: {}", appointment.getTicketId());
+        
+        try {
+            // Create a request object with properly formatted ISO 8601 dates
+            // The server expects Instant objects, so we need to send timezone-aware timestamps
+            Map<String, Object> createRequest = new HashMap<>();
+            createRequest.put("ticketId", appointment.getTicketId());
+            createRequest.put("technicianId", appointment.getTechnicianId());
+            
+            // Convert LocalDateTime to ISO 8601 format with UTC timezone
+            // Format: 2025-06-27T14:30:00Z
+            String startTimeIso = appointment.getScheduledStartTime()
+                .atZone(java.time.ZoneId.systemDefault())
+                .withZoneSameInstant(java.time.ZoneOffset.UTC)
+                .format(java.time.format.DateTimeFormatter.ISO_INSTANT);
+            
+            String endTimeIso = appointment.getScheduledEndTime()
+                .atZone(java.time.ZoneId.systemDefault())
+                .withZoneSameInstant(java.time.ZoneOffset.UTC)
+                .format(java.time.format.DateTimeFormatter.ISO_INSTANT);
+            
+            // Server API uses "startTime" and "endTime" for both requests and responses
+            createRequest.put("startTime", startTimeIso);
+            createRequest.put("endTime", endTimeIso);
+            
+            if (appointment.getNotes() != null && !appointment.getNotes().trim().isEmpty()) {
+                createRequest.put("notes", appointment.getNotes().trim());
+            }
+            
+            logger.debug("Sending appointment request with ISO dates: start={}, end={}", startTimeIso, endTimeIso);
+            
+            ApiResponse<Appointment> response = apiClient.post(
+                "/api/appointments", 
+                createRequest,
+                Appointment.class
+            );
+            
+            Appointment createdAppointment = response.getData();
+            logger.info("Successfully created appointment with ID: {}", createdAppointment.getId());
+            
+            return createdAppointment;
+            
+        } catch (ApiException e) {
+            logger.error("Failed to create appointment: {}", e.getMessage());
+            throw e;
+        }
+    }
+    
+    /**
+     * Update an existing appointment
+     * 
+     * @param appointmentId the appointment ID to update
+     * @param appointment the updated appointment data
+     * @return the updated appointment
+     * @throws ApiException if the API call fails
+     */
+    public Appointment updateAppointment(Long appointmentId, Appointment appointment) throws ApiException {
+        logger.debug("Updating appointment ID: {}", appointmentId);
+        
+        try {
+            // Create a request object with properly formatted ISO 8601 dates
+            Map<String, Object> updateRequest = new HashMap<>();
+            updateRequest.put("ticketId", appointment.getTicketId());
+            updateRequest.put("technicianId", appointment.getTechnicianId());
+            
+            // Convert LocalDateTime to ISO 8601 format with UTC timezone
+            String startTimeIso = appointment.getScheduledStartTime()
+                .atZone(java.time.ZoneId.systemDefault())
+                .withZoneSameInstant(java.time.ZoneOffset.UTC)
+                .format(java.time.format.DateTimeFormatter.ISO_INSTANT);
+            
+            String endTimeIso = appointment.getScheduledEndTime()
+                .atZone(java.time.ZoneId.systemDefault())
+                .withZoneSameInstant(java.time.ZoneOffset.UTC)
+                .format(java.time.format.DateTimeFormatter.ISO_INSTANT);
+            
+            // Server API uses "startTime" and "endTime" for both requests and responses
+            updateRequest.put("startTime", startTimeIso);
+            updateRequest.put("endTime", endTimeIso);
+            
+            if (appointment.getNotes() != null && !appointment.getNotes().trim().isEmpty()) {
+                updateRequest.put("notes", appointment.getNotes().trim());
+            }
+            
+            logger.debug("Sending appointment update with ISO dates: start={}, end={}", startTimeIso, endTimeIso);
+            
+            ApiResponse<Appointment> response = apiClient.put(
+                "/api/appointments/" + appointmentId, 
+                updateRequest,
+                Appointment.class
+            );
+            
+            Appointment updatedAppointment = response.getData();
+            logger.info("Successfully updated appointment ID: {}", appointmentId);
+            
+            return updatedAppointment;
+            
+        } catch (ApiException e) {
+            logger.error("Failed to update appointment {}: {}", appointmentId, e.getMessage());
+            throw e;
+        }
+    }
+    
+    /**
+     * Delete an appointment by ID
+     * 
+     * @param appointmentId the appointment ID to delete
+     * @throws ApiException if the API call fails
+     */
+    public void deleteAppointment(Long appointmentId) throws ApiException {
+        logger.debug("Deleting appointment ID: {}", appointmentId);
+        
+        try {
+            apiClient.delete("/api/appointments/" + appointmentId);
+            logger.info("Successfully deleted appointment ID: {}", appointmentId);
+            
+        } catch (ApiException e) {
+            logger.error("Failed to delete appointment {}: {}", appointmentId, e.getMessage());
+            throw e;
+        }
+    }
+    
+    /**
+     * Update appointment status directly
+     * 
+     * @param appointmentId the appointment ID
+     * @param status the new status (PENDING, CONFIRMED, IN_PROGRESS, COMPLETED, CANCELLED, NO_SHOW)
+     * @return the updated appointment
+     * @throws ApiException if the API call fails
+     */
+    public Appointment updateAppointmentStatus(Long appointmentId, String status) throws ApiException {
+        logger.debug("Updating appointment {} status to: {}", appointmentId, status);
+        
+        try {
+            ApiResponse<Appointment> response = apiClient.put(
+                "/api/appointments/" + appointmentId + "/status", 
+                Map.of("status", status),
+                Appointment.class
+            );
+            
+            Appointment updatedAppointment = response.getData();
+            logger.info("Successfully updated appointment {} status to: {}", appointmentId, status);
+            
+            return updatedAppointment;
+            
+        } catch (ApiException e) {
+            logger.error("Failed to update appointment {} status: {}", appointmentId, e.getMessage());
+            throw e;
+        }
+    }
+    
+    /**
+     * Confirm a pending appointment
+     * 
+     * @param appointmentId the appointment ID to confirm
+     * @return the confirmed appointment
+     * @throws ApiException if the API call fails
+     */
+    public Appointment confirmAppointment(Long appointmentId) throws ApiException {
+        logger.debug("Confirming appointment ID: {}", appointmentId);
+        
+        try {
+            ApiResponse<Appointment> response = apiClient.post(
+                "/api/appointments/" + appointmentId + "/confirm", 
+                null,
+                Appointment.class
+            );
+            
+            Appointment confirmedAppointment = response.getData();
+            logger.info("Successfully confirmed appointment ID: {}", appointmentId);
+            
+            return confirmedAppointment;
+            
+        } catch (ApiException e) {
+            logger.error("Failed to confirm appointment {}: {}", appointmentId, e.getMessage());
+            throw e;
+        }
+    }
+    
+    /**
+     * Start an appointment (change status to IN_PROGRESS)
+     * 
+     * @param appointmentId the appointment ID to start
+     * @return the updated appointment
+     * @throws ApiException if the API call fails
+     */
+    public Appointment startAppointment(Long appointmentId) throws ApiException {
+        logger.debug("Starting appointment ID: {}", appointmentId);
+        
+        try {
+            ApiResponse<Appointment> response = apiClient.post(
+                "/api/appointments/" + appointmentId + "/start", 
+                null,
+                Appointment.class
+            );
+            
+            Appointment startedAppointment = response.getData();
+            logger.info("Successfully started appointment ID: {}", appointmentId);
+            
+            return startedAppointment;
+            
+        } catch (ApiException e) {
+            logger.error("Failed to start appointment {}: {}", appointmentId, e.getMessage());
+            throw e;
+        }
+    }
+    
+    /**
+     * Complete an appointment
+     * 
+     * @param appointmentId the appointment ID to complete
+     * @param notes optional completion notes
+     * @return the completed appointment
+     * @throws ApiException if the API call fails
+     */
+    public Appointment completeAppointment(Long appointmentId, String notes) throws ApiException {
+        logger.debug("Completing appointment ID: {}", appointmentId);
+        
+        try {
+            Map<String, Object> requestData = new HashMap<>();
+            if (notes != null && !notes.trim().isEmpty()) {
+                requestData.put("notes", notes.trim());
+            }
+            
+            ApiResponse<Appointment> response = apiClient.post(
+                "/api/appointments/" + appointmentId + "/complete", 
+                requestData.isEmpty() ? null : requestData,
+                Appointment.class
+            );
+            
+            Appointment completedAppointment = response.getData();
+            logger.info("Successfully completed appointment ID: {}", appointmentId);
+            
+            return completedAppointment;
+            
+        } catch (ApiException e) {
+            logger.error("Failed to complete appointment {}: {}", appointmentId, e.getMessage());
+            throw e;
+        }
+    }
+    
+    /**
+     * Cancel an appointment
+     * 
+     * @param appointmentId the appointment ID to cancel
+     * @param reason cancellation reason
+     * @return the cancelled appointment
+     * @throws ApiException if the API call fails
+     */
+    public Appointment cancelAppointment(Long appointmentId, String reason) throws ApiException {
+        logger.debug("Cancelling appointment ID: {}", appointmentId);
+        
+        try {
+            Map<String, String> requestData = new HashMap<>();
+            requestData.put("reason", reason != null ? reason : "No reason provided");
+            
+            ApiResponse<Appointment> response = apiClient.post(
+                "/api/appointments/" + appointmentId + "/cancel", 
+                requestData,
+                Appointment.class
+            );
+            
+            Appointment cancelledAppointment = response.getData();
+            logger.info("Successfully cancelled appointment ID: {}", appointmentId);
+            
+            return cancelledAppointment;
+            
+        } catch (ApiException e) {
+            logger.error("Failed to cancel appointment {}: {}", appointmentId, e.getMessage());
+            throw e;
+        }
+    }
+    
+    /**
+     * Mark an appointment as no-show
+     * 
+     * @param appointmentId the appointment ID to mark as no-show
+     * @param notes optional notes about the no-show
+     * @return the updated appointment
+     * @throws ApiException if the API call fails
+     */
+    public Appointment markAppointmentNoShow(Long appointmentId, String notes) throws ApiException {
+        logger.debug("Marking appointment {} as no-show", appointmentId);
+        
+        try {
+            Map<String, Object> requestData = new HashMap<>();
+            if (notes != null && !notes.trim().isEmpty()) {
+                requestData.put("notes", notes.trim());
+            }
+            
+            ApiResponse<Appointment> response = apiClient.post(
+                "/api/appointments/" + appointmentId + "/no-show", 
+                requestData.isEmpty() ? null : requestData,
+                Appointment.class
+            );
+            
+            Appointment noShowAppointment = response.getData();
+            logger.info("Successfully marked appointment {} as no-show", appointmentId);
+            
+            return noShowAppointment;
+            
+        } catch (ApiException e) {
+            logger.error("Failed to mark appointment {} as no-show: {}", appointmentId, e.getMessage());
+            throw e;
+        }
+    }
+    
+    /**
+     * Check technician availability for a time slot
+     * 
+     * @param technicianId the technician ID
+     * @param startTime proposed start time
+     * @param endTime proposed end time
+     * @return true if technician is available, false if conflicts exist
+     * @throws ApiException if the API call fails
+     */
+    public boolean checkTechnicianAvailability(Long technicianId, LocalDateTime startTime, LocalDateTime endTime) throws ApiException {
+        logger.debug("Checking availability for technician {} from {} to {}", technicianId, startTime, endTime);
+        
+        try {
+            // Convert LocalDateTime to ISO 8601 format with UTC timezone for query parameters
+            String startTimeIso = startTime
+                .atZone(java.time.ZoneId.systemDefault())
+                .withZoneSameInstant(java.time.ZoneOffset.UTC)
+                .format(java.time.format.DateTimeFormatter.ISO_INSTANT);
+            
+            String endTimeIso = endTime
+                .atZone(java.time.ZoneId.systemDefault())
+                .withZoneSameInstant(java.time.ZoneOffset.UTC)
+                .format(java.time.format.DateTimeFormatter.ISO_INSTANT);
+            
+            // URL encode the ISO timestamps for query parameters
+            String queryParams = String.format("?technicianId=%d&startTime=%s&endTime=%s", 
+                technicianId, 
+                java.net.URLEncoder.encode(startTimeIso, "UTF-8"), 
+                java.net.URLEncoder.encode(endTimeIso, "UTF-8"));
+                
+            logger.debug("Checking availability with ISO dates: start={}, end={}", startTimeIso, endTimeIso);
+                
+            ApiResponse<Boolean> response = apiClient.get(
+                "/api/appointments/availability" + queryParams, 
+                Boolean.class
+            );
+            
+            boolean isAvailable = response.getData();
+            
+            logger.info("Technician {} availability check: {}", technicianId, isAvailable ? "Available" : "Conflicts exist");
+            
+            return isAvailable;
+            
+        } catch (ApiException e) {
+            logger.error("Failed to check technician {} availability: {}", technicianId, e.getMessage());
+            throw e;
+        } catch (java.io.UnsupportedEncodingException e) {
+            logger.error("Failed to encode date parameters for availability check", e);
+            throw new ApiException("Failed to format date parameters", e);
+        }
+    }
+    
+    /**
+     * Get upcoming appointments within a time range
+     * 
+     * @param daysAhead number of days to look ahead (default: 7)
+     * @return list of upcoming appointments
+     * @throws ApiException if the API call fails
+     */
+    public List<Appointment> getUpcomingAppointments(int daysAhead) throws ApiException {
+        logger.debug("Fetching upcoming appointments for {} days ahead", daysAhead);
+        
+        try {
+            // Server returns a plain array of appointments, not a PagedResponse
+            ApiResponse<List<Appointment>> response = apiClient.get(
+                "/api/appointments/upcoming?days=" + daysAhead, 
+                new TypeReference<List<Appointment>>() {}
+            );
+            
+            List<Appointment> appointments = response.getData();
+            logger.info("Successfully fetched {} upcoming appointments", appointments.size());
+            
+            return appointments;
+            
+        } catch (ApiException e) {
+            logger.error("Failed to fetch upcoming appointments: {}", e.getMessage());
+            throw e;
+        }
+    }
 } 

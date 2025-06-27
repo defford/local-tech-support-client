@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
+import java.time.LocalDateTime;
 
 /**
  * Service layer for API communication and business logic
@@ -23,19 +24,19 @@ import java.util.HashMap;
  */
 public class ApiService implements AutoCloseable {
 
-<span class="nc" id="L26">    private static final Logger logger = LoggerFactory.getLogger(ApiService.class);</span>
+<span class="nc" id="L27">    private static final Logger logger = LoggerFactory.getLogger(ApiService.class);</span>
 
     private final TechSupportApiClient apiClient;
 
-<span class="nc" id="L30">    public ApiService(String baseUrl) {</span>
-<span class="nc" id="L31">        this.apiClient = new TechSupportApiClient(baseUrl);</span>
-<span class="nc" id="L32">        logger.info(&quot;ApiService initialized with base URL: {}&quot;, baseUrl);</span>
-<span class="nc" id="L33">    }</span>
+<span class="nc" id="L31">    public ApiService(String baseUrl) {</span>
+<span class="nc" id="L32">        this.apiClient = new TechSupportApiClient(baseUrl);</span>
+<span class="nc" id="L33">        logger.info(&quot;ApiService initialized with base URL: {}&quot;, baseUrl);</span>
+<span class="nc" id="L34">    }</span>
 
-<span class="nc" id="L35">    public ApiService(TechSupportApiClient apiClient) {</span>
-<span class="nc" id="L36">        this.apiClient = apiClient;</span>
-<span class="nc" id="L37">        logger.info(&quot;ApiService initialized with custom API client&quot;);</span>
-<span class="nc" id="L38">    }</span>
+<span class="nc" id="L36">    public ApiService(TechSupportApiClient apiClient) {</span>
+<span class="nc" id="L37">        this.apiClient = apiClient;</span>
+<span class="nc" id="L38">        logger.info(&quot;ApiService initialized with custom API client&quot;);</span>
+<span class="nc" id="L39">    }</span>
 
     /**
      * Test connection to the API server
@@ -43,8 +44,8 @@ public class ApiService implements AutoCloseable {
      * @return true if connection is successful, false otherwise
      */
     public boolean testConnection() {
-<span class="nc" id="L46">        logger.debug(&quot;Testing API connection&quot;);</span>
-<span class="nc" id="L47">        return apiClient.testConnection();</span>
+<span class="nc" id="L47">        logger.debug(&quot;Testing API connection&quot;);</span>
+<span class="nc" id="L48">        return apiClient.testConnection();</span>
     }
 
     /**
@@ -53,16 +54,16 @@ public class ApiService implements AutoCloseable {
      * @return the base URL
      */
     public String getBaseUrl() {
-<span class="nc" id="L56">        return apiClient.getBaseUrl();</span>
+<span class="nc" id="L57">        return apiClient.getBaseUrl();</span>
     }
 
     /**
      * Close the API service and release resources
      */
     public void close() {
-<span class="nc" id="L63">        logger.info(&quot;Closing API service&quot;);</span>
-<span class="nc" id="L64">        apiClient.close();</span>
-<span class="nc" id="L65">    }</span>
+<span class="nc" id="L64">        logger.info(&quot;Closing API service&quot;);</span>
+<span class="nc" id="L65">        apiClient.close();</span>
+<span class="nc" id="L66">    }</span>
 
     /**
      * Get all clients from the API
@@ -71,22 +72,22 @@ public class ApiService implements AutoCloseable {
      * @throws ApiException if the API call fails
      */
     public List&lt;Client&gt; getAllClients() throws ApiException {
-<span class="nc" id="L74">        logger.debug(&quot;Fetching all clients&quot;);</span>
+<span class="nc" id="L75">        logger.debug(&quot;Fetching all clients&quot;);</span>
         
         try {
-<span class="nc" id="L77">            ApiResponse&lt;PagedResponse&lt;Client&gt;&gt; response = apiClient.get(</span>
-<span class="nc" id="L78">                &quot;/api/clients&quot;, </span>
-<span class="nc" id="L79">                new TypeReference&lt;PagedResponse&lt;Client&gt;&gt;() {}</span>
+<span class="nc" id="L78">            ApiResponse&lt;PagedResponse&lt;Client&gt;&gt; response = apiClient.get(</span>
+                &quot;/api/clients&quot;, 
+<span class="nc" id="L80">                new TypeReference&lt;PagedResponse&lt;Client&gt;&gt;() {}</span>
             );
             
-<span class="nc" id="L82">            List&lt;Client&gt; clients = response.getData().getContent();</span>
-<span class="nc" id="L83">            logger.info(&quot;Successfully fetched {} clients&quot;, clients.size());</span>
+<span class="nc" id="L83">            List&lt;Client&gt; clients = response.getData().getContent();</span>
+<span class="nc" id="L84">            logger.info(&quot;Successfully fetched {} clients&quot;, clients.size());</span>
             
-<span class="nc" id="L85">            return clients;</span>
+<span class="nc" id="L86">            return clients;</span>
             
-<span class="nc" id="L87">        } catch (ApiException e) {</span>
-<span class="nc" id="L88">            logger.error(&quot;Failed to fetch clients: {}&quot;, e.getMessage());</span>
-<span class="nc" id="L89">            throw e;</span>
+<span class="nc" id="L88">        } catch (ApiException e) {</span>
+<span class="nc" id="L89">            logger.error(&quot;Failed to fetch clients: {}&quot;, e.getMessage());</span>
+<span class="nc" id="L90">            throw e;</span>
         }
     }
 
@@ -98,22 +99,22 @@ public class ApiService implements AutoCloseable {
      * @throws ApiException if the API call fails
      */
     public Client getClientById(Long clientId) throws ApiException {
-<span class="nc" id="L101">        logger.debug(&quot;Fetching client with ID: {}&quot;, clientId);</span>
+<span class="nc" id="L102">        logger.debug(&quot;Fetching client with ID: {}&quot;, clientId);</span>
         
         try {
-<span class="nc" id="L104">            ApiResponse&lt;Client&gt; response = apiClient.get(</span>
-<span class="nc" id="L105">                &quot;/api/clients/&quot; + clientId, </span>
-<span class="nc" id="L106">                Client.class</span>
+<span class="nc" id="L105">            ApiResponse&lt;Client&gt; response = apiClient.get(</span>
+                &quot;/api/clients/&quot; + clientId, 
+                Client.class
             );
             
-<span class="nc" id="L109">            Client client = response.getData();</span>
-<span class="nc" id="L110">            logger.info(&quot;Successfully fetched client: {}&quot;, client.getId());</span>
+<span class="nc" id="L110">            Client client = response.getData();</span>
+<span class="nc" id="L111">            logger.info(&quot;Successfully fetched client: {}&quot;, client.getId());</span>
             
-<span class="nc" id="L112">            return client;</span>
+<span class="nc" id="L113">            return client;</span>
             
-<span class="nc" id="L114">        } catch (ApiException e) {</span>
-<span class="nc" id="L115">            logger.error(&quot;Failed to fetch client {}: {}&quot;, clientId, e.getMessage());</span>
-<span class="nc" id="L116">            throw e;</span>
+<span class="nc" id="L115">        } catch (ApiException e) {</span>
+<span class="nc" id="L116">            logger.error(&quot;Failed to fetch client {}: {}&quot;, clientId, e.getMessage());</span>
+<span class="nc" id="L117">            throw e;</span>
         }
     }
 
@@ -125,22 +126,22 @@ public class ApiService implements AutoCloseable {
      * @throws ApiException if the API call fails
      */
     public List&lt;Ticket&gt; getTicketsByClient(Long clientId) throws ApiException {
-<span class="nc" id="L128">        logger.debug(&quot;Fetching tickets for client: {}&quot;, clientId);</span>
+<span class="nc" id="L129">        logger.debug(&quot;Fetching tickets for client: {}&quot;, clientId);</span>
         
         try {
-<span class="nc" id="L131">            ApiResponse&lt;PagedResponse&lt;Ticket&gt;&gt; response = apiClient.get(</span>
-<span class="nc" id="L132">                &quot;/api/tickets?clientId=&quot; + clientId, </span>
-<span class="nc" id="L133">                new TypeReference&lt;PagedResponse&lt;Ticket&gt;&gt;() {}</span>
+<span class="nc" id="L132">            ApiResponse&lt;PagedResponse&lt;Ticket&gt;&gt; response = apiClient.get(</span>
+                &quot;/api/tickets?clientId=&quot; + clientId, 
+<span class="nc" id="L134">                new TypeReference&lt;PagedResponse&lt;Ticket&gt;&gt;() {}</span>
             );
             
-<span class="nc" id="L136">            List&lt;Ticket&gt; tickets = response.getData().getContent();</span>
-<span class="nc" id="L137">            logger.info(&quot;Successfully fetched {} tickets for client {}&quot;, tickets.size(), clientId);</span>
+<span class="nc" id="L137">            List&lt;Ticket&gt; tickets = response.getData().getContent();</span>
+<span class="nc" id="L138">            logger.info(&quot;Successfully fetched {} tickets for client {}&quot;, tickets.size(), clientId);</span>
             
-<span class="nc" id="L139">            return tickets;</span>
+<span class="nc" id="L140">            return tickets;</span>
             
-<span class="nc" id="L141">        } catch (ApiException e) {</span>
-<span class="nc" id="L142">            logger.error(&quot;Failed to fetch tickets for client {}: {}&quot;, clientId, e.getMessage());</span>
-<span class="nc" id="L143">            throw e;</span>
+<span class="nc" id="L142">        } catch (ApiException e) {</span>
+<span class="nc" id="L143">            logger.error(&quot;Failed to fetch tickets for client {}: {}&quot;, clientId, e.getMessage());</span>
+<span class="nc" id="L144">            throw e;</span>
         }
     }
 
@@ -151,22 +152,22 @@ public class ApiService implements AutoCloseable {
      * @throws ApiException if the API call fails
      */
     public List&lt;Technician&gt; getAllTechnicians() throws ApiException {
-<span class="nc" id="L154">        logger.debug(&quot;Fetching all technicians&quot;);</span>
+<span class="nc" id="L155">        logger.debug(&quot;Fetching all technicians&quot;);</span>
         
         try {
-<span class="nc" id="L157">            ApiResponse&lt;PagedResponse&lt;Technician&gt;&gt; response = apiClient.get(</span>
-<span class="nc" id="L158">                &quot;/api/technicians&quot;, </span>
-<span class="nc" id="L159">                new TypeReference&lt;PagedResponse&lt;Technician&gt;&gt;() {}</span>
+<span class="nc" id="L158">            ApiResponse&lt;PagedResponse&lt;Technician&gt;&gt; response = apiClient.get(</span>
+                &quot;/api/technicians&quot;, 
+<span class="nc" id="L160">                new TypeReference&lt;PagedResponse&lt;Technician&gt;&gt;() {}</span>
             );
             
-<span class="nc" id="L162">            List&lt;Technician&gt; technicians = response.getData().getContent();</span>
-<span class="nc" id="L163">            logger.info(&quot;Successfully fetched {} technicians&quot;, technicians.size());</span>
+<span class="nc" id="L163">            List&lt;Technician&gt; technicians = response.getData().getContent();</span>
+<span class="nc" id="L164">            logger.info(&quot;Successfully fetched {} technicians&quot;, technicians.size());</span>
             
-<span class="nc" id="L165">            return technicians;</span>
+<span class="nc" id="L166">            return technicians;</span>
             
-<span class="nc" id="L167">        } catch (ApiException e) {</span>
-<span class="nc" id="L168">            logger.error(&quot;Failed to fetch technicians: {}&quot;, e.getMessage());</span>
-<span class="nc" id="L169">            throw e;</span>
+<span class="nc" id="L168">        } catch (ApiException e) {</span>
+<span class="nc" id="L169">            logger.error(&quot;Failed to fetch technicians: {}&quot;, e.getMessage());</span>
+<span class="nc" id="L170">            throw e;</span>
         }
     }
 
@@ -178,22 +179,22 @@ public class ApiService implements AutoCloseable {
      * @throws ApiException if the API call fails
      */
     public List&lt;Ticket&gt; getTicketsByTechnician(Long technicianId) throws ApiException {
-<span class="nc" id="L181">        logger.debug(&quot;Fetching tickets for technician: {}&quot;, technicianId);</span>
+<span class="nc" id="L182">        logger.debug(&quot;Fetching tickets for technician: {}&quot;, technicianId);</span>
         
         try {
-<span class="nc" id="L184">            ApiResponse&lt;PagedResponse&lt;Ticket&gt;&gt; response = apiClient.get(</span>
-<span class="nc" id="L185">                &quot;/api/tickets?technicianId=&quot; + technicianId, </span>
-<span class="nc" id="L186">                new TypeReference&lt;PagedResponse&lt;Ticket&gt;&gt;() {}</span>
+<span class="nc" id="L185">            ApiResponse&lt;PagedResponse&lt;Ticket&gt;&gt; response = apiClient.get(</span>
+                &quot;/api/tickets?technicianId=&quot; + technicianId, 
+<span class="nc" id="L187">                new TypeReference&lt;PagedResponse&lt;Ticket&gt;&gt;() {}</span>
             );
             
-<span class="nc" id="L189">            List&lt;Ticket&gt; tickets = response.getData().getContent();</span>
-<span class="nc" id="L190">            logger.info(&quot;Successfully fetched {} tickets for technician {}&quot;, tickets.size(), technicianId);</span>
+<span class="nc" id="L190">            List&lt;Ticket&gt; tickets = response.getData().getContent();</span>
+<span class="nc" id="L191">            logger.info(&quot;Successfully fetched {} tickets for technician {}&quot;, tickets.size(), technicianId);</span>
             
-<span class="nc" id="L192">            return tickets;</span>
+<span class="nc" id="L193">            return tickets;</span>
             
-<span class="nc" id="L194">        } catch (ApiException e) {</span>
-<span class="nc" id="L195">            logger.error(&quot;Failed to fetch tickets for technician {}: {}&quot;, technicianId, e.getMessage());</span>
-<span class="nc" id="L196">            throw e;</span>
+<span class="nc" id="L195">        } catch (ApiException e) {</span>
+<span class="nc" id="L196">            logger.error(&quot;Failed to fetch tickets for technician {}: {}&quot;, technicianId, e.getMessage());</span>
+<span class="nc" id="L197">            throw e;</span>
         }
     }
 
@@ -205,23 +206,23 @@ public class ApiService implements AutoCloseable {
      * @throws ApiException if the API call fails
      */
     public List&lt;Technician&gt; getAvailableTechniciansByServiceType(String serviceType) throws ApiException {
-<span class="nc" id="L208">        logger.debug(&quot;Fetching available technicians for service type: {}&quot;, serviceType);</span>
+<span class="nc" id="L209">        logger.debug(&quot;Fetching available technicians for service type: {}&quot;, serviceType);</span>
         
         try {
             // Note: /api/technicians/available?serviceType=X returns a plain array, not a PagedResponse
-<span class="nc" id="L212">            ApiResponse&lt;List&lt;Technician&gt;&gt; response = apiClient.get(</span>
-<span class="nc" id="L213">                &quot;/api/technicians/available?serviceType=&quot; + serviceType, </span>
-<span class="nc" id="L214">                new TypeReference&lt;List&lt;Technician&gt;&gt;() {}</span>
+<span class="nc" id="L213">            ApiResponse&lt;List&lt;Technician&gt;&gt; response = apiClient.get(</span>
+                &quot;/api/technicians/available?serviceType=&quot; + serviceType, 
+<span class="nc" id="L215">                new TypeReference&lt;List&lt;Technician&gt;&gt;() {}</span>
             );
             
-<span class="nc" id="L217">            List&lt;Technician&gt; technicians = response.getData();</span>
-<span class="nc" id="L218">            logger.info(&quot;Successfully fetched {} available technicians for {}&quot;, technicians.size(), serviceType);</span>
+<span class="nc" id="L218">            List&lt;Technician&gt; technicians = response.getData();</span>
+<span class="nc" id="L219">            logger.info(&quot;Successfully fetched {} available technicians for {}&quot;, technicians.size(), serviceType);</span>
             
-<span class="nc" id="L220">            return technicians;</span>
+<span class="nc" id="L221">            return technicians;</span>
             
-<span class="nc" id="L222">        } catch (ApiException e) {</span>
-<span class="nc" id="L223">            logger.error(&quot;Failed to fetch available technicians for {}: {}&quot;, serviceType, e.getMessage());</span>
-<span class="nc" id="L224">            throw e;</span>
+<span class="nc" id="L223">        } catch (ApiException e) {</span>
+<span class="nc" id="L224">            logger.error(&quot;Failed to fetch available technicians for {}: {}&quot;, serviceType, e.getMessage());</span>
+<span class="nc" id="L225">            throw e;</span>
         }
     }
 
@@ -232,23 +233,23 @@ public class ApiService implements AutoCloseable {
      * @throws ApiException if the API call fails
      */
     public List&lt;Technician&gt; getAvailableTechnicians() throws ApiException {
-<span class="nc" id="L235">        logger.debug(&quot;Fetching all available technicians&quot;);</span>
+<span class="nc" id="L236">        logger.debug(&quot;Fetching all available technicians&quot;);</span>
         
         try {
             // Note: /api/technicians/available returns a plain array, not a PagedResponse
-<span class="nc" id="L239">            ApiResponse&lt;List&lt;Technician&gt;&gt; response = apiClient.get(</span>
-<span class="nc" id="L240">                &quot;/api/technicians/available&quot;, </span>
-<span class="nc" id="L241">                new TypeReference&lt;List&lt;Technician&gt;&gt;() {}</span>
+<span class="nc" id="L240">            ApiResponse&lt;List&lt;Technician&gt;&gt; response = apiClient.get(</span>
+                &quot;/api/technicians/available&quot;, 
+<span class="nc" id="L242">                new TypeReference&lt;List&lt;Technician&gt;&gt;() {}</span>
             );
             
-<span class="nc" id="L244">            List&lt;Technician&gt; technicians = response.getData();</span>
-<span class="nc" id="L245">            logger.info(&quot;Successfully fetched {} available technicians&quot;, technicians.size());</span>
+<span class="nc" id="L245">            List&lt;Technician&gt; technicians = response.getData();</span>
+<span class="nc" id="L246">            logger.info(&quot;Successfully fetched {} available technicians&quot;, technicians.size());</span>
             
-<span class="nc" id="L247">            return technicians;</span>
+<span class="nc" id="L248">            return technicians;</span>
             
-<span class="nc" id="L249">        } catch (ApiException e) {</span>
-<span class="nc" id="L250">            logger.error(&quot;Failed to fetch available technicians: {}&quot;, e.getMessage());</span>
-<span class="nc" id="L251">            throw e;</span>
+<span class="nc" id="L250">        } catch (ApiException e) {</span>
+<span class="nc" id="L251">            logger.error(&quot;Failed to fetch available technicians: {}&quot;, e.getMessage());</span>
+<span class="nc" id="L252">            throw e;</span>
         }
     }
 
@@ -259,23 +260,23 @@ public class ApiService implements AutoCloseable {
      * @throws ApiException if the API call fails
      */
     public List&lt;Ticket&gt; getOverdueTickets() throws ApiException {
-<span class="nc" id="L262">        logger.debug(&quot;Fetching overdue tickets&quot;);</span>
+<span class="nc" id="L263">        logger.debug(&quot;Fetching overdue tickets&quot;);</span>
         
         try {
             // Note: /api/tickets/overdue returns a plain array, not a PagedResponse
-<span class="nc" id="L266">            ApiResponse&lt;List&lt;Ticket&gt;&gt; response = apiClient.get(</span>
-<span class="nc" id="L267">                &quot;/api/tickets/overdue&quot;, </span>
-<span class="nc" id="L268">                new TypeReference&lt;List&lt;Ticket&gt;&gt;() {}</span>
+<span class="nc" id="L267">            ApiResponse&lt;List&lt;Ticket&gt;&gt; response = apiClient.get(</span>
+                &quot;/api/tickets/overdue&quot;, 
+<span class="nc" id="L269">                new TypeReference&lt;List&lt;Ticket&gt;&gt;() {}</span>
             );
             
-<span class="nc" id="L271">            List&lt;Ticket&gt; tickets = response.getData();</span>
-<span class="nc" id="L272">            logger.info(&quot;Successfully fetched {} overdue tickets&quot;, tickets.size());</span>
+<span class="nc" id="L272">            List&lt;Ticket&gt; tickets = response.getData();</span>
+<span class="nc" id="L273">            logger.info(&quot;Successfully fetched {} overdue tickets&quot;, tickets.size());</span>
             
-<span class="nc" id="L274">            return tickets;</span>
+<span class="nc" id="L275">            return tickets;</span>
             
-<span class="nc" id="L276">        } catch (ApiException e) {</span>
-<span class="nc" id="L277">            logger.error(&quot;Failed to fetch overdue tickets: {}&quot;, e.getMessage());</span>
-<span class="nc" id="L278">            throw e;</span>
+<span class="nc" id="L277">        } catch (ApiException e) {</span>
+<span class="nc" id="L278">            logger.error(&quot;Failed to fetch overdue tickets: {}&quot;, e.getMessage());</span>
+<span class="nc" id="L279">            throw e;</span>
         }
     }
 
@@ -287,22 +288,22 @@ public class ApiService implements AutoCloseable {
      * @throws ApiException if the API call fails
      */
     public List&lt;Appointment&gt; getAppointmentsByTechnician(Long technicianId) throws ApiException {
-<span class="nc" id="L290">        logger.debug(&quot;Fetching appointments for technician: {}&quot;, technicianId);</span>
+<span class="nc" id="L291">        logger.debug(&quot;Fetching appointments for technician: {}&quot;, technicianId);</span>
         
         try {
-<span class="nc" id="L293">            ApiResponse&lt;PagedResponse&lt;Appointment&gt;&gt; response = apiClient.get(</span>
-<span class="nc" id="L294">                &quot;/api/appointments?technicianId=&quot; + technicianId, </span>
-<span class="nc" id="L295">                new TypeReference&lt;PagedResponse&lt;Appointment&gt;&gt;() {}</span>
+<span class="nc" id="L294">            ApiResponse&lt;PagedResponse&lt;Appointment&gt;&gt; response = apiClient.get(</span>
+                &quot;/api/appointments?technicianId=&quot; + technicianId, 
+<span class="nc" id="L296">                new TypeReference&lt;PagedResponse&lt;Appointment&gt;&gt;() {}</span>
             );
             
-<span class="nc" id="L298">            List&lt;Appointment&gt; appointments = response.getData().getContent();</span>
-<span class="nc" id="L299">            logger.info(&quot;Successfully fetched {} appointments for technician {}&quot;, appointments.size(), technicianId);</span>
+<span class="nc" id="L299">            List&lt;Appointment&gt; appointments = response.getData().getContent();</span>
+<span class="nc" id="L300">            logger.info(&quot;Successfully fetched {} appointments for technician {}&quot;, appointments.size(), technicianId);</span>
             
-<span class="nc" id="L301">            return appointments;</span>
+<span class="nc" id="L302">            return appointments;</span>
             
-<span class="nc" id="L303">        } catch (ApiException e) {</span>
-<span class="nc" id="L304">            logger.error(&quot;Failed to fetch appointments for technician {}: {}&quot;, technicianId, e.getMessage());</span>
-<span class="nc" id="L305">            throw e;</span>
+<span class="nc" id="L304">        } catch (ApiException e) {</span>
+<span class="nc" id="L305">            logger.error(&quot;Failed to fetch appointments for technician {}: {}&quot;, technicianId, e.getMessage());</span>
+<span class="nc" id="L306">            throw e;</span>
         }
     }
 
@@ -313,22 +314,22 @@ public class ApiService implements AutoCloseable {
      * @throws ApiException if the API call fails
      */
     public List&lt;Ticket&gt; getAllTickets() throws ApiException {
-<span class="nc" id="L316">        logger.debug(&quot;Fetching all tickets&quot;);</span>
+<span class="nc" id="L317">        logger.debug(&quot;Fetching all tickets&quot;);</span>
         
         try {
-<span class="nc" id="L319">            ApiResponse&lt;PagedResponse&lt;Ticket&gt;&gt; response = apiClient.get(</span>
-<span class="nc" id="L320">                &quot;/api/tickets&quot;, </span>
-<span class="nc" id="L321">                new TypeReference&lt;PagedResponse&lt;Ticket&gt;&gt;() {}</span>
+<span class="nc" id="L320">            ApiResponse&lt;PagedResponse&lt;Ticket&gt;&gt; response = apiClient.get(</span>
+                &quot;/api/tickets&quot;, 
+<span class="nc" id="L322">                new TypeReference&lt;PagedResponse&lt;Ticket&gt;&gt;() {}</span>
             );
             
-<span class="nc" id="L324">            List&lt;Ticket&gt; tickets = response.getData().getContent();</span>
-<span class="nc" id="L325">            logger.info(&quot;Successfully fetched {} tickets&quot;, tickets.size());</span>
+<span class="nc" id="L325">            List&lt;Ticket&gt; tickets = response.getData().getContent();</span>
+<span class="nc" id="L326">            logger.info(&quot;Successfully fetched {} tickets&quot;, tickets.size());</span>
             
-<span class="nc" id="L327">            return tickets;</span>
+<span class="nc" id="L328">            return tickets;</span>
             
-<span class="nc" id="L329">        } catch (ApiException e) {</span>
-<span class="nc" id="L330">            logger.error(&quot;Failed to fetch tickets: {}&quot;, e.getMessage());</span>
-<span class="nc" id="L331">            throw e;</span>
+<span class="nc" id="L330">        } catch (ApiException e) {</span>
+<span class="nc" id="L331">            logger.error(&quot;Failed to fetch tickets: {}&quot;, e.getMessage());</span>
+<span class="nc" id="L332">            throw e;</span>
         }
     }
 
@@ -340,22 +341,22 @@ public class ApiService implements AutoCloseable {
      * @throws ApiException if the API call fails
      */
     public Ticket getTicketById(Long ticketId) throws ApiException {
-<span class="nc" id="L343">        logger.debug(&quot;Fetching ticket with ID: {}&quot;, ticketId);</span>
+<span class="nc" id="L344">        logger.debug(&quot;Fetching ticket with ID: {}&quot;, ticketId);</span>
         
         try {
-<span class="nc" id="L346">            ApiResponse&lt;Ticket&gt; response = apiClient.get(</span>
-<span class="nc" id="L347">                &quot;/api/tickets/&quot; + ticketId, </span>
-<span class="nc" id="L348">                Ticket.class</span>
+<span class="nc" id="L347">            ApiResponse&lt;Ticket&gt; response = apiClient.get(</span>
+                &quot;/api/tickets/&quot; + ticketId, 
+                Ticket.class
             );
             
-<span class="nc" id="L351">            Ticket ticket = response.getData();</span>
-<span class="nc" id="L352">            logger.info(&quot;Successfully fetched ticket: {}&quot;, ticket.getId());</span>
+<span class="nc" id="L352">            Ticket ticket = response.getData();</span>
+<span class="nc" id="L353">            logger.info(&quot;Successfully fetched ticket: {}&quot;, ticket.getId());</span>
             
-<span class="nc" id="L354">            return ticket;</span>
+<span class="nc" id="L355">            return ticket;</span>
             
-<span class="nc" id="L356">        } catch (ApiException e) {</span>
-<span class="nc" id="L357">            logger.error(&quot;Failed to fetch ticket {}: {}&quot;, ticketId, e.getMessage());</span>
-<span class="nc" id="L358">            throw e;</span>
+<span class="nc" id="L357">        } catch (ApiException e) {</span>
+<span class="nc" id="L358">            logger.error(&quot;Failed to fetch ticket {}: {}&quot;, ticketId, e.getMessage());</span>
+<span class="nc" id="L359">            throw e;</span>
         }
     }
 
@@ -366,22 +367,22 @@ public class ApiService implements AutoCloseable {
      * @throws ApiException if the API call fails
      */
     public List&lt;Appointment&gt; getAllAppointments() throws ApiException {
-<span class="nc" id="L369">        logger.debug(&quot;Fetching all appointments&quot;);</span>
+<span class="nc" id="L370">        logger.debug(&quot;Fetching all appointments&quot;);</span>
         
         try {
-<span class="nc" id="L372">            ApiResponse&lt;PagedResponse&lt;Appointment&gt;&gt; response = apiClient.get(</span>
-<span class="nc" id="L373">                &quot;/api/appointments&quot;, </span>
-<span class="nc" id="L374">                new TypeReference&lt;PagedResponse&lt;Appointment&gt;&gt;() {}</span>
+<span class="nc" id="L373">            ApiResponse&lt;PagedResponse&lt;Appointment&gt;&gt; response = apiClient.get(</span>
+                &quot;/api/appointments&quot;, 
+<span class="nc" id="L375">                new TypeReference&lt;PagedResponse&lt;Appointment&gt;&gt;() {}</span>
             );
             
-<span class="nc" id="L377">            List&lt;Appointment&gt; appointments = response.getData().getContent();</span>
-<span class="nc" id="L378">            logger.info(&quot;Successfully fetched {} appointments&quot;, appointments.size());</span>
+<span class="nc" id="L378">            List&lt;Appointment&gt; appointments = response.getData().getContent();</span>
+<span class="nc" id="L379">            logger.info(&quot;Successfully fetched {} appointments&quot;, appointments.size());</span>
             
-<span class="nc" id="L380">            return appointments;</span>
+<span class="nc" id="L381">            return appointments;</span>
             
-<span class="nc" id="L382">        } catch (ApiException e) {</span>
-<span class="nc" id="L383">            logger.error(&quot;Failed to fetch appointments: {}&quot;, e.getMessage());</span>
-<span class="nc" id="L384">            throw e;</span>
+<span class="nc" id="L383">        } catch (ApiException e) {</span>
+<span class="nc" id="L384">            logger.error(&quot;Failed to fetch appointments: {}&quot;, e.getMessage());</span>
+<span class="nc" id="L385">            throw e;</span>
         }
     }
 
@@ -395,23 +396,23 @@ public class ApiService implements AutoCloseable {
      * @throws ApiException if the API call fails
      */
     public Client createClient(Client client) throws ApiException {
-<span class="nc" id="L398">        logger.debug(&quot;Creating new client: {} {}&quot;, client.getFirstName(), client.getLastName());</span>
+<span class="nc" id="L399">        logger.debug(&quot;Creating new client: {} {}&quot;, client.getFirstName(), client.getLastName());</span>
         
         try {
-<span class="nc" id="L401">            ApiResponse&lt;Client&gt; response = apiClient.post(</span>
-<span class="nc" id="L402">                &quot;/api/clients&quot;, </span>
-<span class="nc" id="L403">                client, </span>
-<span class="nc" id="L404">                Client.class</span>
+<span class="nc" id="L402">            ApiResponse&lt;Client&gt; response = apiClient.post(</span>
+                &quot;/api/clients&quot;, 
+                client, 
+                Client.class
             );
             
-<span class="nc" id="L407">            Client createdClient = response.getData();</span>
-<span class="nc" id="L408">            logger.info(&quot;Successfully created client with ID: {}&quot;, createdClient.getId());</span>
+<span class="nc" id="L408">            Client createdClient = response.getData();</span>
+<span class="nc" id="L409">            logger.info(&quot;Successfully created client with ID: {}&quot;, createdClient.getId());</span>
             
-<span class="nc" id="L410">            return createdClient;</span>
+<span class="nc" id="L411">            return createdClient;</span>
             
-<span class="nc" id="L412">        } catch (ApiException e) {</span>
-<span class="nc" id="L413">            logger.error(&quot;Failed to create client: {}&quot;, e.getMessage());</span>
-<span class="nc" id="L414">            throw e;</span>
+<span class="nc" id="L413">        } catch (ApiException e) {</span>
+<span class="nc" id="L414">            logger.error(&quot;Failed to create client: {}&quot;, e.getMessage());</span>
+<span class="nc" id="L415">            throw e;</span>
         }
     }
 
@@ -424,23 +425,23 @@ public class ApiService implements AutoCloseable {
      * @throws ApiException if the API call fails
      */
     public Client updateClient(Long clientId, Client client) throws ApiException {
-<span class="nc" id="L427">        logger.debug(&quot;Updating client ID: {}&quot;, clientId);</span>
+<span class="nc" id="L428">        logger.debug(&quot;Updating client ID: {}&quot;, clientId);</span>
         
         try {
-<span class="nc" id="L430">            ApiResponse&lt;Client&gt; response = apiClient.put(</span>
-<span class="nc" id="L431">                &quot;/api/clients/&quot; + clientId, </span>
-<span class="nc" id="L432">                client, </span>
-<span class="nc" id="L433">                Client.class</span>
+<span class="nc" id="L431">            ApiResponse&lt;Client&gt; response = apiClient.put(</span>
+                &quot;/api/clients/&quot; + clientId, 
+                client, 
+                Client.class
             );
             
-<span class="nc" id="L436">            Client updatedClient = response.getData();</span>
-<span class="nc" id="L437">            logger.info(&quot;Successfully updated client ID: {}&quot;, clientId);</span>
+<span class="nc" id="L437">            Client updatedClient = response.getData();</span>
+<span class="nc" id="L438">            logger.info(&quot;Successfully updated client ID: {}&quot;, clientId);</span>
             
-<span class="nc" id="L439">            return updatedClient;</span>
+<span class="nc" id="L440">            return updatedClient;</span>
             
-<span class="nc" id="L441">        } catch (ApiException e) {</span>
-<span class="nc" id="L442">            logger.error(&quot;Failed to update client {}: {}&quot;, clientId, e.getMessage());</span>
-<span class="nc" id="L443">            throw e;</span>
+<span class="nc" id="L442">        } catch (ApiException e) {</span>
+<span class="nc" id="L443">            logger.error(&quot;Failed to update client {}: {}&quot;, clientId, e.getMessage());</span>
+<span class="nc" id="L444">            throw e;</span>
         }
     }
 
@@ -451,17 +452,17 @@ public class ApiService implements AutoCloseable {
      * @throws ApiException if the API call fails
      */
     public void deleteClient(Long clientId) throws ApiException {
-<span class="nc" id="L454">        logger.debug(&quot;Deleting client ID: {}&quot;, clientId);</span>
+<span class="nc" id="L455">        logger.debug(&quot;Deleting client ID: {}&quot;, clientId);</span>
         
         try {
-<span class="nc" id="L457">            apiClient.delete(&quot;/api/clients/&quot; + clientId);</span>
-<span class="nc" id="L458">            logger.info(&quot;Successfully deleted client ID: {}&quot;, clientId);</span>
+<span class="nc" id="L458">            apiClient.delete(&quot;/api/clients/&quot; + clientId);</span>
+<span class="nc" id="L459">            logger.info(&quot;Successfully deleted client ID: {}&quot;, clientId);</span>
             
-<span class="nc" id="L460">        } catch (ApiException e) {</span>
-<span class="nc" id="L461">            logger.error(&quot;Failed to delete client {}: {}&quot;, clientId, e.getMessage());</span>
-<span class="nc" id="L462">            throw e;</span>
-        }
-<span class="nc" id="L464">    }</span>
+<span class="nc" id="L461">        } catch (ApiException e) {</span>
+<span class="nc" id="L462">            logger.error(&quot;Failed to delete client {}: {}&quot;, clientId, e.getMessage());</span>
+<span class="nc" id="L463">            throw e;</span>
+<span class="nc" id="L464">        }</span>
+<span class="nc" id="L465">    }</span>
 
     /**
      * Activate a client (set status to ACTIVE and active to true)
@@ -471,33 +472,33 @@ public class ApiService implements AutoCloseable {
      * @throws ApiException if the API call fails
      */
     public Client activateClient(Long clientId) throws ApiException {
-<span class="nc" id="L474">        logger.debug(&quot;Activating client ID: {}&quot;, clientId);</span>
+<span class="nc" id="L475">        logger.debug(&quot;Activating client ID: {}&quot;, clientId);</span>
         
         try {
             // First get the current client data
-<span class="nc" id="L478">            Client currentClient = getClientById(clientId);</span>
+<span class="nc" id="L479">            Client currentClient = getClientById(clientId);</span>
             
             // Create an updated client with ACTIVE status
-<span class="nc" id="L481">            Client updatedClientData = new Client();</span>
-<span class="nc" id="L482">            updatedClientData.setId(currentClient.getId());</span>
-<span class="nc" id="L483">            updatedClientData.setFirstName(currentClient.getFirstName());</span>
-<span class="nc" id="L484">            updatedClientData.setLastName(currentClient.getLastName());</span>
-<span class="nc" id="L485">            updatedClientData.setEmail(currentClient.getEmail());</span>
-<span class="nc" id="L486">            updatedClientData.setPhone(currentClient.getPhone());</span>
-<span class="nc" id="L487">            updatedClientData.setAddress(currentClient.getAddress());</span>
-<span class="nc" id="L488">            updatedClientData.setNotes(currentClient.getNotes());</span>
-<span class="nc" id="L489">            updatedClientData.setStatus(&quot;ACTIVE&quot;);</span>
-<span class="nc" id="L490">            updatedClientData.setActive(true);</span>
+<span class="nc" id="L482">            Client updatedClientData = new Client();</span>
+<span class="nc" id="L483">            updatedClientData.setId(currentClient.getId());</span>
+<span class="nc" id="L484">            updatedClientData.setFirstName(currentClient.getFirstName());</span>
+<span class="nc" id="L485">            updatedClientData.setLastName(currentClient.getLastName());</span>
+<span class="nc" id="L486">            updatedClientData.setEmail(currentClient.getEmail());</span>
+<span class="nc" id="L487">            updatedClientData.setPhone(currentClient.getPhone());</span>
+<span class="nc" id="L488">            updatedClientData.setAddress(currentClient.getAddress());</span>
+<span class="nc" id="L489">            updatedClientData.setNotes(currentClient.getNotes());</span>
+<span class="nc" id="L490">            updatedClientData.setStatus(&quot;ACTIVE&quot;);</span>
+<span class="nc" id="L491">            updatedClientData.setActive(true);</span>
             
             // Update the client
-<span class="nc" id="L493">            Client activatedClient = updateClient(clientId, updatedClientData);</span>
-<span class="nc" id="L494">            logger.info(&quot;Successfully activated client ID: {}&quot;, clientId);</span>
+<span class="nc" id="L494">            Client activatedClient = updateClient(clientId, updatedClientData);</span>
+<span class="nc" id="L495">            logger.info(&quot;Successfully activated client ID: {}&quot;, clientId);</span>
             
-<span class="nc" id="L496">            return activatedClient;</span>
+<span class="nc" id="L497">            return activatedClient;</span>
             
-<span class="nc" id="L498">        } catch (ApiException e) {</span>
-<span class="nc" id="L499">            logger.error(&quot;Failed to activate client {}: {}&quot;, clientId, e.getMessage());</span>
-<span class="nc" id="L500">            throw e;</span>
+<span class="nc" id="L499">        } catch (ApiException e) {</span>
+<span class="nc" id="L500">            logger.error(&quot;Failed to activate client {}: {}&quot;, clientId, e.getMessage());</span>
+<span class="nc" id="L501">            throw e;</span>
         }
     }
 
@@ -509,33 +510,33 @@ public class ApiService implements AutoCloseable {
      * @throws ApiException if the API call fails
      */
     public Client suspendClient(Long clientId) throws ApiException {
-<span class="nc" id="L512">        logger.debug(&quot;Suspending client ID: {}&quot;, clientId);</span>
+<span class="nc" id="L513">        logger.debug(&quot;Suspending client ID: {}&quot;, clientId);</span>
         
         try {
             // First get the current client data
-<span class="nc" id="L516">            Client currentClient = getClientById(clientId);</span>
+<span class="nc" id="L517">            Client currentClient = getClientById(clientId);</span>
             
             // Create an updated client with SUSPENDED status
-<span class="nc" id="L519">            Client updatedClientData = new Client();</span>
-<span class="nc" id="L520">            updatedClientData.setId(currentClient.getId());</span>
-<span class="nc" id="L521">            updatedClientData.setFirstName(currentClient.getFirstName());</span>
-<span class="nc" id="L522">            updatedClientData.setLastName(currentClient.getLastName());</span>
-<span class="nc" id="L523">            updatedClientData.setEmail(currentClient.getEmail());</span>
-<span class="nc" id="L524">            updatedClientData.setPhone(currentClient.getPhone());</span>
-<span class="nc" id="L525">            updatedClientData.setAddress(currentClient.getAddress());</span>
-<span class="nc" id="L526">            updatedClientData.setNotes(currentClient.getNotes());</span>
-<span class="nc" id="L527">            updatedClientData.setStatus(&quot;SUSPENDED&quot;);</span>
-<span class="nc" id="L528">            updatedClientData.setActive(false);</span>
+<span class="nc" id="L520">            Client updatedClientData = new Client();</span>
+<span class="nc" id="L521">            updatedClientData.setId(currentClient.getId());</span>
+<span class="nc" id="L522">            updatedClientData.setFirstName(currentClient.getFirstName());</span>
+<span class="nc" id="L523">            updatedClientData.setLastName(currentClient.getLastName());</span>
+<span class="nc" id="L524">            updatedClientData.setEmail(currentClient.getEmail());</span>
+<span class="nc" id="L525">            updatedClientData.setPhone(currentClient.getPhone());</span>
+<span class="nc" id="L526">            updatedClientData.setAddress(currentClient.getAddress());</span>
+<span class="nc" id="L527">            updatedClientData.setNotes(currentClient.getNotes());</span>
+<span class="nc" id="L528">            updatedClientData.setStatus(&quot;SUSPENDED&quot;);</span>
+<span class="nc" id="L529">            updatedClientData.setActive(false);</span>
             
             // Update the client
-<span class="nc" id="L531">            Client suspendedClient = updateClient(clientId, updatedClientData);</span>
-<span class="nc" id="L532">            logger.info(&quot;Successfully suspended client ID: {}&quot;, clientId);</span>
+<span class="nc" id="L532">            Client suspendedClient = updateClient(clientId, updatedClientData);</span>
+<span class="nc" id="L533">            logger.info(&quot;Successfully suspended client ID: {}&quot;, clientId);</span>
             
-<span class="nc" id="L534">            return suspendedClient;</span>
+<span class="nc" id="L535">            return suspendedClient;</span>
             
-<span class="nc" id="L536">        } catch (ApiException e) {</span>
-<span class="nc" id="L537">            logger.error(&quot;Failed to suspend client {}: {}&quot;, clientId, e.getMessage());</span>
-<span class="nc" id="L538">            throw e;</span>
+<span class="nc" id="L537">        } catch (ApiException e) {</span>
+<span class="nc" id="L538">            logger.error(&quot;Failed to suspend client {}: {}&quot;, clientId, e.getMessage());</span>
+<span class="nc" id="L539">            throw e;</span>
         }
     }
 
@@ -549,24 +550,24 @@ public class ApiService implements AutoCloseable {
      * @throws ApiException if the API call fails
      */
     public Technician createTechnician(Technician technician) throws ApiException {
-<span class="nc" id="L552">        logger.debug(&quot;Creating new technician: {}&quot;, technician.getFullName());</span>
+<span class="nc" id="L553">        logger.debug(&quot;Creating new technician: {}&quot;, technician.getFullName());</span>
         
         try {
-<span class="nc" id="L555">            ApiResponse&lt;Technician&gt; response = apiClient.post(</span>
-<span class="nc" id="L556">                &quot;/api/technicians&quot;, </span>
-<span class="nc" id="L557">                technician,</span>
-<span class="nc" id="L558">                Technician.class</span>
+<span class="nc" id="L556">            ApiResponse&lt;Technician&gt; response = apiClient.post(</span>
+                &quot;/api/technicians&quot;, 
+                technician,
+                Technician.class
             );
             
-<span class="nc" id="L561">            Technician createdTechnician = response.getData();</span>
-<span class="nc" id="L562">            logger.info(&quot;Successfully created technician: {} (ID: {})&quot;, </span>
-<span class="nc" id="L563">                createdTechnician.getFullName(), createdTechnician.getId());</span>
+<span class="nc" id="L562">            Technician createdTechnician = response.getData();</span>
+<span class="nc" id="L563">            logger.info(&quot;Successfully created technician: {} (ID: {})&quot;, </span>
+<span class="nc" id="L564">                createdTechnician.getFullName(), createdTechnician.getId());</span>
             
-<span class="nc" id="L565">            return createdTechnician;</span>
+<span class="nc" id="L566">            return createdTechnician;</span>
             
-<span class="nc" id="L567">        } catch (ApiException e) {</span>
-<span class="nc" id="L568">            logger.error(&quot;Failed to create technician: {}&quot;, e.getMessage());</span>
-<span class="nc" id="L569">            throw e;</span>
+<span class="nc" id="L568">        } catch (ApiException e) {</span>
+<span class="nc" id="L569">            logger.error(&quot;Failed to create technician: {}&quot;, e.getMessage());</span>
+<span class="nc" id="L570">            throw e;</span>
         }
     }
     
@@ -579,24 +580,24 @@ public class ApiService implements AutoCloseable {
      * @throws ApiException if the API call fails
      */
     public Technician updateTechnician(Long technicianId, Technician technician) throws ApiException {
-<span class="nc" id="L582">        logger.debug(&quot;Updating technician ID: {}&quot;, technicianId);</span>
+<span class="nc" id="L583">        logger.debug(&quot;Updating technician ID: {}&quot;, technicianId);</span>
         
         try {
-<span class="nc" id="L585">            ApiResponse&lt;Technician&gt; response = apiClient.put(</span>
-<span class="nc" id="L586">                &quot;/api/technicians/&quot; + technicianId, </span>
-<span class="nc" id="L587">                technician,</span>
-<span class="nc" id="L588">                Technician.class</span>
+<span class="nc" id="L586">            ApiResponse&lt;Technician&gt; response = apiClient.put(</span>
+                &quot;/api/technicians/&quot; + technicianId, 
+                technician,
+                Technician.class
             );
             
-<span class="nc" id="L591">            Technician updatedTechnician = response.getData();</span>
-<span class="nc" id="L592">            logger.info(&quot;Successfully updated technician: {} (ID: {})&quot;, </span>
-<span class="nc" id="L593">                updatedTechnician.getFullName(), technicianId);</span>
+<span class="nc" id="L592">            Technician updatedTechnician = response.getData();</span>
+<span class="nc" id="L593">            logger.info(&quot;Successfully updated technician: {} (ID: {})&quot;, </span>
+<span class="nc" id="L594">                updatedTechnician.getFullName(), technicianId);</span>
             
-<span class="nc" id="L595">            return updatedTechnician;</span>
+<span class="nc" id="L596">            return updatedTechnician;</span>
             
-<span class="nc" id="L597">        } catch (ApiException e) {</span>
-<span class="nc" id="L598">            logger.error(&quot;Failed to update technician ID {}: {}&quot;, technicianId, e.getMessage());</span>
-<span class="nc" id="L599">            throw e;</span>
+<span class="nc" id="L598">        } catch (ApiException e) {</span>
+<span class="nc" id="L599">            logger.error(&quot;Failed to update technician ID {}: {}&quot;, technicianId, e.getMessage());</span>
+<span class="nc" id="L600">            throw e;</span>
         }
     }
     
@@ -607,17 +608,17 @@ public class ApiService implements AutoCloseable {
      * @throws ApiException if the API call fails
      */
     public void deleteTechnician(Long technicianId) throws ApiException {
-<span class="nc" id="L610">        logger.debug(&quot;Deleting technician ID: {}&quot;, technicianId);</span>
+<span class="nc" id="L611">        logger.debug(&quot;Deleting technician ID: {}&quot;, technicianId);</span>
         
         try {
-<span class="nc" id="L613">            apiClient.delete(&quot;/api/technicians/&quot; + technicianId);</span>
-<span class="nc" id="L614">            logger.info(&quot;Successfully deleted technician ID: {}&quot;, technicianId);</span>
+<span class="nc" id="L614">            apiClient.delete(&quot;/api/technicians/&quot; + technicianId);</span>
+<span class="nc" id="L615">            logger.info(&quot;Successfully deleted technician ID: {}&quot;, technicianId);</span>
             
-<span class="nc" id="L616">        } catch (ApiException e) {</span>
-<span class="nc" id="L617">            logger.error(&quot;Failed to delete technician ID {}: {}&quot;, technicianId, e.getMessage());</span>
-<span class="nc" id="L618">            throw e;</span>
-        }
-<span class="nc" id="L620">    }</span>
+<span class="nc" id="L617">        } catch (ApiException e) {</span>
+<span class="nc" id="L618">            logger.error(&quot;Failed to delete technician ID {}: {}&quot;, technicianId, e.getMessage());</span>
+<span class="nc" id="L619">            throw e;</span>
+<span class="nc" id="L620">        }</span>
+<span class="nc" id="L621">    }</span>
 
     // ==================== END TECHNICIAN CRUD OPERATIONS ====================
 
@@ -631,42 +632,42 @@ public class ApiService implements AutoCloseable {
      * @throws ApiException if the API call fails
      */
     public Ticket createTicket(Ticket ticket) throws ApiException {
-<span class="nc" id="L634">        logger.info(&quot;Creating new ticket - Request data: description='{}', serviceType='{}', clientId={}&quot;, </span>
-<span class="nc bnc" id="L635" title="All 2 branches missed.">            ticket.getDescription() != null ? ticket.getDescription().substring(0, Math.min(50, ticket.getDescription().length())) + &quot;...&quot; : &quot;null&quot;,</span>
-<span class="nc" id="L636">            ticket.getServiceType(),</span>
-<span class="nc" id="L637">            ticket.getClientId());</span>
+<span class="nc" id="L635">        logger.info(&quot;Creating new ticket - Request data: description='{}', serviceType='{}', clientId={}&quot;, </span>
+<span class="nc bnc" id="L636" title="All 2 branches missed.">            ticket.getDescription() != null ? ticket.getDescription().substring(0, Math.min(50, ticket.getDescription().length())) + &quot;...&quot; : &quot;null&quot;,</span>
+<span class="nc" id="L637">            ticket.getServiceType(),</span>
+<span class="nc" id="L638">            ticket.getClientId());</span>
         
         // Create a minimal request object with only the fields the server expects
         // Server only expects: clientId, serviceType, description
         // Server automatically sets: id, status=OPEN, createdAt, updatedAt, dueAt (24h/48h SLA)
-<span class="nc" id="L642">        java.util.Map&lt;String, Object&gt; createRequest = new java.util.HashMap&lt;&gt;();</span>
-<span class="nc" id="L643">        createRequest.put(&quot;clientId&quot;, ticket.getClientId());</span>
-<span class="nc" id="L644">        createRequest.put(&quot;serviceType&quot;, ticket.getServiceType());</span>
-<span class="nc" id="L645">        createRequest.put(&quot;description&quot;, ticket.getDescription());</span>
+<span class="nc" id="L643">        java.util.Map&lt;String, Object&gt; createRequest = new java.util.HashMap&lt;&gt;();</span>
+<span class="nc" id="L644">        createRequest.put(&quot;clientId&quot;, ticket.getClientId());</span>
+<span class="nc" id="L645">        createRequest.put(&quot;serviceType&quot;, ticket.getServiceType());</span>
+<span class="nc" id="L646">        createRequest.put(&quot;description&quot;, ticket.getDescription());</span>
         
         try {
-<span class="nc" id="L648">            ApiResponse&lt;Ticket&gt; response = apiClient.post(</span>
-<span class="nc" id="L649">                &quot;/api/tickets&quot;, </span>
-<span class="nc" id="L650">                createRequest,</span>
-<span class="nc" id="L651">                Ticket.class</span>
+<span class="nc" id="L649">            ApiResponse&lt;Ticket&gt; response = apiClient.post(</span>
+                &quot;/api/tickets&quot;, 
+                createRequest,
+                Ticket.class
             );
             
-<span class="nc" id="L654">            Ticket createdTicket = response.getData();</span>
+<span class="nc" id="L655">            Ticket createdTicket = response.getData();</span>
             
             // Debug logging to see what the server actually returned
-<span class="nc" id="L657">            logger.info(&quot;Create ticket response: ID={}, status='{}', serviceType='{}', description='{}'&quot;, </span>
-<span class="nc" id="L658">                createdTicket.getId(), </span>
-<span class="nc" id="L659">                createdTicket.getStatus(),</span>
-<span class="nc" id="L660">                createdTicket.getServiceType(),</span>
-<span class="nc bnc" id="L661" title="All 2 branches missed.">                createdTicket.getDescription() != null ? createdTicket.getDescription().substring(0, Math.min(50, createdTicket.getDescription().length())) + &quot;...&quot; : &quot;null&quot;);</span>
+<span class="nc" id="L658">            logger.info(&quot;Create ticket response: ID={}, status='{}', serviceType='{}', description='{}'&quot;, </span>
+<span class="nc" id="L659">                createdTicket.getId(), </span>
+<span class="nc" id="L660">                createdTicket.getStatus(),</span>
+<span class="nc" id="L661">                createdTicket.getServiceType(),</span>
+<span class="nc bnc" id="L662" title="All 2 branches missed.">                createdTicket.getDescription() != null ? createdTicket.getDescription().substring(0, Math.min(50, createdTicket.getDescription().length())) + &quot;...&quot; : &quot;null&quot;);</span>
             
-<span class="nc" id="L663">            logger.info(&quot;Successfully created ticket: Description-based ticket (ID: {})&quot;, createdTicket.getId());</span>
+<span class="nc" id="L664">            logger.info(&quot;Successfully created ticket: Description-based ticket (ID: {})&quot;, createdTicket.getId());</span>
             
-<span class="nc" id="L665">            return createdTicket;</span>
+<span class="nc" id="L666">            return createdTicket;</span>
             
-<span class="nc" id="L667">        } catch (ApiException e) {</span>
-<span class="nc" id="L668">            logger.error(&quot;Failed to create ticket: {}&quot;, e.getMessage());</span>
-<span class="nc" id="L669">            throw e;</span>
+<span class="nc" id="L668">        } catch (ApiException e) {</span>
+<span class="nc" id="L669">            logger.error(&quot;Failed to create ticket: {}&quot;, e.getMessage());</span>
+<span class="nc" id="L670">            throw e;</span>
         }
     }
     
@@ -679,23 +680,23 @@ public class ApiService implements AutoCloseable {
      * @throws ApiException if the API call fails
      */
     public Ticket updateTicket(Long ticketId, Ticket ticket) throws ApiException {
-<span class="nc" id="L682">        logger.debug(&quot;Updating ticket ID: {}&quot;, ticketId);</span>
+<span class="nc" id="L683">        logger.debug(&quot;Updating ticket ID: {}&quot;, ticketId);</span>
         
         try {
-<span class="nc" id="L685">            ApiResponse&lt;Ticket&gt; response = apiClient.put(</span>
-<span class="nc" id="L686">                &quot;/api/tickets/&quot; + ticketId, </span>
-<span class="nc" id="L687">                ticket,</span>
-<span class="nc" id="L688">                Ticket.class</span>
+<span class="nc" id="L686">            ApiResponse&lt;Ticket&gt; response = apiClient.put(</span>
+                &quot;/api/tickets/&quot; + ticketId, 
+                ticket,
+                Ticket.class
             );
             
-<span class="nc" id="L691">            Ticket updatedTicket = response.getData();</span>
-<span class="nc" id="L692">            logger.info(&quot;Successfully updated ticket: Description-based ticket (ID: {})&quot;, ticketId);</span>
+<span class="nc" id="L692">            Ticket updatedTicket = response.getData();</span>
+<span class="nc" id="L693">            logger.info(&quot;Successfully updated ticket: Description-based ticket (ID: {})&quot;, ticketId);</span>
             
-<span class="nc" id="L694">            return updatedTicket;</span>
+<span class="nc" id="L695">            return updatedTicket;</span>
             
-<span class="nc" id="L696">        } catch (ApiException e) {</span>
-<span class="nc" id="L697">            logger.error(&quot;Failed to update ticket ID {}: {}&quot;, ticketId, e.getMessage());</span>
-<span class="nc" id="L698">            throw e;</span>
+<span class="nc" id="L697">        } catch (ApiException e) {</span>
+<span class="nc" id="L698">            logger.error(&quot;Failed to update ticket ID {}: {}&quot;, ticketId, e.getMessage());</span>
+<span class="nc" id="L699">            throw e;</span>
         }
     }
     
@@ -706,17 +707,17 @@ public class ApiService implements AutoCloseable {
      * @throws ApiException if the API call fails
      */
     public void deleteTicket(Long ticketId) throws ApiException {
-<span class="nc" id="L709">        logger.debug(&quot;Deleting ticket ID: {}&quot;, ticketId);</span>
+<span class="nc" id="L710">        logger.debug(&quot;Deleting ticket ID: {}&quot;, ticketId);</span>
         
         try {
-<span class="nc" id="L712">            apiClient.delete(&quot;/api/tickets/&quot; + ticketId);</span>
-<span class="nc" id="L713">            logger.info(&quot;Successfully deleted ticket ID: {}&quot;, ticketId);</span>
+<span class="nc" id="L713">            apiClient.delete(&quot;/api/tickets/&quot; + ticketId);</span>
+<span class="nc" id="L714">            logger.info(&quot;Successfully deleted ticket ID: {}&quot;, ticketId);</span>
             
-<span class="nc" id="L715">        } catch (ApiException e) {</span>
-<span class="nc" id="L716">            logger.error(&quot;Failed to delete ticket ID {}: {}&quot;, ticketId, e.getMessage());</span>
-<span class="nc" id="L717">            throw e;</span>
-        }
-<span class="nc" id="L719">    }</span>
+<span class="nc" id="L716">        } catch (ApiException e) {</span>
+<span class="nc" id="L717">            logger.error(&quot;Failed to delete ticket ID {}: {}&quot;, ticketId, e.getMessage());</span>
+<span class="nc" id="L718">            throw e;</span>
+<span class="nc" id="L719">        }</span>
+<span class="nc" id="L720">    }</span>
     
     /**
      * Assign a technician to a ticket using the proper assignment endpoint
@@ -727,26 +728,26 @@ public class ApiService implements AutoCloseable {
      * @throws ApiException if the API call fails
      */
     public Ticket assignTechnician(Long ticketId, Long technicianId) throws ApiException {
-<span class="nc" id="L730">        logger.debug(&quot;Assigning technician {} to ticket {}&quot;, technicianId, ticketId);</span>
+<span class="nc" id="L731">        logger.debug(&quot;Assigning technician {} to ticket {}&quot;, technicianId, ticketId);</span>
         
         try {
             // Create request body with technician ID
-<span class="nc" id="L734">            Map&lt;String, Object&gt; requestBody = new HashMap&lt;&gt;();</span>
-<span class="nc" id="L735">            requestBody.put(&quot;technicianId&quot;, technicianId);</span>
+<span class="nc" id="L735">            Map&lt;String, Object&gt; requestBody = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L736">            requestBody.put(&quot;technicianId&quot;, technicianId);</span>
             
-<span class="nc" id="L737">            ApiResponse&lt;Ticket&gt; response = apiClient.post(</span>
-<span class="nc" id="L738">                &quot;/api/tickets/&quot; + ticketId + &quot;/assign&quot;,</span>
-<span class="nc" id="L739">                requestBody,</span>
-<span class="nc" id="L740">                Ticket.class</span>
+<span class="nc" id="L738">            ApiResponse&lt;Ticket&gt; response = apiClient.post(</span>
+                &quot;/api/tickets/&quot; + ticketId + &quot;/assign&quot;,
+                requestBody,
+                Ticket.class
             );
             
-<span class="nc" id="L743">            Ticket updatedTicket = response.getData();</span>
-<span class="nc" id="L744">            logger.info(&quot;Successfully assigned technician {} to ticket {}&quot;, technicianId, ticketId);</span>
-<span class="nc" id="L745">            return updatedTicket;</span>
+<span class="nc" id="L744">            Ticket updatedTicket = response.getData();</span>
+<span class="nc" id="L745">            logger.info(&quot;Successfully assigned technician {} to ticket {}&quot;, technicianId, ticketId);</span>
+<span class="nc" id="L746">            return updatedTicket;</span>
             
-<span class="nc" id="L747">        } catch (ApiException e) {</span>
-<span class="nc" id="L748">            logger.error(&quot;Failed to assign technician {} to ticket {}: {}&quot;, technicianId, ticketId, e.getMessage());</span>
-<span class="nc" id="L749">            throw e;</span>
+<span class="nc" id="L748">        } catch (ApiException e) {</span>
+<span class="nc" id="L749">            logger.error(&quot;Failed to assign technician {} to ticket {}: {}&quot;, technicianId, ticketId, e.getMessage());</span>
+<span class="nc" id="L750">            throw e;</span>
         }
     }
     
@@ -760,31 +761,31 @@ public class ApiService implements AutoCloseable {
      * @throws ApiException if the API call fails
      */
     public Ticket unassignTechnician(Long ticketId, String reason, String unassignedBy) throws ApiException {
-<span class="nc" id="L763">        logger.debug(&quot;Unassigning technician from ticket {}&quot;, ticketId);</span>
+<span class="nc" id="L764">        logger.debug(&quot;Unassigning technician from ticket {}&quot;, ticketId);</span>
         
         try {
             // Create request body with optional reason and user
-<span class="nc" id="L767">            Map&lt;String, Object&gt; requestBody = new HashMap&lt;&gt;();</span>
-<span class="nc bnc" id="L768" title="All 4 branches missed.">            if (reason != null &amp;&amp; !reason.trim().isEmpty()) {</span>
-<span class="nc" id="L769">                requestBody.put(&quot;reason&quot;, reason.trim());</span>
+<span class="nc" id="L768">            Map&lt;String, Object&gt; requestBody = new HashMap&lt;&gt;();</span>
+<span class="nc bnc" id="L769" title="All 4 branches missed.">            if (reason != null &amp;&amp; !reason.trim().isEmpty()) {</span>
+<span class="nc" id="L770">                requestBody.put(&quot;reason&quot;, reason.trim());</span>
             }
-<span class="nc bnc" id="L771" title="All 4 branches missed.">            if (unassignedBy != null &amp;&amp; !unassignedBy.trim().isEmpty()) {</span>
-<span class="nc" id="L772">                requestBody.put(&quot;updatedBy&quot;, unassignedBy.trim());</span>
+<span class="nc bnc" id="L772" title="All 4 branches missed.">            if (unassignedBy != null &amp;&amp; !unassignedBy.trim().isEmpty()) {</span>
+<span class="nc" id="L773">                requestBody.put(&quot;updatedBy&quot;, unassignedBy.trim());</span>
             }
             
-<span class="nc" id="L775">            ApiResponse&lt;Ticket&gt; response = apiClient.delete(</span>
-<span class="nc" id="L776">                &quot;/api/tickets/&quot; + ticketId + &quot;/assign&quot;,</span>
-<span class="nc" id="L777">                requestBody,</span>
-<span class="nc" id="L778">                Ticket.class</span>
+<span class="nc" id="L776">            ApiResponse&lt;Ticket&gt; response = apiClient.delete(</span>
+                &quot;/api/tickets/&quot; + ticketId + &quot;/assign&quot;,
+                requestBody,
+                Ticket.class
             );
             
-<span class="nc" id="L781">            Ticket updatedTicket = response.getData();</span>
-<span class="nc" id="L782">            logger.info(&quot;Successfully unassigned technician from ticket {}&quot;, ticketId);</span>
-<span class="nc" id="L783">            return updatedTicket;</span>
+<span class="nc" id="L782">            Ticket updatedTicket = response.getData();</span>
+<span class="nc" id="L783">            logger.info(&quot;Successfully unassigned technician from ticket {}&quot;, ticketId);</span>
+<span class="nc" id="L784">            return updatedTicket;</span>
             
-<span class="nc" id="L785">        } catch (ApiException e) {</span>
-<span class="nc" id="L786">            logger.error(&quot;Failed to unassign technician from ticket {}: {}&quot;, ticketId, e.getMessage());</span>
-<span class="nc" id="L787">            throw e;</span>
+<span class="nc" id="L786">        } catch (ApiException e) {</span>
+<span class="nc" id="L787">            logger.error(&quot;Failed to unassign technician from ticket {}: {}&quot;, ticketId, e.getMessage());</span>
+<span class="nc" id="L788">            throw e;</span>
         }
     }
     
@@ -797,27 +798,27 @@ public class ApiService implements AutoCloseable {
      * @throws ApiException if the API call fails
      */
     public Ticket updateTicketStatus(Long ticketId, String status) throws ApiException {
-<span class="nc" id="L800">        logger.debug(&quot;Updating ticket {} status to {}&quot;, ticketId, status);</span>
+<span class="nc" id="L801">        logger.debug(&quot;Updating ticket {} status to {}&quot;, ticketId, status);</span>
         
         try {
             // Create request body with status and required updatedBy field
-<span class="nc" id="L804">            Map&lt;String, Object&gt; requestBody = new HashMap&lt;&gt;();</span>
-<span class="nc" id="L805">            requestBody.put(&quot;status&quot;, status);</span>
-<span class="nc" id="L806">            requestBody.put(&quot;updatedBy&quot;, &quot;CLI User&quot;); // Required field for audit trail</span>
+<span class="nc" id="L805">            Map&lt;String, Object&gt; requestBody = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L806">            requestBody.put(&quot;status&quot;, status);</span>
+<span class="nc" id="L807">            requestBody.put(&quot;updatedBy&quot;, &quot;CLI User&quot;); // Required field for audit trail</span>
             
-<span class="nc" id="L808">            ApiResponse&lt;Ticket&gt; response = apiClient.put(</span>
-<span class="nc" id="L809">                &quot;/api/tickets/&quot; + ticketId + &quot;/status&quot;,</span>
-<span class="nc" id="L810">                requestBody,</span>
-<span class="nc" id="L811">                Ticket.class</span>
+<span class="nc" id="L809">            ApiResponse&lt;Ticket&gt; response = apiClient.put(</span>
+                &quot;/api/tickets/&quot; + ticketId + &quot;/status&quot;,
+                requestBody,
+                Ticket.class
             );
             
-<span class="nc" id="L814">            Ticket updatedTicket = response.getData();</span>
-<span class="nc" id="L815">            logger.info(&quot;Successfully updated ticket {} status to {}&quot;, ticketId, status);</span>
-<span class="nc" id="L816">            return updatedTicket;</span>
+<span class="nc" id="L815">            Ticket updatedTicket = response.getData();</span>
+<span class="nc" id="L816">            logger.info(&quot;Successfully updated ticket {} status to {}&quot;, ticketId, status);</span>
+<span class="nc" id="L817">            return updatedTicket;</span>
             
-<span class="nc" id="L818">        } catch (ApiException e) {</span>
-<span class="nc" id="L819">            logger.error(&quot;Failed to update ticket {} status to {}: {}&quot;, ticketId, status, e.getMessage());</span>
-<span class="nc" id="L820">            throw e;</span>
+<span class="nc" id="L819">        } catch (ApiException e) {</span>
+<span class="nc" id="L820">            logger.error(&quot;Failed to update ticket {} status to {}: {}&quot;, ticketId, status, e.getMessage());</span>
+<span class="nc" id="L821">            throw e;</span>
         }
     }
     
@@ -829,59 +830,59 @@ public class ApiService implements AutoCloseable {
      * @throws ApiException if the API call fails
      */
     public Ticket autoAssignTicket(Long ticketId) throws ApiException {
-<span class="nc" id="L832">        logger.info(&quot;Auto-assigning ticket {}&quot;, ticketId);</span>
+<span class="nc" id="L833">        logger.info(&quot;Auto-assigning ticket {}&quot;, ticketId);</span>
         
         try {
-<span class="nc" id="L835">            ApiResponse&lt;Ticket&gt; response = apiClient.post(</span>
-<span class="nc" id="L836">                &quot;/api/tickets/&quot; + ticketId + &quot;/auto-assign&quot;,</span>
-<span class="nc" id="L837">                null,</span>
-<span class="nc" id="L838">                Ticket.class</span>
+<span class="nc" id="L836">            ApiResponse&lt;Ticket&gt; response = apiClient.post(</span>
+                &quot;/api/tickets/&quot; + ticketId + &quot;/auto-assign&quot;,
+                null,
+                Ticket.class
             );
             
-<span class="nc" id="L841">            Ticket assignedTicket = response.getData();</span>
+<span class="nc" id="L842">            Ticket assignedTicket = response.getData();</span>
             
             // Debug logging to see what the server actually returned
-<span class="nc" id="L844">            Long technicianId = getEffectiveAssignedTechnicianId(assignedTicket);</span>
-<span class="nc" id="L845">            logger.info(&quot;Auto-assign response for ticket {}: assignedTechnicianId={}, assignedTechnician={}, status={}&quot;, </span>
-<span class="nc" id="L846">                ticketId, assignedTicket.getAssignedTechnicianId(), </span>
-<span class="nc bnc" id="L847" title="All 2 branches missed.">                (assignedTicket.getAssignedTechnician() != null ? assignedTicket.getAssignedTechnician().getId() : &quot;null&quot;),</span>
-<span class="nc" id="L848">                assignedTicket.getStatus());</span>
+<span class="nc" id="L845">            Long technicianId = getEffectiveAssignedTechnicianId(assignedTicket);</span>
+<span class="nc" id="L846">            logger.info(&quot;Auto-assign response for ticket {}: assignedTechnicianId={}, assignedTechnician={}, status={}&quot;, </span>
+<span class="nc" id="L847">                ticketId, assignedTicket.getAssignedTechnicianId(), </span>
+<span class="nc bnc" id="L848" title="All 2 branches missed.">                (assignedTicket.getAssignedTechnician() != null ? assignedTicket.getAssignedTechnician().getId() : &quot;null&quot;),</span>
+<span class="nc" id="L849">                assignedTicket.getStatus());</span>
             
             // Check if we need to fetch the updated ticket to get the latest assignment
-<span class="nc bnc" id="L851" title="All 2 branches missed.">            if (technicianId == null) {</span>
-<span class="nc" id="L852">                logger.info(&quot;Response shows null assignment, fetching fresh ticket data to verify...&quot;);</span>
+<span class="nc bnc" id="L852" title="All 2 branches missed.">            if (technicianId == null) {</span>
+<span class="nc" id="L853">                logger.info(&quot;Response shows null assignment, fetching fresh ticket data to verify...&quot;);</span>
                 try {
                     // Get the updated ticket from the server to see if assignment was applied
-<span class="nc" id="L855">                    List&lt;Ticket&gt; allTickets = getAllTickets();</span>
-<span class="nc" id="L856">                    Ticket refreshedTicket = allTickets.stream()</span>
-<span class="nc" id="L857">                        .filter(t -&gt; t.getId().equals(ticketId))</span>
-<span class="nc" id="L858">                        .findFirst()</span>
-<span class="nc" id="L859">                        .orElse(assignedTicket);</span>
+<span class="nc" id="L856">                    List&lt;Ticket&gt; allTickets = getAllTickets();</span>
+<span class="nc" id="L857">                    Ticket refreshedTicket = allTickets.stream()</span>
+<span class="nc" id="L858">                        .filter(t -&gt; t.getId().equals(ticketId))</span>
+<span class="nc" id="L859">                        .findFirst()</span>
+<span class="nc" id="L860">                        .orElse(assignedTicket);</span>
                     
-<span class="nc" id="L861">                    Long refreshedTechnicianId = getEffectiveAssignedTechnicianId(refreshedTicket);</span>
-<span class="nc" id="L862">                    logger.info(&quot;Refreshed ticket {}: assignedTechnicianId={}, assignedTechnician={}&quot;, </span>
-<span class="nc" id="L863">                        ticketId, refreshedTicket.getAssignedTechnicianId(),</span>
-<span class="nc bnc" id="L864" title="All 2 branches missed.">                        (refreshedTicket.getAssignedTechnician() != null ? refreshedTicket.getAssignedTechnician().getId() : &quot;null&quot;));</span>
+<span class="nc" id="L862">                    Long refreshedTechnicianId = getEffectiveAssignedTechnicianId(refreshedTicket);</span>
+<span class="nc" id="L863">                    logger.info(&quot;Refreshed ticket {}: assignedTechnicianId={}, assignedTechnician={}&quot;, </span>
+<span class="nc" id="L864">                        ticketId, refreshedTicket.getAssignedTechnicianId(),</span>
+<span class="nc bnc" id="L865" title="All 2 branches missed.">                        (refreshedTicket.getAssignedTechnician() != null ? refreshedTicket.getAssignedTechnician().getId() : &quot;null&quot;));</span>
                     
                     // Use the refreshed ticket if it has assignment data
-<span class="nc bnc" id="L867" title="All 2 branches missed.">                    if (refreshedTechnicianId != null) {</span>
-<span class="nc" id="L868">                        logger.info(&quot;Successfully auto-assigned ticket {} to technician {} (found via refresh)&quot;, </span>
-<span class="nc" id="L869">                            ticketId, refreshedTechnicianId);</span>
-<span class="nc" id="L870">                        return refreshedTicket;</span>
+<span class="nc bnc" id="L868" title="All 2 branches missed.">                    if (refreshedTechnicianId != null) {</span>
+<span class="nc" id="L869">                        logger.info(&quot;Successfully auto-assigned ticket {} to technician {} (found via refresh)&quot;, </span>
+                            ticketId, refreshedTechnicianId);
+<span class="nc" id="L871">                        return refreshedTicket;</span>
                     }
-<span class="nc" id="L872">                } catch (Exception refreshError) {</span>
-<span class="nc" id="L873">                    logger.warn(&quot;Failed to refresh ticket data after auto-assignment: {}&quot;, refreshError.getMessage());</span>
-                }
+<span class="nc" id="L873">                } catch (Exception refreshError) {</span>
+<span class="nc" id="L874">                    logger.warn(&quot;Failed to refresh ticket data after auto-assignment: {}&quot;, refreshError.getMessage());</span>
+<span class="nc" id="L875">                }</span>
             }
             
-<span class="nc" id="L877">            logger.info(&quot;Successfully auto-assigned ticket {} to technician {}&quot;, </span>
-<span class="nc bnc" id="L878" title="All 2 branches missed.">                ticketId, technicianId != null ? technicianId : &quot;null&quot;);</span>
+<span class="nc" id="L878">            logger.info(&quot;Successfully auto-assigned ticket {} to technician {}&quot;, </span>
+<span class="nc bnc" id="L879" title="All 2 branches missed.">                ticketId, technicianId != null ? technicianId : &quot;null&quot;);</span>
             
-<span class="nc" id="L880">            return assignedTicket;</span>
+<span class="nc" id="L881">            return assignedTicket;</span>
             
-<span class="nc" id="L882">        } catch (ApiException e) {</span>
-<span class="nc" id="L883">            logger.error(&quot;Failed to auto-assign ticket {}: {}&quot;, ticketId, e.getMessage());</span>
-<span class="nc" id="L884">            throw e;</span>
+<span class="nc" id="L883">        } catch (ApiException e) {</span>
+<span class="nc" id="L884">            logger.error(&quot;Failed to auto-assign ticket {}: {}&quot;, ticketId, e.getMessage());</span>
+<span class="nc" id="L885">            throw e;</span>
         }
     }
     
@@ -893,23 +894,420 @@ public class ApiService implements AutoCloseable {
      * @return the technician ID if found, null otherwise
      */
     private Long getEffectiveAssignedTechnicianId(Ticket ticket) {
-<span class="nc bnc" id="L896" title="All 2 branches missed.">        if (ticket == null) {</span>
-<span class="nc" id="L897">            return null;</span>
+<span class="nc bnc" id="L897" title="All 2 branches missed.">        if (ticket == null) {</span>
+<span class="nc" id="L898">            return null;</span>
         }
         
         // First check the direct assignedTechnicianId field
-<span class="nc bnc" id="L901" title="All 2 branches missed.">        if (ticket.getAssignedTechnicianId() != null) {</span>
-<span class="nc" id="L902">            return ticket.getAssignedTechnicianId();</span>
+<span class="nc bnc" id="L902" title="All 2 branches missed.">        if (ticket.getAssignedTechnicianId() != null) {</span>
+<span class="nc" id="L903">            return ticket.getAssignedTechnicianId();</span>
         }
         
         // Then check the nested assignedTechnician object
-<span class="nc bnc" id="L906" title="All 4 branches missed.">        if (ticket.getAssignedTechnician() != null &amp;&amp; ticket.getAssignedTechnician().getId() != null) {</span>
-<span class="nc" id="L907">            return ticket.getAssignedTechnician().getId();</span>
+<span class="nc bnc" id="L907" title="All 4 branches missed.">        if (ticket.getAssignedTechnician() != null &amp;&amp; ticket.getAssignedTechnician().getId() != null) {</span>
+<span class="nc" id="L908">            return ticket.getAssignedTechnician().getId();</span>
         }
         
-<span class="nc" id="L910">        return null;</span>
+<span class="nc" id="L911">        return null;</span>
     }
 
     // ==================== END TICKET CRUD OPERATIONS ====================
+
+    // ==================== APPOINTMENT WRITE OPERATIONS ====================
+    
+    /**
+     * Create a new appointment
+     * 
+     * @param appointment the appointment to create
+     * @return the created appointment
+     * @throws ApiException if the API call fails
+     */
+    public Appointment createAppointment(Appointment appointment) throws ApiException {
+<span class="nc" id="L926">        logger.debug(&quot;Creating new appointment for ticket: {}&quot;, appointment.getTicketId());</span>
+        
+        try {
+            // Create a request object with properly formatted ISO 8601 dates
+            // The server expects Instant objects, so we need to send timezone-aware timestamps
+<span class="nc" id="L931">            Map&lt;String, Object&gt; createRequest = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L932">            createRequest.put(&quot;ticketId&quot;, appointment.getTicketId());</span>
+<span class="nc" id="L933">            createRequest.put(&quot;technicianId&quot;, appointment.getTechnicianId());</span>
+            
+            // Convert LocalDateTime to ISO 8601 format with UTC timezone
+            // Format: 2025-06-27T14:30:00Z
+<span class="nc" id="L937">            String startTimeIso = appointment.getScheduledStartTime()</span>
+<span class="nc" id="L938">                .atZone(java.time.ZoneId.systemDefault())</span>
+<span class="nc" id="L939">                .withZoneSameInstant(java.time.ZoneOffset.UTC)</span>
+<span class="nc" id="L940">                .format(java.time.format.DateTimeFormatter.ISO_INSTANT);</span>
+            
+<span class="nc" id="L942">            String endTimeIso = appointment.getScheduledEndTime()</span>
+<span class="nc" id="L943">                .atZone(java.time.ZoneId.systemDefault())</span>
+<span class="nc" id="L944">                .withZoneSameInstant(java.time.ZoneOffset.UTC)</span>
+<span class="nc" id="L945">                .format(java.time.format.DateTimeFormatter.ISO_INSTANT);</span>
+            
+            // Server API uses &quot;startTime&quot; and &quot;endTime&quot; for both requests and responses
+<span class="nc" id="L948">            createRequest.put(&quot;startTime&quot;, startTimeIso);</span>
+<span class="nc" id="L949">            createRequest.put(&quot;endTime&quot;, endTimeIso);</span>
+            
+<span class="nc bnc" id="L951" title="All 4 branches missed.">            if (appointment.getNotes() != null &amp;&amp; !appointment.getNotes().trim().isEmpty()) {</span>
+<span class="nc" id="L952">                createRequest.put(&quot;notes&quot;, appointment.getNotes().trim());</span>
+            }
+            
+<span class="nc" id="L955">            logger.debug(&quot;Sending appointment request with ISO dates: start={}, end={}&quot;, startTimeIso, endTimeIso);</span>
+            
+<span class="nc" id="L957">            ApiResponse&lt;Appointment&gt; response = apiClient.post(</span>
+                &quot;/api/appointments&quot;, 
+                createRequest,
+                Appointment.class
+            );
+            
+<span class="nc" id="L963">            Appointment createdAppointment = response.getData();</span>
+<span class="nc" id="L964">            logger.info(&quot;Successfully created appointment with ID: {}&quot;, createdAppointment.getId());</span>
+            
+<span class="nc" id="L966">            return createdAppointment;</span>
+            
+<span class="nc" id="L968">        } catch (ApiException e) {</span>
+<span class="nc" id="L969">            logger.error(&quot;Failed to create appointment: {}&quot;, e.getMessage());</span>
+<span class="nc" id="L970">            throw e;</span>
+        }
+    }
+    
+    /**
+     * Update an existing appointment
+     * 
+     * @param appointmentId the appointment ID to update
+     * @param appointment the updated appointment data
+     * @return the updated appointment
+     * @throws ApiException if the API call fails
+     */
+    public Appointment updateAppointment(Long appointmentId, Appointment appointment) throws ApiException {
+<span class="nc" id="L983">        logger.debug(&quot;Updating appointment ID: {}&quot;, appointmentId);</span>
+        
+        try {
+            // Create a request object with properly formatted ISO 8601 dates
+<span class="nc" id="L987">            Map&lt;String, Object&gt; updateRequest = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L988">            updateRequest.put(&quot;ticketId&quot;, appointment.getTicketId());</span>
+<span class="nc" id="L989">            updateRequest.put(&quot;technicianId&quot;, appointment.getTechnicianId());</span>
+            
+            // Convert LocalDateTime to ISO 8601 format with UTC timezone
+<span class="nc" id="L992">            String startTimeIso = appointment.getScheduledStartTime()</span>
+<span class="nc" id="L993">                .atZone(java.time.ZoneId.systemDefault())</span>
+<span class="nc" id="L994">                .withZoneSameInstant(java.time.ZoneOffset.UTC)</span>
+<span class="nc" id="L995">                .format(java.time.format.DateTimeFormatter.ISO_INSTANT);</span>
+            
+<span class="nc" id="L997">            String endTimeIso = appointment.getScheduledEndTime()</span>
+<span class="nc" id="L998">                .atZone(java.time.ZoneId.systemDefault())</span>
+<span class="nc" id="L999">                .withZoneSameInstant(java.time.ZoneOffset.UTC)</span>
+<span class="nc" id="L1000">                .format(java.time.format.DateTimeFormatter.ISO_INSTANT);</span>
+            
+            // Server API uses &quot;startTime&quot; and &quot;endTime&quot; for both requests and responses
+<span class="nc" id="L1003">            updateRequest.put(&quot;startTime&quot;, startTimeIso);</span>
+<span class="nc" id="L1004">            updateRequest.put(&quot;endTime&quot;, endTimeIso);</span>
+            
+<span class="nc bnc" id="L1006" title="All 4 branches missed.">            if (appointment.getNotes() != null &amp;&amp; !appointment.getNotes().trim().isEmpty()) {</span>
+<span class="nc" id="L1007">                updateRequest.put(&quot;notes&quot;, appointment.getNotes().trim());</span>
+            }
+            
+<span class="nc" id="L1010">            logger.debug(&quot;Sending appointment update with ISO dates: start={}, end={}&quot;, startTimeIso, endTimeIso);</span>
+            
+<span class="nc" id="L1012">            ApiResponse&lt;Appointment&gt; response = apiClient.put(</span>
+                &quot;/api/appointments/&quot; + appointmentId, 
+                updateRequest,
+                Appointment.class
+            );
+            
+<span class="nc" id="L1018">            Appointment updatedAppointment = response.getData();</span>
+<span class="nc" id="L1019">            logger.info(&quot;Successfully updated appointment ID: {}&quot;, appointmentId);</span>
+            
+<span class="nc" id="L1021">            return updatedAppointment;</span>
+            
+<span class="nc" id="L1023">        } catch (ApiException e) {</span>
+<span class="nc" id="L1024">            logger.error(&quot;Failed to update appointment {}: {}&quot;, appointmentId, e.getMessage());</span>
+<span class="nc" id="L1025">            throw e;</span>
+        }
+    }
+    
+    /**
+     * Delete an appointment by ID
+     * 
+     * @param appointmentId the appointment ID to delete
+     * @throws ApiException if the API call fails
+     */
+    public void deleteAppointment(Long appointmentId) throws ApiException {
+<span class="nc" id="L1036">        logger.debug(&quot;Deleting appointment ID: {}&quot;, appointmentId);</span>
+        
+        try {
+<span class="nc" id="L1039">            apiClient.delete(&quot;/api/appointments/&quot; + appointmentId);</span>
+<span class="nc" id="L1040">            logger.info(&quot;Successfully deleted appointment ID: {}&quot;, appointmentId);</span>
+            
+<span class="nc" id="L1042">        } catch (ApiException e) {</span>
+<span class="nc" id="L1043">            logger.error(&quot;Failed to delete appointment {}: {}&quot;, appointmentId, e.getMessage());</span>
+<span class="nc" id="L1044">            throw e;</span>
+<span class="nc" id="L1045">        }</span>
+<span class="nc" id="L1046">    }</span>
+    
+    /**
+     * Update appointment status directly
+     * 
+     * @param appointmentId the appointment ID
+     * @param status the new status (PENDING, CONFIRMED, IN_PROGRESS, COMPLETED, CANCELLED, NO_SHOW)
+     * @return the updated appointment
+     * @throws ApiException if the API call fails
+     */
+    public Appointment updateAppointmentStatus(Long appointmentId, String status) throws ApiException {
+<span class="nc" id="L1057">        logger.debug(&quot;Updating appointment {} status to: {}&quot;, appointmentId, status);</span>
+        
+        try {
+<span class="nc" id="L1060">            ApiResponse&lt;Appointment&gt; response = apiClient.put(</span>
+                &quot;/api/appointments/&quot; + appointmentId + &quot;/status&quot;, 
+<span class="nc" id="L1062">                Map.of(&quot;status&quot;, status),</span>
+                Appointment.class
+            );
+            
+<span class="nc" id="L1066">            Appointment updatedAppointment = response.getData();</span>
+<span class="nc" id="L1067">            logger.info(&quot;Successfully updated appointment {} status to: {}&quot;, appointmentId, status);</span>
+            
+<span class="nc" id="L1069">            return updatedAppointment;</span>
+            
+<span class="nc" id="L1071">        } catch (ApiException e) {</span>
+<span class="nc" id="L1072">            logger.error(&quot;Failed to update appointment {} status: {}&quot;, appointmentId, e.getMessage());</span>
+<span class="nc" id="L1073">            throw e;</span>
+        }
+    }
+    
+    /**
+     * Confirm a pending appointment
+     * 
+     * @param appointmentId the appointment ID to confirm
+     * @return the confirmed appointment
+     * @throws ApiException if the API call fails
+     */
+    public Appointment confirmAppointment(Long appointmentId) throws ApiException {
+<span class="nc" id="L1085">        logger.debug(&quot;Confirming appointment ID: {}&quot;, appointmentId);</span>
+        
+        try {
+<span class="nc" id="L1088">            ApiResponse&lt;Appointment&gt; response = apiClient.post(</span>
+                &quot;/api/appointments/&quot; + appointmentId + &quot;/confirm&quot;, 
+                null,
+                Appointment.class
+            );
+            
+<span class="nc" id="L1094">            Appointment confirmedAppointment = response.getData();</span>
+<span class="nc" id="L1095">            logger.info(&quot;Successfully confirmed appointment ID: {}&quot;, appointmentId);</span>
+            
+<span class="nc" id="L1097">            return confirmedAppointment;</span>
+            
+<span class="nc" id="L1099">        } catch (ApiException e) {</span>
+<span class="nc" id="L1100">            logger.error(&quot;Failed to confirm appointment {}: {}&quot;, appointmentId, e.getMessage());</span>
+<span class="nc" id="L1101">            throw e;</span>
+        }
+    }
+    
+    /**
+     * Start an appointment (change status to IN_PROGRESS)
+     * 
+     * @param appointmentId the appointment ID to start
+     * @return the updated appointment
+     * @throws ApiException if the API call fails
+     */
+    public Appointment startAppointment(Long appointmentId) throws ApiException {
+<span class="nc" id="L1113">        logger.debug(&quot;Starting appointment ID: {}&quot;, appointmentId);</span>
+        
+        try {
+<span class="nc" id="L1116">            ApiResponse&lt;Appointment&gt; response = apiClient.post(</span>
+                &quot;/api/appointments/&quot; + appointmentId + &quot;/start&quot;, 
+                null,
+                Appointment.class
+            );
+            
+<span class="nc" id="L1122">            Appointment startedAppointment = response.getData();</span>
+<span class="nc" id="L1123">            logger.info(&quot;Successfully started appointment ID: {}&quot;, appointmentId);</span>
+            
+<span class="nc" id="L1125">            return startedAppointment;</span>
+            
+<span class="nc" id="L1127">        } catch (ApiException e) {</span>
+<span class="nc" id="L1128">            logger.error(&quot;Failed to start appointment {}: {}&quot;, appointmentId, e.getMessage());</span>
+<span class="nc" id="L1129">            throw e;</span>
+        }
+    }
+    
+    /**
+     * Complete an appointment
+     * 
+     * @param appointmentId the appointment ID to complete
+     * @param notes optional completion notes
+     * @return the completed appointment
+     * @throws ApiException if the API call fails
+     */
+    public Appointment completeAppointment(Long appointmentId, String notes) throws ApiException {
+<span class="nc" id="L1142">        logger.debug(&quot;Completing appointment ID: {}&quot;, appointmentId);</span>
+        
+        try {
+<span class="nc" id="L1145">            Map&lt;String, Object&gt; requestData = new HashMap&lt;&gt;();</span>
+<span class="nc bnc" id="L1146" title="All 4 branches missed.">            if (notes != null &amp;&amp; !notes.trim().isEmpty()) {</span>
+<span class="nc" id="L1147">                requestData.put(&quot;notes&quot;, notes.trim());</span>
+            }
+            
+<span class="nc" id="L1150">            ApiResponse&lt;Appointment&gt; response = apiClient.post(</span>
+                &quot;/api/appointments/&quot; + appointmentId + &quot;/complete&quot;, 
+<span class="nc bnc" id="L1152" title="All 2 branches missed.">                requestData.isEmpty() ? null : requestData,</span>
+                Appointment.class
+            );
+            
+<span class="nc" id="L1156">            Appointment completedAppointment = response.getData();</span>
+<span class="nc" id="L1157">            logger.info(&quot;Successfully completed appointment ID: {}&quot;, appointmentId);</span>
+            
+<span class="nc" id="L1159">            return completedAppointment;</span>
+            
+<span class="nc" id="L1161">        } catch (ApiException e) {</span>
+<span class="nc" id="L1162">            logger.error(&quot;Failed to complete appointment {}: {}&quot;, appointmentId, e.getMessage());</span>
+<span class="nc" id="L1163">            throw e;</span>
+        }
+    }
+    
+    /**
+     * Cancel an appointment
+     * 
+     * @param appointmentId the appointment ID to cancel
+     * @param reason cancellation reason
+     * @return the cancelled appointment
+     * @throws ApiException if the API call fails
+     */
+    public Appointment cancelAppointment(Long appointmentId, String reason) throws ApiException {
+<span class="nc" id="L1176">        logger.debug(&quot;Cancelling appointment ID: {}&quot;, appointmentId);</span>
+        
+        try {
+<span class="nc" id="L1179">            Map&lt;String, String&gt; requestData = new HashMap&lt;&gt;();</span>
+<span class="nc bnc" id="L1180" title="All 2 branches missed.">            requestData.put(&quot;reason&quot;, reason != null ? reason : &quot;No reason provided&quot;);</span>
+            
+<span class="nc" id="L1182">            ApiResponse&lt;Appointment&gt; response = apiClient.post(</span>
+                &quot;/api/appointments/&quot; + appointmentId + &quot;/cancel&quot;, 
+                requestData,
+                Appointment.class
+            );
+            
+<span class="nc" id="L1188">            Appointment cancelledAppointment = response.getData();</span>
+<span class="nc" id="L1189">            logger.info(&quot;Successfully cancelled appointment ID: {}&quot;, appointmentId);</span>
+            
+<span class="nc" id="L1191">            return cancelledAppointment;</span>
+            
+<span class="nc" id="L1193">        } catch (ApiException e) {</span>
+<span class="nc" id="L1194">            logger.error(&quot;Failed to cancel appointment {}: {}&quot;, appointmentId, e.getMessage());</span>
+<span class="nc" id="L1195">            throw e;</span>
+        }
+    }
+    
+    /**
+     * Mark an appointment as no-show
+     * 
+     * @param appointmentId the appointment ID to mark as no-show
+     * @param notes optional notes about the no-show
+     * @return the updated appointment
+     * @throws ApiException if the API call fails
+     */
+    public Appointment markAppointmentNoShow(Long appointmentId, String notes) throws ApiException {
+<span class="nc" id="L1208">        logger.debug(&quot;Marking appointment {} as no-show&quot;, appointmentId);</span>
+        
+        try {
+<span class="nc" id="L1211">            Map&lt;String, Object&gt; requestData = new HashMap&lt;&gt;();</span>
+<span class="nc bnc" id="L1212" title="All 4 branches missed.">            if (notes != null &amp;&amp; !notes.trim().isEmpty()) {</span>
+<span class="nc" id="L1213">                requestData.put(&quot;notes&quot;, notes.trim());</span>
+            }
+            
+<span class="nc" id="L1216">            ApiResponse&lt;Appointment&gt; response = apiClient.post(</span>
+                &quot;/api/appointments/&quot; + appointmentId + &quot;/no-show&quot;, 
+<span class="nc bnc" id="L1218" title="All 2 branches missed.">                requestData.isEmpty() ? null : requestData,</span>
+                Appointment.class
+            );
+            
+<span class="nc" id="L1222">            Appointment noShowAppointment = response.getData();</span>
+<span class="nc" id="L1223">            logger.info(&quot;Successfully marked appointment {} as no-show&quot;, appointmentId);</span>
+            
+<span class="nc" id="L1225">            return noShowAppointment;</span>
+            
+<span class="nc" id="L1227">        } catch (ApiException e) {</span>
+<span class="nc" id="L1228">            logger.error(&quot;Failed to mark appointment {} as no-show: {}&quot;, appointmentId, e.getMessage());</span>
+<span class="nc" id="L1229">            throw e;</span>
+        }
+    }
+    
+    /**
+     * Check technician availability for a time slot
+     * 
+     * @param technicianId the technician ID
+     * @param startTime proposed start time
+     * @param endTime proposed end time
+     * @return true if technician is available, false if conflicts exist
+     * @throws ApiException if the API call fails
+     */
+    public boolean checkTechnicianAvailability(Long technicianId, LocalDateTime startTime, LocalDateTime endTime) throws ApiException {
+<span class="nc" id="L1243">        logger.debug(&quot;Checking availability for technician {} from {} to {}&quot;, technicianId, startTime, endTime);</span>
+        
+        try {
+            // Convert LocalDateTime to ISO 8601 format with UTC timezone for query parameters
+<span class="nc" id="L1247">            String startTimeIso = startTime</span>
+<span class="nc" id="L1248">                .atZone(java.time.ZoneId.systemDefault())</span>
+<span class="nc" id="L1249">                .withZoneSameInstant(java.time.ZoneOffset.UTC)</span>
+<span class="nc" id="L1250">                .format(java.time.format.DateTimeFormatter.ISO_INSTANT);</span>
+            
+<span class="nc" id="L1252">            String endTimeIso = endTime</span>
+<span class="nc" id="L1253">                .atZone(java.time.ZoneId.systemDefault())</span>
+<span class="nc" id="L1254">                .withZoneSameInstant(java.time.ZoneOffset.UTC)</span>
+<span class="nc" id="L1255">                .format(java.time.format.DateTimeFormatter.ISO_INSTANT);</span>
+            
+            // URL encode the ISO timestamps for query parameters
+<span class="nc" id="L1258">            String queryParams = String.format(&quot;?technicianId=%d&amp;startTime=%s&amp;endTime=%s&quot;, </span>
+                technicianId, 
+<span class="nc" id="L1260">                java.net.URLEncoder.encode(startTimeIso, &quot;UTF-8&quot;), </span>
+<span class="nc" id="L1261">                java.net.URLEncoder.encode(endTimeIso, &quot;UTF-8&quot;));</span>
+                
+<span class="nc" id="L1263">            logger.debug(&quot;Checking availability with ISO dates: start={}, end={}&quot;, startTimeIso, endTimeIso);</span>
+                
+<span class="nc" id="L1265">            ApiResponse&lt;Boolean&gt; response = apiClient.get(</span>
+                &quot;/api/appointments/availability&quot; + queryParams, 
+                Boolean.class
+            );
+            
+<span class="nc" id="L1270">            boolean isAvailable = response.getData();</span>
+            
+<span class="nc bnc" id="L1272" title="All 2 branches missed.">            logger.info(&quot;Technician {} availability check: {}&quot;, technicianId, isAvailable ? &quot;Available&quot; : &quot;Conflicts exist&quot;);</span>
+            
+<span class="nc" id="L1274">            return isAvailable;</span>
+            
+<span class="nc" id="L1276">        } catch (ApiException e) {</span>
+<span class="nc" id="L1277">            logger.error(&quot;Failed to check technician {} availability: {}&quot;, technicianId, e.getMessage());</span>
+<span class="nc" id="L1278">            throw e;</span>
+<span class="nc" id="L1279">        } catch (java.io.UnsupportedEncodingException e) {</span>
+<span class="nc" id="L1280">            logger.error(&quot;Failed to encode date parameters for availability check&quot;, e);</span>
+<span class="nc" id="L1281">            throw new ApiException(&quot;Failed to format date parameters&quot;, e);</span>
+        }
+    }
+    
+    /**
+     * Get upcoming appointments within a time range
+     * 
+     * @param daysAhead number of days to look ahead (default: 7)
+     * @return list of upcoming appointments
+     * @throws ApiException if the API call fails
+     */
+    public List&lt;Appointment&gt; getUpcomingAppointments(int daysAhead) throws ApiException {
+<span class="nc" id="L1293">        logger.debug(&quot;Fetching upcoming appointments for {} days ahead&quot;, daysAhead);</span>
+        
+        try {
+            // Server returns a plain array of appointments, not a PagedResponse
+<span class="nc" id="L1297">            ApiResponse&lt;List&lt;Appointment&gt;&gt; response = apiClient.get(</span>
+                &quot;/api/appointments/upcoming?days=&quot; + daysAhead, 
+<span class="nc" id="L1299">                new TypeReference&lt;List&lt;Appointment&gt;&gt;() {}</span>
+            );
+            
+<span class="nc" id="L1302">            List&lt;Appointment&gt; appointments = response.getData();</span>
+<span class="nc" id="L1303">            logger.info(&quot;Successfully fetched {} upcoming appointments&quot;, appointments.size());</span>
+            
+<span class="nc" id="L1305">            return appointments;</span>
+            
+<span class="nc" id="L1307">        } catch (ApiException e) {</span>
+<span class="nc" id="L1308">            logger.error(&quot;Failed to fetch upcoming appointments: {}&quot;, e.getMessage());</span>
+<span class="nc" id="L1309">            throw e;</span>
+        }
+    }
 } 
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

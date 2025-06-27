@@ -122,7 +122,7 @@ import java.util.stream.Collectors;
 <span class="nc" id="L122">        List&lt;Ticket&gt; overdueTickets = apiService.getOverdueTickets();</span>
         
         // Apply filters
-<span class="nc bnc" id="L125" title="All 2 branches missed.">        if (serviceType != null) {</span>
+<span class="nc bnc" id="L125" title="All 6 branches missed.">        if (serviceType != null &amp;&amp; !serviceType.equals(&quot;__no_default_value__&quot;) &amp;&amp; !serviceType.equals(&quot;_NULL_&quot;)) {</span>
 <span class="nc" id="L126">            overdueTickets = overdueTickets.stream()</span>
 <span class="nc" id="L127">                .filter(t -&gt; serviceType.equalsIgnoreCase(t.getServiceType()))</span>
 <span class="nc" id="L128">                .collect(Collectors.toList());</span>
@@ -190,7 +190,7 @@ import java.util.stream.Collectors;
 <span class="nc" id="L190">        output.append(String.format(&quot;Sort Order: %s&quot;, sortBy)).append(&quot;\n&quot;);</span>
         
         // Add filters info if applied
-<span class="nc bnc" id="L193" title="All 2 branches missed.">        if (serviceType != null) {</span>
+<span class="nc bnc" id="L193" title="All 6 branches missed.">        if (serviceType != null &amp;&amp; !serviceType.equals(&quot;__no_default_value__&quot;) &amp;&amp; !serviceType.equals(&quot;_NULL_&quot;)) {</span>
 <span class="nc" id="L194">            output.append(String.format(&quot;Filter: Service Type = %s&quot;, serviceType)).append(&quot;\n&quot;);</span>
         }
         

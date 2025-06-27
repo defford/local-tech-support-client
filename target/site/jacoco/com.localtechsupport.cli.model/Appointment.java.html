@@ -19,10 +19,10 @@ public class Appointment {
     @JsonProperty(&quot;technicianId&quot;)
     private Long technicianId;
 
-    @JsonProperty(&quot;scheduledStartTime&quot;)
+    @JsonProperty(&quot;startTime&quot;)
     private LocalDateTime scheduledStartTime;
 
-    @JsonProperty(&quot;scheduledEndTime&quot;)
+    @JsonProperty(&quot;endTime&quot;)
     private LocalDateTime scheduledEndTime;
 
     @JsonProperty(&quot;status&quot;)
@@ -57,105 +57,113 @@ public class Appointment {
 <span class="nc" id="L57">    }</span>
 
     public Long getTicketId() {
-<span class="nc" id="L60">        return ticketId;</span>
+        // If ticketId is null but we have an embedded ticket object, extract the ID
+<span class="nc bnc" id="L61" title="All 4 branches missed.">        if (ticketId == null &amp;&amp; ticket != null) {</span>
+<span class="nc" id="L62">            return ticket.getId();</span>
+        }
+<span class="nc" id="L64">        return ticketId;</span>
     }
 
     public void setTicketId(Long ticketId) {
-<span class="nc" id="L64">        this.ticketId = ticketId;</span>
-<span class="nc" id="L65">    }</span>
+<span class="nc" id="L68">        this.ticketId = ticketId;</span>
+<span class="nc" id="L69">    }</span>
 
     public Long getTechnicianId() {
-<span class="nc" id="L68">        return technicianId;</span>
+        // If technicianId is null but we have an embedded technician object, extract the ID
+<span class="nc bnc" id="L73" title="All 4 branches missed.">        if (technicianId == null &amp;&amp; technician != null) {</span>
+<span class="nc" id="L74">            return technician.getId();</span>
+        }
+<span class="nc" id="L76">        return technicianId;</span>
     }
 
     public void setTechnicianId(Long technicianId) {
-<span class="nc" id="L72">        this.technicianId = technicianId;</span>
-<span class="nc" id="L73">    }</span>
+<span class="nc" id="L80">        this.technicianId = technicianId;</span>
+<span class="nc" id="L81">    }</span>
 
     public LocalDateTime getScheduledStartTime() {
-<span class="nc" id="L76">        return scheduledStartTime;</span>
+<span class="nc" id="L84">        return scheduledStartTime;</span>
     }
 
     public void setScheduledStartTime(LocalDateTime scheduledStartTime) {
-<span class="nc" id="L80">        this.scheduledStartTime = scheduledStartTime;</span>
-<span class="nc" id="L81">    }</span>
+<span class="nc" id="L88">        this.scheduledStartTime = scheduledStartTime;</span>
+<span class="nc" id="L89">    }</span>
 
     public LocalDateTime getScheduledEndTime() {
-<span class="nc" id="L84">        return scheduledEndTime;</span>
+<span class="nc" id="L92">        return scheduledEndTime;</span>
     }
 
     public void setScheduledEndTime(LocalDateTime scheduledEndTime) {
-<span class="nc" id="L88">        this.scheduledEndTime = scheduledEndTime;</span>
-<span class="nc" id="L89">    }</span>
+<span class="nc" id="L96">        this.scheduledEndTime = scheduledEndTime;</span>
+<span class="nc" id="L97">    }</span>
 
     public String getStatus() {
-<span class="nc" id="L92">        return status;</span>
+<span class="nc" id="L100">        return status;</span>
     }
 
     public void setStatus(String status) {
-<span class="nc" id="L96">        this.status = status;</span>
-<span class="nc" id="L97">    }</span>
+<span class="nc" id="L104">        this.status = status;</span>
+<span class="nc" id="L105">    }</span>
 
     public String getNotes() {
-<span class="nc" id="L100">        return notes;</span>
+<span class="nc" id="L108">        return notes;</span>
     }
 
     public void setNotes(String notes) {
-<span class="nc" id="L104">        this.notes = notes;</span>
-<span class="nc" id="L105">    }</span>
+<span class="nc" id="L112">        this.notes = notes;</span>
+<span class="nc" id="L113">    }</span>
 
     public LocalDateTime getCreatedAt() {
-<span class="nc" id="L108">        return createdAt;</span>
+<span class="nc" id="L116">        return createdAt;</span>
     }
 
     public void setCreatedAt(LocalDateTime createdAt) {
-<span class="nc" id="L112">        this.createdAt = createdAt;</span>
-<span class="nc" id="L113">    }</span>
+<span class="nc" id="L120">        this.createdAt = createdAt;</span>
+<span class="nc" id="L121">    }</span>
 
     public LocalDateTime getUpdatedAt() {
-<span class="nc" id="L116">        return updatedAt;</span>
+<span class="nc" id="L124">        return updatedAt;</span>
     }
 
     public void setUpdatedAt(LocalDateTime updatedAt) {
-<span class="nc" id="L120">        this.updatedAt = updatedAt;</span>
-<span class="nc" id="L121">    }</span>
+<span class="nc" id="L128">        this.updatedAt = updatedAt;</span>
+<span class="nc" id="L129">    }</span>
 
     public Ticket getTicket() {
-<span class="nc" id="L124">        return ticket;</span>
+<span class="nc" id="L132">        return ticket;</span>
     }
 
     public void setTicket(Ticket ticket) {
-<span class="nc" id="L128">        this.ticket = ticket;</span>
-<span class="nc" id="L129">    }</span>
+<span class="nc" id="L136">        this.ticket = ticket;</span>
+<span class="nc" id="L137">    }</span>
 
     public Technician getTechnician() {
-<span class="nc" id="L132">        return technician;</span>
+<span class="nc" id="L140">        return technician;</span>
     }
 
     public void setTechnician(Technician technician) {
-<span class="nc" id="L136">        this.technician = technician;</span>
-<span class="nc" id="L137">    }</span>
+<span class="nc" id="L144">        this.technician = technician;</span>
+<span class="nc" id="L145">    }</span>
 
     // Utility methods
     public boolean isUpcoming() {
-<span class="nc" id="L141">        return LocalDateTime.now().isBefore(scheduledStartTime);</span>
+<span class="nc" id="L149">        return LocalDateTime.now().isBefore(scheduledStartTime);</span>
     }
 
     public boolean isInProgress() {
-<span class="nc" id="L145">        return &quot;IN_PROGRESS&quot;.equals(status);</span>
+<span class="nc" id="L153">        return &quot;IN_PROGRESS&quot;.equals(status);</span>
     }
 
     public boolean isCompleted() {
-<span class="nc" id="L149">        return &quot;COMPLETED&quot;.equals(status);</span>
+<span class="nc" id="L157">        return &quot;COMPLETED&quot;.equals(status);</span>
     }
 
     public boolean isCancelled() {
-<span class="nc bnc" id="L153" title="All 4 branches missed.">        return &quot;CANCELLED&quot;.equals(status) || &quot;NO_SHOW&quot;.equals(status);</span>
+<span class="nc bnc" id="L161" title="All 4 branches missed.">        return &quot;CANCELLED&quot;.equals(status) || &quot;NO_SHOW&quot;.equals(status);</span>
     }
 
     @Override
     public String toString() {
-<span class="nc" id="L158">        return String.format(&quot;Appointment{id=%d, ticketId=%d, technicianId=%d, scheduledStartTime=%s, status='%s'}&quot;, </span>
+<span class="nc" id="L166">        return String.format(&quot;Appointment{id=%d, ticketId=%d, technicianId=%d, scheduledStartTime=%s, status='%s'}&quot;, </span>
                            id, ticketId, technicianId, scheduledStartTime, status);
     }
 } 

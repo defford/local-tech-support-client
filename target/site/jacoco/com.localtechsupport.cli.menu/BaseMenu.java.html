@@ -96,7 +96,7 @@ public abstract class BaseMenu implements Menu {
             
             // Invalid option number
 <span class="nc" id="L98">            DisplayUtils.printError(&quot;Invalid option. Please try again.&quot;);</span>
-<span class="nc" id="L99">            DisplayUtils.waitForEnter();</span>
+<span class="nc" id="L99">            waitForEnter();</span>
 <span class="nc" id="L100">            return null;</span>
             
 <span class="nc" id="L102">        } catch (NumberFormatException e) {</span>
@@ -151,7 +151,7 @@ public abstract class BaseMenu implements Menu {
      */
     protected Menu handleCustomInput(String input) {
 <span class="nc" id="L153">        DisplayUtils.printError(&quot;Invalid input. Please enter a number from the menu or use global commands (h for help).&quot;);</span>
-<span class="nc" id="L154">        DisplayUtils.waitForEnter();</span>
+<span class="nc" id="L154">        waitForEnter();</span>
 <span class="nc" id="L155">        return null;</span>
     }
     
@@ -160,18 +160,27 @@ public abstract class BaseMenu implements Menu {
      * Called after an action menu option is executed
      */
     protected void handlePostAction() {
-<span class="nc" id="L163">        DisplayUtils.waitForEnter();</span>
+<span class="nc" id="L163">        waitForEnter();</span>
 <span class="nc" id="L164">    }</span>
+    
+    /**
+     * Wait for user to press Enter using the same Scanner instance
+     * Use this instead of DisplayUtils.waitForEnter() to avoid input conflicts
+     */
+    protected void waitForEnter() {
+<span class="nc" id="L171">        System.out.print(&quot;\nPress Enter to continue...&quot;);</span>
+<span class="nc" id="L172">        scanner.nextLine();</span>
+<span class="nc" id="L173">    }</span>
     
     /**
      * Display navigation footer with helpful hints
      */
     private void displayNavigationFooter() {
-<span class="nc" id="L170">        System.out.println();</span>
-<span class="nc" id="L171">        DisplayUtils.printSeparator();</span>
-<span class="nc" id="L172">        System.out.println(&quot;💡 Navigation: 'b' = back, 'q' = quit, 'h' = help&quot;);</span>
-<span class="nc" id="L173">        DisplayUtils.printSeparator();</span>
-<span class="nc" id="L174">    }</span>
+<span class="nc" id="L179">        System.out.println();</span>
+<span class="nc" id="L180">        DisplayUtils.printSeparator();</span>
+<span class="nc" id="L181">        System.out.println(&quot;💡 Navigation: 'b' = back, 'q' = quit, 'h' = help&quot;);</span>
+<span class="nc" id="L182">        DisplayUtils.printSeparator();</span>
+<span class="nc" id="L183">    }</span>
     
     /**
      * Helper method to add a menu option for sub-menu navigation
@@ -183,8 +192,8 @@ public abstract class BaseMenu implements Menu {
      */
     protected void addMenuOption(int optionNumber, String displayName, String description, 
                                  java.util.function.Supplier&lt;Menu&gt; menuSupplier) {
-<span class="nc" id="L186">        menuOptions.add(new MenuOption(optionNumber, displayName, description, menuSupplier));</span>
-<span class="nc" id="L187">    }</span>
+<span class="nc" id="L195">        menuOptions.add(new MenuOption(optionNumber, displayName, description, menuSupplier));</span>
+<span class="nc" id="L196">    }</span>
     
     /**
      * Helper method to add a menu option for direct action
@@ -196,8 +205,8 @@ public abstract class BaseMenu implements Menu {
      */
     protected void addActionOption(int optionNumber, String displayName, String description, 
                                    Runnable action) {
-<span class="nc" id="L199">        menuOptions.add(new MenuOption(optionNumber, displayName, description, action));</span>
-<span class="nc" id="L200">    }</span>
+<span class="nc" id="L208">        menuOptions.add(new MenuOption(optionNumber, displayName, description, action));</span>
+<span class="nc" id="L209">    }</span>
     
     /**
      * Helper method to add an exit option
@@ -206,8 +215,8 @@ public abstract class BaseMenu implements Menu {
      * @param displayName the display name (typically &quot;Exit&quot;)
      */
     protected void addExitOption(int optionNumber, String displayName) {
-<span class="nc" id="L209">        menuOptions.add(new MenuOption(optionNumber, displayName));</span>
-<span class="nc" id="L210">    }</span>
+<span class="nc" id="L218">        menuOptions.add(new MenuOption(optionNumber, displayName));</span>
+<span class="nc" id="L219">    }</span>
     
     /**
      * Helper method to safely execute API operations with error handling
@@ -219,14 +228,14 @@ public abstract class BaseMenu implements Menu {
      */
     protected &lt;T&gt; T executeApiOperation(java.util.function.Supplier&lt;T&gt; operation, String operationName) {
         try {
-<span class="nc" id="L222">            DisplayUtils.printLoading(operationName);</span>
-<span class="nc" id="L223">            T result = operation.get();</span>
-<span class="nc" id="L224">            DisplayUtils.printSuccess(operationName + &quot; completed successfully&quot;);</span>
-<span class="nc" id="L225">            return result;</span>
-<span class="nc" id="L226">        } catch (Exception e) {</span>
-<span class="nc" id="L227">            logger.error(&quot;Error in {} operation: {}&quot;, operationName, e.getMessage(), e);</span>
-<span class="nc" id="L228">            DisplayUtils.printError(operationName + &quot; failed: &quot; + e.getMessage());</span>
-<span class="nc" id="L229">            return null;</span>
+<span class="nc" id="L231">            DisplayUtils.printLoading(operationName);</span>
+<span class="nc" id="L232">            T result = operation.get();</span>
+<span class="nc" id="L233">            DisplayUtils.printSuccess(operationName + &quot; completed successfully&quot;);</span>
+<span class="nc" id="L234">            return result;</span>
+<span class="nc" id="L235">        } catch (Exception e) {</span>
+<span class="nc" id="L236">            logger.error(&quot;Error in {} operation: {}&quot;, operationName, e.getMessage(), e);</span>
+<span class="nc" id="L237">            DisplayUtils.printError(operationName + &quot; failed: &quot; + e.getMessage());</span>
+<span class="nc" id="L238">            return null;</span>
         }
     }
 } 

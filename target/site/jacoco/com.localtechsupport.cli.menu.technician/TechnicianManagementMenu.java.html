@@ -109,7 +109,7 @@ public class TechnicianManagementMenu extends BaseMenu {
             
 <span class="nc bnc" id="L110" title="All 2 branches missed.">            if (technicians.isEmpty()) {</span>
 <span class="nc" id="L111">                System.out.println(&quot;📭 No technicians found in the system.&quot;);</span>
-<span class="nc" id="L112">                DisplayUtils.waitForEnter();</span>
+<span class="nc" id="L112">                waitForEnter();</span>
 <span class="nc" id="L113">                return;</span>
             }
             
@@ -143,7 +143,7 @@ public class TechnicianManagementMenu extends BaseMenu {
 <span class="nc" id="L143">            DisplayUtils.printError(&quot;Failed to retrieve technicians: &quot; + e.getMessage());</span>
 <span class="nc" id="L144">        }</span>
         
-<span class="nc" id="L146">        DisplayUtils.waitForEnter();</span>
+<span class="nc" id="L146">        waitForEnter();</span>
 <span class="nc" id="L147">    }</span>
     
     private void searchTechnicians() {
@@ -217,7 +217,7 @@ public class TechnicianManagementMenu extends BaseMenu {
                     
                 default:
 <span class="nc" id="L219">                    DisplayUtils.printError(&quot;Invalid search option.&quot;);</span>
-<span class="nc" id="L220">                    DisplayUtils.waitForEnter();</span>
+<span class="nc" id="L220">                    waitForEnter();</span>
 <span class="nc" id="L221">                    return;</span>
             }
             
@@ -260,7 +260,7 @@ public class TechnicianManagementMenu extends BaseMenu {
 <span class="nc" id="L260">            DisplayUtils.printError(&quot;Failed to search technicians: &quot; + e.getMessage());</span>
 <span class="nc" id="L261">        }</span>
         
-<span class="nc" id="L263">        DisplayUtils.waitForEnter();</span>
+<span class="nc" id="L263">        waitForEnter();</span>
 <span class="nc" id="L264">    }</span>
     
     private void viewTechnicianDetails() {
@@ -271,7 +271,7 @@ public class TechnicianManagementMenu extends BaseMenu {
             
 <span class="nc bnc" id="L272" title="All 2 branches missed.">            if (technicians.isEmpty()) {</span>
 <span class="nc" id="L273">                System.out.println(&quot;📭 No technicians found in the system.&quot;);</span>
-<span class="nc" id="L274">                DisplayUtils.waitForEnter();</span>
+<span class="nc" id="L274">                waitForEnter();</span>
 <span class="nc" id="L275">                return;</span>
             }
             
@@ -305,7 +305,7 @@ public class TechnicianManagementMenu extends BaseMenu {
 <span class="nc" id="L305">            DisplayUtils.printError(&quot;Failed to retrieve technicians: &quot; + e.getMessage());</span>
 <span class="nc" id="L306">        }</span>
         
-<span class="nc" id="L308">        DisplayUtils.waitForEnter();</span>
+<span class="nc" id="L308">        waitForEnter();</span>
 <span class="nc" id="L309">    }</span>
     
     private void createNewTechnician() {
@@ -336,7 +336,7 @@ public class TechnicianManagementMenu extends BaseMenu {
 <span class="nc" id="L336">            DisplayUtils.printError(&quot;An unexpected error occurred while creating the technician.&quot;);</span>
 <span class="nc" id="L337">        }</span>
         
-<span class="nc" id="L339">        DisplayUtils.waitForEnter();</span>
+<span class="nc" id="L339">        waitForEnter();</span>
 <span class="nc" id="L340">    }</span>
     
     private void editTechnician() {
@@ -347,7 +347,7 @@ public class TechnicianManagementMenu extends BaseMenu {
             
 <span class="nc bnc" id="L348" title="All 2 branches missed.">            if (technicians.isEmpty()) {</span>
 <span class="nc" id="L349">                System.out.println(&quot;📭 No technicians found in the system.&quot;);</span>
-<span class="nc" id="L350">                DisplayUtils.waitForEnter();</span>
+<span class="nc" id="L350">                waitForEnter();</span>
 <span class="nc" id="L351">                return;</span>
             }
             
@@ -372,7 +372,7 @@ public class TechnicianManagementMenu extends BaseMenu {
                     
 <span class="nc bnc" id="L373" title="All 2 branches missed.">                if (selectedTechnician == null) {</span>
 <span class="nc" id="L374">                    DisplayUtils.printError(&quot;Technician not found with ID: &quot; + technicianId);</span>
-<span class="nc" id="L375">                    DisplayUtils.waitForEnter();</span>
+<span class="nc" id="L375">                    waitForEnter();</span>
 <span class="nc" id="L376">                    return;</span>
                 }
                 
@@ -402,7 +402,7 @@ public class TechnicianManagementMenu extends BaseMenu {
 <span class="nc" id="L402">            DisplayUtils.printError(&quot;An unexpected error occurred while editing the technician.&quot;);</span>
 <span class="nc" id="L403">        }</span>
         
-<span class="nc" id="L405">        DisplayUtils.waitForEnter();</span>
+<span class="nc" id="L405">        waitForEnter();</span>
 <span class="nc" id="L406">    }</span>
     
     private void manageTechnicianStatus() {
@@ -421,7 +421,7 @@ public class TechnicianManagementMenu extends BaseMenu {
             
 <span class="nc bnc" id="L422" title="All 2 branches missed.">            if (technicians.isEmpty()) {</span>
 <span class="nc" id="L423">                System.out.println(&quot;📭 No technicians found in the system.&quot;);</span>
-<span class="nc" id="L424">                DisplayUtils.waitForEnter();</span>
+<span class="nc" id="L424">                waitForEnter();</span>
 <span class="nc" id="L425">                return;</span>
             }
             
@@ -446,7 +446,7 @@ public class TechnicianManagementMenu extends BaseMenu {
                     
 <span class="nc bnc" id="L447" title="All 2 branches missed.">                if (selectedTechnician == null) {</span>
 <span class="nc" id="L448">                    DisplayUtils.printError(&quot;Technician not found with ID: &quot; + technicianId);</span>
-<span class="nc" id="L449">                    DisplayUtils.waitForEnter();</span>
+<span class="nc" id="L449">                    waitForEnter();</span>
 <span class="nc" id="L450">                    return;</span>
                 }
                 
@@ -482,13 +482,13 @@ public class TechnicianManagementMenu extends BaseMenu {
 <span class="nc" id="L482">                        break;</span>
                     default:
 <span class="nc" id="L484">                        DisplayUtils.printError(&quot;Invalid status selection.&quot;);</span>
-<span class="nc" id="L485">                        DisplayUtils.waitForEnter();</span>
+<span class="nc" id="L485">                        waitForEnter();</span>
 <span class="nc" id="L486">                        return;</span>
                 }
                 
 <span class="nc bnc" id="L489" title="All 2 branches missed.">                if (newStatus.equals(selectedTechnician.getStatus())) {</span>
 <span class="nc" id="L490">                    System.out.println(&quot;ℹ️  Technician already has this status.&quot;);</span>
-<span class="nc" id="L491">                    DisplayUtils.waitForEnter();</span>
+<span class="nc" id="L491">                    waitForEnter();</span>
 <span class="nc" id="L492">                    return;</span>
                 }
                 
@@ -548,7 +548,7 @@ public class TechnicianManagementMenu extends BaseMenu {
 <span class="nc" id="L548">            DisplayUtils.printError(&quot;Failed to retrieve technicians: &quot; + e.getMessage());</span>
 <span class="nc" id="L549">        }</span>
         
-<span class="nc" id="L551">        DisplayUtils.waitForEnter();</span>
+<span class="nc" id="L551">        waitForEnter();</span>
 <span class="nc" id="L552">    }</span>
     
     private void deleteTechnician() {
@@ -564,7 +564,7 @@ public class TechnicianManagementMenu extends BaseMenu {
             
 <span class="nc bnc" id="L565" title="All 2 branches missed.">            if (technicians.isEmpty()) {</span>
 <span class="nc" id="L566">                System.out.println(&quot;📭 No technicians found in the system.&quot;);</span>
-<span class="nc" id="L567">                DisplayUtils.waitForEnter();</span>
+<span class="nc" id="L567">                waitForEnter();</span>
 <span class="nc" id="L568">                return;</span>
             }
             
@@ -589,7 +589,7 @@ public class TechnicianManagementMenu extends BaseMenu {
                     
 <span class="nc bnc" id="L590" title="All 2 branches missed.">                if (selectedTechnician == null) {</span>
 <span class="nc" id="L591">                    DisplayUtils.printError(&quot;Technician not found with ID: &quot; + technicianId);</span>
-<span class="nc" id="L592">                    DisplayUtils.waitForEnter();</span>
+<span class="nc" id="L592">                    waitForEnter();</span>
 <span class="nc" id="L593">                    return;</span>
                 }
                 
@@ -617,7 +617,7 @@ public class TechnicianManagementMenu extends BaseMenu {
                 
 <span class="nc bnc" id="L618" title="All 4 branches missed.">                if (!confirm1.equals(&quot;y&quot;) &amp;&amp; !confirm1.equals(&quot;yes&quot;)) {</span>
 <span class="nc" id="L619">                    System.out.println(&quot;Deletion cancelled.&quot;);</span>
-<span class="nc" id="L620">                    DisplayUtils.waitForEnter();</span>
+<span class="nc" id="L620">                    waitForEnter();</span>
 <span class="nc" id="L621">                    return;</span>
                 }
                 
@@ -628,7 +628,7 @@ public class TechnicianManagementMenu extends BaseMenu {
                 
 <span class="nc bnc" id="L629" title="All 2 branches missed.">                if (!nameVerification.equals(selectedTechnician.getFullName())) {</span>
 <span class="nc" id="L630">                    DisplayUtils.printError(&quot;Name verification failed. Deletion cancelled.&quot;);</span>
-<span class="nc" id="L631">                    DisplayUtils.waitForEnter();</span>
+<span class="nc" id="L631">                    waitForEnter();</span>
 <span class="nc" id="L632">                    return;</span>
                 }
                 
@@ -638,7 +638,7 @@ public class TechnicianManagementMenu extends BaseMenu {
                 
 <span class="nc bnc" id="L639" title="All 2 branches missed.">                if (!finalConfirm.equals(&quot;DELETE&quot;)) {</span>
 <span class="nc" id="L640">                    System.out.println(&quot;Final confirmation failed. Deletion cancelled.&quot;);</span>
-<span class="nc" id="L641">                    DisplayUtils.waitForEnter();</span>
+<span class="nc" id="L641">                    waitForEnter();</span>
 <span class="nc" id="L642">                    return;</span>
                 }
                 
@@ -678,7 +678,7 @@ public class TechnicianManagementMenu extends BaseMenu {
 <span class="nc" id="L678">            DisplayUtils.printError(&quot;Failed to retrieve technicians: &quot; + e.getMessage());</span>
 <span class="nc" id="L679">        }</span>
         
-<span class="nc" id="L681">        DisplayUtils.waitForEnter();</span>
+<span class="nc" id="L681">        waitForEnter();</span>
 <span class="nc" id="L682">    }</span>
     
     private void technicianReports() {
@@ -689,7 +689,7 @@ public class TechnicianManagementMenu extends BaseMenu {
             
 <span class="nc bnc" id="L690" title="All 2 branches missed.">            if (technicians.isEmpty()) {</span>
 <span class="nc" id="L691">                System.out.println(&quot;📭 No technicians found in the system.&quot;);</span>
-<span class="nc" id="L692">                DisplayUtils.waitForEnter();</span>
+<span class="nc" id="L692">                waitForEnter();</span>
 <span class="nc" id="L693">                return;</span>
             }
             
@@ -795,7 +795,7 @@ public class TechnicianManagementMenu extends BaseMenu {
 <span class="nc" id="L795">            DisplayUtils.printError(&quot;Failed to generate reports: &quot; + e.getMessage());</span>
 <span class="nc" id="L796">        }</span>
         
-<span class="nc" id="L798">        DisplayUtils.waitForEnter();</span>
+<span class="nc" id="L798">        waitForEnter();</span>
 <span class="nc" id="L799">    }</span>
     
     // ==================== HELPER METHODS ====================

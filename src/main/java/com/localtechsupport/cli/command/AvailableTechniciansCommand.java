@@ -72,7 +72,13 @@ public class AvailableTechniciansCommand implements Callable<Integer> {
             boolean verbose = parent.isVerbose();
             
             // Use skill parameter if service-type not specified
-            String filterSkill = serviceType != null ? serviceType : skill;
+            // Handle the case where default value processing might set unwanted values
+            String filterSkill = null;
+            if (serviceType != null && !serviceType.equals("__no_default_value__") && !serviceType.equals("_NULL_")) {
+                filterSkill = serviceType;
+            } else if (skill != null && !skill.equals("__no_default_value__") && !skill.equals("_NULL_")) {
+                filterSkill = skill;
+            }
             
             if (verbose) {
                 System.out.println("🔍 Connecting to server: " + serverUrl);
@@ -134,23 +140,31 @@ public class AvailableTechniciansCommand implements Callable<Integer> {
 
     /**
      * Fetch available technicians from the API
+     * Uses the basic technicians endpoint and filters client-side due to server issues with /api/technicians/available
      */
     private List<Technician> fetchAvailableTechnicians(ApiService apiService, String filterSkill, boolean verbose) throws ApiException {
-        List<Technician> availableTechnicians;
+        // Fetch all technicians and filter client-side for availability
+        List<Technician> allTechnicians = apiService.getAllTechnicians();
         
-        if (filterSkill != null) {
-            // Fetch technicians with specific skill
-            availableTechnicians = apiService.getAvailableTechniciansByServiceType(filterSkill);
-        } else {
-            // Fetch all available technicians
-            availableTechnicians = apiService.getAvailableTechnicians();
+        // Filter for available technicians only
+        List<Technician> availableTechnicians = allTechnicians.stream()
+            .filter(t -> t.getAvailable() != null && t.getAvailable())
+            .collect(Collectors.toList());
+        
+        // Apply skill filter if specified
+        if (filterSkill != null && !filterSkill.equals("__no_default_value__") && !filterSkill.equals("_NULL_")) {
+            availableTechnicians = availableTechnicians.stream()
+                .filter(t -> t.getSkills() != null && 
+                           t.getSkills().stream()
+                            .anyMatch(skill -> skill.equalsIgnoreCase(filterSkill)))
+                .collect(Collectors.toList());
         }
         
         // Apply sorting
         availableTechnicians = applySorting(availableTechnicians);
         
         if (verbose && !availableTechnicians.isEmpty()) {
-            System.out.println("🔍 Found " + availableTechnicians.size() + " matching technicians");
+            System.out.println("🔍 Found " + availableTechnicians.size() + " matching available technicians");
         }
         
         return availableTechnicians;

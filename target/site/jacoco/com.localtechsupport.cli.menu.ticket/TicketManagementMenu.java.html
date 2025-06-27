@@ -73,7 +73,7 @@ public class TicketManagementMenu extends BaseMenu {
 <span class="nc" id="L73">            System.out.println(&quot;ℹ️  Note: Ticket core fields (description, service type, client) cannot be modified after creation.&quot;);</span>
 <span class="nc" id="L74">            System.out.println(&quot;   Available operations: Status updates, technician assignment, and ticket closure.&quot;);</span>
 <span class="nc" id="L75">            System.out.println();</span>
-        }
+<span class="nc" id="L76">        }</span>
 <span class="nc" id="L77">    }</span>
     
     @Override
@@ -82,31 +82,31 @@ public class TicketManagementMenu extends BaseMenu {
 <span class="nc" id="L82">        this.ticketBuilder = new TicketBuilder(scanner, apiService);</span>
         
 <span class="nc" id="L84">        addActionOption(1, &quot;View All Tickets&quot;, &quot;List all tickets with status and priority&quot;,</span>
-<span class="nc" id="L85">            this::viewAllTickets);</span>
+            this::viewAllTickets);
             
 <span class="nc" id="L87">        addActionOption(2, &quot;Search Tickets&quot;, &quot;Find tickets by title/client/status/priority&quot;, </span>
-<span class="nc" id="L88">            this::searchTickets);</span>
+            this::searchTickets);
             
 <span class="nc" id="L90">        addActionOption(3, &quot;View Ticket Details&quot;, &quot;Detailed view with client and technician info&quot;,</span>
-<span class="nc" id="L91">            this::viewTicketDetails);</span>
+            this::viewTicketDetails);
             
 <span class="nc" id="L93">        addActionOption(4, &quot;Create New Ticket&quot;, &quot;Add new ticket to system&quot;,</span>
-<span class="nc" id="L94">            this::createNewTicket);</span>
+            this::createNewTicket);
             
 <span class="nc" id="L96">        addActionOption(5, &quot;Assign Technician&quot;, &quot;Assign or change technician for ticket&quot;,</span>
-<span class="nc" id="L97">            this::assignTechnician);</span>
+            this::assignTechnician);
             
 <span class="nc" id="L99">        addActionOption(6, &quot;Update Status&quot;, &quot;Change ticket status (Open/Closed)&quot;,</span>
-<span class="nc" id="L100">            this::updateTicketStatus);</span>
+            this::updateTicketStatus);
             
 <span class="nc" id="L102">        addActionOption(7, &quot;Close Ticket&quot;, &quot;Close ticket with resolution notes&quot;,</span>
-<span class="nc" id="L103">            this::closeTicket);</span>
+            this::closeTicket);
             
 <span class="nc" id="L105">        addActionOption(8, &quot;Delete Ticket&quot;, &quot;Remove ticket (with confirmation)&quot;,</span>
-<span class="nc" id="L106">            this::deleteTicket);</span>
+            this::deleteTicket);
             
 <span class="nc" id="L108">        addActionOption(9, &quot;Ticket Reports&quot;, &quot;Statistics and analytics&quot;,</span>
-<span class="nc" id="L109">            this::ticketReports);</span>
+            this::ticketReports);
 <span class="nc" id="L110">    }</span>
     
     // ==================== MENU OPERATIONS ====================
@@ -119,7 +119,7 @@ public class TicketManagementMenu extends BaseMenu {
             
 <span class="nc bnc" id="L120" title="All 2 branches missed.">            if (tickets.isEmpty()) {</span>
 <span class="nc" id="L121">                System.out.println(&quot;📭 No tickets found in the system.&quot;);</span>
-<span class="nc" id="L122">                DisplayUtils.waitForEnter();</span>
+<span class="nc" id="L122">                waitForEnter();</span>
 <span class="nc" id="L123">                return;</span>
             }
             
@@ -140,20 +140,20 @@ public class TicketManagementMenu extends BaseMenu {
                         
 <span class="nc bnc" id="L141" title="All 2 branches missed.">                    if (selectedTicket != null) {</span>
 <span class="nc" id="L142">                        displayTicketDetails(selectedTicket);</span>
-<span class="nc" id="L143">                    } else {</span>
+                    } else {
 <span class="nc" id="L144">                        DisplayUtils.printError(&quot;Ticket not found with ID: &quot; + ticketId);</span>
                     }
 <span class="nc" id="L146">                } catch (NumberFormatException e) {</span>
 <span class="nc" id="L147">                    DisplayUtils.printError(&quot;Invalid ticket ID format.&quot;);</span>
-                }
+<span class="nc" id="L148">                }</span>
             }
             
 <span class="nc" id="L151">        } catch (ApiException e) {</span>
 <span class="nc" id="L152">            logger.error(&quot;Failed to fetch tickets&quot;, e);</span>
 <span class="nc" id="L153">            DisplayUtils.printError(&quot;Failed to retrieve tickets: &quot; + e.getMessage());</span>
-        }
+<span class="nc" id="L154">        }</span>
         
-<span class="nc" id="L156">        DisplayUtils.waitForEnter();</span>
+<span class="nc" id="L156">        waitForEnter();</span>
 <span class="nc" id="L157">    }</span>
     
     private void searchTickets() {
@@ -184,7 +184,7 @@ public class TicketManagementMenu extends BaseMenu {
 <span class="nc bnc" id="L184" title="All 2 branches missed.">                                t.getDescription().toLowerCase().contains(descriptionQuery))</span>
 <span class="nc" id="L185">                            .collect(Collectors.toList());</span>
 <span class="nc" id="L186">                        searchCriteria = &quot;Description contains: &quot; + descriptionQuery;</span>
-<span class="nc" id="L187">                    } else {</span>
+                    } else {
 <span class="nc" id="L188">                        filteredTickets = allTickets;</span>
 <span class="nc" id="L189">                        searchCriteria = &quot;All tickets&quot;;</span>
                     }
@@ -198,7 +198,7 @@ public class TicketManagementMenu extends BaseMenu {
 <span class="nc" id="L198">                            .filter(t -&gt; statusQuery.equals(t.getStatus()))</span>
 <span class="nc" id="L199">                            .collect(Collectors.toList());</span>
 <span class="nc" id="L200">                        searchCriteria = &quot;Status: &quot; + statusQuery;</span>
-<span class="nc" id="L201">                    } else {</span>
+                    } else {
 <span class="nc" id="L202">                        filteredTickets = allTickets;</span>
 <span class="nc" id="L203">                        searchCriteria = &quot;All tickets&quot;;</span>
                     }
@@ -212,7 +212,7 @@ public class TicketManagementMenu extends BaseMenu {
 <span class="nc" id="L212">                            .filter(t -&gt; serviceQuery.equals(t.getServiceType()))</span>
 <span class="nc" id="L213">                            .collect(Collectors.toList());</span>
 <span class="nc" id="L214">                        searchCriteria = &quot;Service Type: &quot; + serviceQuery;</span>
-<span class="nc" id="L215">                    } else {</span>
+                    } else {
 <span class="nc" id="L216">                        filteredTickets = allTickets;</span>
 <span class="nc" id="L217">                        searchCriteria = &quot;All tickets&quot;;</span>
                     }
@@ -225,7 +225,7 @@ public class TicketManagementMenu extends BaseMenu {
                     
                 default:
 <span class="nc" id="L227">                    DisplayUtils.printError(&quot;Invalid search option.&quot;);</span>
-<span class="nc" id="L228">                    DisplayUtils.waitForEnter();</span>
+<span class="nc" id="L228">                    waitForEnter();</span>
 <span class="nc" id="L229">                    return;</span>
             }
             
@@ -235,7 +235,7 @@ public class TicketManagementMenu extends BaseMenu {
             
 <span class="nc bnc" id="L236" title="All 2 branches missed.">            if (filteredTickets.isEmpty()) {</span>
 <span class="nc" id="L237">                System.out.println(&quot;📭 No tickets found matching your search criteria.&quot;);</span>
-<span class="nc" id="L238">            } else {</span>
+            } else {
 <span class="nc" id="L239">                System.out.printf(&quot;📊 Found %d ticket(s)\n\n&quot;, filteredTickets.size());</span>
 <span class="nc" id="L240">                displayTicketsTable(filteredTickets);</span>
                 
@@ -260,22 +260,22 @@ public class TicketManagementMenu extends BaseMenu {
 <span class="nc" id="L260">                            } catch (ApiException e) {</span>
 <span class="nc" id="L261">                                logger.warn(&quot;Failed to fetch full ticket details for {}, using summary: {}&quot;, ticketId, e.getMessage());</span>
 <span class="nc" id="L262">                                displayTicketDetails(selectedTicket);</span>
-                            }
-<span class="nc" id="L264">                        } else {</span>
+<span class="nc" id="L263">                            }</span>
+                        } else {
 <span class="nc" id="L265">                            DisplayUtils.printError(&quot;Ticket not found in search results.&quot;);</span>
                         }
 <span class="nc" id="L267">                    } catch (NumberFormatException e) {</span>
 <span class="nc" id="L268">                        DisplayUtils.printError(&quot;Invalid ticket ID format.&quot;);</span>
-                    }
+<span class="nc" id="L269">                    }</span>
                 }
             }
             
 <span class="nc" id="L273">        } catch (ApiException e) {</span>
 <span class="nc" id="L274">            logger.error(&quot;Failed to search tickets&quot;, e);</span>
 <span class="nc" id="L275">            DisplayUtils.printError(&quot;Failed to search tickets: &quot; + e.getMessage());</span>
-        }
+<span class="nc" id="L276">        }</span>
         
-<span class="nc" id="L278">        DisplayUtils.waitForEnter();</span>
+<span class="nc" id="L278">        waitForEnter();</span>
 <span class="nc" id="L279">    }</span>
     
     private void viewTicketDetails() {
@@ -286,7 +286,7 @@ public class TicketManagementMenu extends BaseMenu {
             
 <span class="nc bnc" id="L287" title="All 2 branches missed.">            if (tickets.isEmpty()) {</span>
 <span class="nc" id="L288">                System.out.println(&quot;📭 No tickets found in the system.&quot;);</span>
-<span class="nc" id="L289">                DisplayUtils.waitForEnter();</span>
+<span class="nc" id="L289">                waitForEnter();</span>
 <span class="nc" id="L290">                return;</span>
             }
             
@@ -313,21 +313,21 @@ public class TicketManagementMenu extends BaseMenu {
 <span class="nc" id="L313">                    } catch (ApiException e) {</span>
 <span class="nc" id="L314">                        logger.warn(&quot;Failed to fetch full ticket details for {}, using summary: {}&quot;, ticketId, e.getMessage());</span>
 <span class="nc" id="L315">                        displayTicketDetails(selectedTicket);</span>
-                    }
-<span class="nc" id="L317">                } else {</span>
+<span class="nc" id="L316">                    }</span>
+                } else {
 <span class="nc" id="L318">                    DisplayUtils.printError(&quot;Ticket not found with ID: &quot; + ticketId);</span>
                 }
                 
 <span class="nc" id="L321">            } catch (NumberFormatException e) {</span>
 <span class="nc" id="L322">                DisplayUtils.printError(&quot;Invalid ticket ID format.&quot;);</span>
-            }
+<span class="nc" id="L323">            }</span>
             
 <span class="nc" id="L325">        } catch (ApiException e) {</span>
 <span class="nc" id="L326">            logger.error(&quot;Failed to fetch tickets for details view&quot;, e);</span>
 <span class="nc" id="L327">            DisplayUtils.printError(&quot;Failed to retrieve tickets: &quot; + e.getMessage());</span>
-        }
+<span class="nc" id="L328">        }</span>
         
-<span class="nc" id="L330">        DisplayUtils.waitForEnter();</span>
+<span class="nc" id="L330">        waitForEnter();</span>
 <span class="nc" id="L331">    }</span>
     
     private void createNewTicket() {
@@ -361,18 +361,18 @@ public class TicketManagementMenu extends BaseMenu {
 <span class="nc bnc" id="L361" title="All 2 branches missed.">                        if (assignedTech != null) {</span>
 <span class="nc" id="L362">                            System.out.printf(&quot;✅ Ticket #%d created and assigned to %s\n&quot;, </span>
 <span class="nc" id="L363">                                createdTicket.getId(), assignedTech.getFullName());</span>
-<span class="nc" id="L364">                        } else {</span>
+                        } else {
 <span class="nc" id="L365">                            System.out.printf(&quot;✅ Ticket #%d created and assigned to technician ID %d\n&quot;, </span>
 <span class="nc" id="L366">                                createdTicket.getId(), effectiveTechnicianId);</span>
                         }
 <span class="nc" id="L368">                    } catch (ApiException techError) {</span>
 <span class="nc" id="L369">                        System.out.printf(&quot;✅ Ticket #%d created and assigned to technician ID %d\n&quot;, </span>
 <span class="nc" id="L370">                            createdTicket.getId(), effectiveTechnicianId);</span>
-                    }
+<span class="nc" id="L371">                    }</span>
                     
 <span class="nc" id="L373">                    logger.info(&quot;Auto-assigned ticket {} to technician {}&quot;, </span>
 <span class="nc" id="L374">                        createdTicket.getId(), effectiveTechnicianId);</span>
-<span class="nc" id="L375">                } else {</span>
+                } else {
 <span class="nc" id="L376">                    System.out.printf(&quot;✅ Ticket #%d created (unassigned - no suitable technician found)\n&quot;, </span>
 <span class="nc" id="L377">                        createdTicket.getId());</span>
                 }
@@ -381,7 +381,7 @@ public class TicketManagementMenu extends BaseMenu {
 <span class="nc" id="L381">                logger.warn(&quot;Auto-assignment failed for ticket {}: {}&quot;, </span>
 <span class="nc" id="L382">                    createdTicket.getId(), autoAssignError.getMessage());</span>
 <span class="nc" id="L383">                System.out.printf(&quot;✅ Ticket #%d created (auto-assignment failed)\n&quot;, createdTicket.getId());</span>
-            }
+<span class="nc" id="L384">            }</span>
             
 <span class="nc" id="L386">        } catch (ApiException e) {</span>
 <span class="nc" id="L387">            logger.error(&quot;Failed to create ticket&quot;, e);</span>
@@ -389,9 +389,9 @@ public class TicketManagementMenu extends BaseMenu {
 <span class="nc" id="L389">        } catch (Exception e) {</span>
 <span class="nc" id="L390">            logger.error(&quot;Unexpected error during ticket creation&quot;, e);</span>
 <span class="nc" id="L391">            DisplayUtils.printError(&quot;An unexpected error occurred while creating the ticket.&quot;);</span>
-        }
+<span class="nc" id="L392">        }</span>
         
-<span class="nc" id="L394">        DisplayUtils.waitForEnter();</span>
+<span class="nc" id="L394">        waitForEnter();</span>
 <span class="nc" id="L395">    }</span>
     
     private void closeTicket() {
@@ -402,7 +402,7 @@ public class TicketManagementMenu extends BaseMenu {
             
 <span class="nc bnc" id="L403" title="All 2 branches missed.">            if (tickets.isEmpty()) {</span>
 <span class="nc" id="L404">                System.out.println(&quot;📭 No tickets found in the system.&quot;);</span>
-<span class="nc" id="L405">                DisplayUtils.waitForEnter();</span>
+<span class="nc" id="L405">                waitForEnter();</span>
 <span class="nc" id="L406">                return;</span>
             }
             
@@ -413,7 +413,7 @@ public class TicketManagementMenu extends BaseMenu {
                 
 <span class="nc bnc" id="L414" title="All 2 branches missed.">            if (openTickets.isEmpty()) {</span>
 <span class="nc" id="L415">                System.out.println(&quot;📭 No open tickets found to close.&quot;);</span>
-<span class="nc" id="L416">                DisplayUtils.waitForEnter();</span>
+<span class="nc" id="L416">                waitForEnter();</span>
 <span class="nc" id="L417">                return;</span>
             }
             
@@ -438,7 +438,7 @@ public class TicketManagementMenu extends BaseMenu {
                     
 <span class="nc bnc" id="L439" title="All 2 branches missed.">                if (selectedTicket == null) {</span>
 <span class="nc" id="L440">                    DisplayUtils.printError(&quot;Ticket not found with ID: &quot; + ticketId);</span>
-<span class="nc" id="L441">                    DisplayUtils.waitForEnter();</span>
+<span class="nc" id="L441">                    waitForEnter();</span>
 <span class="nc" id="L442">                    return;</span>
                 }
                 
@@ -451,7 +451,7 @@ public class TicketManagementMenu extends BaseMenu {
                 
 <span class="nc bnc" id="L452" title="All 2 branches missed.">                if (resolutionNotes.isEmpty()) {</span>
 <span class="nc" id="L453">                    DisplayUtils.printError(&quot;Resolution notes are required to close a ticket.&quot;);</span>
-<span class="nc" id="L454">                    DisplayUtils.waitForEnter();</span>
+<span class="nc" id="L454">                    waitForEnter();</span>
 <span class="nc" id="L455">                    return;</span>
                 }
                 
@@ -462,7 +462,7 @@ public class TicketManagementMenu extends BaseMenu {
                 
 <span class="nc bnc" id="L463" title="All 4 branches missed.">                if (!confirm.equals(&quot;y&quot;) &amp;&amp; !confirm.equals(&quot;yes&quot;)) {</span>
 <span class="nc" id="L464">                    System.out.println(&quot;❌ Ticket closure cancelled.&quot;);</span>
-<span class="nc" id="L465">                    DisplayUtils.waitForEnter();</span>
+<span class="nc" id="L465">                    waitForEnter();</span>
 <span class="nc" id="L466">                    return;</span>
                 }
                 
@@ -475,7 +475,7 @@ public class TicketManagementMenu extends BaseMenu {
                 
 <span class="nc" id="L476">            } catch (NumberFormatException e) {</span>
 <span class="nc" id="L477">                DisplayUtils.printError(&quot;Invalid ticket ID format.&quot;);</span>
-            }
+<span class="nc" id="L478">            }</span>
             
 <span class="nc" id="L480">        } catch (ApiException e) {</span>
 <span class="nc" id="L481">            logger.error(&quot;Failed to close ticket&quot;, e);</span>
@@ -483,9 +483,9 @@ public class TicketManagementMenu extends BaseMenu {
 <span class="nc" id="L483">        } catch (Exception e) {</span>
 <span class="nc" id="L484">            logger.error(&quot;Unexpected error during ticket closure&quot;, e);</span>
 <span class="nc" id="L485">            DisplayUtils.printError(&quot;An unexpected error occurred while closing the ticket.&quot;);</span>
-        }
+<span class="nc" id="L486">        }</span>
         
-<span class="nc" id="L488">        DisplayUtils.waitForEnter();</span>
+<span class="nc" id="L488">        waitForEnter();</span>
 <span class="nc" id="L489">    }</span>
     
     private void assignTechnician() {
@@ -497,13 +497,13 @@ public class TicketManagementMenu extends BaseMenu {
             
 <span class="nc bnc" id="L498" title="All 2 branches missed.">            if (tickets.isEmpty()) {</span>
 <span class="nc" id="L499">                System.out.println(&quot;📭 No tickets found in the system.&quot;);</span>
-<span class="nc" id="L500">                DisplayUtils.waitForEnter();</span>
+<span class="nc" id="L500">                waitForEnter();</span>
 <span class="nc" id="L501">                return;</span>
             }
             
 <span class="nc bnc" id="L504" title="All 2 branches missed.">            if (technicians.isEmpty()) {</span>
 <span class="nc" id="L505">                System.out.println(&quot;📭 No technicians found in the system.&quot;);</span>
-<span class="nc" id="L506">                DisplayUtils.waitForEnter();</span>
+<span class="nc" id="L506">                waitForEnter();</span>
 <span class="nc" id="L507">                return;</span>
             }
             
@@ -522,14 +522,14 @@ public class TicketManagementMenu extends BaseMenu {
 <span class="nc" id="L522">                Ticket selectedTicket = apiService.getTicketById(ticketId);</span>
 <span class="nc bnc" id="L523" title="All 2 branches missed.">                if (selectedTicket == null) {</span>
 <span class="nc" id="L524">                    DisplayUtils.printError(&quot;Ticket not found with ID: &quot; + ticketId);</span>
-<span class="nc" id="L525">                    DisplayUtils.waitForEnter();</span>
+<span class="nc" id="L525">                    waitForEnter();</span>
 <span class="nc" id="L526">                    return;</span>
                 }
                 
                 // Business Rule Validation: Check if ticket is OPEN
 <span class="nc bnc" id="L530" title="All 2 branches missed.">                if (!&quot;OPEN&quot;.equals(selectedTicket.getStatus())) {</span>
 <span class="nc" id="L531">                    DisplayUtils.printError(&quot;Cannot assign technician to closed ticket. Status: &quot; + selectedTicket.getStatus());</span>
-<span class="nc" id="L532">                    DisplayUtils.waitForEnter();</span>
+<span class="nc" id="L532">                    waitForEnter();</span>
 <span class="nc" id="L533">                    return;</span>
                 }
                 
@@ -570,7 +570,7 @@ public class TicketManagementMenu extends BaseMenu {
                 
 <span class="nc bnc" id="L571" title="All 2 branches missed.">                if (activeTechnicians.isEmpty()) {</span>
 <span class="nc" id="L572">                    System.out.println(&quot;⚠️  No active technicians available for assignment.&quot;);</span>
-<span class="nc" id="L573">                    DisplayUtils.waitForEnter();</span>
+<span class="nc" id="L573">                    waitForEnter();</span>
 <span class="nc" id="L574">                    return;</span>
                 }
                 
@@ -596,7 +596,7 @@ public class TicketManagementMenu extends BaseMenu {
                     case &quot;REASSIGN&quot;:
 <span class="nc bnc" id="L597" title="All 2 branches missed.">                        if (currentTechnicianId != null) {</span>
 <span class="nc" id="L598">                            handleReassignment(ticketId, displayTitle, currentTechnicianId, activeTechnicians);</span>
-<span class="nc" id="L599">                        } else {</span>
+                        } else {
 <span class="nc" id="L600">                            System.out.println(&quot;⚠️  No technician currently assigned. Use MANUAL assignment instead.&quot;);</span>
                         }
 <span class="nc" id="L602">                        break;</span>
@@ -604,7 +604,7 @@ public class TicketManagementMenu extends BaseMenu {
                     case &quot;UNASSIGN&quot;:
 <span class="nc bnc" id="L605" title="All 2 branches missed.">                        if (currentTechnicianId != null) {</span>
 <span class="nc" id="L606">                            handleUnassignment(ticketId, displayTitle);</span>
-<span class="nc" id="L607">                        } else {</span>
+                        } else {
 <span class="nc" id="L608">                            System.out.println(&quot;⚠️  No technician currently assigned.&quot;);</span>
                         }
 <span class="nc" id="L610">                        break;</span>
@@ -624,14 +624,14 @@ public class TicketManagementMenu extends BaseMenu {
                 
 <span class="nc" id="L625">            } catch (NumberFormatException e) {</span>
 <span class="nc" id="L626">                DisplayUtils.printError(&quot;Invalid ticket ID format.&quot;);</span>
-            }
+<span class="nc" id="L627">            }</span>
             
 <span class="nc" id="L629">        } catch (ApiException e) {</span>
 <span class="nc" id="L630">            logger.error(&quot;Failed to load assignment data&quot;, e);</span>
 <span class="nc" id="L631">            DisplayUtils.printError(&quot;Failed to load assignment data: &quot; + e.getMessage());</span>
-        }
+<span class="nc" id="L632">        }</span>
         
-<span class="nc" id="L634">        DisplayUtils.waitForEnter();</span>
+<span class="nc" id="L634">        waitForEnter();</span>
 <span class="nc" id="L635">    }</span>
     
     private void handleAutoAssignment(Long ticketId, String displayTitle) {
@@ -657,16 +657,16 @@ public class TicketManagementMenu extends BaseMenu {
 <span class="nc" id="L657">                            System.out.printf(&quot;   Assigned to: %s (%s)\n&quot;, </span>
 <span class="nc" id="L658">                                assignedTech.getFullName(), assignedTech.getEmail());</span>
 <span class="nc" id="L659">                            System.out.printf(&quot;   Workload balancing applied - selected least busy qualified technician\n&quot;);</span>
-<span class="nc" id="L660">                        } else {</span>
+                        } else {
 <span class="nc" id="L661">                            DisplayUtils.printSuccess(&quot;✅ Ticket automatically assigned to technician ID: &quot; + assignedTechId);</span>
                         }
 <span class="nc" id="L663">                    } catch (Exception techError) {</span>
 <span class="nc" id="L664">                        DisplayUtils.printSuccess(&quot;✅ Ticket automatically assigned to technician ID: &quot; + assignedTechId);</span>
-                    }
+<span class="nc" id="L665">                    }</span>
                     
 <span class="nc" id="L667">                    logger.info(&quot;Auto-assigned ticket: {} (ID: {}) to technician: {}&quot;, </span>
-<span class="nc" id="L668">                        displayTitle, ticketId, assignedTechId);</span>
-<span class="nc" id="L669">                } else {</span>
+                        displayTitle, ticketId, assignedTechId);
+                } else {
 <span class="nc" id="L670">                    System.out.println(&quot;ℹ️  No suitable technician found for auto-assignment.&quot;);</span>
 <span class="nc" id="L671">                    System.out.println(&quot;   Possible reasons: No active technicians, skill mismatch, or all technicians at capacity&quot;);</span>
                 }
@@ -676,11 +676,11 @@ public class TicketManagementMenu extends BaseMenu {
 <span class="nc" id="L676">                String errorMessage = autoAssignError.getMessage();</span>
 <span class="nc bnc" id="L677" title="All 2 branches missed.">                if (errorMessage.contains(&quot;no suitable technicians&quot;)) {</span>
 <span class="nc" id="L678">                    DisplayUtils.printError(&quot;Auto-assignment failed: No suitable technicians available&quot;);</span>
-<span class="nc" id="L679">                } else {</span>
+                } else {
 <span class="nc" id="L680">                    DisplayUtils.printError(&quot;Auto-assignment failed: &quot; + errorMessage);</span>
                 }
-            }
-<span class="nc" id="L683">        } else {</span>
+<span class="nc" id="L682">            }</span>
+        } else {
 <span class="nc" id="L684">            System.out.println(&quot;Auto-assignment cancelled.&quot;);</span>
         }
 <span class="nc" id="L686">    }</span>
@@ -708,8 +708,8 @@ public class TicketManagementMenu extends BaseMenu {
 <span class="nc" id="L708">            } catch (ApiException e) {</span>
 <span class="nc" id="L709">                logger.error(&quot;Reassignment failed for ticket {}: {}&quot;, ticketId, e.getMessage());</span>
 <span class="nc" id="L710">                DisplayUtils.printError(&quot;Reassignment failed: &quot; + e.getMessage());</span>
-            }
-<span class="nc" id="L712">        } else {</span>
+<span class="nc" id="L711">            }</span>
+        } else {
 <span class="nc" id="L713">            System.out.println(&quot;Reassignment cancelled.&quot;);</span>
         }
 <span class="nc" id="L715">    }</span>
@@ -737,8 +737,8 @@ public class TicketManagementMenu extends BaseMenu {
 <span class="nc" id="L737">            } catch (ApiException e) {</span>
 <span class="nc" id="L738">                logger.error(&quot;Unassignment failed for ticket {}: {}&quot;, ticketId, e.getMessage());</span>
 <span class="nc" id="L739">                DisplayUtils.printError(&quot;Unassignment failed: &quot; + e.getMessage());</span>
-            }
-<span class="nc" id="L741">        } else {</span>
+<span class="nc" id="L740">            }</span>
+        } else {
 <span class="nc" id="L742">            System.out.println(&quot;Unassignment cancelled.&quot;);</span>
         }
 <span class="nc" id="L744">    }</span>
@@ -812,7 +812,7 @@ public class TicketManagementMenu extends BaseMenu {
 <span class="nc" id="L812">                                DisplayUtils.printError(&quot;Assignment failed: Ticket not found&quot;);</span>
 <span class="nc bnc" id="L813" title="All 2 branches missed.">                            } else if (errorMessage.contains(&quot;Technician&quot;)) {</span>
 <span class="nc" id="L814">                                DisplayUtils.printError(&quot;Assignment failed: Technician not found&quot;);</span>
-<span class="nc" id="L815">                            } else {</span>
+                            } else {
 <span class="nc" id="L816">                                DisplayUtils.printError(&quot;Assignment failed: &quot; + errorMessage);</span>
                             }
 <span class="nc bnc" id="L818" title="All 2 branches missed.">                        } else if (errorMessage.contains(&quot;closed ticket&quot;)) {</span>
@@ -821,11 +821,11 @@ public class TicketManagementMenu extends BaseMenu {
 <span class="nc" id="L821">                            DisplayUtils.printError(&quot;Assignment failed: Cannot assign inactive technician&quot;);</span>
 <span class="nc bnc" id="L822" title="All 2 branches missed.">                        } else if (errorMessage.contains(&quot;skills&quot;)) {</span>
 <span class="nc" id="L823">                            DisplayUtils.printError(&quot;Assignment failed: Technician does not have required skills for this service type&quot;);</span>
-<span class="nc" id="L824">                        } else {</span>
+                        } else {
 <span class="nc" id="L825">                            DisplayUtils.printError(&quot;Assignment failed: &quot; + errorMessage);</span>
                         }
-                    }
-<span class="nc" id="L828">                } else {</span>
+<span class="nc" id="L827">                    }</span>
+                } else {
 <span class="nc" id="L829">                    System.out.println(&quot;Assignment cancelled.&quot;);</span>
                 }
 <span class="nc" id="L831">            } else {</span>
@@ -834,7 +834,7 @@ public class TicketManagementMenu extends BaseMenu {
             
 <span class="nc" id="L835">        } catch (NumberFormatException e) {</span>
 <span class="nc" id="L836">            DisplayUtils.printError(&quot;Invalid selection format.&quot;);</span>
-        }
+<span class="nc" id="L837">        }</span>
 <span class="nc" id="L838">    }</span>
     
     private void updateTicketStatus() {
@@ -845,7 +845,7 @@ public class TicketManagementMenu extends BaseMenu {
             
 <span class="nc bnc" id="L846" title="All 2 branches missed.">            if (tickets.isEmpty()) {</span>
 <span class="nc" id="L847">                System.out.println(&quot;📭 No tickets found in the system.&quot;);</span>
-<span class="nc" id="L848">                DisplayUtils.waitForEnter();</span>
+<span class="nc" id="L848">                waitForEnter();</span>
 <span class="nc" id="L849">                return;</span>
             }
             
@@ -864,7 +864,7 @@ public class TicketManagementMenu extends BaseMenu {
 <span class="nc" id="L864">                Ticket selectedTicket = apiService.getTicketById(ticketId);</span>
 <span class="nc bnc" id="L865" title="All 2 branches missed.">                if (selectedTicket == null) {</span>
 <span class="nc" id="L866">                    DisplayUtils.printError(&quot;Ticket not found with ID: &quot; + ticketId);</span>
-<span class="nc" id="L867">                    DisplayUtils.waitForEnter();</span>
+<span class="nc" id="L867">                    waitForEnter();</span>
 <span class="nc" id="L868">                    return;</span>
                 }
                 
@@ -903,13 +903,13 @@ public class TicketManagementMenu extends BaseMenu {
 <span class="nc" id="L903">                        break;</span>
                     default:
 <span class="nc" id="L905">                        DisplayUtils.printError(&quot;Invalid status selection.&quot;);</span>
-<span class="nc" id="L906">                        DisplayUtils.waitForEnter();</span>
+<span class="nc" id="L906">                        waitForEnter();</span>
 <span class="nc" id="L907">                        return;</span>
                 }
                 
 <span class="nc bnc" id="L910" title="All 2 branches missed.">                if (newStatus.equals(selectedTicket.getStatus())) {</span>
 <span class="nc" id="L911">                    System.out.println(&quot;ℹ️  Ticket already has this status.&quot;);</span>
-<span class="nc" id="L912">                    DisplayUtils.waitForEnter();</span>
+<span class="nc" id="L912">                    waitForEnter();</span>
 <span class="nc" id="L913">                    return;</span>
                 }
                 
@@ -931,14 +931,14 @@ public class TicketManagementMenu extends BaseMenu {
                 
 <span class="nc" id="L932">            } catch (NumberFormatException e) {</span>
 <span class="nc" id="L933">                DisplayUtils.printError(&quot;Invalid ticket ID format.&quot;);</span>
-            }
+<span class="nc" id="L934">            }</span>
             
 <span class="nc" id="L936">        } catch (ApiException e) {</span>
 <span class="nc" id="L937">            logger.error(&quot;Failed to update ticket status&quot;, e);</span>
 <span class="nc" id="L938">            DisplayUtils.printError(&quot;Failed to update ticket status: &quot; + e.getMessage());</span>
-        }
+<span class="nc" id="L939">        }</span>
         
-<span class="nc" id="L941">        DisplayUtils.waitForEnter();</span>
+<span class="nc" id="L941">        waitForEnter();</span>
 <span class="nc" id="L942">    }</span>
     
     private void deleteTicket() {
@@ -956,7 +956,7 @@ public class TicketManagementMenu extends BaseMenu {
             
 <span class="nc bnc" id="L957" title="All 2 branches missed.">            if (tickets.isEmpty()) {</span>
 <span class="nc" id="L958">                System.out.println(&quot;📭 No tickets found in the system.&quot;);</span>
-<span class="nc" id="L959">                DisplayUtils.waitForEnter();</span>
+<span class="nc" id="L959">                waitForEnter();</span>
 <span class="nc" id="L960">                return;</span>
             }
             
@@ -979,7 +979,7 @@ public class TicketManagementMenu extends BaseMenu {
 <span class="nc" id="L979">                Ticket selectedTicket = apiService.getTicketById(ticketId);</span>
 <span class="nc bnc" id="L980" title="All 2 branches missed.">                if (selectedTicket == null) {</span>
 <span class="nc" id="L981">                    DisplayUtils.printError(&quot;Ticket not found with ID: &quot; + ticketId);</span>
-<span class="nc" id="L982">                    DisplayUtils.waitForEnter();</span>
+<span class="nc" id="L982">                    waitForEnter();</span>
 <span class="nc" id="L983">                    return;</span>
                 }
                 
@@ -1007,12 +1007,12 @@ public class TicketManagementMenu extends BaseMenu {
 <span class="nc bnc" id="L1007" title="All 4 branches missed.">                    if (closeFirst.equals(&quot;y&quot;) || closeFirst.equals(&quot;yes&quot;)) {</span>
 <span class="nc" id="L1008">                        System.out.println(&quot;Redirecting to ticket closure process...&quot;);</span>
 <span class="nc" id="L1009">                        System.out.println(&quot;After closing, you can return to delete the ticket.&quot;);</span>
-<span class="nc" id="L1010">                        DisplayUtils.waitForEnter();</span>
+<span class="nc" id="L1010">                        waitForEnter();</span>
 <span class="nc" id="L1011">                        closeTicket(); // Call the existing close ticket method</span>
 <span class="nc" id="L1012">                        return;</span>
                     } else {
 <span class="nc" id="L1014">                        System.out.println(&quot;Deletion cancelled. Ticket remains OPEN.&quot;);</span>
-<span class="nc" id="L1015">                        DisplayUtils.waitForEnter();</span>
+<span class="nc" id="L1015">                        waitForEnter();</span>
 <span class="nc" id="L1016">                        return;</span>
                     }
                 }
@@ -1044,7 +1044,7 @@ public class TicketManagementMenu extends BaseMenu {
                 
 <span class="nc bnc" id="L1045" title="All 4 branches missed.">                if (!confirm1.equals(&quot;y&quot;) &amp;&amp; !confirm1.equals(&quot;yes&quot;)) {</span>
 <span class="nc" id="L1046">                    System.out.println(&quot;Deletion cancelled.&quot;);</span>
-<span class="nc" id="L1047">                    DisplayUtils.waitForEnter();</span>
+<span class="nc" id="L1047">                    waitForEnter();</span>
 <span class="nc" id="L1048">                    return;</span>
                 }
                 
@@ -1054,7 +1054,7 @@ public class TicketManagementMenu extends BaseMenu {
                 
 <span class="nc bnc" id="L1055" title="All 2 branches missed.">                if (!idConfirmation.equals(ticketId.toString())) {</span>
 <span class="nc" id="L1056">                    DisplayUtils.printError(&quot;ID confirmation failed. Deletion cancelled.&quot;);</span>
-<span class="nc" id="L1057">                    DisplayUtils.waitForEnter();</span>
+<span class="nc" id="L1057">                    waitForEnter();</span>
 <span class="nc" id="L1058">                    return;</span>
                 }
                 
@@ -1079,22 +1079,22 @@ public class TicketManagementMenu extends BaseMenu {
 <span class="nc bnc" id="L1079" title="All 2 branches missed.">                    } else if (e.getStatusCode() == 404) {</span>
 <span class="nc" id="L1080">                        DisplayUtils.printError(&quot;❌ Ticket not found - may have been deleted by another user&quot;);</span>
 <span class="nc" id="L1081">                        logger.info(&quot;Ticket ID {} not found during deletion - already deleted?&quot;, ticketId);</span>
-<span class="nc" id="L1082">                    } else {</span>
+                    } else {
 <span class="nc" id="L1083">                        DisplayUtils.printError(&quot;❌ Failed to delete ticket: &quot; + e.getMessage());</span>
 <span class="nc" id="L1084">                        logger.error(&quot;Failed to delete ticket ID: {}&quot;, ticketId, e);</span>
                     }
-                }
+<span class="nc" id="L1086">                }</span>
                 
 <span class="nc" id="L1088">            } catch (NumberFormatException e) {</span>
 <span class="nc" id="L1089">                DisplayUtils.printError(&quot;Invalid ticket ID format.&quot;);</span>
-            }
+<span class="nc" id="L1090">            }</span>
             
 <span class="nc" id="L1092">        } catch (ApiException e) {</span>
 <span class="nc" id="L1093">            logger.error(&quot;Failed to retrieve tickets for deletion&quot;, e);</span>
 <span class="nc" id="L1094">            DisplayUtils.printError(&quot;Failed to retrieve tickets: &quot; + e.getMessage());</span>
-        }
+<span class="nc" id="L1095">        }</span>
         
-<span class="nc" id="L1097">        DisplayUtils.waitForEnter();</span>
+<span class="nc" id="L1097">        waitForEnter();</span>
 <span class="nc" id="L1098">    }</span>
     
     private void ticketReports() {
@@ -1105,7 +1105,7 @@ public class TicketManagementMenu extends BaseMenu {
             
 <span class="nc bnc" id="L1106" title="All 2 branches missed.">            if (tickets.isEmpty()) {</span>
 <span class="nc" id="L1107">                System.out.println(&quot;📭 No tickets found in the system.&quot;);</span>
-<span class="nc" id="L1108">                DisplayUtils.waitForEnter();</span>
+<span class="nc" id="L1108">                waitForEnter();</span>
 <span class="nc" id="L1109">                return;</span>
             }
             
@@ -1183,7 +1183,7 @@ public class TicketManagementMenu extends BaseMenu {
 <span class="nc" id="L1183">                System.out.printf(&quot;✅ Resolution Rate: %.1f%% (Excellent)\n&quot;, resolutionRate);</span>
 <span class="nc bnc" id="L1184" title="All 2 branches missed.">            } else if (resolutionRate &gt;= 60) {</span>
 <span class="nc" id="L1185">                System.out.printf(&quot;⚠️  Resolution Rate: %.1f%% (Good)\n&quot;, resolutionRate);</span>
-<span class="nc" id="L1186">            } else {</span>
+            } else {
 <span class="nc" id="L1187">                System.out.printf(&quot;❌ Resolution Rate: %.1f%% (Needs Attention)\n&quot;, resolutionRate);</span>
             }
             
@@ -1192,7 +1192,7 @@ public class TicketManagementMenu extends BaseMenu {
 <span class="nc" id="L1192">                System.out.printf(&quot;✅ Assignment Rate: %.1f%% (Excellent)\n&quot;, assignmentRate);</span>
 <span class="nc bnc" id="L1193" title="All 2 branches missed.">            } else if (assignmentRate &gt;= 70) {</span>
 <span class="nc" id="L1194">                System.out.printf(&quot;⚠️  Assignment Rate: %.1f%% (Good)\n&quot;, assignmentRate);</span>
-<span class="nc" id="L1195">            } else {</span>
+            } else {
 <span class="nc" id="L1196">                System.out.printf(&quot;❌ Assignment Rate: %.1f%% (Poor)\n&quot;, assignmentRate);</span>
             }
             
@@ -1224,16 +1224,16 @@ public class TicketManagementMenu extends BaseMenu {
 <span class="nc" id="L1224">        } catch (ApiException e) {</span>
 <span class="nc" id="L1225">            logger.error(&quot;Failed to generate ticket reports&quot;, e);</span>
 <span class="nc" id="L1226">            DisplayUtils.printError(&quot;Failed to generate reports: &quot; + e.getMessage());</span>
-        }
+<span class="nc" id="L1227">        }</span>
         
-<span class="nc" id="L1229">        DisplayUtils.waitForEnter();</span>
+<span class="nc" id="L1229">        waitForEnter();</span>
 <span class="nc" id="L1230">    }</span>
     
     // ==================== HELPER METHODS ====================
     
     private void displayTicketsTable(List&lt;Ticket&gt; tickets) {
 <span class="nc" id="L1235">        System.out.printf(&quot;%-4s %-40s %-10s %-12s %-18s %s\n&quot;, </span>
-<span class="nc" id="L1236">            &quot;ID&quot;, &quot;Description&quot;, &quot;Status&quot;, &quot;Service&quot;, &quot;Client&quot;, &quot;Assigned To&quot;);</span>
+            &quot;ID&quot;, &quot;Description&quot;, &quot;Status&quot;, &quot;Service&quot;, &quot;Client&quot;, &quot;Assigned To&quot;);
 <span class="nc" id="L1237">        System.out.println(&quot;─&quot;.repeat(110));</span>
         
 <span class="nc bnc" id="L1239" title="All 2 branches missed.">        for (Ticket ticket : tickets) {</span>
@@ -1241,7 +1241,7 @@ public class TicketManagementMenu extends BaseMenu {
 <span class="nc" id="L1241">            String clientDisplay = &quot;N/A&quot;;</span>
 <span class="nc bnc" id="L1242" title="All 6 branches missed.">            if (ticket.getClient() != null &amp;&amp; ticket.getClient().getFullName() != null &amp;&amp; !ticket.getClient().getFullName().trim().isEmpty()) {</span>
 <span class="nc" id="L1243">                clientDisplay = truncate(ticket.getClient().getFullName(), 16);</span>
-<span class="nc" id="L1244">            } else {</span>
+            } else {
 <span class="nc" id="L1245">                Long effectiveClientId = getEffectiveClientId(ticket);</span>
 <span class="nc bnc" id="L1246" title="All 2 branches missed.">                if (effectiveClientId != null) {</span>
                     try {
@@ -1252,12 +1252,12 @@ public class TicketManagementMenu extends BaseMenu {
 <span class="nc" id="L1252">                            .orElse(null);</span>
 <span class="nc bnc" id="L1253" title="All 6 branches missed.">                        if (client != null &amp;&amp; client.getFullName() != null &amp;&amp; !client.getFullName().trim().isEmpty()) {</span>
 <span class="nc" id="L1254">                            clientDisplay = truncate(client.getFullName(), 16);</span>
-<span class="nc" id="L1255">                        } else {</span>
+                        } else {
 <span class="nc" id="L1256">                            clientDisplay = &quot;ID:&quot; + effectiveClientId;</span>
                         }
 <span class="nc" id="L1258">                    } catch (ApiException e) {</span>
 <span class="nc" id="L1259">                        clientDisplay = &quot;ID:&quot; + effectiveClientId;</span>
-                    }
+<span class="nc" id="L1260">                    }</span>
                 }
             }
             
@@ -1265,7 +1265,7 @@ public class TicketManagementMenu extends BaseMenu {
 <span class="nc" id="L1265">            String technicianDisplay = &quot;Unassigned&quot;;</span>
 <span class="nc bnc" id="L1266" title="All 6 branches missed.">            if (ticket.getAssignedTechnician() != null &amp;&amp; ticket.getAssignedTechnician().getFullName() != null &amp;&amp; !ticket.getAssignedTechnician().getFullName().trim().isEmpty()) {</span>
 <span class="nc" id="L1267">                technicianDisplay = truncate(ticket.getAssignedTechnician().getFullName(), 18);</span>
-<span class="nc" id="L1268">            } else {</span>
+            } else {
 <span class="nc" id="L1269">                Long effectiveTechnicianId = getEffectiveAssignedTechnicianId(ticket);</span>
 <span class="nc bnc" id="L1270" title="All 2 branches missed.">                if (effectiveTechnicianId != null) {</span>
                     try {
@@ -1276,12 +1276,12 @@ public class TicketManagementMenu extends BaseMenu {
 <span class="nc" id="L1276">                            .orElse(null);</span>
 <span class="nc bnc" id="L1277" title="All 6 branches missed.">                        if (technician != null &amp;&amp; technician.getFullName() != null &amp;&amp; !technician.getFullName().trim().isEmpty()) {</span>
 <span class="nc" id="L1278">                            technicianDisplay = truncate(technician.getFullName(), 18);</span>
-<span class="nc" id="L1279">                        } else {</span>
+                        } else {
 <span class="nc" id="L1280">                            technicianDisplay = &quot;ID:&quot; + effectiveTechnicianId;</span>
                         }
 <span class="nc" id="L1282">                    } catch (ApiException e) {</span>
 <span class="nc" id="L1283">                        technicianDisplay = &quot;ID:&quot; + effectiveTechnicianId;</span>
-                    }
+<span class="nc" id="L1284">                    }</span>
                 }
             }
             
@@ -1298,10 +1298,10 @@ public class TicketManagementMenu extends BaseMenu {
 <span class="nc" id="L1298">                truncateWithDefault(description, 40, &quot;No Description&quot;),</span>
 <span class="nc" id="L1299">                getStatusDisplay(ticket.getStatus()),</span>
 <span class="nc bnc" id="L1300" title="All 2 branches missed.">                ticket.getServiceType() != null ? ticket.getServiceType() : &quot;N/A&quot;,</span>
-<span class="nc" id="L1301">                clientDisplay,</span>
-<span class="nc" id="L1302">                technicianDisplay</span>
+                clientDisplay,
+                technicianDisplay
             );
-        }
+<span class="nc" id="L1304">        }</span>
 <span class="nc" id="L1305">    }</span>
     
     private void displayTicketDetails(Ticket ticket) {
@@ -1346,13 +1346,13 @@ public class TicketManagementMenu extends BaseMenu {
 <span class="nc bnc" id="L1346" title="All 2 branches missed.">                    System.out.printf(&quot;  Email:        %s\n&quot;, client.getEmail() != null ? client.getEmail() : &quot;Not provided&quot;);</span>
 <span class="nc bnc" id="L1347" title="All 4 branches missed.">                    System.out.printf(&quot;  Phone:        %s\n&quot;, client.getPhone() != null &amp;&amp; !client.getPhone().trim().isEmpty() ? client.getPhone() : &quot;Not provided&quot;);</span>
 <span class="nc bnc" id="L1348" title="All 2 branches missed.">                    System.out.printf(&quot;  Status:       %s\n&quot;, client.isActive() ? &quot;🟢 ACTIVE&quot; : &quot;🔴 SUSPENDED&quot;);</span>
-<span class="nc" id="L1349">                } else {</span>
+                } else {
 <span class="nc" id="L1350">                    System.out.printf(&quot;  Client ID:    %d (Client not found)\n&quot;, effectiveClientId);</span>
                 }
 <span class="nc" id="L1352">            } catch (ApiException e) {</span>
 <span class="nc" id="L1353">                System.out.printf(&quot;  Client ID:    %d (Unable to load client details)\n&quot;, effectiveClientId);</span>
-            }
-<span class="nc" id="L1355">        } else {</span>
+<span class="nc" id="L1354">            }</span>
+        } else {
 <span class="nc" id="L1356">            System.out.println(&quot;  No client assigned&quot;);</span>
         }
 <span class="nc" id="L1358">        System.out.println();</span>
@@ -1377,13 +1377,13 @@ public class TicketManagementMenu extends BaseMenu {
 <span class="nc bnc" id="L1377" title="All 2 branches missed.">                    System.out.printf(&quot;  Status:       %s\n&quot;, technician.getStatus() != null ? technician.getStatus() : &quot;Unknown&quot;);</span>
 <span class="nc" id="L1378">                    System.out.printf(&quot;  Workload:     %s\n&quot;, </span>
 <span class="nc bnc" id="L1379" title="All 2 branches missed.">                        technician.getCurrentWorkload() != null ? technician.getCurrentWorkload().toString() : &quot;N/A&quot;);</span>
-<span class="nc" id="L1380">                } else {</span>
+                } else {
 <span class="nc" id="L1381">                    System.out.printf(&quot;  Technician ID: %d (Technician not found)\n&quot;, effectiveTechnicianId);</span>
                 }
 <span class="nc" id="L1383">            } catch (ApiException e) {</span>
 <span class="nc" id="L1384">                System.out.printf(&quot;  Technician ID: %d (Unable to load technician details)\n&quot;, effectiveTechnicianId);</span>
-            }
-<span class="nc" id="L1386">        } else {</span>
+<span class="nc" id="L1385">            }</span>
+        } else {
 <span class="nc" id="L1387">            System.out.println(&quot;  Not assigned to any technician&quot;);</span>
         }
 <span class="nc" id="L1389">        System.out.println();</span>

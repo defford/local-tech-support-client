@@ -5,7 +5,22 @@ import com.localtechsupport.cli.menu.Menu;
 import com.localtechsupport.cli.menu.client.ClientManagementMenu;
 import com.localtechsupport.cli.menu.technician.TechnicianManagementMenu;
 import com.localtechsupport.cli.menu.ticket.TicketManagementMenu;
+import com.localtechsupport.cli.menu.appointment.AppointmentManagementMenu;
+import com.localtechsupport.cli.menu.reports.ReportsAnalyticsMenu;
 import com.localtechsupport.cli.util.DisplayUtils;
+// Import the command classes
+import com.localtechsupport.cli.command.ClientTicketsCommand;
+import com.localtechsupport.cli.command.OverdueTicketsCommand;
+import com.localtechsupport.cli.command.TechnicianWorkloadCommand;
+import com.localtechsupport.cli.command.AvailableTechniciansCommand;
+import com.localtechsupport.cli.command.TechnicianScheduleCommand;
+import com.localtechsupport.cli.command.ClientAppointmentsCommand;
+import com.localtechsupport.cli.command.ClientTechnicianHistoryCommand;
+import com.localtechsupport.cli.command.TechnicianFeedbackCommand;
+import com.localtechsupport.cli.CliApplication;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import picocli.CommandLine;
 
 /**
  * Main menu for the Tech Support CLI system.
@@ -15,6 +30,8 @@ import com.localtechsupport.cli.util.DisplayUtils;
  * reports, and viewing current data.
  */
 public class MainMenu extends BaseMenu {
+    
+    private static final Logger logger = LoggerFactory.getLogger(MainMenu.class);
     
     public MainMenu() {
         super(null); // Root menu has no parent
@@ -56,14 +73,12 @@ public class MainMenu extends BaseMenu {
         // Appointment Management
         addMenuOption(4, "Appointment Management", 
             "Schedule, manage, and track client appointments",
-            () -> new PlaceholderMenu(this, "Appointment Management",
-                "Appointment operations will be available in Phase 5 implementation"));
+            () -> new AppointmentManagementMenu(this));
         
         // Reports & Analytics
         addMenuOption(5, "Reports & Analytics",
             "View system reports, statistics, and analytics",
-            () -> new PlaceholderMenu(this, "Reports & Analytics",
-                "Advanced reporting will be available in Phase 6 implementation"));
+            () -> new ReportsAnalyticsMenu(this));
         
         // View Current Data - Links to existing functionality
         addMenuOption(6, "View Current Data",
@@ -112,6 +127,8 @@ public class MainMenu extends BaseMenu {
      */
     private static class ViewCurrentDataMenu extends BaseMenu {
         
+        private static final Logger logger = LoggerFactory.getLogger(ViewCurrentDataMenu.class);
+        
         public ViewCurrentDataMenu(Menu parent) {
             super(parent);
         }
@@ -124,7 +141,7 @@ public class MainMenu extends BaseMenu {
         @Override
         protected void displayCustomContent() {
             System.out.println("📊 Quick access to current system data");
-            System.out.println("    These options use the existing command implementations");
+            System.out.println("    These options execute the core reporting commands");
             System.out.println("    to display current system information.");
         }
         
@@ -133,82 +150,164 @@ public class MainMenu extends BaseMenu {
             // Client Tickets
             addActionOption(1, "Client Tickets", 
                 "Show tickets for each client in the system",
-                this::showClientTickets);
+                () -> executeCommand("Client Tickets Report", ClientTicketsCommand.class));
             
             // Overdue Tickets
             addActionOption(2, "Overdue Tickets",
                 "Show tickets that are currently overdue", 
-                this::showOverdueTickets);
+                () -> executeCommand("Overdue Tickets Report", OverdueTicketsCommand.class));
             
             // Technician Workload
             addActionOption(3, "Technician Workload",
                 "Show tickets assigned to each technician",
-                this::showTechnicianWorkload);
+                () -> executeCommand("Technician Workload Report", TechnicianWorkloadCommand.class));
             
             // Available Technicians
             addActionOption(4, "Available Technicians", 
                 "Show technicians available for each service type",
-                this::showAvailableTechnicians);
+                () -> executeCommand("Available Technicians Report", AvailableTechniciansCommand.class));
             
             // Technician Schedule
             addActionOption(5, "Technician Schedule",
                 "Show appointments for each technician",
-                this::showTechnicianSchedule);
+                () -> executeCommand("Technician Schedule Report", TechnicianScheduleCommand.class));
             
             // Client Appointments
             addActionOption(6, "Client Appointments",
                 "Show appointments scheduled by each client", 
-                this::showClientAppointments);
+                () -> executeCommand("Client Appointments Report", ClientAppointmentsCommand.class));
             
             // Client-Technician History
             addActionOption(7, "Client-Technician History",
                 "Show which clients have worked with which technicians",
-                this::showClientTechnicianHistory);
+                () -> executeCommand("Client-Technician History Report", ClientTechnicianHistoryCommand.class));
             
             // Technician Feedback
             addActionOption(8, "Technician Feedback", 
                 "Show feedback ratings for each technician",
-                this::showTechnicianFeedback);
+                () -> executeCommand("Technician Feedback Report", TechnicianFeedbackCommand.class));
         }
         
-        private void showClientTickets() {
-            DisplayUtils.printInfo("This would execute the client-tickets command");
-            DisplayUtils.printWarning("Integration with existing commands will be implemented in the next iteration");
+        /**
+         * Create a mock CliApplication for command execution
+         */
+        private CliApplication createMockCliApplication() {
+            return new CliApplication() {
+                @Override
+                public String getServerUrl() {
+                    return apiService.getBaseUrl();
+                }
+                
+                @Override
+                public boolean isVerbose() {
+                    return false; // Menu context doesn't need verbose output
+                }
+                
+                @Override
+                public String getOutputFormat() {
+                    return "table"; // Use table format for better readability
+                }
+            };
         }
         
-        private void showOverdueTickets() {
-            DisplayUtils.printInfo("This would execute the overdue-tickets command");
-            DisplayUtils.printWarning("Integration with existing commands will be implemented in the next iteration");
+        /**
+         * Generic method to execute any command class
+         */
+        private <T extends java.util.concurrent.Callable<Integer>> void executeCommand(String reportName, Class<T> commandClass) {
+            try {
+                // Create and initialize the command
+                T command = createAndInitializeCommand(commandClass);
+                
+                // Execute the command
+                DisplayUtils.printHeader(reportName.toUpperCase());
+                System.out.println();
+                
+                Integer result = command.call();
+                
+                if (result != 0) {
+                    System.out.println();
+                    DisplayUtils.printError("Command completed with errors (exit code: " + result + ")");
+                }
+                
+            } catch (Exception e) {
+                logger.error("Error executing {}: {}", commandClass.getSimpleName(), e.getMessage(), e);
+                System.out.println();
+                DisplayUtils.printError("Error executing command: " + e.getMessage());
+            }
         }
         
-        private void showTechnicianWorkload() {
-            DisplayUtils.printInfo("This would execute the technician-workload command");
-            DisplayUtils.printWarning("Integration with existing commands will be implemented in the next iteration");
+        /**
+         * Create and initialize a command instance with proper parent and default values
+         */
+        private <T> T createAndInitializeCommand(Class<T> commandClass) throws Exception {
+            try {
+                // Create instance
+                T command = commandClass.getDeclaredConstructor().newInstance();
+                
+                // Set parent command
+                setParentCommand(command);
+                
+                // Set default values for @Option fields
+                setDefaultValues(command);
+                
+                logger.debug("Successfully initialized command: {}", commandClass.getSimpleName());
+                return command;
+                
+            } catch (Exception e) {
+                logger.error("Failed to initialize {}: {}", commandClass.getSimpleName(), e.getMessage(), e);
+                throw new Exception("Failed to initialize " + commandClass.getSimpleName() + ": " + e.getMessage(), e);
+            }
         }
         
-        private void showAvailableTechnicians() {
-            DisplayUtils.printInfo("This would execute the available-technicians command");
-            DisplayUtils.printWarning("Integration with existing commands will be implemented in the next iteration");
+        /**
+         * Set the parent command field using reflection
+         */
+        private <T> void setParentCommand(T command) throws Exception {
+            java.lang.reflect.Field parentField = command.getClass().getDeclaredField("parent");
+            parentField.setAccessible(true);
+            parentField.set(command, createMockCliApplication());
         }
         
-        private void showTechnicianSchedule() {
-            DisplayUtils.printInfo("This would execute the technician-schedule command");
-            DisplayUtils.printWarning("Integration with existing commands will be implemented in the next iteration");
+        /**
+         * Set default values for all @Option fields that have defaultValue
+         */
+        private <T> void setDefaultValues(T command) throws Exception {
+            java.lang.reflect.Field[] fields = command.getClass().getDeclaredFields();
+            
+            for (java.lang.reflect.Field field : fields) {
+                CommandLine.Option optionAnnotation = field.getAnnotation(CommandLine.Option.class);
+                if (optionAnnotation != null && !optionAnnotation.defaultValue().equals(CommandLine.Option.NULL_VALUE)) {
+                    try {
+                        field.setAccessible(true);
+                        String defaultValue = optionAnnotation.defaultValue();
+                        Object value = convertDefaultValue(field.getType(), defaultValue);
+                        field.set(command, value);
+                        logger.debug("Set default value for {}.{}: {}", 
+                            command.getClass().getSimpleName(), field.getName(), defaultValue);
+                    } catch (Exception e) {
+                        logger.warn("Failed to set default value for {}.{}: {}", 
+                            command.getClass().getSimpleName(), field.getName(), e.getMessage());
+                        // Continue with other fields
+                    }
+                }
+            }
         }
         
-        private void showClientAppointments() {
-            DisplayUtils.printInfo("This would execute the client-appointments command");
-            DisplayUtils.printWarning("Integration with existing commands will be implemented in the next iteration");
-        }
-        
-        private void showClientTechnicianHistory() {
-            DisplayUtils.printInfo("This would execute the client-technician-history command");
-            DisplayUtils.printWarning("Integration with existing commands will be implemented in the next iteration");
-        }
-        
-        private void showTechnicianFeedback() {
-            DisplayUtils.printInfo("This would execute the technician-feedback command");
-            DisplayUtils.printWarning("Integration with existing commands will be implemented in the next iteration");
+        /**
+         * Convert string default value to appropriate Java type
+         */
+        private Object convertDefaultValue(Class<?> fieldType, String defaultValue) {
+            if (fieldType == String.class) {
+                return defaultValue;
+            } else if (fieldType == int.class || fieldType == Integer.class) {
+                return Integer.parseInt(defaultValue);
+            } else if (fieldType == boolean.class || fieldType == Boolean.class) {
+                return Boolean.parseBoolean(defaultValue);
+            } else if (fieldType == long.class || fieldType == Long.class) {
+                return Long.parseLong(defaultValue);
+            }
+            // Fallback to string for any other types
+            return defaultValue;
         }
     }
 } 

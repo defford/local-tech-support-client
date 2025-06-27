@@ -5,7 +5,22 @@ import com.localtechsupport.cli.menu.Menu;
 import com.localtechsupport.cli.menu.client.ClientManagementMenu;
 import com.localtechsupport.cli.menu.technician.TechnicianManagementMenu;
 import com.localtechsupport.cli.menu.ticket.TicketManagementMenu;
+import com.localtechsupport.cli.menu.appointment.AppointmentManagementMenu;
+import com.localtechsupport.cli.menu.reports.ReportsAnalyticsMenu;
 import com.localtechsupport.cli.util.DisplayUtils;
+// Import the command classes
+import com.localtechsupport.cli.command.ClientTicketsCommand;
+import com.localtechsupport.cli.command.OverdueTicketsCommand;
+import com.localtechsupport.cli.command.TechnicianWorkloadCommand;
+import com.localtechsupport.cli.command.AvailableTechniciansCommand;
+import com.localtechsupport.cli.command.TechnicianScheduleCommand;
+import com.localtechsupport.cli.command.ClientAppointmentsCommand;
+import com.localtechsupport.cli.command.ClientTechnicianHistoryCommand;
+import com.localtechsupport.cli.command.TechnicianFeedbackCommand;
+import com.localtechsupport.cli.CliApplication;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import picocli.CommandLine;
 
 /**
  * Main menu for the Tech Support CLI system.
@@ -16,63 +31,63 @@ import com.localtechsupport.cli.util.DisplayUtils;
  */
 public class MainMenu extends BaseMenu {
     
+<span class="nc" id="L34">    private static final Logger logger = LoggerFactory.getLogger(MainMenu.class);</span>
+    
     public MainMenu() {
-<span class="nc" id="L20">        super(null); // Root menu has no parent</span>
-<span class="nc" id="L21">    }</span>
+<span class="nc" id="L37">        super(null); // Root menu has no parent</span>
+<span class="nc" id="L38">    }</span>
     
     @Override
     protected String getMenuTitle() {
-<span class="nc" id="L25">        return &quot;Tech Support CLI System - Main Menu&quot;;</span>
+<span class="nc" id="L42">        return &quot;Tech Support CLI System - Main Menu&quot;;</span>
     }
     
     @Override
     protected void displayCustomContent() {
         // Display system information and connection status
-<span class="nc" id="L31">        System.out.println(&quot;🖥️  Welcome to the Local Tech Support System&quot;);</span>
-<span class="nc" id="L32">        System.out.println(&quot;    Server: &quot; + apiService.getBaseUrl());</span>
-<span class="nc" id="L33">        System.out.println(&quot;    Connection: ✅ Active&quot;);</span>
-<span class="nc" id="L34">        System.out.println();  </span>
-<span class="nc" id="L35">        System.out.println(&quot;📋 This interactive menu system provides access to all&quot;);</span>
-<span class="nc" id="L36">        System.out.println(&quot;    system functions with an intuitive navigation interface.&quot;);</span>
-<span class="nc" id="L37">    }</span>
+<span class="nc" id="L48">        System.out.println(&quot;🖥️  Welcome to the Local Tech Support System&quot;);</span>
+<span class="nc" id="L49">        System.out.println(&quot;    Server: &quot; + apiService.getBaseUrl());</span>
+<span class="nc" id="L50">        System.out.println(&quot;    Connection: ✅ Active&quot;);</span>
+<span class="nc" id="L51">        System.out.println();  </span>
+<span class="nc" id="L52">        System.out.println(&quot;📋 This interactive menu system provides access to all&quot;);</span>
+<span class="nc" id="L53">        System.out.println(&quot;    system functions with an intuitive navigation interface.&quot;);</span>
+<span class="nc" id="L54">    }</span>
     
     @Override
     protected void initializeMenuOptions() {
         // Client Management
-<span class="nc" id="L42">        addMenuOption(1, &quot;Client Management&quot;, </span>
+<span class="nc" id="L59">        addMenuOption(1, &quot;Client Management&quot;, </span>
             &quot;Manage clients, view client information, and handle client-related operations&quot;,
-<span class="nc" id="L44">            () -&gt; new ClientManagementMenu(this));</span>
+<span class="nc" id="L61">            () -&gt; new ClientManagementMenu(this));</span>
         
         // Technician Management  
-<span class="nc" id="L47">        addMenuOption(2, &quot;Technician Management&quot;,</span>
+<span class="nc" id="L64">        addMenuOption(2, &quot;Technician Management&quot;,</span>
             &quot;Manage technicians, skills, schedules, and technician-related operations&quot;, 
-<span class="nc" id="L49">            () -&gt; new TechnicianManagementMenu(this));</span>
+<span class="nc" id="L66">            () -&gt; new TechnicianManagementMenu(this));</span>
         
         // Ticket Management
-<span class="nc" id="L52">        addMenuOption(3, &quot;Ticket Management&quot;,</span>
+<span class="nc" id="L69">        addMenuOption(3, &quot;Ticket Management&quot;,</span>
             &quot;Create, update, assign, and track support tickets&quot;,
-<span class="nc" id="L54">            () -&gt; new TicketManagementMenu(this));</span>
+<span class="nc" id="L71">            () -&gt; new TicketManagementMenu(this));</span>
         
         // Appointment Management
-<span class="nc" id="L57">        addMenuOption(4, &quot;Appointment Management&quot;, </span>
+<span class="nc" id="L74">        addMenuOption(4, &quot;Appointment Management&quot;, </span>
             &quot;Schedule, manage, and track client appointments&quot;,
-<span class="nc" id="L59">            () -&gt; new PlaceholderMenu(this, &quot;Appointment Management&quot;,</span>
-                &quot;Appointment operations will be available in Phase 5 implementation&quot;));
+<span class="nc" id="L76">            () -&gt; new AppointmentManagementMenu(this));</span>
         
         // Reports &amp; Analytics
-<span class="nc" id="L63">        addMenuOption(5, &quot;Reports &amp; Analytics&quot;,</span>
+<span class="nc" id="L79">        addMenuOption(5, &quot;Reports &amp; Analytics&quot;,</span>
             &quot;View system reports, statistics, and analytics&quot;,
-<span class="nc" id="L65">            () -&gt; new PlaceholderMenu(this, &quot;Reports &amp; Analytics&quot;,</span>
-                &quot;Advanced reporting will be available in Phase 6 implementation&quot;));
+<span class="nc" id="L81">            () -&gt; new ReportsAnalyticsMenu(this));</span>
         
         // View Current Data - Links to existing functionality
-<span class="nc" id="L69">        addMenuOption(6, &quot;View Current Data&quot;,</span>
+<span class="nc" id="L84">        addMenuOption(6, &quot;View Current Data&quot;,</span>
             &quot;Quick access to current system data using existing commands&quot;,
-<span class="nc" id="L71">            () -&gt; new ViewCurrentDataMenu(this));</span>
+<span class="nc" id="L86">            () -&gt; new ViewCurrentDataMenu(this));</span>
         
         // Exit option
-<span class="nc" id="L74">        addExitOption(7, &quot;Exit&quot;);</span>
-<span class="nc" id="L75">    }</span>
+<span class="nc" id="L89">        addExitOption(7, &quot;Exit&quot;);</span>
+<span class="nc" id="L90">    }</span>
     
     /**
      * Placeholder menu for features not yet implemented
@@ -83,28 +98,28 @@ public class MainMenu extends BaseMenu {
         private final String message;
         
         public PlaceholderMenu(Menu parent, String title, String message) {
-<span class="nc" id="L86">            super(parent);</span>
-<span class="nc" id="L87">            this.menuTitle = title;</span>
-<span class="nc" id="L88">            this.message = message;</span>
-<span class="nc" id="L89">        }</span>
+<span class="nc" id="L101">            super(parent);</span>
+<span class="nc" id="L102">            this.menuTitle = title;</span>
+<span class="nc" id="L103">            this.message = message;</span>
+<span class="nc" id="L104">        }</span>
         
         @Override
         protected String getMenuTitle() {
-<span class="nc" id="L93">            return menuTitle;</span>
+<span class="nc" id="L108">            return menuTitle;</span>
         }
         
         @Override
         protected void displayCustomContent() {
-<span class="nc" id="L98">            DisplayUtils.printInfo(message);</span>
-<span class="nc" id="L99">            System.out.println();</span>
-<span class="nc" id="L100">            System.out.println(&quot;🚧 This feature is planned for future implementation.&quot;);</span>
-<span class="nc" id="L101">            System.out.println(&quot;   Use 'b' or 'back' to return to the main menu.&quot;);</span>
-<span class="nc" id="L102">        }</span>
+<span class="nc" id="L113">            DisplayUtils.printInfo(message);</span>
+<span class="nc" id="L114">            System.out.println();</span>
+<span class="nc" id="L115">            System.out.println(&quot;🚧 This feature is planned for future implementation.&quot;);</span>
+<span class="nc" id="L116">            System.out.println(&quot;   Use 'b' or 'back' to return to the main menu.&quot;);</span>
+<span class="nc" id="L117">        }</span>
         
         @Override
         protected void initializeMenuOptions() {
             // No options - just a placeholder
-<span class="nc" id="L107">        }</span>
+<span class="nc" id="L122">        }</span>
     }
     
     /**
@@ -112,104 +127,188 @@ public class MainMenu extends BaseMenu {
      */
     private static class ViewCurrentDataMenu extends BaseMenu {
         
+<span class="nc" id="L130">        private static final Logger logger = LoggerFactory.getLogger(ViewCurrentDataMenu.class);</span>
+        
         public ViewCurrentDataMenu(Menu parent) {
-<span class="nc" id="L116">            super(parent);</span>
-<span class="nc" id="L117">        }</span>
+<span class="nc" id="L133">            super(parent);</span>
+<span class="nc" id="L134">        }</span>
         
         @Override
         protected String getMenuTitle() {
-<span class="nc" id="L121">            return &quot;View Current Data&quot;;</span>
+<span class="nc" id="L138">            return &quot;View Current Data&quot;;</span>
         }
         
         @Override
         protected void displayCustomContent() {
-<span class="nc" id="L126">            System.out.println(&quot;📊 Quick access to current system data&quot;);</span>
-<span class="nc" id="L127">            System.out.println(&quot;    These options use the existing command implementations&quot;);</span>
-<span class="nc" id="L128">            System.out.println(&quot;    to display current system information.&quot;);</span>
-<span class="nc" id="L129">        }</span>
+<span class="nc" id="L143">            System.out.println(&quot;📊 Quick access to current system data&quot;);</span>
+<span class="nc" id="L144">            System.out.println(&quot;    These options execute the core reporting commands&quot;);</span>
+<span class="nc" id="L145">            System.out.println(&quot;    to display current system information.&quot;);</span>
+<span class="nc" id="L146">        }</span>
         
         @Override
         protected void initializeMenuOptions() {
             // Client Tickets
-<span class="nc" id="L134">            addActionOption(1, &quot;Client Tickets&quot;, </span>
+<span class="nc" id="L151">            addActionOption(1, &quot;Client Tickets&quot;, </span>
                 &quot;Show tickets for each client in the system&quot;,
-                this::showClientTickets);
+<span class="nc" id="L153">                () -&gt; executeCommand(&quot;Client Tickets Report&quot;, ClientTicketsCommand.class));</span>
             
             // Overdue Tickets
-<span class="nc" id="L139">            addActionOption(2, &quot;Overdue Tickets&quot;,</span>
+<span class="nc" id="L156">            addActionOption(2, &quot;Overdue Tickets&quot;,</span>
                 &quot;Show tickets that are currently overdue&quot;, 
-                this::showOverdueTickets);
+<span class="nc" id="L158">                () -&gt; executeCommand(&quot;Overdue Tickets Report&quot;, OverdueTicketsCommand.class));</span>
             
             // Technician Workload
-<span class="nc" id="L144">            addActionOption(3, &quot;Technician Workload&quot;,</span>
+<span class="nc" id="L161">            addActionOption(3, &quot;Technician Workload&quot;,</span>
                 &quot;Show tickets assigned to each technician&quot;,
-                this::showTechnicianWorkload);
+<span class="nc" id="L163">                () -&gt; executeCommand(&quot;Technician Workload Report&quot;, TechnicianWorkloadCommand.class));</span>
             
             // Available Technicians
-<span class="nc" id="L149">            addActionOption(4, &quot;Available Technicians&quot;, </span>
+<span class="nc" id="L166">            addActionOption(4, &quot;Available Technicians&quot;, </span>
                 &quot;Show technicians available for each service type&quot;,
-                this::showAvailableTechnicians);
+<span class="nc" id="L168">                () -&gt; executeCommand(&quot;Available Technicians Report&quot;, AvailableTechniciansCommand.class));</span>
             
             // Technician Schedule
-<span class="nc" id="L154">            addActionOption(5, &quot;Technician Schedule&quot;,</span>
+<span class="nc" id="L171">            addActionOption(5, &quot;Technician Schedule&quot;,</span>
                 &quot;Show appointments for each technician&quot;,
-                this::showTechnicianSchedule);
+<span class="nc" id="L173">                () -&gt; executeCommand(&quot;Technician Schedule Report&quot;, TechnicianScheduleCommand.class));</span>
             
             // Client Appointments
-<span class="nc" id="L159">            addActionOption(6, &quot;Client Appointments&quot;,</span>
+<span class="nc" id="L176">            addActionOption(6, &quot;Client Appointments&quot;,</span>
                 &quot;Show appointments scheduled by each client&quot;, 
-                this::showClientAppointments);
+<span class="nc" id="L178">                () -&gt; executeCommand(&quot;Client Appointments Report&quot;, ClientAppointmentsCommand.class));</span>
             
             // Client-Technician History
-<span class="nc" id="L164">            addActionOption(7, &quot;Client-Technician History&quot;,</span>
+<span class="nc" id="L181">            addActionOption(7, &quot;Client-Technician History&quot;,</span>
                 &quot;Show which clients have worked with which technicians&quot;,
-                this::showClientTechnicianHistory);
+<span class="nc" id="L183">                () -&gt; executeCommand(&quot;Client-Technician History Report&quot;, ClientTechnicianHistoryCommand.class));</span>
             
             // Technician Feedback
-<span class="nc" id="L169">            addActionOption(8, &quot;Technician Feedback&quot;, </span>
+<span class="nc" id="L186">            addActionOption(8, &quot;Technician Feedback&quot;, </span>
                 &quot;Show feedback ratings for each technician&quot;,
-                this::showTechnicianFeedback);
-<span class="nc" id="L172">        }</span>
+<span class="nc" id="L188">                () -&gt; executeCommand(&quot;Technician Feedback Report&quot;, TechnicianFeedbackCommand.class));</span>
+<span class="nc" id="L189">        }</span>
         
-        private void showClientTickets() {
-<span class="nc" id="L175">            DisplayUtils.printInfo(&quot;This would execute the client-tickets command&quot;);</span>
-<span class="nc" id="L176">            DisplayUtils.printWarning(&quot;Integration with existing commands will be implemented in the next iteration&quot;);</span>
-<span class="nc" id="L177">        }</span>
+        /**
+         * Create a mock CliApplication for command execution
+         */
+        private CliApplication createMockCliApplication() {
+<span class="nc" id="L195">            return new CliApplication() {</span>
+                @Override
+                public String getServerUrl() {
+<span class="nc" id="L198">                    return apiService.getBaseUrl();</span>
+                }
+                
+                @Override
+                public boolean isVerbose() {
+<span class="nc" id="L203">                    return false; // Menu context doesn't need verbose output</span>
+                }
+                
+                @Override
+                public String getOutputFormat() {
+<span class="nc" id="L208">                    return &quot;table&quot;; // Use table format for better readability</span>
+                }
+            };
+        }
         
-        private void showOverdueTickets() {
-<span class="nc" id="L180">            DisplayUtils.printInfo(&quot;This would execute the overdue-tickets command&quot;);</span>
-<span class="nc" id="L181">            DisplayUtils.printWarning(&quot;Integration with existing commands will be implemented in the next iteration&quot;);</span>
-<span class="nc" id="L182">        }</span>
+        /**
+         * Generic method to execute any command class
+         */
+        private &lt;T extends java.util.concurrent.Callable&lt;Integer&gt;&gt; void executeCommand(String reportName, Class&lt;T&gt; commandClass) {
+            try {
+                // Create and initialize the command
+<span class="nc" id="L219">                T command = createAndInitializeCommand(commandClass);</span>
+                
+                // Execute the command
+<span class="nc" id="L222">                DisplayUtils.printHeader(reportName.toUpperCase());</span>
+<span class="nc" id="L223">                System.out.println();</span>
+                
+<span class="nc" id="L225">                Integer result = command.call();</span>
+                
+<span class="nc bnc" id="L227" title="All 2 branches missed.">                if (result != 0) {</span>
+<span class="nc" id="L228">                    System.out.println();</span>
+<span class="nc" id="L229">                    DisplayUtils.printError(&quot;Command completed with errors (exit code: &quot; + result + &quot;)&quot;);</span>
+                }
+                
+<span class="nc" id="L232">            } catch (Exception e) {</span>
+<span class="nc" id="L233">                logger.error(&quot;Error executing {}: {}&quot;, commandClass.getSimpleName(), e.getMessage(), e);</span>
+<span class="nc" id="L234">                System.out.println();</span>
+<span class="nc" id="L235">                DisplayUtils.printError(&quot;Error executing command: &quot; + e.getMessage());</span>
+<span class="nc" id="L236">            }</span>
+<span class="nc" id="L237">        }</span>
         
-        private void showTechnicianWorkload() {
-<span class="nc" id="L185">            DisplayUtils.printInfo(&quot;This would execute the technician-workload command&quot;);</span>
-<span class="nc" id="L186">            DisplayUtils.printWarning(&quot;Integration with existing commands will be implemented in the next iteration&quot;);</span>
-<span class="nc" id="L187">        }</span>
+        /**
+         * Create and initialize a command instance with proper parent and default values
+         */
+        private &lt;T&gt; T createAndInitializeCommand(Class&lt;T&gt; commandClass) throws Exception {
+            try {
+                // Create instance
+<span class="nc" id="L245">                T command = commandClass.getDeclaredConstructor().newInstance();</span>
+                
+                // Set parent command
+<span class="nc" id="L248">                setParentCommand(command);</span>
+                
+                // Set default values for @Option fields
+<span class="nc" id="L251">                setDefaultValues(command);</span>
+                
+<span class="nc" id="L253">                logger.debug(&quot;Successfully initialized command: {}&quot;, commandClass.getSimpleName());</span>
+<span class="nc" id="L254">                return command;</span>
+                
+<span class="nc" id="L256">            } catch (Exception e) {</span>
+<span class="nc" id="L257">                logger.error(&quot;Failed to initialize {}: {}&quot;, commandClass.getSimpleName(), e.getMessage(), e);</span>
+<span class="nc" id="L258">                throw new Exception(&quot;Failed to initialize &quot; + commandClass.getSimpleName() + &quot;: &quot; + e.getMessage(), e);</span>
+            }
+        }
         
-        private void showAvailableTechnicians() {
-<span class="nc" id="L190">            DisplayUtils.printInfo(&quot;This would execute the available-technicians command&quot;);</span>
-<span class="nc" id="L191">            DisplayUtils.printWarning(&quot;Integration with existing commands will be implemented in the next iteration&quot;);</span>
-<span class="nc" id="L192">        }</span>
+        /**
+         * Set the parent command field using reflection
+         */
+        private &lt;T&gt; void setParentCommand(T command) throws Exception {
+<span class="nc" id="L266">            java.lang.reflect.Field parentField = command.getClass().getDeclaredField(&quot;parent&quot;);</span>
+<span class="nc" id="L267">            parentField.setAccessible(true);</span>
+<span class="nc" id="L268">            parentField.set(command, createMockCliApplication());</span>
+<span class="nc" id="L269">        }</span>
         
-        private void showTechnicianSchedule() {
-<span class="nc" id="L195">            DisplayUtils.printInfo(&quot;This would execute the technician-schedule command&quot;);</span>
-<span class="nc" id="L196">            DisplayUtils.printWarning(&quot;Integration with existing commands will be implemented in the next iteration&quot;);</span>
-<span class="nc" id="L197">        }</span>
+        /**
+         * Set default values for all @Option fields that have defaultValue
+         */
+        private &lt;T&gt; void setDefaultValues(T command) throws Exception {
+<span class="nc" id="L275">            java.lang.reflect.Field[] fields = command.getClass().getDeclaredFields();</span>
+            
+<span class="nc bnc" id="L277" title="All 2 branches missed.">            for (java.lang.reflect.Field field : fields) {</span>
+<span class="nc" id="L278">                CommandLine.Option optionAnnotation = field.getAnnotation(CommandLine.Option.class);</span>
+<span class="nc bnc" id="L279" title="All 4 branches missed.">                if (optionAnnotation != null &amp;&amp; !optionAnnotation.defaultValue().equals(CommandLine.Option.NULL_VALUE)) {</span>
+                    try {
+<span class="nc" id="L281">                        field.setAccessible(true);</span>
+<span class="nc" id="L282">                        String defaultValue = optionAnnotation.defaultValue();</span>
+<span class="nc" id="L283">                        Object value = convertDefaultValue(field.getType(), defaultValue);</span>
+<span class="nc" id="L284">                        field.set(command, value);</span>
+<span class="nc" id="L285">                        logger.debug(&quot;Set default value for {}.{}: {}&quot;, </span>
+<span class="nc" id="L286">                            command.getClass().getSimpleName(), field.getName(), defaultValue);</span>
+<span class="nc" id="L287">                    } catch (Exception e) {</span>
+<span class="nc" id="L288">                        logger.warn(&quot;Failed to set default value for {}.{}: {}&quot;, </span>
+<span class="nc" id="L289">                            command.getClass().getSimpleName(), field.getName(), e.getMessage());</span>
+                        // Continue with other fields
+<span class="nc" id="L291">                    }</span>
+                }
+            }
+<span class="nc" id="L294">        }</span>
         
-        private void showClientAppointments() {
-<span class="nc" id="L200">            DisplayUtils.printInfo(&quot;This would execute the client-appointments command&quot;);</span>
-<span class="nc" id="L201">            DisplayUtils.printWarning(&quot;Integration with existing commands will be implemented in the next iteration&quot;);</span>
-<span class="nc" id="L202">        }</span>
-        
-        private void showClientTechnicianHistory() {
-<span class="nc" id="L205">            DisplayUtils.printInfo(&quot;This would execute the client-technician-history command&quot;);</span>
-<span class="nc" id="L206">            DisplayUtils.printWarning(&quot;Integration with existing commands will be implemented in the next iteration&quot;);</span>
-<span class="nc" id="L207">        }</span>
-        
-        private void showTechnicianFeedback() {
-<span class="nc" id="L210">            DisplayUtils.printInfo(&quot;This would execute the technician-feedback command&quot;);</span>
-<span class="nc" id="L211">            DisplayUtils.printWarning(&quot;Integration with existing commands will be implemented in the next iteration&quot;);</span>
-<span class="nc" id="L212">        }</span>
+        /**
+         * Convert string default value to appropriate Java type
+         */
+        private Object convertDefaultValue(Class&lt;?&gt; fieldType, String defaultValue) {
+<span class="nc bnc" id="L300" title="All 2 branches missed.">            if (fieldType == String.class) {</span>
+<span class="nc" id="L301">                return defaultValue;</span>
+<span class="nc bnc" id="L302" title="All 4 branches missed.">            } else if (fieldType == int.class || fieldType == Integer.class) {</span>
+<span class="nc" id="L303">                return Integer.parseInt(defaultValue);</span>
+<span class="nc bnc" id="L304" title="All 4 branches missed.">            } else if (fieldType == boolean.class || fieldType == Boolean.class) {</span>
+<span class="nc" id="L305">                return Boolean.parseBoolean(defaultValue);</span>
+<span class="nc bnc" id="L306" title="All 4 branches missed.">            } else if (fieldType == long.class || fieldType == Long.class) {</span>
+<span class="nc" id="L307">                return Long.parseLong(defaultValue);</span>
+            }
+            // Fallback to string for any other types
+<span class="nc" id="L310">            return defaultValue;</span>
+        }
     }
 } 
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

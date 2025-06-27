@@ -119,7 +119,7 @@ public class TicketManagementMenu extends BaseMenu {
             
             if (tickets.isEmpty()) {
                 System.out.println("📭 No tickets found in the system.");
-                DisplayUtils.waitForEnter();
+                waitForEnter();
                 return;
             }
             
@@ -153,7 +153,7 @@ public class TicketManagementMenu extends BaseMenu {
             DisplayUtils.printError("Failed to retrieve tickets: " + e.getMessage());
         }
         
-        DisplayUtils.waitForEnter();
+        waitForEnter();
     }
     
     private void searchTickets() {
@@ -225,7 +225,7 @@ public class TicketManagementMenu extends BaseMenu {
                     
                 default:
                     DisplayUtils.printError("Invalid search option.");
-                    DisplayUtils.waitForEnter();
+                    waitForEnter();
                     return;
             }
             
@@ -275,7 +275,7 @@ public class TicketManagementMenu extends BaseMenu {
             DisplayUtils.printError("Failed to search tickets: " + e.getMessage());
         }
         
-        DisplayUtils.waitForEnter();
+        waitForEnter();
     }
     
     private void viewTicketDetails() {
@@ -286,7 +286,7 @@ public class TicketManagementMenu extends BaseMenu {
             
             if (tickets.isEmpty()) {
                 System.out.println("📭 No tickets found in the system.");
-                DisplayUtils.waitForEnter();
+                waitForEnter();
                 return;
             }
             
@@ -327,7 +327,7 @@ public class TicketManagementMenu extends BaseMenu {
             DisplayUtils.printError("Failed to retrieve tickets: " + e.getMessage());
         }
         
-        DisplayUtils.waitForEnter();
+        waitForEnter();
     }
     
     private void createNewTicket() {
@@ -391,7 +391,7 @@ public class TicketManagementMenu extends BaseMenu {
             DisplayUtils.printError("An unexpected error occurred while creating the ticket.");
         }
         
-        DisplayUtils.waitForEnter();
+        waitForEnter();
     }
     
     private void closeTicket() {
@@ -402,7 +402,7 @@ public class TicketManagementMenu extends BaseMenu {
             
             if (tickets.isEmpty()) {
                 System.out.println("📭 No tickets found in the system.");
-                DisplayUtils.waitForEnter();
+                waitForEnter();
                 return;
             }
             
@@ -413,7 +413,7 @@ public class TicketManagementMenu extends BaseMenu {
                 
             if (openTickets.isEmpty()) {
                 System.out.println("📭 No open tickets found to close.");
-                DisplayUtils.waitForEnter();
+                waitForEnter();
                 return;
             }
             
@@ -438,7 +438,7 @@ public class TicketManagementMenu extends BaseMenu {
                     
                 if (selectedTicket == null) {
                     DisplayUtils.printError("Ticket not found with ID: " + ticketId);
-                    DisplayUtils.waitForEnter();
+                    waitForEnter();
                     return;
                 }
                 
@@ -451,7 +451,7 @@ public class TicketManagementMenu extends BaseMenu {
                 
                 if (resolutionNotes.isEmpty()) {
                     DisplayUtils.printError("Resolution notes are required to close a ticket.");
-                    DisplayUtils.waitForEnter();
+                    waitForEnter();
                     return;
                 }
                 
@@ -462,7 +462,7 @@ public class TicketManagementMenu extends BaseMenu {
                 
                 if (!confirm.equals("y") && !confirm.equals("yes")) {
                     System.out.println("❌ Ticket closure cancelled.");
-                    DisplayUtils.waitForEnter();
+                    waitForEnter();
                     return;
                 }
                 
@@ -485,7 +485,7 @@ public class TicketManagementMenu extends BaseMenu {
             DisplayUtils.printError("An unexpected error occurred while closing the ticket.");
         }
         
-        DisplayUtils.waitForEnter();
+        waitForEnter();
     }
     
     private void assignTechnician() {
@@ -497,13 +497,13 @@ public class TicketManagementMenu extends BaseMenu {
             
             if (tickets.isEmpty()) {
                 System.out.println("📭 No tickets found in the system.");
-                DisplayUtils.waitForEnter();
+                waitForEnter();
                 return;
             }
             
             if (technicians.isEmpty()) {
                 System.out.println("📭 No technicians found in the system.");
-                DisplayUtils.waitForEnter();
+                waitForEnter();
                 return;
             }
             
@@ -522,14 +522,14 @@ public class TicketManagementMenu extends BaseMenu {
                 Ticket selectedTicket = apiService.getTicketById(ticketId);
                 if (selectedTicket == null) {
                     DisplayUtils.printError("Ticket not found with ID: " + ticketId);
-                    DisplayUtils.waitForEnter();
+                    waitForEnter();
                     return;
                 }
                 
                 // Business Rule Validation: Check if ticket is OPEN
                 if (!"OPEN".equals(selectedTicket.getStatus())) {
                     DisplayUtils.printError("Cannot assign technician to closed ticket. Status: " + selectedTicket.getStatus());
-                    DisplayUtils.waitForEnter();
+                    waitForEnter();
                     return;
                 }
                 
@@ -570,7 +570,7 @@ public class TicketManagementMenu extends BaseMenu {
                 
                 if (activeTechnicians.isEmpty()) {
                     System.out.println("⚠️  No active technicians available for assignment.");
-                    DisplayUtils.waitForEnter();
+                    waitForEnter();
                     return;
                 }
                 
@@ -631,7 +631,7 @@ public class TicketManagementMenu extends BaseMenu {
             DisplayUtils.printError("Failed to load assignment data: " + e.getMessage());
         }
         
-        DisplayUtils.waitForEnter();
+        waitForEnter();
     }
     
     private void handleAutoAssignment(Long ticketId, String displayTitle) {
@@ -845,7 +845,7 @@ public class TicketManagementMenu extends BaseMenu {
             
             if (tickets.isEmpty()) {
                 System.out.println("📭 No tickets found in the system.");
-                DisplayUtils.waitForEnter();
+                waitForEnter();
                 return;
             }
             
@@ -864,7 +864,7 @@ public class TicketManagementMenu extends BaseMenu {
                 Ticket selectedTicket = apiService.getTicketById(ticketId);
                 if (selectedTicket == null) {
                     DisplayUtils.printError("Ticket not found with ID: " + ticketId);
-                    DisplayUtils.waitForEnter();
+                    waitForEnter();
                     return;
                 }
                 
@@ -903,13 +903,13 @@ public class TicketManagementMenu extends BaseMenu {
                         break;
                     default:
                         DisplayUtils.printError("Invalid status selection.");
-                        DisplayUtils.waitForEnter();
+                        waitForEnter();
                         return;
                 }
                 
                 if (newStatus.equals(selectedTicket.getStatus())) {
                     System.out.println("ℹ️  Ticket already has this status.");
-                    DisplayUtils.waitForEnter();
+                    waitForEnter();
                     return;
                 }
                 
@@ -938,7 +938,7 @@ public class TicketManagementMenu extends BaseMenu {
             DisplayUtils.printError("Failed to update ticket status: " + e.getMessage());
         }
         
-        DisplayUtils.waitForEnter();
+        waitForEnter();
     }
     
     private void deleteTicket() {
@@ -956,7 +956,7 @@ public class TicketManagementMenu extends BaseMenu {
             
             if (tickets.isEmpty()) {
                 System.out.println("📭 No tickets found in the system.");
-                DisplayUtils.waitForEnter();
+                waitForEnter();
                 return;
             }
             
@@ -979,7 +979,7 @@ public class TicketManagementMenu extends BaseMenu {
                 Ticket selectedTicket = apiService.getTicketById(ticketId);
                 if (selectedTicket == null) {
                     DisplayUtils.printError("Ticket not found with ID: " + ticketId);
-                    DisplayUtils.waitForEnter();
+                    waitForEnter();
                     return;
                 }
                 
@@ -1007,12 +1007,12 @@ public class TicketManagementMenu extends BaseMenu {
                     if (closeFirst.equals("y") || closeFirst.equals("yes")) {
                         System.out.println("Redirecting to ticket closure process...");
                         System.out.println("After closing, you can return to delete the ticket.");
-                        DisplayUtils.waitForEnter();
+                        waitForEnter();
                         closeTicket(); // Call the existing close ticket method
                         return;
                     } else {
                         System.out.println("Deletion cancelled. Ticket remains OPEN.");
-                        DisplayUtils.waitForEnter();
+                        waitForEnter();
                         return;
                     }
                 }
@@ -1044,7 +1044,7 @@ public class TicketManagementMenu extends BaseMenu {
                 
                 if (!confirm1.equals("y") && !confirm1.equals("yes")) {
                     System.out.println("Deletion cancelled.");
-                    DisplayUtils.waitForEnter();
+                    waitForEnter();
                     return;
                 }
                 
@@ -1054,7 +1054,7 @@ public class TicketManagementMenu extends BaseMenu {
                 
                 if (!idConfirmation.equals(ticketId.toString())) {
                     DisplayUtils.printError("ID confirmation failed. Deletion cancelled.");
-                    DisplayUtils.waitForEnter();
+                    waitForEnter();
                     return;
                 }
                 
@@ -1094,7 +1094,7 @@ public class TicketManagementMenu extends BaseMenu {
             DisplayUtils.printError("Failed to retrieve tickets: " + e.getMessage());
         }
         
-        DisplayUtils.waitForEnter();
+        waitForEnter();
     }
     
     private void ticketReports() {
@@ -1105,7 +1105,7 @@ public class TicketManagementMenu extends BaseMenu {
             
             if (tickets.isEmpty()) {
                 System.out.println("📭 No tickets found in the system.");
-                DisplayUtils.waitForEnter();
+                waitForEnter();
                 return;
             }
             
@@ -1226,7 +1226,7 @@ public class TicketManagementMenu extends BaseMenu {
             DisplayUtils.printError("Failed to generate reports: " + e.getMessage());
         }
         
-        DisplayUtils.waitForEnter();
+        waitForEnter();
     }
     
     // ==================== HELPER METHODS ====================

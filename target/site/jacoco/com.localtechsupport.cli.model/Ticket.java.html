@@ -34,6 +34,12 @@ public class Ticket {
     @JsonProperty(&quot;clientId&quot;)
     private Long clientId;
 
+    @JsonProperty(&quot;clientName&quot;)
+    private String clientName;
+
+    @JsonProperty(&quot;clientEmail&quot;)
+    private String clientEmail;
+
     @JsonProperty(&quot;assignedTechnicianId&quot;)
     private Long assignedTechnicianId;
 
@@ -63,189 +69,205 @@ public class Ticket {
     private Technician assignedTechnician;
 
     // Default constructor
-<span class="nc" id="L66">    public Ticket() {}</span>
+<span class="nc" id="L72">    public Ticket() {}</span>
 
     // Getters and Setters
     public Long getId() {
-<span class="nc" id="L70">        return id;</span>
+<span class="nc" id="L76">        return id;</span>
     }
 
     public void setId(Long id) {
-<span class="nc" id="L74">        this.id = id;</span>
-<span class="nc" id="L75">    }</span>
+<span class="nc" id="L80">        this.id = id;</span>
+<span class="nc" id="L81">    }</span>
 
     public String getTitle() {
-<span class="nc" id="L78">        return title;</span>
+<span class="nc" id="L84">        return title;</span>
     }
 
     public void setTitle(String title) {
-<span class="nc" id="L82">        this.title = title;</span>
-<span class="nc" id="L83">    }</span>
+<span class="nc" id="L88">        this.title = title;</span>
+<span class="nc" id="L89">    }</span>
 
     public String getDescription() {
-<span class="nc" id="L86">        return description;</span>
+<span class="nc" id="L92">        return description;</span>
     }
 
     public void setDescription(String description) {
-<span class="nc" id="L90">        this.description = description;</span>
-<span class="nc" id="L91">    }</span>
+<span class="nc" id="L96">        this.description = description;</span>
+<span class="nc" id="L97">    }</span>
 
     public String getServiceType() {
-<span class="nc" id="L94">        return serviceType;</span>
+<span class="nc" id="L100">        return serviceType;</span>
     }
 
     public void setServiceType(String serviceType) {
-<span class="nc" id="L98">        this.serviceType = serviceType;</span>
-<span class="nc" id="L99">    }</span>
+<span class="nc" id="L104">        this.serviceType = serviceType;</span>
+<span class="nc" id="L105">    }</span>
 
     public String getStatus() {
-<span class="nc" id="L102">        return status;</span>
+<span class="nc" id="L108">        return status;</span>
     }
 
     public void setStatus(String status) {
-<span class="nc" id="L106">        this.status = status;</span>
-<span class="nc" id="L107">    }</span>
+<span class="nc" id="L112">        this.status = status;</span>
+<span class="nc" id="L113">    }</span>
 
     public String getPriority() {
-<span class="nc" id="L110">        return priority;</span>
+<span class="nc" id="L116">        return priority;</span>
     }
 
     public void setPriority(String priority) {
-<span class="nc" id="L114">        this.priority = priority;</span>
-<span class="nc" id="L115">    }</span>
+<span class="nc" id="L120">        this.priority = priority;</span>
+<span class="nc" id="L121">    }</span>
 
     public Long getClientId() {
-<span class="nc" id="L118">        return clientId;</span>
+<span class="nc" id="L124">        return clientId;</span>
     }
 
     public void setClientId(Long clientId) {
-<span class="nc" id="L122">        this.clientId = clientId;</span>
-<span class="nc" id="L123">    }</span>
+<span class="nc" id="L128">        this.clientId = clientId;</span>
+<span class="nc" id="L129">    }</span>
+
+    public String getClientName() {
+<span class="nc" id="L132">        return clientName;</span>
+    }
+
+    public void setClientName(String clientName) {
+<span class="nc" id="L136">        this.clientName = clientName;</span>
+<span class="nc" id="L137">    }</span>
+
+    public String getClientEmail() {
+<span class="nc" id="L140">        return clientEmail;</span>
+    }
+
+    public void setClientEmail(String clientEmail) {
+<span class="nc" id="L144">        this.clientEmail = clientEmail;</span>
+<span class="nc" id="L145">    }</span>
 
     public Long getAssignedTechnicianId() {
-<span class="nc" id="L126">        return assignedTechnicianId;</span>
+<span class="nc" id="L148">        return assignedTechnicianId;</span>
     }
 
     public void setAssignedTechnicianId(Long assignedTechnicianId) {
-<span class="nc" id="L130">        this.assignedTechnicianId = assignedTechnicianId;</span>
-<span class="nc" id="L131">    }</span>
+<span class="nc" id="L152">        this.assignedTechnicianId = assignedTechnicianId;</span>
+<span class="nc" id="L153">    }</span>
 
     public LocalDateTime getCreatedAt() {
-<span class="nc" id="L134">        return createdAt;</span>
+<span class="nc" id="L156">        return createdAt;</span>
     }
 
     public void setCreatedAt(LocalDateTime createdAt) {
-<span class="nc" id="L138">        this.createdAt = createdAt;</span>
-<span class="nc" id="L139">    }</span>
+<span class="nc" id="L160">        this.createdAt = createdAt;</span>
+<span class="nc" id="L161">    }</span>
 
     public LocalDateTime getUpdatedAt() {
-<span class="nc" id="L142">        return updatedAt;</span>
+<span class="nc" id="L164">        return updatedAt;</span>
     }
 
     public void setUpdatedAt(LocalDateTime updatedAt) {
-<span class="nc" id="L146">        this.updatedAt = updatedAt;</span>
-<span class="nc" id="L147">    }</span>
+<span class="nc" id="L168">        this.updatedAt = updatedAt;</span>
+<span class="nc" id="L169">    }</span>
 
     public LocalDateTime getDueAt() {
-<span class="nc" id="L150">        return dueAt;</span>
+<span class="nc" id="L172">        return dueAt;</span>
     }
 
     public void setDueAt(LocalDateTime dueAt) {
-<span class="nc" id="L154">        this.dueAt = dueAt;</span>
-<span class="nc" id="L155">    }</span>
+<span class="nc" id="L176">        this.dueAt = dueAt;</span>
+<span class="nc" id="L177">    }</span>
 
     public LocalDateTime getResolvedAt() {
-<span class="nc" id="L158">        return resolvedAt;</span>
+<span class="nc" id="L180">        return resolvedAt;</span>
     }
 
     public void setResolvedAt(LocalDateTime resolvedAt) {
-<span class="nc" id="L162">        this.resolvedAt = resolvedAt;</span>
-<span class="nc" id="L163">    }</span>
+<span class="nc" id="L184">        this.resolvedAt = resolvedAt;</span>
+<span class="nc" id="L185">    }</span>
 
     public Boolean getOverdue() {
-<span class="nc" id="L166">        return overdue;</span>
+<span class="nc" id="L188">        return overdue;</span>
     }
 
     public void setOverdue(Boolean overdue) {
-<span class="nc" id="L170">        this.overdue = overdue;</span>
-<span class="nc" id="L171">    }</span>
+<span class="nc" id="L192">        this.overdue = overdue;</span>
+<span class="nc" id="L193">    }</span>
 
     public Boolean getAssigned() {
-<span class="nc" id="L174">        return assigned;</span>
+<span class="nc" id="L196">        return assigned;</span>
     }
 
     public void setAssigned(Boolean assigned) {
-<span class="nc" id="L178">        this.assigned = assigned;</span>
-<span class="nc" id="L179">    }</span>
+<span class="nc" id="L200">        this.assigned = assigned;</span>
+<span class="nc" id="L201">    }</span>
 
     public Client getClient() {
-<span class="nc" id="L182">        return client;</span>
+<span class="nc" id="L204">        return client;</span>
     }
 
     public void setClient(Client client) {
-<span class="nc" id="L186">        this.client = client;</span>
-<span class="nc" id="L187">    }</span>
+<span class="nc" id="L208">        this.client = client;</span>
+<span class="nc" id="L209">    }</span>
 
     public Technician getAssignedTechnician() {
-<span class="nc" id="L190">        return assignedTechnician;</span>
+<span class="nc" id="L212">        return assignedTechnician;</span>
     }
 
     public void setAssignedTechnician(Technician assignedTechnician) {
-<span class="nc" id="L194">        this.assignedTechnician = assignedTechnician;</span>
-<span class="nc" id="L195">    }</span>
+<span class="nc" id="L216">        this.assignedTechnician = assignedTechnician;</span>
+<span class="nc" id="L217">    }</span>
 
     // Utility methods
     @JsonIgnore
     public boolean isOpen() {
-<span class="nc" id="L200">        return &quot;OPEN&quot;.equalsIgnoreCase(status);</span>
+<span class="nc" id="L222">        return &quot;OPEN&quot;.equalsIgnoreCase(status);</span>
     }
 
     @JsonIgnore
     public boolean isClosed() {
-<span class="nc" id="L205">        return &quot;CLOSED&quot;.equals(status);</span>
+<span class="nc" id="L227">        return &quot;CLOSED&quot;.equals(status);</span>
     }
 
     @JsonIgnore
     public boolean isOverdue() {
         // Use the overdue field from JSON if available
-<span class="nc bnc" id="L211" title="All 2 branches missed.">        if (overdue != null) {</span>
-<span class="nc" id="L212">            return overdue;</span>
+<span class="nc bnc" id="L233" title="All 2 branches missed.">        if (overdue != null) {</span>
+<span class="nc" id="L234">            return overdue;</span>
         }
         
         // Fallback to computing based on status and due date
-<span class="nc bnc" id="L216" title="All 6 branches missed.">        return isOpen() &amp;&amp; dueAt != null &amp;&amp; dueAt.isBefore(java.time.LocalDateTime.now());</span>
+<span class="nc bnc" id="L238" title="All 6 branches missed.">        return isOpen() &amp;&amp; dueAt != null &amp;&amp; dueAt.isBefore(java.time.LocalDateTime.now());</span>
     }
 
     @JsonIgnore
     public boolean isAssigned() {
         // Use the assigned field from JSON if available
-<span class="nc bnc" id="L222" title="All 2 branches missed.">        if (assigned != null) {</span>
-<span class="nc" id="L223">            return assigned;</span>
+<span class="nc bnc" id="L244" title="All 2 branches missed.">        if (assigned != null) {</span>
+<span class="nc" id="L245">            return assigned;</span>
         }
         
         // Fallback to checking technician assignment
-<span class="nc bnc" id="L227" title="All 4 branches missed.">        return assignedTechnician != null || assignedTechnicianId != null;</span>
+<span class="nc bnc" id="L249" title="All 4 branches missed.">        return assignedTechnician != null || assignedTechnicianId != null;</span>
     }
 
     @JsonIgnore
     public String getFormattedDueDate() {
-<span class="nc bnc" id="L232" title="All 2 branches missed.">        if (dueAt == null) return &quot;N/A&quot;;</span>
-<span class="nc" id="L233">        java.time.format.DateTimeFormatter formatter = </span>
-<span class="nc" id="L234">            java.time.format.DateTimeFormatter.ofPattern(&quot;MMM dd, HH:mm&quot;);</span>
-<span class="nc" id="L235">        return dueAt.format(formatter);</span>
+<span class="nc bnc" id="L254" title="All 2 branches missed.">        if (dueAt == null) return &quot;N/A&quot;;</span>
+<span class="nc" id="L255">        java.time.format.DateTimeFormatter formatter = </span>
+<span class="nc" id="L256">            java.time.format.DateTimeFormatter.ofPattern(&quot;MMM dd, HH:mm&quot;);</span>
+<span class="nc" id="L257">        return dueAt.format(formatter);</span>
     }
 
     @JsonIgnore
     public String getPriorityIndicator() {
-<span class="nc bnc" id="L240" title="All 2 branches missed.">        if (isOverdue()) return &quot;🔴 OVERDUE&quot;;</span>
-<span class="nc bnc" id="L241" title="All 4 branches missed.">        if (isOpen() &amp;&amp; !isAssigned()) return &quot;🟡 UNASSIGNED&quot;;</span>
-<span class="nc bnc" id="L242" title="All 2 branches missed.">        if (isOpen()) return &quot;🟢 ACTIVE&quot;;</span>
-<span class="nc" id="L243">        return &quot;✅ CLOSED&quot;;</span>
+<span class="nc bnc" id="L262" title="All 2 branches missed.">        if (isOverdue()) return &quot;🔴 OVERDUE&quot;;</span>
+<span class="nc bnc" id="L263" title="All 4 branches missed.">        if (isOpen() &amp;&amp; !isAssigned()) return &quot;🟡 UNASSIGNED&quot;;</span>
+<span class="nc bnc" id="L264" title="All 2 branches missed.">        if (isOpen()) return &quot;🟢 ACTIVE&quot;;</span>
+<span class="nc" id="L265">        return &quot;✅ CLOSED&quot;;</span>
     }
 
     @Override
     public String toString() {
-<span class="nc" id="L248">        return String.format(&quot;Ticket{id=%d, description='%s', status=%s, serviceType=%s}&quot;, </span>
+<span class="nc" id="L270">        return String.format(&quot;Ticket{id=%d, description='%s', status=%s, serviceType=%s}&quot;, </span>
                            id, description, status, serviceType);
     }
 } 

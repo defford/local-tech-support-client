@@ -34,6 +34,12 @@ public class Ticket {
     @JsonProperty("clientId")
     private Long clientId;
 
+    @JsonProperty("clientName")
+    private String clientName;
+
+    @JsonProperty("clientEmail")
+    private String clientEmail;
+
     @JsonProperty("assignedTechnicianId")
     private Long assignedTechnicianId;
 
@@ -120,6 +126,22 @@ public class Ticket {
 
     public void setClientId(Long clientId) {
         this.clientId = clientId;
+    }
+
+    public String getClientName() {
+        return clientName;
+    }
+
+    public void setClientName(String clientName) {
+        this.clientName = clientName;
+    }
+
+    public String getClientEmail() {
+        return clientEmail;
+    }
+
+    public void setClientEmail(String clientEmail) {
+        this.clientEmail = clientEmail;
     }
 
     public Long getAssignedTechnicianId() {

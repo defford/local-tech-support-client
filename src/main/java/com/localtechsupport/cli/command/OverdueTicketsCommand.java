@@ -122,7 +122,7 @@ public class OverdueTicketsCommand implements Callable<Integer> {
         List<Ticket> overdueTickets = apiService.getOverdueTickets();
         
         // Apply filters
-        if (serviceType != null) {
+        if (serviceType != null && !serviceType.equals("__no_default_value__") && !serviceType.equals("_NULL_")) {
             overdueTickets = overdueTickets.stream()
                 .filter(t -> serviceType.equalsIgnoreCase(t.getServiceType()))
                 .collect(Collectors.toList());
@@ -190,7 +190,7 @@ public class OverdueTicketsCommand implements Callable<Integer> {
         output.append(String.format("Sort Order: %s", sortBy)).append("\n");
         
         // Add filters info if applied
-        if (serviceType != null) {
+        if (serviceType != null && !serviceType.equals("__no_default_value__") && !serviceType.equals("_NULL_")) {
             output.append(String.format("Filter: Service Type = %s", serviceType)).append("\n");
         }
         

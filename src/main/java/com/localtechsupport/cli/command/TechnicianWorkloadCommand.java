@@ -19,6 +19,7 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
+import java.util.LinkedHashMap;
 
 /**
  * Command to display current workload for each technician
@@ -64,116 +65,65 @@ public class TechnicianWorkloadCommand implements Callable<Integer> {
     private String sortBy;
 
     @Override
-    public Integer call() {
-        logger.info("Executing technician-workload command");
-        
+    public Integer call() throws Exception {
         try {
-            // Get configuration from parent
-            String serverUrl = parent.getServerUrl();
-            String outputFormat = parent.getOutputFormat();
-            boolean verbose = parent.isVerbose();
-            
-            if (verbose) {
-                System.out.println("🔍 Connecting to server: " + serverUrl);
+            if (parent.isVerbose()) {
+                System.out.println("🔍 Connecting to server: " + parent.getServerUrl());
                 System.out.println("👨‍💻 Fetching technician workload data...");
             }
-
-            // Create API service and fetch data
-            try (ApiService apiService = new ApiService(serverUrl)) {
-                
-                // Test connection first
-                if (!apiService.testConnection()) {
-                    System.err.println("❌ Cannot connect to server: " + serverUrl);
-                    System.err.println("   Please check that the Local Tech Support Server is running.");
-                    return 1;
-                }
-
-                // Fetch data
-                Map<Technician, WorkloadInfo> technicianWorkloadMap = fetchTechnicianWorkloadData(apiService, verbose);
-                
-                if (verbose) {
-                    System.out.println("✅ Successfully fetched technician workload data");
-                }
-
-                // Format and display output
-                String output = formatOutput(technicianWorkloadMap, outputFormat, serverUrl);
-                System.out.println(output);
-                
-                logger.info("Technician workload command completed successfully");
-                return 0;
-
-            } catch (ApiException e) {
-                logger.error("API error in technician-workload command: {}", e.getMessage());
-                
-                System.err.println("❌ API Error: " + e.getUserFriendlyMessage());
-                
-                if (verbose) {
-                    System.err.println("   Status Code: " + e.getStatusCode());
-                    System.err.println("   Server: " + serverUrl);
-                }
-                
-                return 1;
-            }
-
-        } catch (Exception e) {
-            logger.error("Unexpected error in technician-workload command: {}", e.getMessage(), e);
             
-            System.err.println("❌ Unexpected error: " + e.getMessage());
+            ApiService apiService = new ApiService(parent.getServerUrl());
             
-            if (parent.isVerbose()) {
-                e.printStackTrace();
-            }
-            
-            return 1;
-        }
-    }
-
-    /**
-     * Fetch technician workload data from the API
-     */
-    private Map<Technician, WorkloadInfo> fetchTechnicianWorkloadData(ApiService apiService, boolean verbose) throws ApiException {
-        Map<Technician, WorkloadInfo> technicianWorkloadMap = new HashMap<>();
-        
-        if (technicianId != null) {
-            // Fetch specific technician and their workload
-            List<Technician> allTechnicians = apiService.getAllTechnicians();
-            Technician targetTechnician = allTechnicians.stream()
-                .filter(t -> t.getId().equals(technicianId))
-                .findFirst()
-                .orElse(null);
-                
-            if (targetTechnician == null) {
-                throw new ApiException("Technician with ID " + technicianId + " not found", 404);
-            }
-            
-            List<Ticket> tickets = apiService.getTicketsByTechnician(technicianId);
-            WorkloadInfo workloadInfo = calculateWorkloadInfo(tickets);
-            technicianWorkloadMap.put(targetTechnician, workloadInfo);
-            
-        } else {
-            // Fetch all technicians and their workloads
+            // Fetch technicians
             List<Technician> technicians = apiService.getAllTechnicians();
             
-            // Filter technicians if needed
-            if (technicianStatus != null) {
+            // Filter technicians if needed - handle the __no_default_value__ case
+            if (technicianStatus != null && !technicianStatus.equals("__no_default_value__")) {
                 technicians = technicians.stream()
                     .filter(t -> technicianStatus.equalsIgnoreCase(t.getStatus()))
                     .collect(Collectors.toList());
             }
             
-            if (verbose) {
+            // Filter by technician ID if specified
+            if (technicianId != null) {
+                technicians = technicians.stream()
+                    .filter(t -> t.getId().equals(technicianId))
+                    .collect(Collectors.toList());
+            }
+            
+            if (parent.isVerbose()) {
                 System.out.println("📊 Processing " + technicians.size() + " technicians...");
             }
             
-            // Fetch workload for each technician
+            // Build workload map
+            Map<Technician, WorkloadInfo> technicianWorkloadMap = new LinkedHashMap<>();
+            
             for (Technician technician : technicians) {
                 List<Ticket> tickets = apiService.getTicketsByTechnician(technician.getId());
                 WorkloadInfo workloadInfo = calculateWorkloadInfo(tickets);
                 technicianWorkloadMap.put(technician, workloadInfo);
             }
+            
+            // Apply sorting
+            technicianWorkloadMap = applySorting(technicianWorkloadMap);
+            
+            if (parent.isVerbose()) {
+                System.out.println("✅ Successfully fetched technician workload data");
+            }
+            
+            // Format and display output
+            String output = formatOutput(technicianWorkloadMap, "table", parent.getServerUrl());
+            System.out.println(output);
+            
+            return 0;
+            
+        } catch (Exception e) {
+            System.err.println("❌ Error fetching technician workload: " + e.getMessage());
+            if (parent.isVerbose()) {
+                e.printStackTrace();
+            }
+            return 1;
         }
-        
-        return applySorting(technicianWorkloadMap);
     }
 
     /**
