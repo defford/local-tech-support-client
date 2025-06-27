@@ -1,0 +1,1006 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ClientManagementMenu.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Local Tech Support CLI Client</a> &gt; <a href="index.source.html" class="el_package">com.localtechsupport.cli.menu.client</a> &gt; <span class="el_source">ClientManagementMenu.java</span></div><h1>ClientManagementMenu.java</h1><pre class="source lang-java linenums">package com.localtechsupport.cli.menu.client;
+
+import com.localtechsupport.cli.menu.BaseMenu;
+import com.localtechsupport.cli.menu.Menu;
+import com.localtechsupport.cli.menu.MenuOption;
+import com.localtechsupport.cli.service.ApiService;
+import com.localtechsupport.cli.util.DisplayUtils;
+import com.localtechsupport.cli.client.ApiException;
+import com.localtechsupport.cli.model.Client;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.Scanner;
+
+/**
+ * Main client management menu providing access to all client operations
+ * 
+ * This menu offers CRUD operations for clients including:
+ * - View all clients
+ * - Search clients 
+ * - View client details
+ * - Create new client
+ * - Edit existing client
+ * - Change client status
+ * - Delete client
+ */
+public class ClientManagementMenu extends BaseMenu {
+
+<span class="nc" id="L32">    private static final Logger logger = LoggerFactory.getLogger(ClientManagementMenu.class);</span>
+
+    public ClientManagementMenu(Menu parentMenu) {
+<span class="nc" id="L35">        super(parentMenu);</span>
+<span class="nc" id="L36">        logger.debug(&quot;ClientManagementMenu initialized&quot;);</span>
+<span class="nc" id="L37">    }</span>
+
+    @Override
+    protected String getMenuTitle() {
+<span class="nc" id="L41">        return &quot;CLIENT MANAGEMENT&quot;;</span>
+    }
+
+    @Override
+    protected void displayCustomContent() {
+        try {
+            // Display current system status
+<span class="nc" id="L48">            List&lt;Client&gt; allClients = apiService.getAllClients();</span>
+<span class="nc" id="L49">            long activeClients = allClients.stream().filter(Client::isActive).count();</span>
+<span class="nc" id="L50">            long suspendedClients = allClients.size() - activeClients;</span>
+            
+<span class="nc" id="L52">            System.out.println(&quot;📊 Current System Status:&quot;);</span>
+<span class="nc" id="L53">            System.out.printf(&quot;    Total Clients: %d (%d active, %d suspended)%n&quot;, </span>
+<span class="nc" id="L54">                allClients.size(), activeClients, suspendedClients);</span>
+<span class="nc" id="L55">            System.out.println(&quot;    Recent Activity: Loading...&quot;);</span>
+<span class="nc" id="L56">            System.out.println();</span>
+            
+<span class="nc" id="L58">        } catch (ApiException e) {</span>
+<span class="nc" id="L59">            logger.warn(&quot;Could not load client statistics: {}&quot;, e.getMessage());</span>
+<span class="nc" id="L60">            System.out.println(&quot;📊 Current System Status: Unable to load statistics&quot;);</span>
+<span class="nc" id="L61">            System.out.println();</span>
+<span class="nc" id="L62">        }</span>
+<span class="nc" id="L63">    }</span>
+
+    @Override
+    protected void initializeMenuOptions() {
+<span class="nc" id="L67">        addActionOption(1, &quot;View All Clients&quot;, &quot;List all clients with status&quot;,</span>
+            this::viewAllClients);
+            
+<span class="nc" id="L70">        addActionOption(2, &quot;Search Clients&quot;, &quot;Find clients by name/email/phone&quot;, </span>
+            this::searchClients);
+            
+<span class="nc" id="L73">        addActionOption(3, &quot;View Client Details&quot;, &quot;Detailed view with tickets/history&quot;,</span>
+            this::viewClientDetails);
+            
+<span class="nc" id="L76">        addActionOption(4, &quot;Create New Client&quot;, &quot;Add new client to system&quot;,</span>
+            this::createNewClient);
+            
+<span class="nc" id="L79">        addActionOption(5, &quot;Edit Client&quot;, &quot;Update client information&quot;,</span>
+            this::editClient);
+            
+<span class="nc" id="L82">        addActionOption(6, &quot;Client Status&quot;, &quot;Activate/suspend client accounts&quot;,</span>
+            this::manageClientStatus);
+            
+<span class="nc" id="L85">        addActionOption(7, &quot;Delete Client&quot;, &quot;Remove client (with confirmation)&quot;,</span>
+            this::deleteClient);
+            
+<span class="nc" id="L88">        addActionOption(8, &quot;Client Reports&quot;, &quot;Statistics and analytics&quot;,</span>
+            this::clientReports);
+<span class="nc" id="L90">    }</span>
+
+    // ==================== ACTION METHODS ====================
+
+    private void viewAllClients() {
+<span class="nc" id="L95">        DisplayUtils.printHeader(&quot;ALL CLIENTS&quot;);</span>
+        
+        try {
+<span class="nc" id="L98">            List&lt;Client&gt; clients = apiService.getAllClients();</span>
+            
+<span class="nc bnc" id="L100" title="All 2 branches missed.">            if (clients.isEmpty()) {</span>
+<span class="nc" id="L101">                System.out.println(&quot;No clients found in the system.&quot;);</span>
+<span class="nc" id="L102">                return;</span>
+            }
+            
+<span class="nc" id="L105">            System.out.printf(&quot;%-5s %-20s %-30s %-15s %-12s %-20s%n&quot;, </span>
+                &quot;ID&quot;, &quot;Name&quot;, &quot;Email&quot;, &quot;Phone&quot;, &quot;Status&quot;, &quot;Last Updated&quot;);
+<span class="nc" id="L107">            System.out.println(&quot;────────────────────────────────────────────────────────────────────────────────────────────────────────&quot;);</span>
+            
+<span class="nc bnc" id="L109" title="All 2 branches missed.">            for (Client client : clients) {</span>
+<span class="nc bnc" id="L110" title="All 2 branches missed.">                String status = client.isActive() ? &quot;🟢 ACTIVE&quot; : &quot;🔴 SUSPENDED&quot;;</span>
+<span class="nc bnc" id="L111" title="All 2 branches missed.">                String lastUpdated = client.getUpdatedAt() != null ? </span>
+<span class="nc" id="L112">                    client.getUpdatedAt().toLocalDate().toString() : &quot;N/A&quot;;</span>
+                
+<span class="nc" id="L114">                System.out.printf(&quot;%-5d %-20s %-30s %-15s %-12s %-20s%n&quot;,</span>
+<span class="nc" id="L115">                    client.getId(),</span>
+<span class="nc" id="L116">                    client.getFullName(),</span>
+<span class="nc" id="L117">                    client.getEmail(),</span>
+<span class="nc" id="L118">                    client.getPhone(),</span>
+                    status,
+                    lastUpdated
+                );
+<span class="nc" id="L122">            }</span>
+            
+<span class="nc" id="L124">            System.out.printf(&quot;%nTotal: %d clients%n&quot;, clients.size());</span>
+            
+<span class="nc" id="L126">        } catch (ApiException e) {</span>
+<span class="nc" id="L127">            DisplayUtils.printError(&quot;Failed to load clients: &quot; + e.getMessage());</span>
+<span class="nc" id="L128">            logger.error(&quot;Failed to load clients&quot;, e);</span>
+<span class="nc" id="L129">        }</span>
+<span class="nc" id="L130">    }</span>
+
+    private void searchClients() {
+<span class="nc" id="L133">        DisplayUtils.printHeader(&quot;SEARCH CLIENTS&quot;);</span>
+        
+        try {
+<span class="nc" id="L136">            System.out.println(&quot;🔍 Search Options:&quot;);</span>
+<span class="nc" id="L137">            System.out.println(&quot;  1. Search by Name (first or last name)&quot;);</span>
+<span class="nc" id="L138">            System.out.println(&quot;  2. Search by Email&quot;);</span>
+<span class="nc" id="L139">            System.out.println(&quot;  3. Search by Phone&quot;);</span>
+<span class="nc" id="L140">            System.out.println(&quot;  4. Search by Status (active/suspended)&quot;);</span>
+<span class="nc" id="L141">            System.out.println(&quot;  5. View All Clients&quot;);</span>
+<span class="nc" id="L142">            System.out.println();</span>
+<span class="nc" id="L143">            System.out.print(&quot;Enter your choice (1-5, or 'b' to go back): &quot;);</span>
+            
+<span class="nc" id="L145">            String choice = scanner.nextLine().trim();</span>
+            
+<span class="nc bnc" id="L147" title="All 4 branches missed.">            if (choice.equalsIgnoreCase(&quot;b&quot;) || choice.equalsIgnoreCase(&quot;back&quot;)) {</span>
+<span class="nc" id="L148">                return;</span>
+            }
+            
+<span class="nc" id="L151">            List&lt;Client&gt; allClients = apiService.getAllClients();</span>
+            List&lt;Client&gt; filteredClients;
+            String searchTerm;
+            
+<span class="nc bnc" id="L155" title="All 6 branches missed.">            switch (choice) {</span>
+                case &quot;1&quot;:
+<span class="nc" id="L157">                    System.out.print(&quot;Enter name to search for: &quot;);</span>
+<span class="nc" id="L158">                    final String nameSearch = scanner.nextLine().trim().toLowerCase();</span>
+<span class="nc" id="L159">                    filteredClients = allClients.stream()</span>
+<span class="nc bnc" id="L160" title="All 2 branches missed.">                        .filter(c -&gt; c.getFirstName().toLowerCase().contains(nameSearch) ||</span>
+<span class="nc bnc" id="L161" title="All 2 branches missed.">                                   c.getLastName().toLowerCase().contains(nameSearch) ||</span>
+<span class="nc bnc" id="L162" title="All 2 branches missed.">                                   c.getFullName().toLowerCase().contains(nameSearch))</span>
+<span class="nc" id="L163">                        .collect(Collectors.toList());</span>
+<span class="nc" id="L164">                    searchTerm = nameSearch;</span>
+<span class="nc" id="L165">                    break;</span>
+                    
+                case &quot;2&quot;:
+<span class="nc" id="L168">                    System.out.print(&quot;Enter email to search for: &quot;);</span>
+<span class="nc" id="L169">                    final String emailSearch = scanner.nextLine().trim().toLowerCase();</span>
+<span class="nc" id="L170">                    filteredClients = allClients.stream()</span>
+<span class="nc" id="L171">                        .filter(c -&gt; c.getEmail().toLowerCase().contains(emailSearch))</span>
+<span class="nc" id="L172">                        .collect(Collectors.toList());</span>
+<span class="nc" id="L173">                    searchTerm = emailSearch;</span>
+<span class="nc" id="L174">                    break;</span>
+                    
+                case &quot;3&quot;:
+<span class="nc" id="L177">                    System.out.print(&quot;Enter phone number to search for: &quot;);</span>
+<span class="nc" id="L178">                    final String phoneSearch = scanner.nextLine().trim();</span>
+<span class="nc" id="L179">                    filteredClients = allClients.stream()</span>
+<span class="nc" id="L180">                        .filter(c -&gt; c.getPhone().contains(phoneSearch))</span>
+<span class="nc" id="L181">                        .collect(Collectors.toList());</span>
+<span class="nc" id="L182">                    searchTerm = phoneSearch;</span>
+<span class="nc" id="L183">                    break;</span>
+                    
+                case &quot;4&quot;:
+<span class="nc" id="L186">                    System.out.println(&quot;Select status:&quot;);</span>
+<span class="nc" id="L187">                    System.out.println(&quot;  a. Active clients only&quot;);</span>
+<span class="nc" id="L188">                    System.out.println(&quot;  s. Suspended clients only&quot;);</span>
+<span class="nc" id="L189">                    System.out.print(&quot;Enter choice (a/s): &quot;);</span>
+<span class="nc" id="L190">                    String statusChoice = scanner.nextLine().trim().toLowerCase();</span>
+                    
+<span class="nc bnc" id="L192" title="All 2 branches missed.">                    if (statusChoice.equals(&quot;a&quot;)) {</span>
+<span class="nc" id="L193">                        filteredClients = allClients.stream()</span>
+<span class="nc" id="L194">                            .filter(Client::isActive)</span>
+<span class="nc" id="L195">                            .collect(Collectors.toList());</span>
+<span class="nc" id="L196">                        searchTerm = &quot;active clients&quot;;</span>
+<span class="nc bnc" id="L197" title="All 2 branches missed.">                    } else if (statusChoice.equals(&quot;s&quot;)) {</span>
+<span class="nc" id="L198">                        filteredClients = allClients.stream()</span>
+<span class="nc bnc" id="L199" title="All 2 branches missed.">                            .filter(c -&gt; !c.isActive())</span>
+<span class="nc" id="L200">                            .collect(Collectors.toList());</span>
+<span class="nc" id="L201">                        searchTerm = &quot;suspended clients&quot;;</span>
+                    } else {
+<span class="nc" id="L203">                        DisplayUtils.printError(&quot;Invalid choice. Please select 'a' for active or 's' for suspended.&quot;);</span>
+<span class="nc" id="L204">                        return;</span>
+                    }
+                    break;
+                    
+                case &quot;5&quot;:
+<span class="nc" id="L209">                    filteredClients = new ArrayList&lt;&gt;(allClients);</span>
+<span class="nc" id="L210">                    searchTerm = &quot;all clients&quot;;</span>
+<span class="nc" id="L211">                    break;</span>
+                    
+                default:
+<span class="nc" id="L214">                    DisplayUtils.printError(&quot;Invalid choice. Please select 1-5.&quot;);</span>
+<span class="nc" id="L215">                    return;</span>
+            }
+            
+            // Display search results
+<span class="nc" id="L219">            System.out.println();</span>
+<span class="nc bnc" id="L220" title="All 2 branches missed.">            if (filteredClients.isEmpty()) {</span>
+<span class="nc" id="L221">                System.out.println(&quot;🔍 No clients found matching your search criteria.&quot;);</span>
+<span class="nc bnc" id="L222" title="All 4 branches missed.">                if (!searchTerm.isEmpty() &amp;&amp; !searchTerm.equals(&quot;all clients&quot;) &amp;&amp; </span>
+<span class="nc bnc" id="L223" title="All 4 branches missed.">                    !searchTerm.equals(&quot;active clients&quot;) &amp;&amp; !searchTerm.equals(&quot;suspended clients&quot;)) {</span>
+<span class="nc" id="L224">                    System.out.println(&quot;   Search term: \&quot;&quot; + searchTerm + &quot;\&quot;&quot;);</span>
+                }
+<span class="nc" id="L226">                return;</span>
+            }
+            
+<span class="nc bnc" id="L229" title="All 2 branches missed.">            System.out.println(&quot;🔍 Search Results&quot; + (searchTerm.isEmpty() ? &quot;&quot; : &quot; for \&quot;&quot; + searchTerm + &quot;\&quot;&quot;) + &quot;:&quot;);</span>
+<span class="nc" id="L230">            System.out.printf(&quot;   Found %d client(s)%n&quot;, filteredClients.size());</span>
+<span class="nc" id="L231">            System.out.println();</span>
+            
+            // Display results in table format
+<span class="nc" id="L234">            System.out.printf(&quot;%-5s %-25s %-35s %-15s %-12s%n&quot;, </span>
+                &quot;ID&quot;, &quot;Name&quot;, &quot;Email&quot;, &quot;Phone&quot;, &quot;Status&quot;);
+<span class="nc" id="L236">            System.out.println(&quot;─────────────────────────────────────────────────────────────────────────────────────────────────&quot;);</span>
+            
+<span class="nc bnc" id="L238" title="All 2 branches missed.">            for (Client client : filteredClients) {</span>
+<span class="nc bnc" id="L239" title="All 2 branches missed.">                String status = client.isActive() ? &quot;🟢 ACTIVE&quot; : &quot;🔴 SUSPENDED&quot;;</span>
+<span class="nc" id="L240">                System.out.printf(&quot;%-5d %-25s %-35s %-15s %-12s%n&quot;,</span>
+<span class="nc" id="L241">                    client.getId(),</span>
+<span class="nc" id="L242">                    client.getFullName(),</span>
+<span class="nc" id="L243">                    client.getEmail(),</span>
+<span class="nc" id="L244">                    client.getPhone(),</span>
+                    status
+                );
+<span class="nc" id="L247">            }</span>
+            
+<span class="nc" id="L249">            System.out.println();</span>
+<span class="nc" id="L250">            System.out.print(&quot;Enter client ID to view details, or press Enter to continue: &quot;);</span>
+<span class="nc" id="L251">            String idInput = scanner.nextLine().trim();</span>
+            
+<span class="nc bnc" id="L253" title="All 2 branches missed.">            if (!idInput.isEmpty()) {</span>
+                try {
+<span class="nc" id="L255">                    Long clientId = Long.parseLong(idInput);</span>
+<span class="nc" id="L256">                    Client selectedClient = filteredClients.stream()</span>
+<span class="nc" id="L257">                        .filter(c -&gt; c.getId().equals(clientId))</span>
+<span class="nc" id="L258">                        .findFirst()</span>
+<span class="nc" id="L259">                        .orElse(null);</span>
+                    
+<span class="nc bnc" id="L261" title="All 2 branches missed.">                    if (selectedClient != null) {</span>
+<span class="nc" id="L262">                        System.out.println();</span>
+<span class="nc" id="L263">                        displayClientSummary(selectedClient);</span>
+                    } else {
+<span class="nc" id="L265">                        DisplayUtils.printError(&quot;Client ID not found in search results.&quot;);</span>
+                    }
+<span class="nc" id="L267">                } catch (NumberFormatException e) {</span>
+<span class="nc" id="L268">                    DisplayUtils.printError(&quot;Invalid ID format.&quot;);</span>
+<span class="nc" id="L269">                }</span>
+            }
+            
+<span class="nc" id="L272">        } catch (ApiException e) {</span>
+<span class="nc" id="L273">            DisplayUtils.printError(&quot;Failed to search clients: &quot; + e.getMessage());</span>
+<span class="nc" id="L274">            logger.error(&quot;Failed to search clients&quot;, e);</span>
+<span class="nc" id="L275">        } catch (Exception e) {</span>
+<span class="nc" id="L276">            DisplayUtils.printError(&quot;Unexpected error: &quot; + e.getMessage());</span>
+<span class="nc" id="L277">            logger.error(&quot;Unexpected error during client search&quot;, e);</span>
+<span class="nc" id="L278">        }</span>
+<span class="nc" id="L279">    }</span>
+
+    private void viewClientDetails() {
+<span class="nc" id="L282">        DisplayUtils.printHeader(&quot;CLIENT DETAILS&quot;);</span>
+        
+        try {
+            // Get all clients for selection
+<span class="nc" id="L286">            List&lt;Client&gt; clients = apiService.getAllClients();</span>
+            
+<span class="nc bnc" id="L288" title="All 2 branches missed.">            if (clients.isEmpty()) {</span>
+<span class="nc" id="L289">                System.out.println(&quot;No clients found in the system.&quot;);</span>
+<span class="nc" id="L290">                return;</span>
+            }
+            
+            // Display clients for selection
+<span class="nc" id="L294">            System.out.println(&quot;📋 Select a client to view details:&quot;);</span>
+<span class="nc" id="L295">            System.out.println();</span>
+<span class="nc" id="L296">            System.out.printf(&quot;%-5s %-25s %-35s %-15s%n&quot;, &quot;ID&quot;, &quot;Name&quot;, &quot;Email&quot;, &quot;Status&quot;);</span>
+<span class="nc" id="L297">            System.out.println(&quot;─────────────────────────────────────────────────────────────────────────────────&quot;);</span>
+            
+<span class="nc bnc" id="L299" title="All 2 branches missed.">            for (Client client : clients) {</span>
+<span class="nc bnc" id="L300" title="All 2 branches missed.">                String status = client.isActive() ? &quot;🟢 ACTIVE&quot; : &quot;🔴 SUSPENDED&quot;;</span>
+<span class="nc" id="L301">                System.out.printf(&quot;%-5d %-25s %-35s %-15s%n&quot;,</span>
+<span class="nc" id="L302">                    client.getId(),</span>
+<span class="nc" id="L303">                    client.getFullName(),</span>
+<span class="nc" id="L304">                    client.getEmail(),</span>
+                    status
+                );
+<span class="nc" id="L307">            }</span>
+            
+<span class="nc" id="L309">            System.out.println();</span>
+<span class="nc" id="L310">            System.out.print(&quot;Enter client ID to view details (or 'b' to go back): &quot;);</span>
+<span class="nc" id="L311">            String input = scanner.nextLine().trim();</span>
+            
+<span class="nc bnc" id="L313" title="All 4 branches missed.">            if (input.equalsIgnoreCase(&quot;b&quot;) || input.equalsIgnoreCase(&quot;back&quot;)) {</span>
+<span class="nc" id="L314">                return;</span>
+            }
+            
+            try {
+<span class="nc" id="L318">                Long clientId = Long.parseLong(input);</span>
+<span class="nc" id="L319">                Client selectedClient = clients.stream()</span>
+<span class="nc" id="L320">                    .filter(c -&gt; c.getId().equals(clientId))</span>
+<span class="nc" id="L321">                    .findFirst()</span>
+<span class="nc" id="L322">                    .orElse(null);</span>
+                
+<span class="nc bnc" id="L324" title="All 2 branches missed.">                if (selectedClient == null) {</span>
+<span class="nc" id="L325">                    DisplayUtils.printError(&quot;Client with ID &quot; + clientId + &quot; not found.&quot;);</span>
+<span class="nc" id="L326">                    return;</span>
+                }
+                
+                // Display detailed client information
+<span class="nc" id="L330">                System.out.println();</span>
+<span class="nc" id="L331">                System.out.println(&quot;╔════════════════════════════════════════════════════════════════╗&quot;);</span>
+<span class="nc" id="L332">                System.out.printf(&quot;║                CLIENT DETAILS - %-27s║%n&quot;, selectedClient.getFullName());</span>
+<span class="nc" id="L333">                System.out.println(&quot;╚════════════════════════════════════════════════════════════════╝&quot;);</span>
+<span class="nc" id="L334">                System.out.println();</span>
+                
+<span class="nc" id="L336">                System.out.println(&quot;👤 Personal Information&quot;);</span>
+<span class="nc" id="L337">                System.out.println(&quot;────────────────────────────────────────────────────────────────&quot;);</span>
+<span class="nc" id="L338">                System.out.printf(&quot;  Name:          %s%n&quot;, selectedClient.getFullName());</span>
+<span class="nc" id="L339">                System.out.printf(&quot;  Email:         %s%n&quot;, selectedClient.getEmail());</span>
+<span class="nc" id="L340">                System.out.printf(&quot;  Phone:         %s%n&quot;, selectedClient.getPhone());</span>
+<span class="nc" id="L341">                System.out.printf(&quot;  Address:       %s%n&quot;, </span>
+<span class="nc bnc" id="L342" title="All 2 branches missed.">                    selectedClient.getAddress() != null ? selectedClient.getAddress() : &quot;Not provided&quot;);</span>
+                
+<span class="nc bnc" id="L344" title="All 2 branches missed.">                String statusDisplay = selectedClient.isActive() ? &quot;🟢 ACTIVE&quot; : &quot;🔴 SUSPENDED&quot;;</span>
+<span class="nc" id="L345">                System.out.printf(&quot;  Status:        %s%n&quot;, statusDisplay);</span>
+                
+<span class="nc bnc" id="L347" title="All 2 branches missed.">                if (selectedClient.getCreatedAt() != null) {</span>
+<span class="nc" id="L348">                    System.out.printf(&quot;  Member Since:  %s%n&quot;, selectedClient.getCreatedAt().toString());</span>
+                }
+<span class="nc bnc" id="L350" title="All 2 branches missed.">                if (selectedClient.getUpdatedAt() != null) {</span>
+<span class="nc" id="L351">                    System.out.printf(&quot;  Last Updated:  %s%n&quot;, selectedClient.getUpdatedAt().toString());</span>
+                }
+                
+<span class="nc" id="L354">                System.out.println();</span>
+<span class="nc" id="L355">                System.out.println(&quot;📝 Notes&quot;);</span>
+<span class="nc" id="L356">                System.out.println(&quot;────────────────────────────────────────────────────────────────&quot;);</span>
+<span class="nc" id="L357">                System.out.printf(&quot;  %s%n&quot;, </span>
+<span class="nc bnc" id="L358" title="All 4 branches missed.">                    selectedClient.getNotes() != null &amp;&amp; !selectedClient.getNotes().trim().isEmpty() </span>
+<span class="nc" id="L359">                        ? selectedClient.getNotes() : &quot;No notes available&quot;);</span>
+                
+<span class="nc" id="L361">                System.out.println();</span>
+<span class="nc" id="L362">                System.out.println(&quot;🎫 Ticket Information&quot;);</span>
+<span class="nc" id="L363">                System.out.println(&quot;────────────────────────────────────────────────────────────────&quot;);</span>
+<span class="nc" id="L364">                System.out.println(&quot;  Use main menu → Ticket Management to view detailed ticket information&quot;);</span>
+<span class="nc" id="L365">                System.out.printf(&quot;  Client ID: %d (%s)%n&quot;, clientId, selectedClient.getFullName());</span>
+                
+<span class="nc" id="L367">                System.out.println();</span>
+<span class="nc" id="L368">                System.out.println(&quot;💡 Quick Actions Available&quot;);</span>
+<span class="nc" id="L369">                System.out.println(&quot;────────────────────────────────────────────────────────────────&quot;);</span>
+<span class="nc" id="L370">                System.out.println(&quot;  To manage this client, use the main Client Management menu:&quot;);</span>
+<span class="nc" id="L371">                System.out.println(&quot;  • Edit Client Information (option 5)&quot;);</span>
+<span class="nc" id="L372">                System.out.println(&quot;  • Change Client Status (option 6)&quot;);</span>
+<span class="nc" id="L373">                System.out.println(&quot;  • Delete Client (option 7)&quot;);</span>
+<span class="nc" id="L374">                System.out.println();</span>
+<span class="nc" id="L375">                System.out.print(&quot;Press Enter to continue...&quot;);</span>
+<span class="nc" id="L376">                scanner.nextLine();</span>
+                
+<span class="nc" id="L378">            } catch (NumberFormatException e) {</span>
+<span class="nc" id="L379">                DisplayUtils.printError(&quot;Invalid ID format. Please enter a valid number.&quot;);</span>
+<span class="nc" id="L380">            }</span>
+            
+<span class="nc" id="L382">        } catch (ApiException e) {</span>
+<span class="nc" id="L383">            DisplayUtils.printError(&quot;Failed to load client details: &quot; + e.getMessage());</span>
+<span class="nc" id="L384">            logger.error(&quot;Failed to load client details&quot;, e);</span>
+<span class="nc" id="L385">        } catch (Exception e) {</span>
+<span class="nc" id="L386">            DisplayUtils.printError(&quot;Unexpected error: &quot; + e.getMessage());</span>
+<span class="nc" id="L387">            logger.error(&quot;Unexpected error during client details view&quot;, e);</span>
+<span class="nc" id="L388">        }</span>
+<span class="nc" id="L389">    }</span>
+
+    private void createNewClient() {
+<span class="nc" id="L392">        DisplayUtils.printHeader(&quot;CREATE NEW CLIENT&quot;);</span>
+        
+        try {
+<span class="nc" id="L395">            ClientBuilder clientBuilder = new ClientBuilder(scanner);</span>
+<span class="nc" id="L396">            Client newClient = clientBuilder.buildNewClient();</span>
+            
+<span class="nc" id="L398">            System.out.println(&quot;\n📋 Please review the client information:&quot;);</span>
+<span class="nc" id="L399">            displayClientSummary(newClient);</span>
+            
+<span class="nc" id="L401">            System.out.print(&quot;\nCreate this client? (y/n): &quot;);</span>
+<span class="nc" id="L402">            String confirm = scanner.nextLine().trim().toLowerCase();</span>
+            
+<span class="nc bnc" id="L404" title="All 4 branches missed.">            if (confirm.equals(&quot;y&quot;) || confirm.equals(&quot;yes&quot;)) {</span>
+<span class="nc" id="L405">                Client createdClient = apiService.createClient(newClient);</span>
+<span class="nc" id="L406">                System.out.printf(&quot;✅ Client %s created (ID: %d)\n&quot;, </span>
+<span class="nc" id="L407">                    createdClient.getFullName(), createdClient.getId());</span>
+<span class="nc" id="L408">                logger.info(&quot;Created new client: {} {}&quot;, createdClient.getFirstName(), createdClient.getLastName());</span>
+<span class="nc" id="L409">            } else {</span>
+<span class="nc" id="L410">                System.out.println(&quot;Client creation cancelled.&quot;);</span>
+            }
+            
+<span class="nc" id="L413">        } catch (ApiException e) {</span>
+<span class="nc" id="L414">            DisplayUtils.printError(&quot;Failed to create client: &quot; + e.getMessage());</span>
+<span class="nc" id="L415">            logger.error(&quot;Failed to create client&quot;, e);</span>
+<span class="nc" id="L416">        } catch (Exception e) {</span>
+<span class="nc" id="L417">            DisplayUtils.printError(&quot;Unexpected error: &quot; + e.getMessage());</span>
+<span class="nc" id="L418">            logger.error(&quot;Unexpected error during client creation&quot;, e);</span>
+<span class="nc" id="L419">        }</span>
+<span class="nc" id="L420">    }</span>
+
+    private void editClient() {
+<span class="nc" id="L423">        DisplayUtils.printHeader(&quot;EDIT CLIENT&quot;);</span>
+        
+        try {
+            // Get all clients for selection
+<span class="nc" id="L427">            List&lt;Client&gt; clients = apiService.getAllClients();</span>
+            
+<span class="nc bnc" id="L429" title="All 2 branches missed.">            if (clients.isEmpty()) {</span>
+<span class="nc" id="L430">                System.out.println(&quot;No clients found in the system.&quot;);</span>
+<span class="nc" id="L431">                return;</span>
+            }
+            
+            // Display clients for selection
+<span class="nc" id="L435">            System.out.println(&quot;📋 Select a client to edit:&quot;);</span>
+<span class="nc" id="L436">            System.out.println();</span>
+<span class="nc" id="L437">            System.out.printf(&quot;%-5s %-25s %-35s %-15s%n&quot;, &quot;ID&quot;, &quot;Name&quot;, &quot;Email&quot;, &quot;Status&quot;);</span>
+<span class="nc" id="L438">            System.out.println(&quot;─────────────────────────────────────────────────────────────────────────────────&quot;);</span>
+            
+<span class="nc bnc" id="L440" title="All 2 branches missed.">            for (Client client : clients) {</span>
+<span class="nc bnc" id="L441" title="All 2 branches missed.">                String status = client.isActive() ? &quot;🟢 ACTIVE&quot; : &quot;🔴 SUSPENDED&quot;;</span>
+<span class="nc" id="L442">                System.out.printf(&quot;%-5d %-25s %-35s %-15s%n&quot;,</span>
+<span class="nc" id="L443">                    client.getId(),</span>
+<span class="nc" id="L444">                    client.getFullName(),</span>
+<span class="nc" id="L445">                    client.getEmail(),</span>
+                    status
+                );
+<span class="nc" id="L448">            }</span>
+            
+<span class="nc" id="L450">            System.out.println();</span>
+<span class="nc" id="L451">            System.out.print(&quot;Enter client ID to edit (or 'b' to go back): &quot;);</span>
+<span class="nc" id="L452">            String input = scanner.nextLine().trim();</span>
+            
+<span class="nc bnc" id="L454" title="All 4 branches missed.">            if (input.equalsIgnoreCase(&quot;b&quot;) || input.equalsIgnoreCase(&quot;back&quot;)) {</span>
+<span class="nc" id="L455">                return;</span>
+            }
+            
+            try {
+<span class="nc" id="L459">                Long clientId = Long.parseLong(input);</span>
+<span class="nc" id="L460">                Client selectedClient = clients.stream()</span>
+<span class="nc" id="L461">                    .filter(c -&gt; c.getId().equals(clientId))</span>
+<span class="nc" id="L462">                    .findFirst()</span>
+<span class="nc" id="L463">                    .orElse(null);</span>
+                
+<span class="nc bnc" id="L465" title="All 2 branches missed.">                if (selectedClient == null) {</span>
+<span class="nc" id="L466">                    DisplayUtils.printError(&quot;Client with ID &quot; + clientId + &quot; not found.&quot;);</span>
+<span class="nc" id="L467">                    return;</span>
+                }
+                
+                // Show current client information
+<span class="nc" id="L471">                System.out.println(&quot;\n📋 Current Client Information:&quot;);</span>
+<span class="nc" id="L472">                displayClientSummary(selectedClient);</span>
+                
+                // Collect updates using ClientBuilder
+<span class="nc" id="L475">                ClientBuilder clientBuilder = new ClientBuilder(scanner);</span>
+<span class="nc" id="L476">                Client updatedClient = clientBuilder.buildClientUpdate(selectedClient);</span>
+                
+<span class="nc bnc" id="L478" title="All 2 branches missed.">                if (updatedClient == null) {</span>
+<span class="nc" id="L479">                    System.out.println(&quot;Edit cancelled.&quot;);</span>
+<span class="nc" id="L480">                    return;</span>
+                }
+                
+                // Show changes summary
+<span class="nc" id="L484">                System.out.println(&quot;\n📋 Changes Summary:&quot;);</span>
+<span class="nc" id="L485">                displayClientUpdateSummary(selectedClient, updatedClient);</span>
+                
+<span class="nc" id="L487">                System.out.print(&quot;\nSave these changes? (y/n): &quot;);</span>
+<span class="nc" id="L488">                String confirm = scanner.nextLine().trim().toLowerCase();</span>
+                
+<span class="nc bnc" id="L490" title="All 4 branches missed.">                if (confirm.equals(&quot;y&quot;) || confirm.equals(&quot;yes&quot;)) {</span>
+<span class="nc" id="L491">                    Client savedClient = apiService.updateClient(clientId, updatedClient);</span>
+<span class="nc" id="L492">                    System.out.printf(&quot;✅ %s updated\n&quot;, savedClient.getFullName());</span>
+                    
+<span class="nc" id="L494">                    System.out.println(&quot;\n📋 Updated Client Information:&quot;);</span>
+<span class="nc" id="L495">                    displayClientSummary(savedClient);</span>
+<span class="nc" id="L496">                    logger.info(&quot;Updated client: {} {}&quot;, savedClient.getFirstName(), savedClient.getLastName());</span>
+<span class="nc" id="L497">                } else {</span>
+<span class="nc" id="L498">                    System.out.println(&quot;Changes cancelled.&quot;);</span>
+                }
+                
+<span class="nc" id="L501">            } catch (NumberFormatException e) {</span>
+<span class="nc" id="L502">                DisplayUtils.printError(&quot;Invalid ID format. Please enter a valid number.&quot;);</span>
+<span class="nc" id="L503">            }</span>
+            
+<span class="nc" id="L505">        } catch (ApiException e) {</span>
+<span class="nc" id="L506">            DisplayUtils.printError(&quot;Failed to edit client: &quot; + e.getMessage());</span>
+<span class="nc" id="L507">            logger.error(&quot;Failed to edit client&quot;, e);</span>
+<span class="nc" id="L508">        } catch (Exception e) {</span>
+<span class="nc" id="L509">            DisplayUtils.printError(&quot;Unexpected error: &quot; + e.getMessage());</span>
+<span class="nc" id="L510">            logger.error(&quot;Unexpected error during client edit&quot;, e);</span>
+<span class="nc" id="L511">        }</span>
+<span class="nc" id="L512">    }</span>
+
+    private void manageClientStatus() {
+<span class="nc" id="L515">        DisplayUtils.printHeader(&quot;CLIENT STATUS MANAGEMENT&quot;);</span>
+        
+<span class="nc" id="L517">        System.out.println(&quot;ℹ️  Status Management Information:&quot;);</span>
+<span class="nc" id="L518">        System.out.println(&quot;   This feature requests status changes and tracks them in client notes.&quot;);</span>
+<span class="nc" id="L519">        System.out.println(&quot;   Server business rules may prevent actual status changes through this interface.&quot;);</span>
+<span class="nc" id="L520">        System.out.println(&quot;   Contact system administrator if manual status changes are needed.&quot;);</span>
+<span class="nc" id="L521">        System.out.println();</span>
+        
+        try {
+            // Get all clients for selection
+<span class="nc" id="L525">            List&lt;Client&gt; clients = apiService.getAllClients();</span>
+            
+<span class="nc bnc" id="L527" title="All 2 branches missed.">            if (clients.isEmpty()) {</span>
+<span class="nc" id="L528">                System.out.println(&quot;No clients found in the system.&quot;);</span>
+<span class="nc" id="L529">                return;</span>
+            }
+            
+            // Display clients with their current status
+<span class="nc" id="L533">            System.out.println(&quot;📋 Select a client to change status:&quot;);</span>
+<span class="nc" id="L534">            System.out.println();</span>
+<span class="nc" id="L535">            System.out.printf(&quot;%-5s %-25s %-35s %-15s%n&quot;, &quot;ID&quot;, &quot;Name&quot;, &quot;Email&quot;, &quot;Current Status&quot;);</span>
+<span class="nc" id="L536">            System.out.println(&quot;─────────────────────────────────────────────────────────────────────────────────&quot;);</span>
+            
+<span class="nc bnc" id="L538" title="All 2 branches missed.">            for (Client client : clients) {</span>
+<span class="nc bnc" id="L539" title="All 2 branches missed.">                String status = client.isActive() ? &quot;🟢 ACTIVE&quot; : &quot;🔴 SUSPENDED&quot;;</span>
+<span class="nc" id="L540">                System.out.printf(&quot;%-5d %-25s %-35s %-15s%n&quot;,</span>
+<span class="nc" id="L541">                    client.getId(),</span>
+<span class="nc" id="L542">                    client.getFullName(),</span>
+<span class="nc" id="L543">                    client.getEmail(),</span>
+                    status
+                );
+<span class="nc" id="L546">            }</span>
+            
+<span class="nc" id="L548">            System.out.println();</span>
+<span class="nc" id="L549">            System.out.print(&quot;Enter client ID to change status (or 'b' to go back): &quot;);</span>
+<span class="nc" id="L550">            String input = scanner.nextLine().trim();</span>
+            
+<span class="nc bnc" id="L552" title="All 4 branches missed.">            if (input.equalsIgnoreCase(&quot;b&quot;) || input.equalsIgnoreCase(&quot;back&quot;)) {</span>
+<span class="nc" id="L553">                return;</span>
+            }
+            
+            try {
+<span class="nc" id="L557">                Long clientId = Long.parseLong(input);</span>
+<span class="nc" id="L558">                Client selectedClient = clients.stream()</span>
+<span class="nc" id="L559">                    .filter(c -&gt; c.getId().equals(clientId))</span>
+<span class="nc" id="L560">                    .findFirst()</span>
+<span class="nc" id="L561">                    .orElse(null);</span>
+                
+<span class="nc bnc" id="L563" title="All 2 branches missed.">                if (selectedClient == null) {</span>
+<span class="nc" id="L564">                    DisplayUtils.printError(&quot;Client with ID &quot; + clientId + &quot; not found.&quot;);</span>
+<span class="nc" id="L565">                    return;</span>
+                }
+                
+                // Show current status and available actions
+<span class="nc" id="L569">                System.out.println(&quot;\n📋 Current Status: &quot; + selectedClient.getFullName());</span>
+<span class="nc bnc" id="L570" title="All 2 branches missed.">                String currentStatus = selectedClient.isActive() ? &quot;🟢 ACTIVE&quot; : &quot;🔴 SUSPENDED&quot;;</span>
+<span class="nc" id="L571">                System.out.println(&quot;Status: &quot; + currentStatus);</span>
+<span class="nc" id="L572">                System.out.println();</span>
+                
+<span class="nc bnc" id="L574" title="All 2 branches missed.">                if (selectedClient.isActive()) {</span>
+<span class="nc" id="L575">                    System.out.println(&quot;🔹 Available Actions:&quot;);</span>
+<span class="nc" id="L576">                    System.out.println(&quot;  1. Suspend Client - Deactivate client account&quot;);</span>
+<span class="nc" id="L577">                    System.out.println(&quot;  2. Keep Current Status - No changes&quot;);</span>
+<span class="nc" id="L578">                    System.out.println();</span>
+<span class="nc" id="L579">                    System.out.print(&quot;Enter your choice (1-2): &quot;);</span>
+                    
+<span class="nc" id="L581">                    String choice = scanner.nextLine().trim();</span>
+                    
+<span class="nc bnc" id="L583" title="All 2 branches missed.">                    if (choice.equals(&quot;1&quot;)) {</span>
+<span class="nc" id="L584">                        System.out.println();</span>
+<span class="nc" id="L585">                        System.out.println(&quot;⚠️  Suspending client will:&quot;);</span>
+<span class="nc" id="L586">                        System.out.println(&quot;   • Prevent new ticket creation&quot;);</span>
+<span class="nc" id="L587">                        System.out.println(&quot;   • Mark client as inactive in the system&quot;);</span>
+<span class="nc" id="L588">                        System.out.println(&quot;   • Existing tickets remain unchanged&quot;);</span>
+<span class="nc" id="L589">                        System.out.println();</span>
+<span class="nc" id="L590">                        System.out.print(&quot;Reason for suspension (optional): &quot;);</span>
+<span class="nc" id="L591">                        String reason = scanner.nextLine().trim();</span>
+                        
+<span class="nc" id="L593">                        System.out.print(&quot;Confirm suspension? (y/n): &quot;);</span>
+<span class="nc" id="L594">                        String confirm = scanner.nextLine().trim().toLowerCase();</span>
+                        
+<span class="nc bnc" id="L596" title="All 4 branches missed.">                        if (confirm.equals(&quot;y&quot;) || confirm.equals(&quot;yes&quot;)) {</span>
+                            // Update client status to suspended
+<span class="nc" id="L598">                            Client updatedClient = new Client();</span>
+<span class="nc" id="L599">                            updatedClient.setId(selectedClient.getId());</span>
+<span class="nc" id="L600">                            updatedClient.setFirstName(selectedClient.getFirstName());</span>
+<span class="nc" id="L601">                            updatedClient.setLastName(selectedClient.getLastName());</span>
+<span class="nc" id="L602">                            updatedClient.setEmail(selectedClient.getEmail());</span>
+<span class="nc" id="L603">                            updatedClient.setPhone(selectedClient.getPhone());</span>
+<span class="nc" id="L604">                            updatedClient.setAddress(selectedClient.getAddress());</span>
+                            
+                            // Add suspension note to track the request
+<span class="nc bnc" id="L607" title="All 2 branches missed.">                            String suspensionNote = selectedClient.getNotes() != null ? selectedClient.getNotes() : &quot;&quot;;</span>
+<span class="nc bnc" id="L608" title="All 2 branches missed.">                            if (reason.isEmpty()) {</span>
+<span class="nc" id="L609">                                suspensionNote += &quot; | Suspension requested&quot;;</span>
+                            } else {
+<span class="nc" id="L611">                                suspensionNote += &quot; | Suspension requested: &quot; + reason;</span>
+                            }
+<span class="nc" id="L613">                            updatedClient.setNotes(suspensionNote);</span>
+<span class="nc" id="L614">                            updatedClient.setStatus(&quot;SUSPENDED&quot;);</span>
+<span class="nc" id="L615">                            updatedClient.setActive(false);</span>
+                            
+                            try {
+<span class="nc" id="L618">                                Client result = apiService.updateClient(clientId, updatedClient);</span>
+                                
+                                // Check if the status change was actually applied
+<span class="nc bnc" id="L621" title="All 4 branches missed.">                                if (result.isActive() &amp;&amp; &quot;ACTIVE&quot;.equals(result.getStatus())) {</span>
+<span class="nc" id="L622">                                    DisplayUtils.printError(&quot;⚠️  Status change not applied by server.&quot;);</span>
+<span class="nc" id="L623">                                    System.out.println(&quot;   The server has business rules that prevent status changes through this endpoint.&quot;);</span>
+<span class="nc" id="L624">                                    System.out.println(&quot;   Note has been added to track the suspension request: \&quot;&quot; + reason + &quot;\&quot;&quot;);</span>
+<span class="nc" id="L625">                                    System.out.println(&quot;   Contact system administrator for manual status changes.&quot;);</span>
+<span class="nc" id="L626">                                    logger.warn(&quot;Server prevented status change for client ID: {} - added note only&quot;, clientId);</span>
+                                } else {
+<span class="nc" id="L628">                                    DisplayUtils.printSuccess(&quot;✅ Client suspended successfully!&quot;);</span>
+<span class="nc" id="L629">                                    logger.info(&quot;Suspended client: {} {} (ID: {})&quot;, </span>
+<span class="nc" id="L630">                                        result.getFirstName(), result.getLastName(), clientId);</span>
+                                }
+<span class="nc" id="L632">                            } catch (Exception e) {</span>
+<span class="nc" id="L633">                                DisplayUtils.printError(&quot;Failed to suspend client: &quot; + e.getMessage());</span>
+<span class="nc" id="L634">                                logger.error(&quot;Failed to suspend client ID: &quot; + clientId, e);</span>
+<span class="nc" id="L635">                            }</span>
+<span class="nc" id="L636">                        } else {</span>
+<span class="nc" id="L637">                            System.out.println(&quot;Suspension cancelled.&quot;);</span>
+                        }
+                    }
+<span class="nc" id="L640">                } else {</span>
+<span class="nc" id="L641">                    System.out.println(&quot;🔹 Available Actions:&quot;);</span>
+<span class="nc" id="L642">                    System.out.println(&quot;  1. Activate Client - Reactivate client account&quot;);</span>
+<span class="nc" id="L643">                    System.out.println(&quot;  2. Keep Current Status - No changes&quot;);</span>
+<span class="nc" id="L644">                    System.out.println();</span>
+<span class="nc" id="L645">                    System.out.print(&quot;Enter your choice (1-2): &quot;);</span>
+                    
+<span class="nc" id="L647">                    String choice = scanner.nextLine().trim();</span>
+                    
+<span class="nc bnc" id="L649" title="All 2 branches missed.">                    if (choice.equals(&quot;1&quot;)) {</span>
+<span class="nc" id="L650">                        System.out.println();</span>
+<span class="nc" id="L651">                        System.out.println(&quot;✅ Activating client will:&quot;);</span>
+<span class="nc" id="L652">                        System.out.println(&quot;   • Allow new ticket creation&quot;);</span>
+<span class="nc" id="L653">                        System.out.println(&quot;   • Mark client as active in the system&quot;);</span>
+<span class="nc" id="L654">                        System.out.println(&quot;   • Restore full system access&quot;);</span>
+<span class="nc" id="L655">                        System.out.println();</span>
+<span class="nc" id="L656">                        System.out.print(&quot;Confirm activation? (y/n): &quot;);</span>
+<span class="nc" id="L657">                        String confirm = scanner.nextLine().trim().toLowerCase();</span>
+                        
+<span class="nc bnc" id="L659" title="All 4 branches missed.">                        if (confirm.equals(&quot;y&quot;) || confirm.equals(&quot;yes&quot;)) {</span>
+                            // Update client status to active
+<span class="nc" id="L661">                            Client updatedClient = new Client();</span>
+<span class="nc" id="L662">                            updatedClient.setId(selectedClient.getId());</span>
+<span class="nc" id="L663">                            updatedClient.setFirstName(selectedClient.getFirstName());</span>
+<span class="nc" id="L664">                            updatedClient.setLastName(selectedClient.getLastName());</span>
+<span class="nc" id="L665">                            updatedClient.setEmail(selectedClient.getEmail());</span>
+<span class="nc" id="L666">                            updatedClient.setPhone(selectedClient.getPhone());</span>
+<span class="nc" id="L667">                            updatedClient.setAddress(selectedClient.getAddress());</span>
+                            
+                            // Add activation note to track the request
+<span class="nc bnc" id="L670" title="All 2 branches missed.">                            String activationNote = selectedClient.getNotes() != null ? selectedClient.getNotes() : &quot;&quot;;</span>
+<span class="nc" id="L671">                            activationNote += &quot; | Activation requested&quot;;</span>
+<span class="nc" id="L672">                            updatedClient.setNotes(activationNote);</span>
+<span class="nc" id="L673">                            updatedClient.setStatus(&quot;ACTIVE&quot;);</span>
+<span class="nc" id="L674">                            updatedClient.setActive(true);</span>
+                            
+                            try {
+<span class="nc" id="L677">                                Client result = apiService.updateClient(clientId, updatedClient);</span>
+                                
+                                // Check if the status change was actually applied
+<span class="nc bnc" id="L680" title="All 4 branches missed.">                                if (!result.isActive() &amp;&amp; &quot;SUSPENDED&quot;.equals(result.getStatus())) {</span>
+<span class="nc" id="L681">                                    DisplayUtils.printError(&quot;⚠️  Status change not applied by server.&quot;);</span>
+<span class="nc" id="L682">                                    System.out.println(&quot;   The server has business rules that prevent status changes through this endpoint.&quot;);</span>
+<span class="nc" id="L683">                                    System.out.println(&quot;   Note has been added to track the activation request.&quot;);</span>
+<span class="nc" id="L684">                                    System.out.println(&quot;   Contact system administrator for manual status changes.&quot;);</span>
+<span class="nc" id="L685">                                    logger.warn(&quot;Server prevented status change for client ID: {} - added note only&quot;, clientId);</span>
+                                } else {
+<span class="nc" id="L687">                                    DisplayUtils.printSuccess(&quot;✅ Client activated successfully!&quot;);</span>
+<span class="nc" id="L688">                                    logger.info(&quot;Activated client: {} {} (ID: {})&quot;, </span>
+<span class="nc" id="L689">                                        result.getFirstName(), result.getLastName(), clientId);</span>
+                                }
+<span class="nc" id="L691">                            } catch (Exception e) {</span>
+<span class="nc" id="L692">                                DisplayUtils.printError(&quot;Failed to activate client: &quot; + e.getMessage());</span>
+<span class="nc" id="L693">                                logger.error(&quot;Failed to activate client ID: &quot; + clientId, e);</span>
+<span class="nc" id="L694">                            }</span>
+<span class="nc" id="L695">                        } else {</span>
+<span class="nc" id="L696">                            System.out.println(&quot;Activation cancelled.&quot;);</span>
+                        }
+                    }
+                }
+                
+<span class="nc" id="L701">            } catch (NumberFormatException e) {</span>
+<span class="nc" id="L702">                DisplayUtils.printError(&quot;Invalid ID format. Please enter a valid number.&quot;);</span>
+<span class="nc" id="L703">            }</span>
+            
+<span class="nc" id="L705">        } catch (ApiException e) {</span>
+<span class="nc" id="L706">            DisplayUtils.printError(&quot;Failed to manage client status: &quot; + e.getMessage());</span>
+<span class="nc" id="L707">            logger.error(&quot;Failed to manage client status&quot;, e);</span>
+<span class="nc" id="L708">        } catch (Exception e) {</span>
+<span class="nc" id="L709">            DisplayUtils.printError(&quot;Unexpected error: &quot; + e.getMessage());</span>
+<span class="nc" id="L710">            logger.error(&quot;Unexpected error during client status management&quot;, e);</span>
+<span class="nc" id="L711">        }</span>
+<span class="nc" id="L712">    }</span>
+
+    private void deleteClient() {
+<span class="nc" id="L715">        DisplayUtils.printHeader(&quot;DELETE CLIENT&quot;);</span>
+        
+        try {
+            // Get all clients for selection
+<span class="nc" id="L719">            List&lt;Client&gt; clients = apiService.getAllClients();</span>
+            
+<span class="nc bnc" id="L721" title="All 2 branches missed.">            if (clients.isEmpty()) {</span>
+<span class="nc" id="L722">                System.out.println(&quot;No clients found in the system.&quot;);</span>
+<span class="nc" id="L723">                return;</span>
+            }
+            
+            // Display clients for selection
+<span class="nc" id="L727">            System.out.println(&quot;📋 Select a client to delete:&quot;);</span>
+<span class="nc" id="L728">            System.out.println();</span>
+<span class="nc" id="L729">            System.out.printf(&quot;%-5s %-25s %-35s %-15s%n&quot;, &quot;ID&quot;, &quot;Name&quot;, &quot;Email&quot;, &quot;Status&quot;);</span>
+<span class="nc" id="L730">            System.out.println(&quot;─────────────────────────────────────────────────────────────────────────────────&quot;);</span>
+            
+<span class="nc bnc" id="L732" title="All 2 branches missed.">            for (Client client : clients) {</span>
+<span class="nc bnc" id="L733" title="All 2 branches missed.">                String status = client.isActive() ? &quot;🟢 ACTIVE&quot; : &quot;🔴 SUSPENDED&quot;;</span>
+<span class="nc" id="L734">                System.out.printf(&quot;%-5d %-25s %-35s %-15s%n&quot;,</span>
+<span class="nc" id="L735">                    client.getId(),</span>
+<span class="nc" id="L736">                    client.getFullName(),</span>
+<span class="nc" id="L737">                    client.getEmail(),</span>
+                    status
+                );
+<span class="nc" id="L740">            }</span>
+            
+<span class="nc" id="L742">            System.out.println();</span>
+<span class="nc" id="L743">            System.out.print(&quot;Enter client ID to delete (or 'b' to go back): &quot;);</span>
+<span class="nc" id="L744">            String input = scanner.nextLine().trim();</span>
+            
+<span class="nc bnc" id="L746" title="All 4 branches missed.">            if (input.equalsIgnoreCase(&quot;b&quot;) || input.equalsIgnoreCase(&quot;back&quot;)) {</span>
+<span class="nc" id="L747">                return;</span>
+            }
+            
+            try {
+<span class="nc" id="L751">                Long clientId = Long.parseLong(input);</span>
+<span class="nc" id="L752">                Client selectedClient = clients.stream()</span>
+<span class="nc" id="L753">                    .filter(c -&gt; c.getId().equals(clientId))</span>
+<span class="nc" id="L754">                    .findFirst()</span>
+<span class="nc" id="L755">                    .orElse(null);</span>
+                
+<span class="nc bnc" id="L757" title="All 2 branches missed.">                if (selectedClient == null) {</span>
+<span class="nc" id="L758">                    DisplayUtils.printError(&quot;Client with ID &quot; + clientId + &quot; not found.&quot;);</span>
+<span class="nc" id="L759">                    return;</span>
+                }
+                
+                // Show client information and impact warning
+<span class="nc" id="L763">                System.out.println(&quot;\n⚠️  CLIENT DELETION WARNING&quot;);</span>
+<span class="nc" id="L764">                System.out.println(&quot;━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━&quot;);</span>
+<span class="nc" id="L765">                System.out.println();</span>
+<span class="nc" id="L766">                displayClientSummary(selectedClient);</span>
+                
+<span class="nc" id="L768">                System.out.println(&quot;\n🚨 IMPORTANT: Deleting this client will:&quot;);</span>
+<span class="nc" id="L769">                System.out.println(&quot;   • Remove the client permanently from the system&quot;);</span>
+<span class="nc" id="L770">                System.out.println(&quot;   • Potentially affect associated tickets and appointments&quot;);</span>
+<span class="nc" id="L771">                System.out.println(&quot;   • This action CANNOT be undone&quot;);</span>
+<span class="nc" id="L772">                System.out.println();</span>
+                
+                // Check if client is active
+<span class="nc bnc" id="L775" title="All 2 branches missed.">                if (selectedClient.isActive()) {</span>
+<span class="nc" id="L776">                    System.out.println(&quot;⛔ Cannot delete ACTIVE client.&quot;);</span>
+<span class="nc" id="L777">                    System.out.println(&quot;   Please suspend the client first, then try deletion.&quot;);</span>
+<span class="nc" id="L778">                    System.out.println(&quot;   This is a safety measure to prevent accidental deletion.&quot;);</span>
+<span class="nc" id="L779">                    System.out.println();</span>
+<span class="nc" id="L780">                    System.out.print(&quot;Would you like to suspend this client instead? (y/n): &quot;);</span>
+<span class="nc" id="L781">                    String suspendChoice = scanner.nextLine().trim().toLowerCase();</span>
+                    
+<span class="nc bnc" id="L783" title="All 4 branches missed.">                    if (suspendChoice.equals(&quot;y&quot;) || suspendChoice.equals(&quot;yes&quot;)) {</span>
+                        // Redirect to status management logic
+<span class="nc" id="L785">                        System.out.print(&quot;Reason for suspension: &quot;);</span>
+<span class="nc" id="L786">                        String reason = scanner.nextLine().trim();</span>
+                        
+<span class="nc" id="L788">                        Client updatedClient = new Client();</span>
+<span class="nc" id="L789">                        updatedClient.setId(selectedClient.getId());</span>
+<span class="nc" id="L790">                        updatedClient.setFirstName(selectedClient.getFirstName());</span>
+<span class="nc" id="L791">                        updatedClient.setLastName(selectedClient.getLastName());</span>
+<span class="nc" id="L792">                        updatedClient.setEmail(selectedClient.getEmail());</span>
+<span class="nc" id="L793">                        updatedClient.setPhone(selectedClient.getPhone());</span>
+<span class="nc" id="L794">                        updatedClient.setAddress(selectedClient.getAddress());</span>
+<span class="nc" id="L795">                        updatedClient.setNotes(selectedClient.getNotes() + &quot; | Suspended: &quot; + reason);</span>
+<span class="nc" id="L796">                        updatedClient.setStatus(&quot;SUSPENDED&quot;);</span>
+<span class="nc" id="L797">                        updatedClient.setActive(false);</span>
+                        
+<span class="nc" id="L799">                        apiService.updateClient(clientId, updatedClient);</span>
+<span class="nc" id="L800">                        DisplayUtils.printSuccess(&quot;✅ Client suspended successfully!&quot;);</span>
+<span class="nc" id="L801">                        System.out.println(&quot;   You can now delete the client if still needed.&quot;);</span>
+                    }
+<span class="nc" id="L803">                    return;</span>
+                }
+                
+                // Multi-step confirmation for suspended clients
+<span class="nc" id="L807">                System.out.println(&quot;🔒 DELETION CONFIRMATION (Step 1 of 3)&quot;);</span>
+<span class="nc" id="L808">                System.out.print(&quot;Are you sure you want to delete this client? (yes/no): &quot;);</span>
+<span class="nc" id="L809">                String confirm1 = scanner.nextLine().trim().toLowerCase();</span>
+                
+<span class="nc bnc" id="L811" title="All 2 branches missed.">                if (!confirm1.equals(&quot;yes&quot;)) {</span>
+<span class="nc" id="L812">                    System.out.println(&quot;Deletion cancelled.&quot;);</span>
+<span class="nc" id="L813">                    return;</span>
+                }
+                
+<span class="nc" id="L816">                System.out.println(&quot;\n🔒 DELETION CONFIRMATION (Step 2 of 3)&quot;);</span>
+<span class="nc" id="L817">                System.out.print(&quot;Type the client's full name to confirm: &quot;);</span>
+<span class="nc" id="L818">                String nameConfirm = scanner.nextLine().trim();</span>
+                
+<span class="nc bnc" id="L820" title="All 2 branches missed.">                if (!nameConfirm.equals(selectedClient.getFullName())) {</span>
+<span class="nc" id="L821">                    DisplayUtils.printError(&quot;Name doesn't match. Deletion cancelled for safety.&quot;);</span>
+<span class="nc" id="L822">                    return;</span>
+                }
+                
+<span class="nc" id="L825">                System.out.println(&quot;\n🔒 FINAL CONFIRMATION (Step 3 of 3)&quot;);</span>
+<span class="nc" id="L826">                System.out.println(&quot;⚠️  This is your FINAL chance to cancel!&quot;);</span>
+<span class="nc" id="L827">                System.out.print(&quot;Type 'DELETE' in all caps to permanently delete this client: &quot;);</span>
+<span class="nc" id="L828">                String finalConfirm = scanner.nextLine().trim();</span>
+                
+<span class="nc bnc" id="L830" title="All 2 branches missed.">                if (!finalConfirm.equals(&quot;DELETE&quot;)) {</span>
+<span class="nc" id="L831">                    System.out.println(&quot;Deletion cancelled. Client remains in the system.&quot;);</span>
+<span class="nc" id="L832">                    return;</span>
+                }
+                
+                // Attempt deletion
+                try {
+<span class="nc" id="L837">                    apiService.deleteClient(clientId);</span>
+<span class="nc" id="L838">                    System.out.printf(&quot;✅ %s deleted\n&quot;, selectedClient.getFullName());</span>
+<span class="nc" id="L839">                    logger.info(&quot;Deleted client: {} {} (ID: {})&quot;, </span>
+<span class="nc" id="L840">                        selectedClient.getFirstName(), selectedClient.getLastName(), clientId);</span>
+                    
+<span class="nc" id="L842">                } catch (ApiException e) {</span>
+<span class="nc bnc" id="L843" title="All 4 branches missed.">                    if (e.getMessage().contains(&quot;409&quot;) || e.getMessage().contains(&quot;Conflict&quot;)) {</span>
+<span class="nc" id="L844">                        DisplayUtils.printError(&quot;❌ Cannot delete client: Client has active dependencies.&quot;);</span>
+<span class="nc" id="L845">                        System.out.println(&quot;   This client may have associated tickets or appointments.&quot;);</span>
+<span class="nc" id="L846">                        System.out.println(&quot;   Please resolve all dependencies before deletion.&quot;);</span>
+                    } else {
+<span class="nc" id="L848">                        throw e; // Re-throw if it's a different API error</span>
+                    }
+<span class="nc" id="L850">                }</span>
+                
+<span class="nc" id="L852">            } catch (NumberFormatException e) {</span>
+<span class="nc" id="L853">                DisplayUtils.printError(&quot;Invalid ID format. Please enter a valid number.&quot;);</span>
+<span class="nc" id="L854">            }</span>
+            
+<span class="nc" id="L856">        } catch (ApiException e) {</span>
+<span class="nc" id="L857">            DisplayUtils.printError(&quot;Failed to delete client: &quot; + e.getMessage());</span>
+<span class="nc" id="L858">            logger.error(&quot;Failed to delete client&quot;, e);</span>
+<span class="nc" id="L859">        } catch (Exception e) {</span>
+<span class="nc" id="L860">            DisplayUtils.printError(&quot;Unexpected error: &quot; + e.getMessage());</span>
+<span class="nc" id="L861">            logger.error(&quot;Unexpected error during client deletion&quot;, e);</span>
+<span class="nc" id="L862">        }</span>
+<span class="nc" id="L863">    }</span>
+
+    private void clientReports() {
+<span class="nc" id="L866">        DisplayUtils.printHeader(&quot;CLIENT REPORTS &amp; ANALYTICS&quot;);</span>
+        
+        try {
+            // Get all clients for analysis
+<span class="nc" id="L870">            List&lt;Client&gt; allClients = apiService.getAllClients();</span>
+            
+<span class="nc bnc" id="L872" title="All 2 branches missed.">            if (allClients.isEmpty()) {</span>
+<span class="nc" id="L873">                System.out.println(&quot;No clients found in the system to generate reports.&quot;);</span>
+<span class="nc" id="L874">                return;</span>
+            }
+            
+            // Calculate basic statistics
+<span class="nc" id="L878">            long activeClients = allClients.stream().filter(Client::isActive).count();</span>
+<span class="nc bnc" id="L879" title="All 2 branches missed.">            long suspendedClients = allClients.stream().filter(c -&gt; !c.isActive()).count();</span>
+            
+            // Display comprehensive client statistics
+<span class="nc" id="L882">            System.out.println(&quot;📊 CLIENT SYSTEM OVERVIEW&quot;);</span>
+<span class="nc" id="L883">            System.out.println(&quot;═══════════════════════════════════════════════════════════════&quot;);</span>
+<span class="nc" id="L884">            System.out.println();</span>
+            
+<span class="nc" id="L886">            System.out.printf(&quot;📈 Total Clients:        %d%n&quot;, allClients.size());</span>
+<span class="nc" id="L887">            System.out.printf(&quot;✅ Active Clients:       %d (%.1f%%)%n&quot;, </span>
+<span class="nc" id="L888">                activeClients, (activeClients * 100.0 / allClients.size()));</span>
+<span class="nc" id="L889">            System.out.printf(&quot;⏸️  Suspended Clients:    %d (%.1f%%)%n&quot;, </span>
+<span class="nc" id="L890">                suspendedClients, (suspendedClients * 100.0 / allClients.size()));</span>
+            
+<span class="nc" id="L892">            System.out.println();</span>
+<span class="nc" id="L893">            System.out.println(&quot;📋 CLIENT STATUS BREAKDOWN&quot;);</span>
+<span class="nc" id="L894">            System.out.println(&quot;───────────────────────────────────────────────────────────────&quot;);</span>
+            
+            // Show active clients summary
+<span class="nc" id="L897">            System.out.println();</span>
+<span class="nc" id="L898">            System.out.println(&quot;🟢 ACTIVE CLIENTS SUMMARY:&quot;);</span>
+<span class="nc bnc" id="L899" title="All 2 branches missed.">            if (activeClients &gt; 0) {</span>
+<span class="nc" id="L900">                System.out.printf(&quot;   %d active clients in the system%n&quot;, activeClients);</span>
+<span class="nc bnc" id="L901" title="All 2 branches missed.">                if (activeClients &lt;= 5) {</span>
+<span class="nc" id="L902">                    allClients.stream()</span>
+<span class="nc" id="L903">                        .filter(Client::isActive)</span>
+<span class="nc" id="L904">                        .forEach(client -&gt; System.out.printf(&quot;   • %s (%s)%n&quot;, </span>
+<span class="nc" id="L905">                            client.getFullName(), client.getEmail()));</span>
+                } else {
+<span class="nc" id="L907">                    System.out.printf(&quot;   • Use 'View All Clients' or 'Search Clients' for detailed list%n&quot;);</span>
+                }
+            } else {
+<span class="nc" id="L910">                System.out.println(&quot;   No active clients found.&quot;);</span>
+            }
+            
+            // Show suspended clients summary  
+<span class="nc" id="L914">            System.out.println();</span>
+<span class="nc" id="L915">            System.out.println(&quot;🔴 SUSPENDED CLIENTS SUMMARY:&quot;);</span>
+<span class="nc bnc" id="L916" title="All 2 branches missed.">            if (suspendedClients &gt; 0) {</span>
+<span class="nc" id="L917">                System.out.printf(&quot;   %d suspended clients in the system%n&quot;, suspendedClients);</span>
+<span class="nc bnc" id="L918" title="All 2 branches missed.">                if (suspendedClients &lt;= 5) {</span>
+<span class="nc" id="L919">                    allClients.stream()</span>
+<span class="nc bnc" id="L920" title="All 2 branches missed.">                        .filter(c -&gt; !c.isActive())</span>
+<span class="nc" id="L921">                        .forEach(client -&gt; System.out.printf(&quot;   • %s (%s)%n&quot;, </span>
+<span class="nc" id="L922">                            client.getFullName(), client.getEmail()));</span>
+                } else {
+<span class="nc" id="L924">                    System.out.printf(&quot;   • Use 'Search Clients' → Status filter for detailed list%n&quot;);</span>
+                }
+            } else {
+<span class="nc" id="L927">                System.out.println(&quot;   No suspended clients found.&quot;);</span>
+            }
+            
+<span class="nc" id="L930">            System.out.println();</span>
+<span class="nc" id="L931">            System.out.println(&quot;💡 SYSTEM INSIGHTS&quot;);</span>
+<span class="nc" id="L932">            System.out.println(&quot;───────────────────────────────────────────────────────────────&quot;);</span>
+            
+            // Provide insights based on data
+<span class="nc bnc" id="L935" title="All 2 branches missed.">            if (allClients.size() == 0) {</span>
+<span class="nc" id="L936">                System.out.println(&quot;  📊 No clients in system - ready for first client onboarding&quot;);</span>
+<span class="nc bnc" id="L937" title="All 2 branches missed.">            } else if (allClients.size() &lt; 10) {</span>
+<span class="nc" id="L938">                System.out.println(&quot;  📈 Growing client base - consider client referral programs&quot;);</span>
+<span class="nc bnc" id="L939" title="All 2 branches missed.">            } else if (allClients.size() &gt;= 50) {</span>
+<span class="nc" id="L940">                System.out.println(&quot;  🎉 Established client base - excellent growth!&quot;);</span>
+            }
+            
+<span class="nc bnc" id="L943" title="All 4 branches missed.">            if (suspendedClients == 0 &amp;&amp; activeClients &gt; 0) {</span>
+<span class="nc" id="L944">                System.out.println(&quot;  ✅ Perfect client retention - all clients are active!&quot;);</span>
+<span class="nc bnc" id="L945" title="All 2 branches missed.">            } else if (suspendedClients &gt; activeClients) {</span>
+<span class="nc" id="L946">                System.out.println(&quot;  ⚠️  High suspension rate - review client satisfaction processes&quot;);</span>
+            }
+            
+<span class="nc bnc" id="L949" title="All 2 branches missed.">            double activePercentage = allClients.size() &gt; 0 ? (activeClients * 100.0 / allClients.size()) : 0;</span>
+<span class="nc bnc" id="L950" title="All 2 branches missed.">            if (activePercentage &gt;= 90) {</span>
+<span class="nc" id="L951">                System.out.println(&quot;  🌟 Excellent client health score (90%+ active)&quot;);</span>
+<span class="nc bnc" id="L952" title="All 2 branches missed.">            } else if (activePercentage &gt;= 75) {</span>
+<span class="nc" id="L953">                System.out.println(&quot;  👍 Good client health score (75%+ active)&quot;);</span>
+<span class="nc bnc" id="L954" title="All 2 branches missed.">            } else if (activePercentage &lt; 50) {</span>
+<span class="nc" id="L955">                System.out.println(&quot;  📉 Client health needs attention (&lt;50% active)&quot;);</span>
+            }
+            
+<span class="nc" id="L958">            System.out.println();</span>
+<span class="nc" id="L959">            System.out.println(&quot;🔄 RELATED REPORTS&quot;);</span>
+<span class="nc" id="L960">            System.out.println(&quot;───────────────────────────────────────────────────────────────&quot;);</span>
+<span class="nc" id="L961">            System.out.println(&quot;  • Ticket Management → Reports (client ticket statistics)&quot;);</span>
+<span class="nc" id="L962">            System.out.println(&quot;  • Technician Management → Reports (client-technician interactions)&quot;);</span>
+<span class="nc" id="L963">            System.out.println(&quot;  • Appointment Management → Reports (client appointment history)&quot;);</span>
+            
+<span class="nc" id="L965">            System.out.println();</span>
+<span class="nc" id="L966">            System.out.print(&quot;Press Enter to continue...&quot;);</span>
+<span class="nc" id="L967">            scanner.nextLine();</span>
+            
+<span class="nc" id="L969">        } catch (ApiException e) {</span>
+<span class="nc" id="L970">            DisplayUtils.printError(&quot;Failed to generate client reports: &quot; + e.getMessage());</span>
+<span class="nc" id="L971">            logger.error(&quot;Failed to generate client reports&quot;, e);</span>
+<span class="nc" id="L972">        } catch (Exception e) {</span>
+<span class="nc" id="L973">            DisplayUtils.printError(&quot;Unexpected error: &quot; + e.getMessage());</span>
+<span class="nc" id="L974">            logger.error(&quot;Unexpected error during client reports generation&quot;, e);</span>
+<span class="nc" id="L975">        }</span>
+<span class="nc" id="L976">    }</span>
+
+    // ==================== HELPER METHODS ====================
+
+    private void displayClientSummary(Client client) {
+<span class="nc" id="L981">        System.out.println(&quot;┌─────────────────────────────────────────────────────────────┐&quot;);</span>
+<span class="nc" id="L982">        System.out.println(&quot;│                    CLIENT SUMMARY                          │&quot;);</span>
+<span class="nc" id="L983">        System.out.println(&quot;├─────────────────────────────────────────────────────────────┤&quot;);</span>
+<span class="nc" id="L984">        System.out.printf(&quot;│ Name:     %-49s │%n&quot;, client.getFullName());</span>
+<span class="nc" id="L985">        System.out.printf(&quot;│ Email:    %-49s │%n&quot;, client.getEmail());</span>
+<span class="nc" id="L986">        System.out.printf(&quot;│ Phone:    %-49s │%n&quot;, client.getPhone());</span>
+<span class="nc bnc" id="L987" title="All 2 branches missed.">        System.out.printf(&quot;│ Address:  %-49s │%n&quot;, client.getAddress() != null ? client.getAddress() : &quot;Not provided&quot;);</span>
+<span class="nc bnc" id="L988" title="All 2 branches missed.">        System.out.printf(&quot;│ Notes:    %-49s │%n&quot;, client.getNotes() != null ? client.getNotes() : &quot;None&quot;);</span>
+<span class="nc" id="L989">        System.out.printf(&quot;│ Status:   %-49s │%n&quot;, client.getStatus());</span>
+<span class="nc" id="L990">        System.out.println(&quot;└─────────────────────────────────────────────────────────────┘&quot;);</span>
+<span class="nc" id="L991">    }</span>
+
+    private void displayClientUpdateSummary(Client original, Client updated) {
+<span class="nc" id="L994">        System.out.println(&quot;┌─────────────────────────────────────────────────────────────┐&quot;);</span>
+<span class="nc" id="L995">        System.out.println(&quot;│                    CLIENT UPDATE SUMMARY                      │&quot;);</span>
+<span class="nc" id="L996">        System.out.println(&quot;├─────────────────────────────────────────────────────────────┤&quot;);</span>
+<span class="nc" id="L997">        System.out.printf(&quot;│ Name:     %-49s → %-49s │%n&quot;, original.getFullName(), updated.getFullName());</span>
+<span class="nc" id="L998">        System.out.printf(&quot;│ Email:    %-49s → %-49s │%n&quot;, original.getEmail(), updated.getEmail());</span>
+<span class="nc" id="L999">        System.out.printf(&quot;│ Phone:    %-49s → %-49s │%n&quot;, original.getPhone(), updated.getPhone());</span>
+<span class="nc bnc" id="L1000" title="All 4 branches missed.">        System.out.printf(&quot;│ Address:  %-49s → %-49s │%n&quot;, original.getAddress() != null ? original.getAddress() : &quot;Not provided&quot;, updated.getAddress() != null ? updated.getAddress() : &quot;Not provided&quot;);</span>
+<span class="nc bnc" id="L1001" title="All 4 branches missed.">        System.out.printf(&quot;│ Notes:    %-49s → %-49s │%n&quot;, original.getNotes() != null ? original.getNotes() : &quot;None&quot;, updated.getNotes() != null ? updated.getNotes() : &quot;None&quot;);</span>
+<span class="nc" id="L1002">        System.out.printf(&quot;│ Status:   %-49s → %-49s │%n&quot;, original.getStatus(), updated.getStatus());</span>
+<span class="nc" id="L1003">        System.out.println(&quot;└─────────────────────────────────────────────────────────────┘&quot;);</span>
+<span class="nc" id="L1004">    }</span>
+} 
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

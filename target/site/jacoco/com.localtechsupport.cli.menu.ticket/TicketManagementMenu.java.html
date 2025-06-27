@@ -1,0 +1,1503 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TicketManagementMenu.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Local Tech Support CLI Client</a> &gt; <a href="index.source.html" class="el_package">com.localtechsupport.cli.menu.ticket</a> &gt; <span class="el_source">TicketManagementMenu.java</span></div><h1>TicketManagementMenu.java</h1><pre class="source lang-java linenums">package com.localtechsupport.cli.menu.ticket;
+
+import com.localtechsupport.cli.menu.BaseMenu;
+import com.localtechsupport.cli.menu.Menu;
+import com.localtechsupport.cli.service.ApiService;
+import com.localtechsupport.cli.model.Ticket;
+import com.localtechsupport.cli.model.Client;
+import com.localtechsupport.cli.model.Technician;
+import com.localtechsupport.cli.client.ApiException;
+import com.localtechsupport.cli.util.DisplayUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.List;
+import java.util.Scanner;
+import java.util.stream.Collectors;
+import java.time.format.DateTimeFormatter;
+import java.util.Map;
+import java.util.HashMap;
+
+/**
+ * Menu for ticket management operations
+ * 
+ * Provides comprehensive CRUD operations for tickets including:
+ * - View all tickets
+ * - Search tickets
+ * - View ticket details
+ * - Create new ticket
+ * - Edit ticket
+ * - Assign technician
+ * - Update status
+ * - Delete ticket
+ * - Ticket reports
+ */
+public class TicketManagementMenu extends BaseMenu {
+    
+<span class="nc" id="L37">    private static final Logger logger = LoggerFactory.getLogger(TicketManagementMenu.class);</span>
+    private TicketBuilder ticketBuilder;
+    
+    public TicketManagementMenu(Menu parentMenu) {
+<span class="nc" id="L41">        super(parentMenu);</span>
+<span class="nc" id="L42">    }</span>
+    
+    @Override
+    protected String getMenuTitle() {
+<span class="nc" id="L46">        return &quot;TICKET MANAGEMENT&quot;;</span>
+    }
+    
+    @Override
+    protected void displayCustomContent() {
+        try {
+            // Display current system status
+<span class="nc" id="L53">            List&lt;Ticket&gt; tickets = apiService.getAllTickets();</span>
+<span class="nc" id="L54">            long openCount = tickets.stream().filter(t -&gt; &quot;OPEN&quot;.equals(t.getStatus())).count();</span>
+<span class="nc" id="L55">            long closedCount = tickets.stream().filter(t -&gt; &quot;CLOSED&quot;.equals(t.getStatus())).count();</span>
+<span class="nc" id="L56">            long totalCount = tickets.size();</span>
+            
+<span class="nc" id="L58">            System.out.println(&quot;📊 Current System Status:&quot;);</span>
+<span class="nc" id="L59">            System.out.printf(&quot;    Total Tickets: %d (%d open, %d closed)\n&quot;, </span>
+<span class="nc" id="L60">                totalCount, openCount, closedCount);</span>
+<span class="nc" id="L61">            System.out.println(&quot;    Recent Activity: Loading...&quot;);</span>
+<span class="nc" id="L62">            System.out.println();</span>
+            
+<span class="nc" id="L64">            System.out.println(&quot;ℹ️  Note: Ticket core fields (description, service type, client) cannot be modified after creation.&quot;);</span>
+<span class="nc" id="L65">            System.out.println(&quot;   Available operations: Status updates, technician assignment, and ticket closure.&quot;);</span>
+<span class="nc" id="L66">            System.out.println();</span>
+            
+<span class="nc" id="L68">        } catch (ApiException e) {</span>
+<span class="nc" id="L69">            logger.error(&quot;Failed to fetch ticket statistics&quot;, e);</span>
+<span class="nc" id="L70">            System.out.println(&quot;📊 Current System Status: Unable to load statistics&quot;);</span>
+<span class="nc" id="L71">            System.out.println();</span>
+            
+<span class="nc" id="L73">            System.out.println(&quot;ℹ️  Note: Ticket core fields (description, service type, client) cannot be modified after creation.&quot;);</span>
+<span class="nc" id="L74">            System.out.println(&quot;   Available operations: Status updates, technician assignment, and ticket closure.&quot;);</span>
+<span class="nc" id="L75">            System.out.println();</span>
+<span class="nc" id="L76">        }</span>
+<span class="nc" id="L77">    }</span>
+    
+    @Override
+    protected void initializeMenuOptions() {
+        // Initialize TicketBuilder with scanner and apiService from BaseMenu
+<span class="nc" id="L82">        this.ticketBuilder = new TicketBuilder(scanner, apiService);</span>
+        
+<span class="nc" id="L84">        addActionOption(1, &quot;View All Tickets&quot;, &quot;List all tickets with status and priority&quot;,</span>
+            this::viewAllTickets);
+            
+<span class="nc" id="L87">        addActionOption(2, &quot;Search Tickets&quot;, &quot;Find tickets by title/client/status/priority&quot;, </span>
+            this::searchTickets);
+            
+<span class="nc" id="L90">        addActionOption(3, &quot;View Ticket Details&quot;, &quot;Detailed view with client and technician info&quot;,</span>
+            this::viewTicketDetails);
+            
+<span class="nc" id="L93">        addActionOption(4, &quot;Create New Ticket&quot;, &quot;Add new ticket to system&quot;,</span>
+            this::createNewTicket);
+            
+<span class="nc" id="L96">        addActionOption(5, &quot;Assign Technician&quot;, &quot;Assign or change technician for ticket&quot;,</span>
+            this::assignTechnician);
+            
+<span class="nc" id="L99">        addActionOption(6, &quot;Update Status&quot;, &quot;Change ticket status (Open/Closed)&quot;,</span>
+            this::updateTicketStatus);
+            
+<span class="nc" id="L102">        addActionOption(7, &quot;Close Ticket&quot;, &quot;Close ticket with resolution notes&quot;,</span>
+            this::closeTicket);
+            
+<span class="nc" id="L105">        addActionOption(8, &quot;Delete Ticket&quot;, &quot;Remove ticket (with confirmation)&quot;,</span>
+            this::deleteTicket);
+            
+<span class="nc" id="L108">        addActionOption(9, &quot;Ticket Reports&quot;, &quot;Statistics and analytics&quot;,</span>
+            this::ticketReports);
+<span class="nc" id="L110">    }</span>
+    
+    // ==================== MENU OPERATIONS ====================
+    
+    private void viewAllTickets() {
+<span class="nc" id="L115">        DisplayUtils.printHeader(&quot;ALL TICKETS&quot;);</span>
+        
+        try {
+<span class="nc" id="L118">            List&lt;Ticket&gt; tickets = apiService.getAllTickets();</span>
+            
+<span class="nc bnc" id="L120" title="All 2 branches missed.">            if (tickets.isEmpty()) {</span>
+<span class="nc" id="L121">                System.out.println(&quot;📭 No tickets found in the system.&quot;);</span>
+<span class="nc" id="L122">                waitForEnter();</span>
+<span class="nc" id="L123">                return;</span>
+            }
+            
+            // Display tickets table
+<span class="nc" id="L127">            displayTicketsTable(tickets);</span>
+            
+<span class="nc" id="L129">            System.out.println();</span>
+<span class="nc" id="L130">            System.out.print(&quot;Enter ticket ID to view details (or press Enter to continue): &quot;);</span>
+<span class="nc" id="L131">            String input = scanner.nextLine().trim();</span>
+            
+<span class="nc bnc" id="L133" title="All 2 branches missed.">            if (!input.isEmpty()) {</span>
+                try {
+<span class="nc" id="L135">                    Long ticketId = Long.parseLong(input);</span>
+<span class="nc" id="L136">                    Ticket selectedTicket = tickets.stream()</span>
+<span class="nc" id="L137">                        .filter(t -&gt; t.getId().equals(ticketId))</span>
+<span class="nc" id="L138">                        .findFirst()</span>
+<span class="nc" id="L139">                        .orElse(null);</span>
+                        
+<span class="nc bnc" id="L141" title="All 2 branches missed.">                    if (selectedTicket != null) {</span>
+<span class="nc" id="L142">                        displayTicketDetails(selectedTicket);</span>
+                    } else {
+<span class="nc" id="L144">                        DisplayUtils.printError(&quot;Ticket not found with ID: &quot; + ticketId);</span>
+                    }
+<span class="nc" id="L146">                } catch (NumberFormatException e) {</span>
+<span class="nc" id="L147">                    DisplayUtils.printError(&quot;Invalid ticket ID format.&quot;);</span>
+<span class="nc" id="L148">                }</span>
+            }
+            
+<span class="nc" id="L151">        } catch (ApiException e) {</span>
+<span class="nc" id="L152">            logger.error(&quot;Failed to fetch tickets&quot;, e);</span>
+<span class="nc" id="L153">            DisplayUtils.printError(&quot;Failed to retrieve tickets: &quot; + e.getMessage());</span>
+<span class="nc" id="L154">        }</span>
+        
+<span class="nc" id="L156">        waitForEnter();</span>
+<span class="nc" id="L157">    }</span>
+    
+    private void searchTickets() {
+<span class="nc" id="L160">        DisplayUtils.printHeader(&quot;SEARCH TICKETS&quot;);</span>
+        
+<span class="nc" id="L162">        System.out.println(&quot;🔍 Search Options:&quot;);</span>
+<span class="nc" id="L163">        System.out.println(&quot;   1. Search by Description&quot;);</span>
+<span class="nc" id="L164">        System.out.println(&quot;   2. Search by Status&quot;);</span>
+<span class="nc" id="L165">        System.out.println(&quot;   3. Search by Service Type&quot;);</span>
+<span class="nc" id="L166">        System.out.println(&quot;   4. View All Tickets&quot;);</span>
+<span class="nc" id="L167">        System.out.println();</span>
+        
+<span class="nc" id="L169">        System.out.print(&quot;Select search option (1-4): &quot;);</span>
+<span class="nc" id="L170">        String choice = scanner.nextLine().trim();</span>
+        
+        try {
+<span class="nc" id="L173">            List&lt;Ticket&gt; allTickets = apiService.getAllTickets();</span>
+            List&lt;Ticket&gt; filteredTickets;
+<span class="nc" id="L175">            String searchCriteria = &quot;&quot;;</span>
+            
+<span class="nc bnc" id="L177" title="All 5 branches missed.">            switch (choice) {</span>
+                case &quot;1&quot;:
+<span class="nc" id="L179">                    System.out.print(&quot;Enter description keywords: &quot;);</span>
+<span class="nc" id="L180">                    String descriptionQuery = scanner.nextLine().trim().toLowerCase();</span>
+<span class="nc bnc" id="L181" title="All 2 branches missed.">                    if (!descriptionQuery.isEmpty()) {</span>
+<span class="nc" id="L182">                        filteredTickets = allTickets.stream()</span>
+<span class="nc bnc" id="L183" title="All 2 branches missed.">                            .filter(t -&gt; t.getDescription() != null &amp;&amp; </span>
+<span class="nc bnc" id="L184" title="All 2 branches missed.">                                t.getDescription().toLowerCase().contains(descriptionQuery))</span>
+<span class="nc" id="L185">                            .collect(Collectors.toList());</span>
+<span class="nc" id="L186">                        searchCriteria = &quot;Description contains: &quot; + descriptionQuery;</span>
+                    } else {
+<span class="nc" id="L188">                        filteredTickets = allTickets;</span>
+<span class="nc" id="L189">                        searchCriteria = &quot;All tickets&quot;;</span>
+                    }
+<span class="nc" id="L191">                    break;</span>
+                    
+                case &quot;2&quot;:
+<span class="nc" id="L194">                    System.out.print(&quot;Enter status (OPEN, CLOSED): &quot;);</span>
+<span class="nc" id="L195">                    String statusQuery = scanner.nextLine().trim().toUpperCase();</span>
+<span class="nc bnc" id="L196" title="All 2 branches missed.">                    if (!statusQuery.isEmpty()) {</span>
+<span class="nc" id="L197">                        filteredTickets = allTickets.stream()</span>
+<span class="nc" id="L198">                            .filter(t -&gt; statusQuery.equals(t.getStatus()))</span>
+<span class="nc" id="L199">                            .collect(Collectors.toList());</span>
+<span class="nc" id="L200">                        searchCriteria = &quot;Status: &quot; + statusQuery;</span>
+                    } else {
+<span class="nc" id="L202">                        filteredTickets = allTickets;</span>
+<span class="nc" id="L203">                        searchCriteria = &quot;All tickets&quot;;</span>
+                    }
+<span class="nc" id="L205">                    break;</span>
+                    
+                case &quot;3&quot;:
+<span class="nc" id="L208">                    System.out.print(&quot;Enter service type (HARDWARE, SOFTWARE, NETWORK): &quot;);</span>
+<span class="nc" id="L209">                    String serviceQuery = scanner.nextLine().trim().toUpperCase();</span>
+<span class="nc bnc" id="L210" title="All 2 branches missed.">                    if (!serviceQuery.isEmpty()) {</span>
+<span class="nc" id="L211">                        filteredTickets = allTickets.stream()</span>
+<span class="nc" id="L212">                            .filter(t -&gt; serviceQuery.equals(t.getServiceType()))</span>
+<span class="nc" id="L213">                            .collect(Collectors.toList());</span>
+<span class="nc" id="L214">                        searchCriteria = &quot;Service Type: &quot; + serviceQuery;</span>
+                    } else {
+<span class="nc" id="L216">                        filteredTickets = allTickets;</span>
+<span class="nc" id="L217">                        searchCriteria = &quot;All tickets&quot;;</span>
+                    }
+<span class="nc" id="L219">                    break;</span>
+                    
+                case &quot;4&quot;:
+<span class="nc" id="L222">                    filteredTickets = allTickets;</span>
+<span class="nc" id="L223">                    searchCriteria = &quot;All tickets&quot;;</span>
+<span class="nc" id="L224">                    break;</span>
+                    
+                default:
+<span class="nc" id="L227">                    DisplayUtils.printError(&quot;Invalid search option.&quot;);</span>
+<span class="nc" id="L228">                    waitForEnter();</span>
+<span class="nc" id="L229">                    return;</span>
+            }
+            
+            // Display results
+<span class="nc" id="L233">            System.out.println();</span>
+<span class="nc" id="L234">            DisplayUtils.printHeader(&quot;SEARCH RESULTS - &quot; + searchCriteria);</span>
+            
+<span class="nc bnc" id="L236" title="All 2 branches missed.">            if (filteredTickets.isEmpty()) {</span>
+<span class="nc" id="L237">                System.out.println(&quot;📭 No tickets found matching your search criteria.&quot;);</span>
+            } else {
+<span class="nc" id="L239">                System.out.printf(&quot;📊 Found %d ticket(s)\n\n&quot;, filteredTickets.size());</span>
+<span class="nc" id="L240">                displayTicketsTable(filteredTickets);</span>
+                
+                // Allow viewing details
+<span class="nc" id="L243">                System.out.println();</span>
+<span class="nc" id="L244">                System.out.print(&quot;Enter ticket ID to view details (or press Enter to continue): &quot;);</span>
+<span class="nc" id="L245">                String input = scanner.nextLine().trim();</span>
+                
+<span class="nc bnc" id="L247" title="All 2 branches missed.">                if (!input.isEmpty()) {</span>
+                    try {
+<span class="nc" id="L249">                        Long ticketId = Long.parseLong(input);</span>
+<span class="nc" id="L250">                        Ticket selectedTicket = filteredTickets.stream()</span>
+<span class="nc" id="L251">                            .filter(t -&gt; t.getId().equals(ticketId))</span>
+<span class="nc" id="L252">                            .findFirst()</span>
+<span class="nc" id="L253">                            .orElse(null);</span>
+                            
+<span class="nc bnc" id="L255" title="All 2 branches missed.">                        if (selectedTicket != null) {</span>
+                            // Fetch full ticket details with nested objects
+                            try {
+<span class="nc" id="L258">                                Ticket fullTicket = apiService.getTicketById(ticketId);</span>
+<span class="nc" id="L259">                                displayTicketDetails(fullTicket);</span>
+<span class="nc" id="L260">                            } catch (ApiException e) {</span>
+<span class="nc" id="L261">                                logger.warn(&quot;Failed to fetch full ticket details for {}, using summary: {}&quot;, ticketId, e.getMessage());</span>
+<span class="nc" id="L262">                                displayTicketDetails(selectedTicket);</span>
+<span class="nc" id="L263">                            }</span>
+                        } else {
+<span class="nc" id="L265">                            DisplayUtils.printError(&quot;Ticket not found in search results.&quot;);</span>
+                        }
+<span class="nc" id="L267">                    } catch (NumberFormatException e) {</span>
+<span class="nc" id="L268">                        DisplayUtils.printError(&quot;Invalid ticket ID format.&quot;);</span>
+<span class="nc" id="L269">                    }</span>
+                }
+            }
+            
+<span class="nc" id="L273">        } catch (ApiException e) {</span>
+<span class="nc" id="L274">            logger.error(&quot;Failed to search tickets&quot;, e);</span>
+<span class="nc" id="L275">            DisplayUtils.printError(&quot;Failed to search tickets: &quot; + e.getMessage());</span>
+<span class="nc" id="L276">        }</span>
+        
+<span class="nc" id="L278">        waitForEnter();</span>
+<span class="nc" id="L279">    }</span>
+    
+    private void viewTicketDetails() {
+<span class="nc" id="L282">        DisplayUtils.printHeader(&quot;TICKET DETAILS&quot;);</span>
+        
+        try {
+<span class="nc" id="L285">            List&lt;Ticket&gt; tickets = apiService.getAllTickets();</span>
+            
+<span class="nc bnc" id="L287" title="All 2 branches missed.">            if (tickets.isEmpty()) {</span>
+<span class="nc" id="L288">                System.out.println(&quot;📭 No tickets found in the system.&quot;);</span>
+<span class="nc" id="L289">                waitForEnter();</span>
+<span class="nc" id="L290">                return;</span>
+            }
+            
+            // Display ticket selection
+<span class="nc" id="L294">            System.out.println(&quot;📋 Select a ticket to view details:&quot;);</span>
+<span class="nc" id="L295">            System.out.println();</span>
+<span class="nc" id="L296">            displayTicketsTable(tickets);</span>
+            
+<span class="nc" id="L298">            System.out.print(&quot;Enter ticket ID: &quot;);</span>
+<span class="nc" id="L299">            String input = scanner.nextLine().trim();</span>
+            
+            try {
+<span class="nc" id="L302">                Long ticketId = Long.parseLong(input);</span>
+<span class="nc" id="L303">                Ticket selectedTicket = tickets.stream()</span>
+<span class="nc" id="L304">                    .filter(t -&gt; t.getId().equals(ticketId))</span>
+<span class="nc" id="L305">                    .findFirst()</span>
+<span class="nc" id="L306">                    .orElse(null);</span>
+                    
+<span class="nc bnc" id="L308" title="All 2 branches missed.">                if (selectedTicket != null) {</span>
+                    // Fetch full ticket details with nested objects
+                    try {
+<span class="nc" id="L311">                        Ticket fullTicket = apiService.getTicketById(ticketId);</span>
+<span class="nc" id="L312">                        displayTicketDetails(fullTicket);</span>
+<span class="nc" id="L313">                    } catch (ApiException e) {</span>
+<span class="nc" id="L314">                        logger.warn(&quot;Failed to fetch full ticket details for {}, using summary: {}&quot;, ticketId, e.getMessage());</span>
+<span class="nc" id="L315">                        displayTicketDetails(selectedTicket);</span>
+<span class="nc" id="L316">                    }</span>
+                } else {
+<span class="nc" id="L318">                    DisplayUtils.printError(&quot;Ticket not found with ID: &quot; + ticketId);</span>
+                }
+                
+<span class="nc" id="L321">            } catch (NumberFormatException e) {</span>
+<span class="nc" id="L322">                DisplayUtils.printError(&quot;Invalid ticket ID format.&quot;);</span>
+<span class="nc" id="L323">            }</span>
+            
+<span class="nc" id="L325">        } catch (ApiException e) {</span>
+<span class="nc" id="L326">            logger.error(&quot;Failed to fetch tickets for details view&quot;, e);</span>
+<span class="nc" id="L327">            DisplayUtils.printError(&quot;Failed to retrieve tickets: &quot; + e.getMessage());</span>
+<span class="nc" id="L328">        }</span>
+        
+<span class="nc" id="L330">        waitForEnter();</span>
+<span class="nc" id="L331">    }</span>
+    
+    private void createNewTicket() {
+<span class="nc" id="L334">        DisplayUtils.printHeader(&quot;CREATE NEW TICKET&quot;);</span>
+        
+        try {
+            // Use TicketBuilder to collect input
+<span class="nc" id="L338">            Ticket newTicket = ticketBuilder.buildNewTicket();</span>
+            
+<span class="nc bnc" id="L340" title="All 2 branches missed.">            if (newTicket == null) {</span>
+<span class="nc" id="L341">                return; // User cancelled</span>
+            }
+            
+            // Create the ticket via API
+<span class="nc" id="L345">            Ticket createdTicket = apiService.createTicket(newTicket);</span>
+            
+            // Auto-assign the ticket using server logic
+            try {
+<span class="nc" id="L349">                Ticket assignedTicket = apiService.autoAssignTicket(createdTicket.getId());</span>
+                
+<span class="nc" id="L351">                Long effectiveTechnicianId = getEffectiveAssignedTechnicianId(assignedTicket);</span>
+<span class="nc bnc" id="L352" title="All 2 branches missed.">                if (effectiveTechnicianId != null) {</span>
+                    // Get technician details to show name
+                    try {
+<span class="nc" id="L355">                        List&lt;Technician&gt; technicians = apiService.getAllTechnicians();</span>
+<span class="nc" id="L356">                        Technician assignedTech = technicians.stream()</span>
+<span class="nc" id="L357">                            .filter(t -&gt; t.getId().equals(effectiveTechnicianId))</span>
+<span class="nc" id="L358">                            .findFirst()</span>
+<span class="nc" id="L359">                            .orElse(null);</span>
+                        
+<span class="nc bnc" id="L361" title="All 2 branches missed.">                        if (assignedTech != null) {</span>
+<span class="nc" id="L362">                            System.out.printf(&quot;✅ Ticket #%d created and assigned to %s\n&quot;, </span>
+<span class="nc" id="L363">                                createdTicket.getId(), assignedTech.getFullName());</span>
+                        } else {
+<span class="nc" id="L365">                            System.out.printf(&quot;✅ Ticket #%d created and assigned to technician ID %d\n&quot;, </span>
+<span class="nc" id="L366">                                createdTicket.getId(), effectiveTechnicianId);</span>
+                        }
+<span class="nc" id="L368">                    } catch (ApiException techError) {</span>
+<span class="nc" id="L369">                        System.out.printf(&quot;✅ Ticket #%d created and assigned to technician ID %d\n&quot;, </span>
+<span class="nc" id="L370">                            createdTicket.getId(), effectiveTechnicianId);</span>
+<span class="nc" id="L371">                    }</span>
+                    
+<span class="nc" id="L373">                    logger.info(&quot;Auto-assigned ticket {} to technician {}&quot;, </span>
+<span class="nc" id="L374">                        createdTicket.getId(), effectiveTechnicianId);</span>
+                } else {
+<span class="nc" id="L376">                    System.out.printf(&quot;✅ Ticket #%d created (unassigned - no suitable technician found)\n&quot;, </span>
+<span class="nc" id="L377">                        createdTicket.getId());</span>
+                }
+                
+<span class="nc" id="L380">            } catch (ApiException autoAssignError) {</span>
+<span class="nc" id="L381">                logger.warn(&quot;Auto-assignment failed for ticket {}: {}&quot;, </span>
+<span class="nc" id="L382">                    createdTicket.getId(), autoAssignError.getMessage());</span>
+<span class="nc" id="L383">                System.out.printf(&quot;✅ Ticket #%d created (auto-assignment failed)\n&quot;, createdTicket.getId());</span>
+<span class="nc" id="L384">            }</span>
+            
+<span class="nc" id="L386">        } catch (ApiException e) {</span>
+<span class="nc" id="L387">            logger.error(&quot;Failed to create ticket&quot;, e);</span>
+<span class="nc" id="L388">            DisplayUtils.printError(&quot;Failed to create ticket: &quot; + e.getMessage());</span>
+<span class="nc" id="L389">        } catch (Exception e) {</span>
+<span class="nc" id="L390">            logger.error(&quot;Unexpected error during ticket creation&quot;, e);</span>
+<span class="nc" id="L391">            DisplayUtils.printError(&quot;An unexpected error occurred while creating the ticket.&quot;);</span>
+<span class="nc" id="L392">        }</span>
+        
+<span class="nc" id="L394">        waitForEnter();</span>
+<span class="nc" id="L395">    }</span>
+    
+    private void closeTicket() {
+<span class="nc" id="L398">        DisplayUtils.printHeader(&quot;CLOSE TICKET&quot;);</span>
+        
+        try {
+<span class="nc" id="L401">            List&lt;Ticket&gt; tickets = apiService.getAllTickets();</span>
+            
+<span class="nc bnc" id="L403" title="All 2 branches missed.">            if (tickets.isEmpty()) {</span>
+<span class="nc" id="L404">                System.out.println(&quot;📭 No tickets found in the system.&quot;);</span>
+<span class="nc" id="L405">                waitForEnter();</span>
+<span class="nc" id="L406">                return;</span>
+            }
+            
+            // Filter to show only open tickets
+<span class="nc" id="L410">            List&lt;Ticket&gt; openTickets = tickets.stream()</span>
+<span class="nc" id="L411">                .filter(t -&gt; &quot;OPEN&quot;.equals(t.getStatus()))</span>
+<span class="nc" id="L412">                .collect(Collectors.toList());</span>
+                
+<span class="nc bnc" id="L414" title="All 2 branches missed.">            if (openTickets.isEmpty()) {</span>
+<span class="nc" id="L415">                System.out.println(&quot;📭 No open tickets found to close.&quot;);</span>
+<span class="nc" id="L416">                waitForEnter();</span>
+<span class="nc" id="L417">                return;</span>
+            }
+            
+            // Display open tickets
+<span class="nc" id="L421">            System.out.println(&quot;📋 Open tickets available to close:&quot;);</span>
+<span class="nc" id="L422">            System.out.println();</span>
+<span class="nc" id="L423">            displayTicketsTable(openTickets);</span>
+            
+<span class="nc" id="L425">            System.out.print(&quot;Enter ticket ID to close (or 'b' to go back): &quot;);</span>
+<span class="nc" id="L426">            String input = scanner.nextLine().trim();</span>
+            
+<span class="nc bnc" id="L428" title="All 2 branches missed.">            if (input.equalsIgnoreCase(&quot;b&quot;)) {</span>
+<span class="nc" id="L429">                return;</span>
+            }
+            
+            try {
+<span class="nc" id="L433">                Long ticketId = Long.parseLong(input);</span>
+<span class="nc" id="L434">                Ticket selectedTicket = openTickets.stream()</span>
+<span class="nc" id="L435">                    .filter(t -&gt; t.getId().equals(ticketId))</span>
+<span class="nc" id="L436">                    .findFirst()</span>
+<span class="nc" id="L437">                    .orElse(null);</span>
+                    
+<span class="nc bnc" id="L439" title="All 2 branches missed.">                if (selectedTicket == null) {</span>
+<span class="nc" id="L440">                    DisplayUtils.printError(&quot;Ticket not found with ID: &quot; + ticketId);</span>
+<span class="nc" id="L441">                    waitForEnter();</span>
+<span class="nc" id="L442">                    return;</span>
+                }
+                
+                // Collect resolution notes
+<span class="nc" id="L446">                System.out.println();</span>
+<span class="nc" id="L447">                System.out.printf(&quot;📋 Closing Ticket #%d\n&quot;, ticketId);</span>
+<span class="nc" id="L448">                System.out.println(&quot;Please provide resolution details:&quot;);</span>
+<span class="nc" id="L449">                System.out.print(&quot;Resolution Notes: &quot;);</span>
+<span class="nc" id="L450">                String resolutionNotes = scanner.nextLine().trim();</span>
+                
+<span class="nc bnc" id="L452" title="All 2 branches missed.">                if (resolutionNotes.isEmpty()) {</span>
+<span class="nc" id="L453">                    DisplayUtils.printError(&quot;Resolution notes are required to close a ticket.&quot;);</span>
+<span class="nc" id="L454">                    waitForEnter();</span>
+<span class="nc" id="L455">                    return;</span>
+                }
+                
+                // Confirm closure
+<span class="nc" id="L459">                System.out.printf(&quot;\n✅ Close ticket #%d with resolution: \&quot;%s\&quot;? (y/n): &quot;, </span>
+<span class="nc bnc" id="L460" title="All 2 branches missed.">                    ticketId, resolutionNotes.length() &gt; 50 ? resolutionNotes.substring(0, 50) + &quot;...&quot; : resolutionNotes);</span>
+<span class="nc" id="L461">                String confirm = scanner.nextLine().trim().toLowerCase();</span>
+                
+<span class="nc bnc" id="L463" title="All 4 branches missed.">                if (!confirm.equals(&quot;y&quot;) &amp;&amp; !confirm.equals(&quot;yes&quot;)) {</span>
+<span class="nc" id="L464">                    System.out.println(&quot;❌ Ticket closure cancelled.&quot;);</span>
+<span class="nc" id="L465">                    waitForEnter();</span>
+<span class="nc" id="L466">                    return;</span>
+                }
+                
+                // For now, use the status update method since we don't have a specific close endpoint implemented
+                // TODO: Implement proper close endpoint when server supports it
+<span class="nc" id="L471">                Ticket result = apiService.updateTicketStatus(ticketId, &quot;CLOSED&quot;);</span>
+                
+<span class="nc" id="L473">                System.out.printf(&quot;✅ Ticket #%d closed successfully\n&quot;, ticketId);</span>
+<span class="nc" id="L474">                logger.info(&quot;Closed ticket {} with resolution: {}&quot;, ticketId, resolutionNotes);</span>
+                
+<span class="nc" id="L476">            } catch (NumberFormatException e) {</span>
+<span class="nc" id="L477">                DisplayUtils.printError(&quot;Invalid ticket ID format.&quot;);</span>
+<span class="nc" id="L478">            }</span>
+            
+<span class="nc" id="L480">        } catch (ApiException e) {</span>
+<span class="nc" id="L481">            logger.error(&quot;Failed to close ticket&quot;, e);</span>
+<span class="nc" id="L482">            DisplayUtils.printError(&quot;Failed to close ticket: &quot; + e.getMessage());</span>
+<span class="nc" id="L483">        } catch (Exception e) {</span>
+<span class="nc" id="L484">            logger.error(&quot;Unexpected error during ticket closure&quot;, e);</span>
+<span class="nc" id="L485">            DisplayUtils.printError(&quot;An unexpected error occurred while closing the ticket.&quot;);</span>
+<span class="nc" id="L486">        }</span>
+        
+<span class="nc" id="L488">        waitForEnter();</span>
+<span class="nc" id="L489">    }</span>
+    
+    private void assignTechnician() {
+<span class="nc" id="L492">        DisplayUtils.printHeader(&quot;ASSIGN TECHNICIAN&quot;);</span>
+        
+        try {
+<span class="nc" id="L495">            List&lt;Ticket&gt; tickets = apiService.getAllTickets();</span>
+<span class="nc" id="L496">            List&lt;Technician&gt; technicians = apiService.getAllTechnicians();</span>
+            
+<span class="nc bnc" id="L498" title="All 2 branches missed.">            if (tickets.isEmpty()) {</span>
+<span class="nc" id="L499">                System.out.println(&quot;📭 No tickets found in the system.&quot;);</span>
+<span class="nc" id="L500">                waitForEnter();</span>
+<span class="nc" id="L501">                return;</span>
+            }
+            
+<span class="nc bnc" id="L504" title="All 2 branches missed.">            if (technicians.isEmpty()) {</span>
+<span class="nc" id="L505">                System.out.println(&quot;📭 No technicians found in the system.&quot;);</span>
+<span class="nc" id="L506">                waitForEnter();</span>
+<span class="nc" id="L507">                return;</span>
+            }
+            
+            // Display ticket selection
+<span class="nc" id="L511">            System.out.println(&quot;📋 Select a ticket to assign:&quot;);</span>
+<span class="nc" id="L512">            System.out.println();</span>
+<span class="nc" id="L513">            displayTicketsTable(tickets);</span>
+            
+<span class="nc" id="L515">            System.out.print(&quot;Enter ticket ID: &quot;);</span>
+<span class="nc" id="L516">            String ticketInput = scanner.nextLine().trim();</span>
+            
+            try {
+<span class="nc" id="L519">                Long ticketId = Long.parseLong(ticketInput);</span>
+                
+                // Get complete ticket details including nested objects
+<span class="nc" id="L522">                Ticket selectedTicket = apiService.getTicketById(ticketId);</span>
+<span class="nc bnc" id="L523" title="All 2 branches missed.">                if (selectedTicket == null) {</span>
+<span class="nc" id="L524">                    DisplayUtils.printError(&quot;Ticket not found with ID: &quot; + ticketId);</span>
+<span class="nc" id="L525">                    waitForEnter();</span>
+<span class="nc" id="L526">                    return;</span>
+                }
+                
+                // Business Rule Validation: Check if ticket is OPEN
+<span class="nc bnc" id="L530" title="All 2 branches missed.">                if (!&quot;OPEN&quot;.equals(selectedTicket.getStatus())) {</span>
+<span class="nc" id="L531">                    DisplayUtils.printError(&quot;Cannot assign technician to closed ticket. Status: &quot; + selectedTicket.getStatus());</span>
+<span class="nc" id="L532">                    waitForEnter();</span>
+<span class="nc" id="L533">                    return;</span>
+                }
+                
+                // Display current assignment
+<span class="nc" id="L537">                System.out.println();</span>
+                
+                // Get display title - handle null titles
+<span class="nc" id="L540">                String displayTitle = &quot;No Title&quot;;</span>
+<span class="nc bnc" id="L541" title="All 4 branches missed.">                if (selectedTicket.getTitle() != null &amp;&amp; !selectedTicket.getTitle().trim().isEmpty()) {</span>
+<span class="nc" id="L542">                    displayTitle = selectedTicket.getTitle();</span>
+<span class="nc bnc" id="L543" title="All 4 branches missed.">                } else if (selectedTicket.getDescription() != null &amp;&amp; !selectedTicket.getDescription().trim().isEmpty()) {</span>
+<span class="nc bnc" id="L544" title="All 2 branches missed.">                    displayTitle = selectedTicket.getDescription().length() &gt; 50 ? </span>
+<span class="nc" id="L545">                        selectedTicket.getDescription().substring(0, 47) + &quot;...&quot; : </span>
+<span class="nc" id="L546">                        selectedTicket.getDescription();</span>
+                }
+                
+<span class="nc" id="L549">                System.out.printf(&quot;📋 Ticket #%d: %s\n&quot;, ticketId, displayTitle);</span>
+<span class="nc" id="L550">                System.out.printf(&quot;   Status: %s | Service Type: %s\n&quot;, </span>
+<span class="nc" id="L551">                    selectedTicket.getStatus(), selectedTicket.getServiceType());</span>
+                
+<span class="nc" id="L553">                Long currentTechnicianId = getEffectiveAssignedTechnicianId(selectedTicket);</span>
+<span class="nc bnc" id="L554" title="All 2 branches missed.">                if (currentTechnicianId != null) {</span>
+<span class="nc" id="L555">                    Technician currentTech = technicians.stream()</span>
+<span class="nc" id="L556">                        .filter(t -&gt; t.getId().equals(currentTechnicianId))</span>
+<span class="nc" id="L557">                        .findFirst()</span>
+<span class="nc" id="L558">                        .orElse(null);</span>
+<span class="nc" id="L559">                    System.out.printf(&quot;   Currently assigned to: %s\n&quot;, </span>
+<span class="nc bnc" id="L560" title="All 2 branches missed.">                        currentTech != null ? currentTech.getFullName() : &quot;ID: &quot; + currentTechnicianId);</span>
+<span class="nc" id="L561">                } else {</span>
+<span class="nc" id="L562">                    System.out.println(&quot;   Currently unassigned&quot;);</span>
+                }
+<span class="nc" id="L564">                System.out.println();</span>
+                
+                // Filter active technicians
+<span class="nc" id="L567">                List&lt;Technician&gt; activeTechnicians = technicians.stream()</span>
+<span class="nc" id="L568">                    .filter(t -&gt; &quot;ACTIVE&quot;.equals(t.getStatus()))</span>
+<span class="nc" id="L569">                    .collect(Collectors.toList());</span>
+                
+<span class="nc bnc" id="L571" title="All 2 branches missed.">                if (activeTechnicians.isEmpty()) {</span>
+<span class="nc" id="L572">                    System.out.println(&quot;⚠️  No active technicians available for assignment.&quot;);</span>
+<span class="nc" id="L573">                    waitForEnter();</span>
+<span class="nc" id="L574">                    return;</span>
+                }
+                
+                // Display assignment options
+<span class="nc" id="L578">                System.out.println(&quot;📋 Assignment Options:&quot;);</span>
+<span class="nc" id="L579">                System.out.println(&quot;  🤖 AUTO. Auto-assign using intelligent workload balancing&quot;);</span>
+<span class="nc bnc" id="L580" title="All 2 branches missed.">                if (currentTechnicianId != null) {</span>
+<span class="nc" id="L581">                    System.out.println(&quot;  🔄 REASSIGN. Change assigned technician&quot;);</span>
+<span class="nc" id="L582">                    System.out.println(&quot;  ❌ UNASSIGN. Remove current assignment&quot;);</span>
+                }
+<span class="nc" id="L584">                System.out.println(&quot;  👤 MANUAL. Manually select technician&quot;);</span>
+<span class="nc" id="L585">                System.out.println(&quot;  ❌ CANCEL. Return to menu&quot;);</span>
+<span class="nc" id="L586">                System.out.println();</span>
+                
+<span class="nc" id="L588">                System.out.print(&quot;Select option (AUTO/REASSIGN/UNASSIGN/MANUAL/CANCEL): &quot;);</span>
+<span class="nc" id="L589">                String choice = scanner.nextLine().trim().toUpperCase();</span>
+                
+<span class="nc bnc" id="L591" title="All 6 branches missed.">                switch (choice) {</span>
+                    case &quot;AUTO&quot;:
+<span class="nc" id="L593">                        handleAutoAssignment(ticketId, displayTitle);</span>
+<span class="nc" id="L594">                        break;</span>
+                        
+                    case &quot;REASSIGN&quot;:
+<span class="nc bnc" id="L597" title="All 2 branches missed.">                        if (currentTechnicianId != null) {</span>
+<span class="nc" id="L598">                            handleReassignment(ticketId, displayTitle, currentTechnicianId, activeTechnicians);</span>
+                        } else {
+<span class="nc" id="L600">                            System.out.println(&quot;⚠️  No technician currently assigned. Use MANUAL assignment instead.&quot;);</span>
+                        }
+<span class="nc" id="L602">                        break;</span>
+                        
+                    case &quot;UNASSIGN&quot;:
+<span class="nc bnc" id="L605" title="All 2 branches missed.">                        if (currentTechnicianId != null) {</span>
+<span class="nc" id="L606">                            handleUnassignment(ticketId, displayTitle);</span>
+                        } else {
+<span class="nc" id="L608">                            System.out.println(&quot;⚠️  No technician currently assigned.&quot;);</span>
+                        }
+<span class="nc" id="L610">                        break;</span>
+                        
+                    case &quot;MANUAL&quot;:
+<span class="nc" id="L613">                        handleManualAssignment(ticketId, displayTitle, selectedTicket.getServiceType(), activeTechnicians);</span>
+<span class="nc" id="L614">                        break;</span>
+                        
+                    case &quot;CANCEL&quot;:
+<span class="nc" id="L617">                        System.out.println(&quot;Assignment cancelled.&quot;);</span>
+<span class="nc" id="L618">                        break;</span>
+                        
+                    default:
+<span class="nc" id="L621">                        DisplayUtils.printError(&quot;Invalid option selected.&quot;);</span>
+                        break;
+                }
+                
+<span class="nc" id="L625">            } catch (NumberFormatException e) {</span>
+<span class="nc" id="L626">                DisplayUtils.printError(&quot;Invalid ticket ID format.&quot;);</span>
+<span class="nc" id="L627">            }</span>
+            
+<span class="nc" id="L629">        } catch (ApiException e) {</span>
+<span class="nc" id="L630">            logger.error(&quot;Failed to load assignment data&quot;, e);</span>
+<span class="nc" id="L631">            DisplayUtils.printError(&quot;Failed to load assignment data: &quot; + e.getMessage());</span>
+<span class="nc" id="L632">        }</span>
+        
+<span class="nc" id="L634">        waitForEnter();</span>
+<span class="nc" id="L635">    }</span>
+    
+    private void handleAutoAssignment(Long ticketId, String displayTitle) {
+<span class="nc" id="L638">        System.out.printf(&quot;Auto-assign ticket '%s' using intelligent workload balancing? (y/n): &quot;, displayTitle);</span>
+<span class="nc" id="L639">        String confirm = scanner.nextLine().trim().toLowerCase();</span>
+        
+<span class="nc bnc" id="L641" title="All 4 branches missed.">        if (confirm.equals(&quot;y&quot;) || confirm.equals(&quot;yes&quot;)) {</span>
+            try {
+<span class="nc" id="L643">                System.out.println(&quot;🤖 Auto-assigning ticket using server logic...&quot;);</span>
+<span class="nc" id="L644">                Ticket result = apiService.autoAssignTicket(ticketId);</span>
+                
+<span class="nc" id="L646">                Long assignedTechId = getEffectiveAssignedTechnicianId(result);</span>
+<span class="nc bnc" id="L647" title="All 2 branches missed.">                if (assignedTechId != null) {</span>
+                    try {
+<span class="nc" id="L649">                        List&lt;Technician&gt; technicians = apiService.getAllTechnicians();</span>
+<span class="nc" id="L650">                        Technician assignedTech = technicians.stream()</span>
+<span class="nc" id="L651">                            .filter(t -&gt; t.getId().equals(assignedTechId))</span>
+<span class="nc" id="L652">                            .findFirst()</span>
+<span class="nc" id="L653">                            .orElse(null);</span>
+                        
+<span class="nc bnc" id="L655" title="All 2 branches missed.">                        if (assignedTech != null) {</span>
+<span class="nc" id="L656">                            DisplayUtils.printSuccess(&quot;✅ Ticket automatically assigned!&quot;);</span>
+<span class="nc" id="L657">                            System.out.printf(&quot;   Assigned to: %s (%s)\n&quot;, </span>
+<span class="nc" id="L658">                                assignedTech.getFullName(), assignedTech.getEmail());</span>
+<span class="nc" id="L659">                            System.out.printf(&quot;   Workload balancing applied - selected least busy qualified technician\n&quot;);</span>
+                        } else {
+<span class="nc" id="L661">                            DisplayUtils.printSuccess(&quot;✅ Ticket automatically assigned to technician ID: &quot; + assignedTechId);</span>
+                        }
+<span class="nc" id="L663">                    } catch (Exception techError) {</span>
+<span class="nc" id="L664">                        DisplayUtils.printSuccess(&quot;✅ Ticket automatically assigned to technician ID: &quot; + assignedTechId);</span>
+<span class="nc" id="L665">                    }</span>
+                    
+<span class="nc" id="L667">                    logger.info(&quot;Auto-assigned ticket: {} (ID: {}) to technician: {}&quot;, </span>
+                        displayTitle, ticketId, assignedTechId);
+                } else {
+<span class="nc" id="L670">                    System.out.println(&quot;ℹ️  No suitable technician found for auto-assignment.&quot;);</span>
+<span class="nc" id="L671">                    System.out.println(&quot;   Possible reasons: No active technicians, skill mismatch, or all technicians at capacity&quot;);</span>
+                }
+                
+<span class="nc" id="L674">            } catch (ApiException autoAssignError) {</span>
+<span class="nc" id="L675">                logger.error(&quot;Auto-assignment failed for ticket {}: {}&quot;, ticketId, autoAssignError.getMessage());</span>
+<span class="nc" id="L676">                String errorMessage = autoAssignError.getMessage();</span>
+<span class="nc bnc" id="L677" title="All 2 branches missed.">                if (errorMessage.contains(&quot;no suitable technicians&quot;)) {</span>
+<span class="nc" id="L678">                    DisplayUtils.printError(&quot;Auto-assignment failed: No suitable technicians available&quot;);</span>
+                } else {
+<span class="nc" id="L680">                    DisplayUtils.printError(&quot;Auto-assignment failed: &quot; + errorMessage);</span>
+                }
+<span class="nc" id="L682">            }</span>
+        } else {
+<span class="nc" id="L684">            System.out.println(&quot;Auto-assignment cancelled.&quot;);</span>
+        }
+<span class="nc" id="L686">    }</span>
+    
+    private void handleReassignment(Long ticketId, String displayTitle, Long currentTechnicianId, List&lt;Technician&gt; activeTechnicians) {
+<span class="nc" id="L689">        System.out.printf(&quot;Reassign ticket '%s'? This will unassign the current technician first. (y/n): &quot;, displayTitle);</span>
+<span class="nc" id="L690">        String confirm = scanner.nextLine().trim().toLowerCase();</span>
+        
+<span class="nc bnc" id="L692" title="All 4 branches missed.">        if (confirm.equals(&quot;y&quot;) || confirm.equals(&quot;yes&quot;)) {</span>
+            try {
+                // Step 1: Unassign current technician
+<span class="nc" id="L695">                System.out.print(&quot;Reason for reassignment (optional): &quot;);</span>
+<span class="nc" id="L696">                String reason = scanner.nextLine().trim();</span>
+<span class="nc bnc" id="L697" title="All 2 branches missed.">                if (reason.isEmpty()) {</span>
+<span class="nc" id="L698">                    reason = &quot;Reassignment requested&quot;;</span>
+                }
+                
+<span class="nc" id="L701">                System.out.println(&quot;🔄 Unassigning current technician...&quot;);</span>
+<span class="nc" id="L702">                apiService.unassignTechnician(ticketId, reason, &quot;CLI User&quot;);</span>
+                
+                // Step 2: Show manual assignment options
+<span class="nc" id="L705">                System.out.println(&quot;✅ Current technician unassigned. Now select new technician:&quot;);</span>
+<span class="nc" id="L706">                handleManualAssignment(ticketId, displayTitle, null, activeTechnicians);</span>
+                
+<span class="nc" id="L708">            } catch (ApiException e) {</span>
+<span class="nc" id="L709">                logger.error(&quot;Reassignment failed for ticket {}: {}&quot;, ticketId, e.getMessage());</span>
+<span class="nc" id="L710">                DisplayUtils.printError(&quot;Reassignment failed: &quot; + e.getMessage());</span>
+<span class="nc" id="L711">            }</span>
+        } else {
+<span class="nc" id="L713">            System.out.println(&quot;Reassignment cancelled.&quot;);</span>
+        }
+<span class="nc" id="L715">    }</span>
+    
+    private void handleUnassignment(Long ticketId, String displayTitle) {
+<span class="nc" id="L718">        System.out.printf(&quot;Unassign ticket '%s'? (y/n): &quot;, displayTitle);</span>
+<span class="nc" id="L719">        String confirm = scanner.nextLine().trim().toLowerCase();</span>
+        
+<span class="nc bnc" id="L721" title="All 4 branches missed.">        if (confirm.equals(&quot;y&quot;) || confirm.equals(&quot;yes&quot;)) {</span>
+            try {
+<span class="nc" id="L723">                System.out.print(&quot;Reason for unassignment (optional): &quot;);</span>
+<span class="nc" id="L724">                String reason = scanner.nextLine().trim();</span>
+<span class="nc bnc" id="L725" title="All 2 branches missed.">                if (reason.isEmpty()) {</span>
+<span class="nc" id="L726">                    reason = &quot;Unassignment requested via CLI&quot;;</span>
+                }
+                
+<span class="nc" id="L729">                System.out.println(&quot;❌ Unassigning technician...&quot;);</span>
+<span class="nc" id="L730">                Ticket result = apiService.unassignTechnician(ticketId, reason, &quot;CLI User&quot;);</span>
+                
+<span class="nc" id="L732">                DisplayUtils.printSuccess(&quot;✅ Technician unassigned successfully!&quot;);</span>
+<span class="nc" id="L733">                System.out.println(&quot;   Audit trail entry created with reason: &quot; + reason);</span>
+                
+<span class="nc" id="L735">                logger.info(&quot;Unassigned ticket: {} (ID: {})&quot;, displayTitle, ticketId);</span>
+                
+<span class="nc" id="L737">            } catch (ApiException e) {</span>
+<span class="nc" id="L738">                logger.error(&quot;Unassignment failed for ticket {}: {}&quot;, ticketId, e.getMessage());</span>
+<span class="nc" id="L739">                DisplayUtils.printError(&quot;Unassignment failed: &quot; + e.getMessage());</span>
+<span class="nc" id="L740">            }</span>
+        } else {
+<span class="nc" id="L742">            System.out.println(&quot;Unassignment cancelled.&quot;);</span>
+        }
+<span class="nc" id="L744">    }</span>
+    
+    private void handleManualAssignment(Long ticketId, String displayTitle, String serviceType, List&lt;Technician&gt; activeTechnicians) {
+<span class="nc" id="L747">        System.out.println(&quot;👤 Manual Assignment - Available Active Technicians:&quot;);</span>
+<span class="nc" id="L748">        System.out.println();</span>
+        
+<span class="nc bnc" id="L750" title="All 2 branches missed.">        for (int i = 0; i &lt; activeTechnicians.size(); i++) {</span>
+<span class="nc" id="L751">            Technician tech = activeTechnicians.get(i);</span>
+<span class="nc" id="L752">            System.out.printf(&quot;  %d. %s (%s)\n&quot;, </span>
+<span class="nc" id="L753">                i + 1, </span>
+<span class="nc" id="L754">                tech.getFullName(), </span>
+<span class="nc" id="L755">                tech.getEmail());</span>
+<span class="nc" id="L756">            System.out.printf(&quot;     Status: %s | Current Workload: %s\n&quot;,</span>
+<span class="nc" id="L757">                tech.getStatus(),</span>
+<span class="nc bnc" id="L758" title="All 2 branches missed.">                tech.getCurrentWorkload() != null ? tech.getCurrentWorkload().toString() : &quot;N/A&quot;);</span>
+            
+            // Show skill compatibility if service type is known
+<span class="nc bnc" id="L761" title="All 2 branches missed.">            if (serviceType != null) {</span>
+<span class="nc" id="L762">                System.out.printf(&quot;     Service Type Compatibility: %s tickets ✅\n&quot;, serviceType);</span>
+            }
+<span class="nc" id="L764">            System.out.println();</span>
+        }
+        
+<span class="nc" id="L767">        System.out.print(&quot;Select technician (1-&quot; + activeTechnicians.size() + &quot;) or 0 to cancel: &quot;);</span>
+<span class="nc" id="L768">        String techChoice = scanner.nextLine().trim();</span>
+        
+        try {
+<span class="nc" id="L771">            int choice = Integer.parseInt(techChoice);</span>
+            
+<span class="nc bnc" id="L773" title="All 2 branches missed.">            if (choice == 0) {</span>
+<span class="nc" id="L774">                System.out.println(&quot;Manual assignment cancelled.&quot;);</span>
+<span class="nc" id="L775">                return;</span>
+            }
+            
+<span class="nc bnc" id="L778" title="All 4 branches missed.">            if (choice &gt;= 1 &amp;&amp; choice &lt;= activeTechnicians.size()) {</span>
+<span class="nc" id="L779">                Technician selectedTech = activeTechnicians.get(choice - 1);</span>
+                
+                // Business Rule Validation: Check technician is active
+<span class="nc bnc" id="L782" title="All 2 branches missed.">                if (!&quot;ACTIVE&quot;.equals(selectedTech.getStatus())) {</span>
+<span class="nc" id="L783">                    DisplayUtils.printError(&quot;Cannot assign inactive technician: &quot; + selectedTech.getFullName());</span>
+<span class="nc" id="L784">                    return;</span>
+                }
+                
+                // Confirm assignment
+<span class="nc" id="L788">                System.out.printf(&quot;Assign ticket '%s' to %s? (y/n): &quot;, </span>
+<span class="nc" id="L789">                    displayTitle, selectedTech.getFullName());</span>
+<span class="nc" id="L790">                String confirm = scanner.nextLine().trim().toLowerCase();</span>
+                
+<span class="nc bnc" id="L792" title="All 4 branches missed.">                if (confirm.equals(&quot;y&quot;) || confirm.equals(&quot;yes&quot;)) {</span>
+                    try {
+<span class="nc" id="L794">                        System.out.println(&quot;👤 Assigning technician...&quot;);</span>
+<span class="nc" id="L795">                        Ticket result = apiService.assignTechnician(ticketId, selectedTech.getId());</span>
+                        
+<span class="nc" id="L797">                        DisplayUtils.printSuccess(&quot;✅ Ticket assigned successfully!&quot;);</span>
+<span class="nc" id="L798">                        System.out.printf(&quot;   %s is now assigned to %s\n&quot;, </span>
+<span class="nc" id="L799">                            displayTitle, selectedTech.getFullName());</span>
+<span class="nc" id="L800">                        System.out.println(&quot;   Assignment audit trail entry created&quot;);</span>
+                        
+<span class="nc" id="L802">                        logger.info(&quot;Manually assigned ticket: {} (ID: {}) to technician: {} (ID: {})&quot;, </span>
+<span class="nc" id="L803">                            displayTitle, ticketId, selectedTech.getFullName(), selectedTech.getId());</span>
+                            
+<span class="nc" id="L805">                    } catch (ApiException assignError) {</span>
+<span class="nc" id="L806">                        logger.error(&quot;Assignment failed for ticket {} to technician {}: {}&quot;, </span>
+<span class="nc" id="L807">                            ticketId, selectedTech.getId(), assignError.getMessage());</span>
+                        
+<span class="nc" id="L809">                        String errorMessage = assignError.getMessage();</span>
+<span class="nc bnc" id="L810" title="All 2 branches missed.">                        if (errorMessage.contains(&quot;not found&quot;)) {</span>
+<span class="nc bnc" id="L811" title="All 2 branches missed.">                            if (errorMessage.contains(&quot;Ticket&quot;)) {</span>
+<span class="nc" id="L812">                                DisplayUtils.printError(&quot;Assignment failed: Ticket not found&quot;);</span>
+<span class="nc bnc" id="L813" title="All 2 branches missed.">                            } else if (errorMessage.contains(&quot;Technician&quot;)) {</span>
+<span class="nc" id="L814">                                DisplayUtils.printError(&quot;Assignment failed: Technician not found&quot;);</span>
+                            } else {
+<span class="nc" id="L816">                                DisplayUtils.printError(&quot;Assignment failed: &quot; + errorMessage);</span>
+                            }
+<span class="nc bnc" id="L818" title="All 2 branches missed.">                        } else if (errorMessage.contains(&quot;closed ticket&quot;)) {</span>
+<span class="nc" id="L819">                            DisplayUtils.printError(&quot;Assignment failed: Cannot assign technician to closed ticket&quot;);</span>
+<span class="nc bnc" id="L820" title="All 2 branches missed.">                        } else if (errorMessage.contains(&quot;inactive technician&quot;)) {</span>
+<span class="nc" id="L821">                            DisplayUtils.printError(&quot;Assignment failed: Cannot assign inactive technician&quot;);</span>
+<span class="nc bnc" id="L822" title="All 2 branches missed.">                        } else if (errorMessage.contains(&quot;skills&quot;)) {</span>
+<span class="nc" id="L823">                            DisplayUtils.printError(&quot;Assignment failed: Technician does not have required skills for this service type&quot;);</span>
+                        } else {
+<span class="nc" id="L825">                            DisplayUtils.printError(&quot;Assignment failed: &quot; + errorMessage);</span>
+                        }
+<span class="nc" id="L827">                    }</span>
+                } else {
+<span class="nc" id="L829">                    System.out.println(&quot;Assignment cancelled.&quot;);</span>
+                }
+<span class="nc" id="L831">            } else {</span>
+<span class="nc" id="L832">                DisplayUtils.printError(&quot;Invalid technician selection.&quot;);</span>
+            }
+            
+<span class="nc" id="L835">        } catch (NumberFormatException e) {</span>
+<span class="nc" id="L836">            DisplayUtils.printError(&quot;Invalid selection format.&quot;);</span>
+<span class="nc" id="L837">        }</span>
+<span class="nc" id="L838">    }</span>
+    
+    private void updateTicketStatus() {
+<span class="nc" id="L841">        DisplayUtils.printHeader(&quot;UPDATE TICKET STATUS&quot;);</span>
+        
+        try {
+<span class="nc" id="L844">            List&lt;Ticket&gt; tickets = apiService.getAllTickets();</span>
+            
+<span class="nc bnc" id="L846" title="All 2 branches missed.">            if (tickets.isEmpty()) {</span>
+<span class="nc" id="L847">                System.out.println(&quot;📭 No tickets found in the system.&quot;);</span>
+<span class="nc" id="L848">                waitForEnter();</span>
+<span class="nc" id="L849">                return;</span>
+            }
+            
+            // Display tickets
+<span class="nc" id="L853">            System.out.println(&quot;📋 Select a ticket to update status:&quot;);</span>
+<span class="nc" id="L854">            System.out.println();</span>
+<span class="nc" id="L855">            displayTicketsTable(tickets);</span>
+            
+<span class="nc" id="L857">            System.out.print(&quot;Enter ticket ID: &quot;);</span>
+<span class="nc" id="L858">            String input = scanner.nextLine().trim();</span>
+            
+            try {
+<span class="nc" id="L861">                Long ticketId = Long.parseLong(input);</span>
+                
+                // Get complete ticket details including nested objects
+<span class="nc" id="L864">                Ticket selectedTicket = apiService.getTicketById(ticketId);</span>
+<span class="nc bnc" id="L865" title="All 2 branches missed.">                if (selectedTicket == null) {</span>
+<span class="nc" id="L866">                    DisplayUtils.printError(&quot;Ticket not found with ID: &quot; + ticketId);</span>
+<span class="nc" id="L867">                    waitForEnter();</span>
+<span class="nc" id="L868">                    return;</span>
+                }
+                
+                // Show current status and options
+<span class="nc" id="L872">                System.out.println();</span>
+                
+                // Get display title - handle null titles
+<span class="nc" id="L875">                String displayTitle = &quot;No Title&quot;;</span>
+<span class="nc bnc" id="L876" title="All 4 branches missed.">                if (selectedTicket.getTitle() != null &amp;&amp; !selectedTicket.getTitle().trim().isEmpty()) {</span>
+<span class="nc" id="L877">                    displayTitle = selectedTicket.getTitle();</span>
+<span class="nc bnc" id="L878" title="All 4 branches missed.">                } else if (selectedTicket.getDescription() != null &amp;&amp; !selectedTicket.getDescription().trim().isEmpty()) {</span>
+<span class="nc bnc" id="L879" title="All 2 branches missed.">                    displayTitle = selectedTicket.getDescription().length() &gt; 50 ? </span>
+<span class="nc" id="L880">                        selectedTicket.getDescription().substring(0, 47) + &quot;...&quot; : </span>
+<span class="nc" id="L881">                        selectedTicket.getDescription();</span>
+                }
+                
+<span class="nc" id="L884">                System.out.printf(&quot;📋 Ticket #%d: %s\n&quot;, ticketId, displayTitle);</span>
+<span class="nc" id="L885">                System.out.printf(&quot;Current Status: %s\n&quot;, getStatusDisplay(selectedTicket.getStatus()));</span>
+<span class="nc" id="L886">                System.out.println();</span>
+                
+<span class="nc" id="L888">                System.out.println(&quot;🔹 Available Status Options:&quot;);</span>
+<span class="nc" id="L889">                System.out.println(&quot;  1. OPEN - Ticket is open and needs attention&quot;);</span>
+<span class="nc" id="L890">                System.out.println(&quot;  2. CLOSED - Ticket is resolved and closed&quot;);</span>
+<span class="nc" id="L891">                System.out.println();</span>
+                
+<span class="nc" id="L893">                System.out.print(&quot;Select new status (1-2): &quot;);</span>
+<span class="nc" id="L894">                String statusChoice = scanner.nextLine().trim();</span>
+                
+                String newStatus;
+<span class="nc bnc" id="L897" title="All 3 branches missed.">                switch (statusChoice) {</span>
+                    case &quot;1&quot;:
+<span class="nc" id="L899">                        newStatus = &quot;OPEN&quot;;</span>
+<span class="nc" id="L900">                        break;</span>
+                    case &quot;2&quot;:
+<span class="nc" id="L902">                        newStatus = &quot;CLOSED&quot;;</span>
+<span class="nc" id="L903">                        break;</span>
+                    default:
+<span class="nc" id="L905">                        DisplayUtils.printError(&quot;Invalid status selection.&quot;);</span>
+<span class="nc" id="L906">                        waitForEnter();</span>
+<span class="nc" id="L907">                        return;</span>
+                }
+                
+<span class="nc bnc" id="L910" title="All 2 branches missed.">                if (newStatus.equals(selectedTicket.getStatus())) {</span>
+<span class="nc" id="L911">                    System.out.println(&quot;ℹ️  Ticket already has this status.&quot;);</span>
+<span class="nc" id="L912">                    waitForEnter();</span>
+<span class="nc" id="L913">                    return;</span>
+                }
+                
+                // Confirmation
+<span class="nc" id="L917">                System.out.printf(&quot;⚠️  Change ticket status from %s to %s?\n&quot;, </span>
+<span class="nc" id="L918">                    selectedTicket.getStatus(), newStatus);</span>
+<span class="nc" id="L919">                System.out.print(&quot;Confirm status change? (y/n): &quot;);</span>
+<span class="nc" id="L920">                String confirm = scanner.nextLine().trim().toLowerCase();</span>
+                
+<span class="nc bnc" id="L922" title="All 4 branches missed.">                if (confirm.equals(&quot;y&quot;) || confirm.equals(&quot;yes&quot;)) {</span>
+<span class="nc" id="L923">                    Ticket result = apiService.updateTicketStatus(ticketId, newStatus);</span>
+<span class="nc bnc" id="L924" title="All 2 branches missed.">                    String resultDisplayTitle = result.getTitle() != null ? result.getTitle() : &quot;Ticket #&quot; + result.getId();</span>
+<span class="nc" id="L925">                    System.out.printf(&quot;✅ %s status changed to %s\n&quot;, resultDisplayTitle, result.getStatus());</span>
+<span class="nc" id="L926">                    logger.info(&quot;Updated ticket status: {} (ID: {}) -&gt; {}&quot;, </span>
+<span class="nc" id="L927">                        result.getTitle(), ticketId, result.getStatus());</span>
+<span class="nc" id="L928">                } else {</span>
+<span class="nc" id="L929">                    System.out.println(&quot;Status change cancelled.&quot;);</span>
+                }
+                
+<span class="nc" id="L932">            } catch (NumberFormatException e) {</span>
+<span class="nc" id="L933">                DisplayUtils.printError(&quot;Invalid ticket ID format.&quot;);</span>
+<span class="nc" id="L934">            }</span>
+            
+<span class="nc" id="L936">        } catch (ApiException e) {</span>
+<span class="nc" id="L937">            logger.error(&quot;Failed to update ticket status&quot;, e);</span>
+<span class="nc" id="L938">            DisplayUtils.printError(&quot;Failed to update ticket status: &quot; + e.getMessage());</span>
+<span class="nc" id="L939">        }</span>
+        
+<span class="nc" id="L941">        waitForEnter();</span>
+<span class="nc" id="L942">    }</span>
+    
+    private void deleteTicket() {
+<span class="nc" id="L945">        DisplayUtils.printHeader(&quot;DELETE TICKET&quot;);</span>
+        
+<span class="nc" id="L947">        System.out.println(&quot;⚠️  IMPORTANT: Server Business Rules for Ticket Deletion&quot;);</span>
+<span class="nc" id="L948">        System.out.println(&quot;   • Only CLOSED tickets can be deleted&quot;);</span>
+<span class="nc" id="L949">        System.out.println(&quot;   • Deletion is permanent and irreversible&quot;);</span>
+<span class="nc" id="L950">        System.out.println(&quot;   • All related data (history, feedback, appointments) will be removed&quot;);</span>
+<span class="nc" id="L951">        System.out.println(&quot;   • Consider keeping closed tickets for historical records&quot;);</span>
+<span class="nc" id="L952">        System.out.println();</span>
+        
+        try {
+<span class="nc" id="L955">            List&lt;Ticket&gt; tickets = apiService.getAllTickets();</span>
+            
+<span class="nc bnc" id="L957" title="All 2 branches missed.">            if (tickets.isEmpty()) {</span>
+<span class="nc" id="L958">                System.out.println(&quot;📭 No tickets found in the system.&quot;);</span>
+<span class="nc" id="L959">                waitForEnter();</span>
+<span class="nc" id="L960">                return;</span>
+            }
+            
+            // Display ticket selection
+<span class="nc" id="L964">            System.out.println(&quot;📋 Select a ticket to delete:&quot;);</span>
+<span class="nc" id="L965">            System.out.println();</span>
+<span class="nc" id="L966">            displayTicketsTable(tickets);</span>
+            
+<span class="nc" id="L968">            System.out.print(&quot;Enter ticket ID to delete (or 'b' to go back): &quot;);</span>
+<span class="nc" id="L969">            String input = scanner.nextLine().trim();</span>
+            
+<span class="nc bnc" id="L971" title="All 2 branches missed.">            if (input.equalsIgnoreCase(&quot;b&quot;)) {</span>
+<span class="nc" id="L972">                return;</span>
+            }
+            
+            try {
+<span class="nc" id="L976">                Long ticketId = Long.parseLong(input);</span>
+                
+                // Get complete ticket details including nested objects
+<span class="nc" id="L979">                Ticket selectedTicket = apiService.getTicketById(ticketId);</span>
+<span class="nc bnc" id="L980" title="All 2 branches missed.">                if (selectedTicket == null) {</span>
+<span class="nc" id="L981">                    DisplayUtils.printError(&quot;Ticket not found with ID: &quot; + ticketId);</span>
+<span class="nc" id="L982">                    waitForEnter();</span>
+<span class="nc" id="L983">                    return;</span>
+                }
+                
+                // Show ticket details
+<span class="nc" id="L987">                System.out.println();</span>
+<span class="nc" id="L988">                displayTicketSummary(selectedTicket);</span>
+<span class="nc" id="L989">                System.out.println();</span>
+                
+                // Enforce business rule: Only closed tickets can be deleted
+<span class="nc bnc" id="L992" title="All 2 branches missed.">                if (&quot;OPEN&quot;.equals(selectedTicket.getStatus())) {</span>
+<span class="nc" id="L993">                    System.out.println(&quot;❌ DELETION BLOCKED: Ticket is currently OPEN&quot;);</span>
+<span class="nc" id="L994">                    System.out.println();</span>
+<span class="nc" id="L995">                    System.out.println(&quot;🔹 Server Business Rule: Only CLOSED tickets can be deleted&quot;);</span>
+<span class="nc" id="L996">                    System.out.println(&quot;   This ensures proper audit trails and prevents accidental&quot;);</span>
+<span class="nc" id="L997">                    System.out.println(&quot;   deletion of active work.&quot;);</span>
+<span class="nc" id="L998">                    System.out.println();</span>
+<span class="nc" id="L999">                    System.out.println(&quot;🔹 Available Options:&quot;);</span>
+<span class="nc" id="L1000">                    System.out.println(&quot;   1. Close this ticket first (recommended)&quot;);</span>
+<span class="nc" id="L1001">                    System.out.println(&quot;   2. Cancel deletion&quot;);</span>
+<span class="nc" id="L1002">                    System.out.println();</span>
+                    
+<span class="nc" id="L1004">                    System.out.print(&quot;Would you like to close this ticket first? (y/n): &quot;);</span>
+<span class="nc" id="L1005">                    String closeFirst = scanner.nextLine().trim().toLowerCase();</span>
+                    
+<span class="nc bnc" id="L1007" title="All 4 branches missed.">                    if (closeFirst.equals(&quot;y&quot;) || closeFirst.equals(&quot;yes&quot;)) {</span>
+<span class="nc" id="L1008">                        System.out.println(&quot;Redirecting to ticket closure process...&quot;);</span>
+<span class="nc" id="L1009">                        System.out.println(&quot;After closing, you can return to delete the ticket.&quot;);</span>
+<span class="nc" id="L1010">                        waitForEnter();</span>
+<span class="nc" id="L1011">                        closeTicket(); // Call the existing close ticket method</span>
+<span class="nc" id="L1012">                        return;</span>
+                    } else {
+<span class="nc" id="L1014">                        System.out.println(&quot;Deletion cancelled. Ticket remains OPEN.&quot;);</span>
+<span class="nc" id="L1015">                        waitForEnter();</span>
+<span class="nc" id="L1016">                        return;</span>
+                    }
+                }
+                
+                // Ticket is closed - proceed with deletion confirmation
+<span class="nc" id="L1021">                System.out.println(&quot;✅ Ticket is CLOSED - deletion is permitted&quot;);</span>
+<span class="nc" id="L1022">                System.out.println();</span>
+                
+                // Get display title for confirmation
+<span class="nc" id="L1025">                String displayTitle = &quot;No Title&quot;;</span>
+<span class="nc bnc" id="L1026" title="All 4 branches missed.">                if (selectedTicket.getTitle() != null &amp;&amp; !selectedTicket.getTitle().trim().isEmpty()) {</span>
+<span class="nc" id="L1027">                    displayTitle = selectedTicket.getTitle();</span>
+<span class="nc bnc" id="L1028" title="All 4 branches missed.">                } else if (selectedTicket.getDescription() != null &amp;&amp; !selectedTicket.getDescription().trim().isEmpty()) {</span>
+<span class="nc bnc" id="L1029" title="All 2 branches missed.">                    displayTitle = selectedTicket.getDescription().length() &gt; 50 ? </span>
+<span class="nc" id="L1030">                        selectedTicket.getDescription().substring(0, 47) + &quot;...&quot; : </span>
+<span class="nc" id="L1031">                        selectedTicket.getDescription();</span>
+                }
+                
+                // Simplified confirmation process
+<span class="nc" id="L1035">                System.out.println(&quot;🔹 Deletion Confirmation:&quot;);</span>
+<span class="nc" id="L1036">                System.out.printf(&quot;   Ticket #%d: %s\n&quot;, ticketId, displayTitle);</span>
+<span class="nc" id="L1037">                System.out.println(&quot;   Status: CLOSED&quot;);</span>
+<span class="nc" id="L1038">                System.out.println(&quot;   ⚠️  This action is PERMANENT and IRREVERSIBLE&quot;);</span>
+<span class="nc" id="L1039">                System.out.println();</span>
+                
+                // Step 1: Initial confirmation
+<span class="nc" id="L1042">                System.out.print(&quot;Proceed with deletion? (y/n): &quot;);</span>
+<span class="nc" id="L1043">                String confirm1 = scanner.nextLine().trim().toLowerCase();</span>
+                
+<span class="nc bnc" id="L1045" title="All 4 branches missed.">                if (!confirm1.equals(&quot;y&quot;) &amp;&amp; !confirm1.equals(&quot;yes&quot;)) {</span>
+<span class="nc" id="L1046">                    System.out.println(&quot;Deletion cancelled.&quot;);</span>
+<span class="nc" id="L1047">                    waitForEnter();</span>
+<span class="nc" id="L1048">                    return;</span>
+                }
+                
+                // Step 2: Final confirmation with ticket ID
+<span class="nc" id="L1052">                System.out.printf(&quot;Final confirmation: Type the ticket ID '%d' to proceed: &quot;, ticketId);</span>
+<span class="nc" id="L1053">                String idConfirmation = scanner.nextLine().trim();</span>
+                
+<span class="nc bnc" id="L1055" title="All 2 branches missed.">                if (!idConfirmation.equals(ticketId.toString())) {</span>
+<span class="nc" id="L1056">                    DisplayUtils.printError(&quot;ID confirmation failed. Deletion cancelled.&quot;);</span>
+<span class="nc" id="L1057">                    waitForEnter();</span>
+<span class="nc" id="L1058">                    return;</span>
+                }
+                
+                // Attempt deletion
+                try {
+<span class="nc" id="L1063">                    apiService.deleteTicket(ticketId);</span>
+<span class="nc" id="L1064">                    System.out.printf(&quot;✅ Ticket #%d deleted successfully\n&quot;, ticketId);</span>
+<span class="nc" id="L1065">                    System.out.println(&quot;   All related data (history, feedback, appointments) removed&quot;);</span>
+<span class="nc" id="L1066">                    logger.info(&quot;Successfully deleted closed ticket: {} (ID: {})&quot;, displayTitle, ticketId);</span>
+                    
+<span class="nc" id="L1068">                } catch (ApiException e) {</span>
+<span class="nc bnc" id="L1069" title="All 2 branches missed.">                    if (e.getStatusCode() == 400) {</span>
+<span class="nc" id="L1070">                        System.out.println();</span>
+<span class="nc" id="L1071">                        DisplayUtils.printError(&quot;❌ Deletion Failed: Server Business Rule Violation&quot;);</span>
+<span class="nc" id="L1072">                        System.out.println(&quot;   &quot; + e.getMessage());</span>
+<span class="nc" id="L1073">                        System.out.println();</span>
+<span class="nc" id="L1074">                        System.out.println(&quot;🔹 This usually means:&quot;);</span>
+<span class="nc" id="L1075">                        System.out.println(&quot;   • Ticket status changed after selection&quot;);</span>
+<span class="nc" id="L1076">                        System.out.println(&quot;   • Server detected the ticket is not properly closed&quot;);</span>
+<span class="nc" id="L1077">                        System.out.println(&quot;   • Additional business rules prevent deletion&quot;);</span>
+<span class="nc" id="L1078">                        logger.info(&quot;Delete operation blocked by server business rules for ticket ID: {}&quot;, ticketId);</span>
+<span class="nc bnc" id="L1079" title="All 2 branches missed.">                    } else if (e.getStatusCode() == 404) {</span>
+<span class="nc" id="L1080">                        DisplayUtils.printError(&quot;❌ Ticket not found - may have been deleted by another user&quot;);</span>
+<span class="nc" id="L1081">                        logger.info(&quot;Ticket ID {} not found during deletion - already deleted?&quot;, ticketId);</span>
+                    } else {
+<span class="nc" id="L1083">                        DisplayUtils.printError(&quot;❌ Failed to delete ticket: &quot; + e.getMessage());</span>
+<span class="nc" id="L1084">                        logger.error(&quot;Failed to delete ticket ID: {}&quot;, ticketId, e);</span>
+                    }
+<span class="nc" id="L1086">                }</span>
+                
+<span class="nc" id="L1088">            } catch (NumberFormatException e) {</span>
+<span class="nc" id="L1089">                DisplayUtils.printError(&quot;Invalid ticket ID format.&quot;);</span>
+<span class="nc" id="L1090">            }</span>
+            
+<span class="nc" id="L1092">        } catch (ApiException e) {</span>
+<span class="nc" id="L1093">            logger.error(&quot;Failed to retrieve tickets for deletion&quot;, e);</span>
+<span class="nc" id="L1094">            DisplayUtils.printError(&quot;Failed to retrieve tickets: &quot; + e.getMessage());</span>
+<span class="nc" id="L1095">        }</span>
+        
+<span class="nc" id="L1097">        waitForEnter();</span>
+<span class="nc" id="L1098">    }</span>
+    
+    private void ticketReports() {
+<span class="nc" id="L1101">        DisplayUtils.printHeader(&quot;TICKET REPORTS &amp; ANALYTICS&quot;);</span>
+        
+        try {
+<span class="nc" id="L1104">            List&lt;Ticket&gt; tickets = apiService.getAllTickets();</span>
+            
+<span class="nc bnc" id="L1106" title="All 2 branches missed.">            if (tickets.isEmpty()) {</span>
+<span class="nc" id="L1107">                System.out.println(&quot;📭 No tickets found in the system.&quot;);</span>
+<span class="nc" id="L1108">                waitForEnter();</span>
+<span class="nc" id="L1109">                return;</span>
+            }
+            
+            // Calculate statistics
+<span class="nc" id="L1113">            long totalCount = tickets.size();</span>
+<span class="nc" id="L1114">            long openCount = tickets.stream().filter(t -&gt; &quot;OPEN&quot;.equals(t.getStatus())).count();</span>
+<span class="nc" id="L1115">            long closedCount = tickets.stream().filter(t -&gt; &quot;CLOSED&quot;.equals(t.getStatus())).count();</span>
+            
+            // Priority breakdown
+<span class="nc" id="L1118">            Map&lt;String, Long&gt; priorityCounts = tickets.stream()</span>
+<span class="nc" id="L1119">                .collect(Collectors.groupingBy(</span>
+<span class="nc bnc" id="L1120" title="All 2 branches missed.">                    t -&gt; t.getPriority() != null ? t.getPriority() : &quot;UNKNOWN&quot;, </span>
+<span class="nc" id="L1121">                    Collectors.counting()));</span>
+                    
+            // Service type breakdown
+<span class="nc" id="L1124">            Map&lt;String, Long&gt; serviceTypeCounts = tickets.stream()</span>
+<span class="nc" id="L1125">                .collect(Collectors.groupingBy(</span>
+<span class="nc bnc" id="L1126" title="All 2 branches missed.">                    t -&gt; t.getServiceType() != null ? t.getServiceType() : &quot;UNKNOWN&quot;, </span>
+<span class="nc" id="L1127">                    Collectors.counting()));</span>
+            
+            // Assignment statistics
+<span class="nc bnc" id="L1130" title="All 2 branches missed.">            long assignedCount = tickets.stream().filter(t -&gt; t.getAssignedTechnicianId() != null).count();</span>
+<span class="nc" id="L1131">            long unassignedCount = totalCount - assignedCount;</span>
+            
+            // Display report
+<span class="nc" id="L1134">            System.out.println(&quot;📊 TICKET SYSTEM OVERVIEW&quot;);</span>
+<span class="nc" id="L1135">            System.out.println(&quot;═&quot;.repeat(80));</span>
+<span class="nc" id="L1136">            System.out.printf(&quot;Total Tickets:           %d\n&quot;, totalCount);</span>
+<span class="nc" id="L1137">            System.out.printf(&quot;Open:                    %d (%.1f%%)\n&quot;, openCount, </span>
+<span class="nc" id="L1138">                (openCount * 100.0 / totalCount));</span>
+<span class="nc" id="L1139">            System.out.printf(&quot;Closed:                  %d (%.1f%%)\n&quot;, closedCount, </span>
+<span class="nc" id="L1140">                (closedCount * 100.0 / totalCount));</span>
+<span class="nc" id="L1141">            System.out.printf(&quot;Assigned:                %d (%.1f%%)\n&quot;, assignedCount, </span>
+<span class="nc" id="L1142">                (assignedCount * 100.0 / totalCount));</span>
+<span class="nc" id="L1143">            System.out.printf(&quot;Unassigned:              %d (%.1f%%)\n&quot;, unassignedCount, </span>
+<span class="nc" id="L1144">                (unassignedCount * 100.0 / totalCount));</span>
+<span class="nc" id="L1145">            System.out.println();</span>
+            
+<span class="nc" id="L1147">            System.out.println(&quot;🔴 PRIORITY BREAKDOWN&quot;);</span>
+<span class="nc" id="L1148">            System.out.println(&quot;─&quot;.repeat(40));</span>
+<span class="nc" id="L1149">            priorityCounts.entrySet().stream()</span>
+<span class="nc" id="L1150">                .sorted((e1, e2) -&gt; {</span>
+                    // Sort by priority order: URGENT, HIGH, MEDIUM, LOW, UNKNOWN
+<span class="nc" id="L1152">                    String[] order = {&quot;URGENT&quot;, &quot;HIGH&quot;, &quot;MEDIUM&quot;, &quot;LOW&quot;, &quot;UNKNOWN&quot;};</span>
+<span class="nc" id="L1153">                    int pos1 = java.util.Arrays.asList(order).indexOf(e1.getKey());</span>
+<span class="nc" id="L1154">                    int pos2 = java.util.Arrays.asList(order).indexOf(e2.getKey());</span>
+<span class="nc bnc" id="L1155" title="All 2 branches missed.">                    if (pos1 == -1) pos1 = order.length;</span>
+<span class="nc bnc" id="L1156" title="All 2 branches missed.">                    if (pos2 == -1) pos2 = order.length;</span>
+<span class="nc" id="L1157">                    return Integer.compare(pos1, pos2);</span>
+                })
+<span class="nc" id="L1159">                .forEach(entry -&gt; {</span>
+<span class="nc" id="L1160">                    double percentage = (entry.getValue() * 100.0 / totalCount);</span>
+<span class="nc" id="L1161">                    System.out.printf(&quot;%-8s: %d tickets (%.1f%%)\n&quot;, </span>
+<span class="nc" id="L1162">                        entry.getKey(), entry.getValue(), percentage);</span>
+<span class="nc" id="L1163">                });</span>
+<span class="nc" id="L1164">            System.out.println();</span>
+            
+<span class="nc" id="L1166">            System.out.println(&quot;🛠️  SERVICE TYPE BREAKDOWN&quot;);</span>
+<span class="nc" id="L1167">            System.out.println(&quot;─&quot;.repeat(40));</span>
+<span class="nc" id="L1168">            serviceTypeCounts.entrySet().stream()</span>
+<span class="nc" id="L1169">                .sorted((e1, e2) -&gt; e2.getValue().compareTo(e1.getValue()))</span>
+<span class="nc" id="L1170">                .forEach(entry -&gt; {</span>
+<span class="nc" id="L1171">                    double percentage = (entry.getValue() * 100.0 / totalCount);</span>
+<span class="nc" id="L1172">                    System.out.printf(&quot;%-10s: %d tickets (%.1f%%)\n&quot;, </span>
+<span class="nc" id="L1173">                        entry.getKey(), entry.getValue(), percentage);</span>
+<span class="nc" id="L1174">                });</span>
+<span class="nc" id="L1175">            System.out.println();</span>
+            
+            // System health indicators
+<span class="nc" id="L1178">            System.out.println(&quot;🏥 SYSTEM HEALTH&quot;);</span>
+<span class="nc" id="L1179">            System.out.println(&quot;─&quot;.repeat(40));</span>
+            
+<span class="nc" id="L1181">            double resolutionRate = (closedCount * 100.0 / totalCount);</span>
+<span class="nc bnc" id="L1182" title="All 2 branches missed.">            if (resolutionRate &gt;= 80) {</span>
+<span class="nc" id="L1183">                System.out.printf(&quot;✅ Resolution Rate: %.1f%% (Excellent)\n&quot;, resolutionRate);</span>
+<span class="nc bnc" id="L1184" title="All 2 branches missed.">            } else if (resolutionRate &gt;= 60) {</span>
+<span class="nc" id="L1185">                System.out.printf(&quot;⚠️  Resolution Rate: %.1f%% (Good)\n&quot;, resolutionRate);</span>
+            } else {
+<span class="nc" id="L1187">                System.out.printf(&quot;❌ Resolution Rate: %.1f%% (Needs Attention)\n&quot;, resolutionRate);</span>
+            }
+            
+<span class="nc" id="L1190">            double assignmentRate = (assignedCount * 100.0 / totalCount);</span>
+<span class="nc bnc" id="L1191" title="All 2 branches missed.">            if (assignmentRate &gt;= 90) {</span>
+<span class="nc" id="L1192">                System.out.printf(&quot;✅ Assignment Rate: %.1f%% (Excellent)\n&quot;, assignmentRate);</span>
+<span class="nc bnc" id="L1193" title="All 2 branches missed.">            } else if (assignmentRate &gt;= 70) {</span>
+<span class="nc" id="L1194">                System.out.printf(&quot;⚠️  Assignment Rate: %.1f%% (Good)\n&quot;, assignmentRate);</span>
+            } else {
+<span class="nc" id="L1196">                System.out.printf(&quot;❌ Assignment Rate: %.1f%% (Poor)\n&quot;, assignmentRate);</span>
+            }
+            
+            // Urgent ticket alert
+<span class="nc" id="L1200">            long urgentOpen = tickets.stream()</span>
+<span class="nc bnc" id="L1201" title="All 4 branches missed.">                .filter(t -&gt; &quot;URGENT&quot;.equals(t.getPriority()) &amp;&amp; &quot;OPEN&quot;.equals(t.getStatus()))</span>
+<span class="nc" id="L1202">                .count();</span>
+<span class="nc bnc" id="L1203" title="All 2 branches missed.">            if (urgentOpen &gt; 0) {</span>
+<span class="nc" id="L1204">                System.out.printf(&quot;🚨 URGENT Open Tickets: %d (Needs Immediate Attention!)\n&quot;, urgentOpen);</span>
+            }
+            
+<span class="nc" id="L1207">            System.out.println();</span>
+<span class="nc" id="L1208">            System.out.println(&quot;📈 RECOMMENDATIONS&quot;);</span>
+<span class="nc" id="L1209">            System.out.println(&quot;─&quot;.repeat(40));</span>
+            
+<span class="nc bnc" id="L1211" title="All 2 branches missed.">            if (resolutionRate &lt; 70) {</span>
+<span class="nc" id="L1212">                System.out.println(&quot;• Focus on closing resolved tickets&quot;);</span>
+            }
+<span class="nc bnc" id="L1214" title="All 2 branches missed.">            if (assignmentRate &lt; 80) {</span>
+<span class="nc" id="L1215">                System.out.println(&quot;• Assign unassigned tickets to appropriate technicians&quot;);</span>
+            }
+<span class="nc bnc" id="L1217" title="All 2 branches missed.">            if (urgentOpen &gt; 0) {</span>
+<span class="nc" id="L1218">                System.out.println(&quot;• Prioritize urgent tickets for immediate resolution&quot;);</span>
+            }
+<span class="nc bnc" id="L1220" title="All 2 branches missed.">            if (openCount &gt; closedCount) {</span>
+<span class="nc" id="L1221">                System.out.println(&quot;• Review workflow to improve ticket resolution time&quot;);</span>
+            }
+            
+<span class="nc" id="L1224">        } catch (ApiException e) {</span>
+<span class="nc" id="L1225">            logger.error(&quot;Failed to generate ticket reports&quot;, e);</span>
+<span class="nc" id="L1226">            DisplayUtils.printError(&quot;Failed to generate reports: &quot; + e.getMessage());</span>
+<span class="nc" id="L1227">        }</span>
+        
+<span class="nc" id="L1229">        waitForEnter();</span>
+<span class="nc" id="L1230">    }</span>
+    
+    // ==================== HELPER METHODS ====================
+    
+    private void displayTicketsTable(List&lt;Ticket&gt; tickets) {
+<span class="nc" id="L1235">        System.out.printf(&quot;%-4s %-40s %-10s %-12s %-18s %s\n&quot;, </span>
+            &quot;ID&quot;, &quot;Description&quot;, &quot;Status&quot;, &quot;Service&quot;, &quot;Client&quot;, &quot;Assigned To&quot;);
+<span class="nc" id="L1237">        System.out.println(&quot;─&quot;.repeat(110));</span>
+        
+<span class="nc bnc" id="L1239" title="All 2 branches missed.">        for (Ticket ticket : tickets) {</span>
+            // Get client name - prioritize nested object over ID lookup
+<span class="nc" id="L1241">            String clientDisplay = &quot;N/A&quot;;</span>
+<span class="nc bnc" id="L1242" title="All 6 branches missed.">            if (ticket.getClient() != null &amp;&amp; ticket.getClient().getFullName() != null &amp;&amp; !ticket.getClient().getFullName().trim().isEmpty()) {</span>
+<span class="nc" id="L1243">                clientDisplay = truncate(ticket.getClient().getFullName(), 16);</span>
+            } else {
+<span class="nc" id="L1245">                Long effectiveClientId = getEffectiveClientId(ticket);</span>
+<span class="nc bnc" id="L1246" title="All 2 branches missed.">                if (effectiveClientId != null) {</span>
+                    try {
+<span class="nc" id="L1248">                        List&lt;Client&gt; clients = apiService.getAllClients();</span>
+<span class="nc" id="L1249">                        Client client = clients.stream()</span>
+<span class="nc" id="L1250">                            .filter(c -&gt; c.getId().equals(effectiveClientId))</span>
+<span class="nc" id="L1251">                            .findFirst()</span>
+<span class="nc" id="L1252">                            .orElse(null);</span>
+<span class="nc bnc" id="L1253" title="All 6 branches missed.">                        if (client != null &amp;&amp; client.getFullName() != null &amp;&amp; !client.getFullName().trim().isEmpty()) {</span>
+<span class="nc" id="L1254">                            clientDisplay = truncate(client.getFullName(), 16);</span>
+                        } else {
+<span class="nc" id="L1256">                            clientDisplay = &quot;ID:&quot; + effectiveClientId;</span>
+                        }
+<span class="nc" id="L1258">                    } catch (ApiException e) {</span>
+<span class="nc" id="L1259">                        clientDisplay = &quot;ID:&quot; + effectiveClientId;</span>
+<span class="nc" id="L1260">                    }</span>
+                }
+            }
+            
+            // Get technician name - prioritize nested object over ID lookup
+<span class="nc" id="L1265">            String technicianDisplay = &quot;Unassigned&quot;;</span>
+<span class="nc bnc" id="L1266" title="All 6 branches missed.">            if (ticket.getAssignedTechnician() != null &amp;&amp; ticket.getAssignedTechnician().getFullName() != null &amp;&amp; !ticket.getAssignedTechnician().getFullName().trim().isEmpty()) {</span>
+<span class="nc" id="L1267">                technicianDisplay = truncate(ticket.getAssignedTechnician().getFullName(), 18);</span>
+            } else {
+<span class="nc" id="L1269">                Long effectiveTechnicianId = getEffectiveAssignedTechnicianId(ticket);</span>
+<span class="nc bnc" id="L1270" title="All 2 branches missed.">                if (effectiveTechnicianId != null) {</span>
+                    try {
+<span class="nc" id="L1272">                        List&lt;Technician&gt; technicians = apiService.getAllTechnicians();</span>
+<span class="nc" id="L1273">                        Technician technician = technicians.stream()</span>
+<span class="nc" id="L1274">                            .filter(t -&gt; t.getId().equals(effectiveTechnicianId))</span>
+<span class="nc" id="L1275">                            .findFirst()</span>
+<span class="nc" id="L1276">                            .orElse(null);</span>
+<span class="nc bnc" id="L1277" title="All 6 branches missed.">                        if (technician != null &amp;&amp; technician.getFullName() != null &amp;&amp; !technician.getFullName().trim().isEmpty()) {</span>
+<span class="nc" id="L1278">                            technicianDisplay = truncate(technician.getFullName(), 18);</span>
+                        } else {
+<span class="nc" id="L1280">                            technicianDisplay = &quot;ID:&quot; + effectiveTechnicianId;</span>
+                        }
+<span class="nc" id="L1282">                    } catch (ApiException e) {</span>
+<span class="nc" id="L1283">                        technicianDisplay = &quot;ID:&quot; + effectiveTechnicianId;</span>
+<span class="nc" id="L1284">                    }</span>
+                }
+            }
+            
+            // Get description - truncate if too long
+<span class="nc" id="L1289">            String description = &quot;No Description&quot;;</span>
+<span class="nc bnc" id="L1290" title="All 4 branches missed.">            if (ticket.getDescription() != null &amp;&amp; !ticket.getDescription().trim().isEmpty()) {</span>
+<span class="nc bnc" id="L1291" title="All 2 branches missed.">                description = ticket.getDescription().length() &gt; 40 ? </span>
+<span class="nc" id="L1292">                    ticket.getDescription().substring(0, 37) + &quot;...&quot; : </span>
+<span class="nc" id="L1293">                    ticket.getDescription();</span>
+            }
+            
+<span class="nc" id="L1296">            System.out.printf(&quot;%-4d %-40s %-10s %-12s %-18s %s\n&quot;,</span>
+<span class="nc" id="L1297">                ticket.getId(),</span>
+<span class="nc" id="L1298">                truncateWithDefault(description, 40, &quot;No Description&quot;),</span>
+<span class="nc" id="L1299">                getStatusDisplay(ticket.getStatus()),</span>
+<span class="nc bnc" id="L1300" title="All 2 branches missed.">                ticket.getServiceType() != null ? ticket.getServiceType() : &quot;N/A&quot;,</span>
+                clientDisplay,
+                technicianDisplay
+            );
+<span class="nc" id="L1304">        }</span>
+<span class="nc" id="L1305">    }</span>
+    
+    private void displayTicketDetails(Ticket ticket) {
+<span class="nc" id="L1308">        System.out.println();</span>
+<span class="nc" id="L1309">        DisplayUtils.printHeader(&quot;TICKET DETAILS - #&quot; + ticket.getId());</span>
+        
+<span class="nc" id="L1311">        System.out.println(&quot;🎫 Ticket Information&quot;);</span>
+<span class="nc" id="L1312">        System.out.println(&quot;─&quot;.repeat(80));</span>
+<span class="nc" id="L1313">        System.out.printf(&quot;  ID:           %d\n&quot;, ticket.getId());</span>
+<span class="nc bnc" id="L1314" title="All 2 branches missed.">        System.out.printf(&quot;  Description:  %s\n&quot;, ticket.getDescription() != null ? ticket.getDescription() : &quot;No Description&quot;);</span>
+<span class="nc" id="L1315">        System.out.printf(&quot;  Status:       %s\n&quot;, getStatusDisplay(ticket.getStatus()));</span>
+<span class="nc bnc" id="L1316" title="All 2 branches missed.">        System.out.printf(&quot;  Service Type: %s\n&quot;, ticket.getServiceType() != null ? ticket.getServiceType() : &quot;Not specified&quot;);</span>
+        
+<span class="nc bnc" id="L1318" title="All 2 branches missed.">        if (ticket.getCreatedAt() != null) {</span>
+<span class="nc" id="L1319">            System.out.printf(&quot;  Created:      %s\n&quot;, ticket.getCreatedAt().format(DateTimeFormatter.ofPattern(&quot;MMM dd, yyyy HH:mm&quot;)));</span>
+        }
+<span class="nc bnc" id="L1321" title="All 2 branches missed.">        if (ticket.getDueAt() != null) {</span>
+<span class="nc" id="L1322">            System.out.printf(&quot;  Due Date:     %s\n&quot;, ticket.getDueAt().format(DateTimeFormatter.ofPattern(&quot;MMM dd, yyyy HH:mm&quot;)));</span>
+        }
+<span class="nc bnc" id="L1324" title="All 2 branches missed.">        if (ticket.getResolvedAt() != null) {</span>
+<span class="nc" id="L1325">            System.out.printf(&quot;  Resolved:     %s\n&quot;, ticket.getResolvedAt().format(DateTimeFormatter.ofPattern(&quot;MMM dd, yyyy HH:mm&quot;)));</span>
+        }
+<span class="nc" id="L1327">        System.out.println();</span>
+        
+        // Client information
+<span class="nc" id="L1330">        System.out.println(&quot;👤 Client Information&quot;);</span>
+<span class="nc" id="L1331">        System.out.println(&quot;─&quot;.repeat(80));</span>
+        
+<span class="nc" id="L1333">        Long effectiveClientId = getEffectiveClientId(ticket);</span>
+        
+<span class="nc bnc" id="L1335" title="All 2 branches missed.">        if (effectiveClientId != null) {</span>
+            try {
+                // Always fetch fresh client data to ensure we have complete information
+<span class="nc" id="L1338">                List&lt;Client&gt; clients = apiService.getAllClients();</span>
+<span class="nc" id="L1339">                Client client = clients.stream()</span>
+<span class="nc" id="L1340">                    .filter(c -&gt; c.getId().equals(effectiveClientId))</span>
+<span class="nc" id="L1341">                    .findFirst()</span>
+<span class="nc" id="L1342">                    .orElse(null);</span>
+                    
+<span class="nc bnc" id="L1344" title="All 2 branches missed.">                if (client != null) {</span>
+<span class="nc bnc" id="L1345" title="All 2 branches missed.">                    System.out.printf(&quot;  Name:         %s\n&quot;, client.getFullName() != null ? client.getFullName() : &quot;Not provided&quot;);</span>
+<span class="nc bnc" id="L1346" title="All 2 branches missed.">                    System.out.printf(&quot;  Email:        %s\n&quot;, client.getEmail() != null ? client.getEmail() : &quot;Not provided&quot;);</span>
+<span class="nc bnc" id="L1347" title="All 4 branches missed.">                    System.out.printf(&quot;  Phone:        %s\n&quot;, client.getPhone() != null &amp;&amp; !client.getPhone().trim().isEmpty() ? client.getPhone() : &quot;Not provided&quot;);</span>
+<span class="nc bnc" id="L1348" title="All 2 branches missed.">                    System.out.printf(&quot;  Status:       %s\n&quot;, client.isActive() ? &quot;🟢 ACTIVE&quot; : &quot;🔴 SUSPENDED&quot;);</span>
+                } else {
+<span class="nc" id="L1350">                    System.out.printf(&quot;  Client ID:    %d (Client not found)\n&quot;, effectiveClientId);</span>
+                }
+<span class="nc" id="L1352">            } catch (ApiException e) {</span>
+<span class="nc" id="L1353">                System.out.printf(&quot;  Client ID:    %d (Unable to load client details)\n&quot;, effectiveClientId);</span>
+<span class="nc" id="L1354">            }</span>
+        } else {
+<span class="nc" id="L1356">            System.out.println(&quot;  No client assigned&quot;);</span>
+        }
+<span class="nc" id="L1358">        System.out.println();</span>
+        
+        // Technician information
+<span class="nc" id="L1361">        System.out.println(&quot;🔧 Assignment Information&quot;);</span>
+<span class="nc" id="L1362">        System.out.println(&quot;─&quot;.repeat(80));</span>
+        
+<span class="nc" id="L1364">        Long effectiveTechnicianId = getEffectiveAssignedTechnicianId(ticket);</span>
+<span class="nc bnc" id="L1365" title="All 2 branches missed.">        if (effectiveTechnicianId != null) {</span>
+            try {
+                // Always fetch fresh technician data to ensure we have complete information
+<span class="nc" id="L1368">                List&lt;Technician&gt; technicians = apiService.getAllTechnicians();</span>
+<span class="nc" id="L1369">                Technician technician = technicians.stream()</span>
+<span class="nc" id="L1370">                    .filter(t -&gt; t.getId().equals(effectiveTechnicianId))</span>
+<span class="nc" id="L1371">                    .findFirst()</span>
+<span class="nc" id="L1372">                    .orElse(null);</span>
+                    
+<span class="nc bnc" id="L1374" title="All 2 branches missed.">                if (technician != null) {</span>
+<span class="nc bnc" id="L1375" title="All 2 branches missed.">                    System.out.printf(&quot;  Technician:   %s\n&quot;, technician.getFullName() != null ? technician.getFullName() : &quot;Not provided&quot;);</span>
+<span class="nc bnc" id="L1376" title="All 2 branches missed.">                    System.out.printf(&quot;  Email:        %s\n&quot;, technician.getEmail() != null ? technician.getEmail() : &quot;Not provided&quot;);</span>
+<span class="nc bnc" id="L1377" title="All 2 branches missed.">                    System.out.printf(&quot;  Status:       %s\n&quot;, technician.getStatus() != null ? technician.getStatus() : &quot;Unknown&quot;);</span>
+<span class="nc" id="L1378">                    System.out.printf(&quot;  Workload:     %s\n&quot;, </span>
+<span class="nc bnc" id="L1379" title="All 2 branches missed.">                        technician.getCurrentWorkload() != null ? technician.getCurrentWorkload().toString() : &quot;N/A&quot;);</span>
+                } else {
+<span class="nc" id="L1381">                    System.out.printf(&quot;  Technician ID: %d (Technician not found)\n&quot;, effectiveTechnicianId);</span>
+                }
+<span class="nc" id="L1383">            } catch (ApiException e) {</span>
+<span class="nc" id="L1384">                System.out.printf(&quot;  Technician ID: %d (Unable to load technician details)\n&quot;, effectiveTechnicianId);</span>
+<span class="nc" id="L1385">            }</span>
+        } else {
+<span class="nc" id="L1387">            System.out.println(&quot;  Not assigned to any technician&quot;);</span>
+        }
+<span class="nc" id="L1389">        System.out.println();</span>
+        
+<span class="nc" id="L1391">        System.out.println(&quot;🔹 Available Actions&quot;);</span>
+<span class="nc" id="L1392">        System.out.println(&quot;─&quot;.repeat(80));</span>
+<span class="nc" id="L1393">        System.out.println(&quot;  1. Edit Ticket Information&quot;);</span>
+<span class="nc" id="L1394">        System.out.println(&quot;  2. Assign/Change Technician&quot;);</span>
+<span class="nc" id="L1395">        System.out.println(&quot;  3. Update Status&quot;);</span>
+<span class="nc" id="L1396">        System.out.println(&quot;  4. Delete Ticket&quot;);</span>
+<span class="nc" id="L1397">        System.out.println();</span>
+<span class="nc" id="L1398">    }</span>
+    
+    private void displayTicketSummary(Ticket ticket) {
+        // Get display description - truncate if too long
+<span class="nc" id="L1402">        String displayDescription = &quot;No Description&quot;;</span>
+<span class="nc bnc" id="L1403" title="All 4 branches missed.">        if (ticket.getDescription() != null &amp;&amp; !ticket.getDescription().trim().isEmpty()) {</span>
+<span class="nc bnc" id="L1404" title="All 2 branches missed.">            displayDescription = ticket.getDescription().length() &gt; 50 ? </span>
+<span class="nc" id="L1405">                ticket.getDescription().substring(0, 47) + &quot;...&quot; : </span>
+<span class="nc" id="L1406">                ticket.getDescription();</span>
+        }
+        
+        // Get client name
+<span class="nc" id="L1410">        String clientName = &quot;Not assigned&quot;;</span>
+<span class="nc bnc" id="L1411" title="All 6 branches missed.">        if (ticket.getClient() != null &amp;&amp; ticket.getClient().getFullName() != null &amp;&amp; !ticket.getClient().getFullName().trim().isEmpty()) {</span>
+<span class="nc" id="L1412">            clientName = ticket.getClient().getFullName();</span>
+        }
+        
+        // Get technician name
+<span class="nc" id="L1416">        String technicianName = &quot;Unassigned&quot;;</span>
+<span class="nc bnc" id="L1417" title="All 6 branches missed.">        if (ticket.getAssignedTechnician() != null &amp;&amp; ticket.getAssignedTechnician().getFullName() != null &amp;&amp; !ticket.getAssignedTechnician().getFullName().trim().isEmpty()) {</span>
+<span class="nc" id="L1418">            technicianName = ticket.getAssignedTechnician().getFullName();</span>
+        }
+        
+<span class="nc" id="L1421">        System.out.printf(&quot;📋 Ticket #%d: %s\n&quot;, ticket.getId(), displayDescription);</span>
+<span class="nc bnc" id="L1422" title="All 2 branches missed.">        System.out.printf(&quot;   Status: %s\n&quot;, ticket.getStatus() != null ? ticket.getStatus() : &quot;Unknown&quot;);</span>
+<span class="nc bnc" id="L1423" title="All 2 branches missed.">        System.out.printf(&quot;   Service Type: %s\n&quot;, ticket.getServiceType() != null ? ticket.getServiceType() : &quot;Not specified&quot;);</span>
+<span class="nc" id="L1424">        System.out.printf(&quot;   Client: %s\n&quot;, clientName);</span>
+<span class="nc" id="L1425">        System.out.printf(&quot;   Assigned To: %s\n&quot;, technicianName);</span>
+<span class="nc" id="L1426">    }</span>
+    
+    private String getStatusDisplay(String status) {
+<span class="nc bnc" id="L1429" title="All 2 branches missed.">        if (status == null) return &quot;UNKNOWN&quot;;</span>
+        
+<span class="nc bnc" id="L1431" title="All 3 branches missed.">        switch (status) {</span>
+            case &quot;OPEN&quot;:
+<span class="nc" id="L1433">                return &quot;🟢 OPEN&quot;;</span>
+            case &quot;CLOSED&quot;:
+<span class="nc" id="L1435">                return &quot;🔴 CLOSED&quot;;</span>
+            default:
+<span class="nc" id="L1437">                return status;</span>
+        }
+    }
+    
+
+    
+    private String truncate(String text, int maxLength) {
+<span class="nc bnc" id="L1444" title="All 2 branches missed.">        if (text == null) return &quot;&quot;;</span>
+<span class="nc bnc" id="L1445" title="All 2 branches missed.">        return text.length() &gt; maxLength ? text.substring(0, maxLength - 3) + &quot;...&quot; : text;</span>
+    }
+    
+    private String truncateWithDefault(String text, int maxLength, String defaultValue) {
+<span class="nc bnc" id="L1449" title="All 4 branches missed.">        if (text == null || text.trim().isEmpty()) return defaultValue;</span>
+<span class="nc bnc" id="L1450" title="All 2 branches missed.">        return text.length() &gt; maxLength ? text.substring(0, maxLength - 3) + &quot;...&quot; : text;</span>
+    }
+    
+    /**
+     * Helper method to get the effective assigned technician ID from a ticket.
+     * Checks both the assignedTechnicianId field and the nested assignedTechnician object.
+     * 
+     * @param ticket the ticket to check
+     * @return the technician ID if found, null otherwise
+     */
+    private Long getEffectiveAssignedTechnicianId(Ticket ticket) {
+<span class="nc bnc" id="L1461" title="All 2 branches missed.">        if (ticket == null) {</span>
+<span class="nc" id="L1462">            return null;</span>
+        }
+        
+        // First check the direct assignedTechnicianId field
+<span class="nc bnc" id="L1466" title="All 2 branches missed.">        if (ticket.getAssignedTechnicianId() != null) {</span>
+<span class="nc" id="L1467">            return ticket.getAssignedTechnicianId();</span>
+        }
+        
+        // Then check the nested assignedTechnician object
+<span class="nc bnc" id="L1471" title="All 4 branches missed.">        if (ticket.getAssignedTechnician() != null &amp;&amp; ticket.getAssignedTechnician().getId() != null) {</span>
+<span class="nc" id="L1472">            return ticket.getAssignedTechnician().getId();</span>
+        }
+        
+<span class="nc" id="L1475">        return null;</span>
+    }
+    
+    /**
+     * Helper method to get the effective client ID from a ticket.
+     * Checks both the clientId field and the nested client object.
+     * 
+     * @param ticket the ticket to check
+     * @return the client ID if found, null otherwise
+     */
+    private Long getEffectiveClientId(Ticket ticket) {
+<span class="nc bnc" id="L1486" title="All 2 branches missed.">        if (ticket == null) {</span>
+<span class="nc" id="L1487">            return null;</span>
+        }
+        
+        // First check the direct clientId field
+<span class="nc bnc" id="L1491" title="All 2 branches missed.">        if (ticket.getClientId() != null) {</span>
+<span class="nc" id="L1492">            return ticket.getClientId();</span>
+        }
+        
+        // Then check the nested client object
+<span class="nc bnc" id="L1496" title="All 4 branches missed.">        if (ticket.getClient() != null &amp;&amp; ticket.getClient().getId() != null) {</span>
+<span class="nc" id="L1497">            return ticket.getClient().getId();</span>
+        }
+        
+<span class="nc" id="L1500">        return null;</span>
+    }
+} 
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

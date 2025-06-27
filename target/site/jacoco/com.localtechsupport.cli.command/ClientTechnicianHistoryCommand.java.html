@@ -191,13 +191,13 @@ import java.util.stream.Collectors;
             
 <span class="nc" id="L192">            final Technician finalTechnician = technician; // Make final for lambda</span>
 <span class="nc" id="L193">            TechnicianInteraction interaction = technicianInteractions.computeIfAbsent(</span>
-<span class="nc" id="L194">                finalTechnician, </span>
+                finalTechnician, 
 <span class="nc" id="L195">                k -&gt; new TechnicianInteraction(finalTechnician)</span>
             );
             
             // Add this ticket to the interaction
 <span class="nc" id="L199">            interaction.addTicket(ticket);</span>
-        }
+<span class="nc" id="L200">        }</span>
         
         // Filter by minimum interactions
 <span class="nc" id="L203">        historyData.entrySet().removeIf(clientEntry -&gt; {</span>
@@ -219,10 +219,10 @@ import java.util.stream.Collectors;
 <span class="nc bnc" id="L219" title="All 3 branches missed.">        switch (format.toLowerCase()) {</span>
             case &quot;json&quot;:
 <span class="nc" id="L221">                return JsonFormatter.withMetadata(</span>
-<span class="nc" id="L222">                    &quot;Client Technician History Report&quot;, </span>
-<span class="nc" id="L223">                    historyData, </span>
-<span class="nc" id="L224">                    serverUrl, </span>
-<span class="nc" id="L225">                    timestamp</span>
+                    &quot;Client Technician History Report&quot;, 
+                    historyData, 
+                    serverUrl, 
+                    timestamp
                 );
                 
             case &quot;table&quot;:
@@ -319,10 +319,10 @@ import java.util.stream.Collectors;
 <span class="nc" id="L319">                        interaction.getFirstInteraction().format(DateTimeFormatter.ofPattern(&quot;MMM dd, yyyy&quot;)),</span>
 <span class="nc" id="L320">                        interaction.getLastInteraction().format(DateTimeFormatter.ofPattern(&quot;MMM dd, yyyy&quot;)))).append(&quot;\n&quot;);</span>
                 }
-            }
+<span class="nc" id="L322">            }</span>
             
 <span class="nc" id="L324">            output.append(&quot;\n&quot;);</span>
-        }
+<span class="nc" id="L325">        }</span>
         
         // Top relationships analysis
 <span class="nc bnc" id="L328" title="All 2 branches missed.">        if (totalRelationships &gt; 5) {</span>
@@ -335,7 +335,7 @@ import java.util.stream.Collectors;
 <span class="nc" id="L335">                            clientEntry.getKey(),</span>
 <span class="nc" id="L336">                            techEntry.getKey(),</span>
 <span class="nc" id="L337">                            techEntry.getValue()</span>
-<span class="nc" id="L338">                        ))</span>
+                        ))
                 )
 <span class="nc" id="L340">                .sorted((p1, p2) -&gt; Integer.compare(p2.interaction.getTicketCount(), p1.interaction.getTicketCount()))</span>
 <span class="nc" id="L341">                .limit(5)</span>

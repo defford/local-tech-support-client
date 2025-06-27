@@ -1,0 +1,1219 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ReportsAnalyticsMenu.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Local Tech Support CLI Client</a> &gt; <a href="index.source.html" class="el_package">com.localtechsupport.cli.menu.reports</a> &gt; <span class="el_source">ReportsAnalyticsMenu.java</span></div><h1>ReportsAnalyticsMenu.java</h1><pre class="source lang-java linenums">package com.localtechsupport.cli.menu.reports;
+
+import com.localtechsupport.cli.menu.BaseMenu;
+import com.localtechsupport.cli.menu.Menu;
+import com.localtechsupport.cli.service.ApiService;
+import com.localtechsupport.cli.util.DisplayUtils;
+import com.localtechsupport.cli.client.ApiException;
+import com.localtechsupport.cli.model.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
+import java.util.stream.Collectors;
+
+/**
+ * Reports &amp; Analytics menu providing comprehensive system reporting
+ * 
+ * This menu consolidates individual entity reports and provides cross-entity
+ * analytics, performance metrics, and executive dashboard capabilities.
+ * 
+ * Lessons from Phase 5 applied:
+ * - Robust null checking and error handling
+ * - Detailed diagnostic information for troubleshooting
+ * - API limitation awareness and documentation
+ * - Professional display formatting with fallback logic
+ */
+public class ReportsAnalyticsMenu extends BaseMenu {
+    
+<span class="nc" id="L31">    private static final Logger logger = LoggerFactory.getLogger(ReportsAnalyticsMenu.class);</span>
+    
+    public ReportsAnalyticsMenu(Menu parent) {
+<span class="nc" id="L34">        super(parent);</span>
+<span class="nc" id="L35">    }</span>
+    
+    @Override
+    protected String getMenuTitle() {
+<span class="nc" id="L39">        return &quot;Reports &amp; Analytics&quot;;</span>
+    }
+    
+    @Override
+    protected void displayCustomContent() {
+        try {
+            // Display system overview with error handling
+<span class="nc" id="L46">            displaySystemHealthStatus();</span>
+<span class="nc" id="L47">        } catch (Exception e) {</span>
+<span class="nc" id="L48">            DisplayUtils.printWarning(&quot;Could not load system status: &quot; + e.getMessage());</span>
+<span class="nc" id="L49">            logger.warn(&quot;Failed to display system status in reports menu&quot;, e);</span>
+<span class="nc" id="L50">        }</span>
+        
+<span class="nc" id="L52">        System.out.println();</span>
+<span class="nc" id="L53">        System.out.println(&quot;📊 Comprehensive system reporting and analytics&quot;);</span>
+<span class="nc" id="L54">        System.out.println(&quot;    Cross-entity reports, performance metrics, and insights&quot;);</span>
+<span class="nc" id="L55">    }</span>
+    
+    @Override
+    protected void initializeMenuOptions() {
+        // Executive Dashboard
+<span class="nc" id="L60">        addActionOption(1, &quot;Executive Dashboard&quot;, </span>
+            &quot;High-level KPIs and system overview&quot;,
+            this::executiveDashboard);
+            
+        // Cross-Entity Reports
+<span class="nc" id="L65">        addActionOption(2, &quot;Cross-Entity Analytics&quot;, </span>
+            &quot;Multi-entity correlation and relationship analysis&quot;,
+            this::crossEntityAnalytics);
+            
+        // Performance Metrics
+<span class="nc" id="L70">        addActionOption(3, &quot;Performance Metrics&quot;, </span>
+            &quot;System performance indicators and trends&quot;,
+            this::performanceMetrics);
+            
+        // Individual Entity Reports
+<span class="nc" id="L75">        addActionOption(4, &quot;Client Analytics&quot;, </span>
+            &quot;Detailed client management reports&quot;,
+            this::clientAnalytics);
+            
+<span class="nc" id="L79">        addActionOption(5, &quot;Technician Analytics&quot;, </span>
+            &quot;Technician performance and workload reports&quot;,
+            this::technicianAnalytics);
+            
+<span class="nc" id="L83">        addActionOption(6, &quot;Ticket Analytics&quot;, </span>
+            &quot;Ticket system reports and metrics&quot;,
+            this::ticketAnalytics);
+            
+<span class="nc" id="L87">        addActionOption(7, &quot;Appointment Analytics&quot;, </span>
+            &quot;Appointment scheduling and completion reports&quot;,
+            this::appointmentAnalytics);
+            
+        // Export Options
+<span class="nc" id="L92">        addActionOption(8, &quot;Export Reports&quot;, </span>
+            &quot;Export data in various formats (CSV, JSON)&quot;,
+            this::exportReports);
+<span class="nc" id="L95">    }</span>
+    
+    // ==================== MAIN REPORTING METHODS ====================
+    
+    private void executiveDashboard() {
+<span class="nc" id="L100">        DisplayUtils.printHeader(&quot;EXECUTIVE DASHBOARD&quot;);</span>
+        
+        try {
+            // Fetch all core data with error handling
+<span class="nc" id="L104">            SystemDataBundle data = loadSystemData();</span>
+            
+<span class="nc bnc" id="L106" title="All 4 branches missed.">            if (data == null || !data.isValid()) {</span>
+<span class="nc" id="L107">                DisplayUtils.printError(&quot;Unable to load system data for dashboard&quot;);</span>
+<span class="nc" id="L108">                waitForEnter();</span>
+<span class="nc" id="L109">                return;</span>
+            }
+            
+<span class="nc" id="L112">            displayExecutiveSummary(data);</span>
+<span class="nc" id="L113">            displayKPIMetrics(data);</span>
+<span class="nc" id="L114">            displaySystemHealth(data);</span>
+<span class="nc" id="L115">            displayRecommendations(data);</span>
+            
+<span class="nc" id="L117">        } catch (ApiException e) {</span>
+<span class="nc" id="L118">            logger.error(&quot;Failed to generate executive dashboard&quot;, e);</span>
+<span class="nc" id="L119">            DisplayUtils.printError(&quot;Failed to generate dashboard: &quot; + e.getMessage());</span>
+<span class="nc" id="L120">            displayTroubleshootingSteps(&quot;executive dashboard&quot;, e);</span>
+<span class="nc" id="L121">        } catch (Exception e) {</span>
+<span class="nc" id="L122">            logger.error(&quot;Unexpected error in executive dashboard&quot;, e);</span>
+<span class="nc" id="L123">            DisplayUtils.printError(&quot;Unexpected error: &quot; + e.getMessage());</span>
+<span class="nc" id="L124">        }</span>
+        
+<span class="nc" id="L126">        waitForEnter();</span>
+<span class="nc" id="L127">    }</span>
+    
+    private void crossEntityAnalytics() {
+<span class="nc" id="L130">        DisplayUtils.printHeader(&quot;CROSS-ENTITY ANALYTICS&quot;);</span>
+        
+        try {
+<span class="nc" id="L133">            SystemDataBundle data = loadSystemData();</span>
+            
+<span class="nc bnc" id="L135" title="All 4 branches missed.">            if (data == null || !data.isValid()) {</span>
+<span class="nc" id="L136">                DisplayUtils.printError(&quot;Unable to load system data for cross-entity analysis&quot;);</span>
+<span class="nc" id="L137">                waitForEnter();</span>
+<span class="nc" id="L138">                return;</span>
+            }
+            
+<span class="nc" id="L141">            displayClientTechnicianMatrix(data);</span>
+<span class="nc" id="L142">            displayServiceTypeEffectiveness(data);</span>
+<span class="nc" id="L143">            displayResolutionPatterns(data);</span>
+<span class="nc" id="L144">            displayWorkloadDistribution(data);</span>
+            
+<span class="nc" id="L146">        } catch (ApiException e) {</span>
+<span class="nc" id="L147">            logger.error(&quot;Failed to generate cross-entity analytics&quot;, e);</span>
+<span class="nc" id="L148">            DisplayUtils.printError(&quot;Failed to generate analytics: &quot; + e.getMessage());</span>
+<span class="nc" id="L149">            displayTroubleshootingSteps(&quot;cross-entity analytics&quot;, e);</span>
+<span class="nc" id="L150">        } catch (Exception e) {</span>
+<span class="nc" id="L151">            logger.error(&quot;Unexpected error in cross-entity analytics&quot;, e);</span>
+<span class="nc" id="L152">            DisplayUtils.printError(&quot;Unexpected error: &quot; + e.getMessage());</span>
+<span class="nc" id="L153">        }</span>
+        
+<span class="nc" id="L155">        waitForEnter();</span>
+<span class="nc" id="L156">    }</span>
+    
+    private void performanceMetrics() {
+<span class="nc" id="L159">        DisplayUtils.printHeader(&quot;PERFORMANCE METRICS&quot;);</span>
+        
+        try {
+<span class="nc" id="L162">            SystemDataBundle data = loadSystemData();</span>
+            
+<span class="nc bnc" id="L164" title="All 4 branches missed.">            if (data == null || !data.isValid()) {</span>
+<span class="nc" id="L165">                DisplayUtils.printError(&quot;Unable to load system data for performance analysis&quot;);</span>
+<span class="nc" id="L166">                waitForEnter();</span>
+<span class="nc" id="L167">                return;</span>
+            }
+            
+<span class="nc" id="L170">            displayResponseTimeMetrics(data);</span>
+<span class="nc" id="L171">            displayThroughputMetrics(data);</span>
+<span class="nc" id="L172">            displayUtilizationMetrics(data);</span>
+<span class="nc" id="L173">            displayTrendAnalysis(data);</span>
+            
+<span class="nc" id="L175">        } catch (ApiException e) {</span>
+<span class="nc" id="L176">            logger.error(&quot;Failed to generate performance metrics&quot;, e);</span>
+<span class="nc" id="L177">            DisplayUtils.printError(&quot;Failed to generate metrics: &quot; + e.getMessage());</span>
+<span class="nc" id="L178">            displayTroubleshootingSteps(&quot;performance metrics&quot;, e);</span>
+<span class="nc" id="L179">        } catch (Exception e) {</span>
+<span class="nc" id="L180">            logger.error(&quot;Unexpected error in performance metrics&quot;, e);</span>
+<span class="nc" id="L181">            DisplayUtils.printError(&quot;Unexpected error: &quot; + e.getMessage());</span>
+<span class="nc" id="L182">        }</span>
+        
+<span class="nc" id="L184">        waitForEnter();</span>
+<span class="nc" id="L185">    }</span>
+    
+    // Delegate to existing entity-specific reports
+    private void clientAnalytics() {
+<span class="nc" id="L189">        DisplayUtils.printInfo(&quot;Redirecting to Client Management → Client Reports...&quot;);</span>
+<span class="nc" id="L190">        waitForEnter();</span>
+        // Note: In future enhancement, could integrate directly here
+<span class="nc" id="L192">    }</span>
+    
+    private void technicianAnalytics() {
+<span class="nc" id="L195">        DisplayUtils.printInfo(&quot;Redirecting to Technician Management → Technician Reports...&quot;);</span>
+<span class="nc" id="L196">        waitForEnter();</span>
+        // Note: In future enhancement, could integrate directly here
+<span class="nc" id="L198">    }</span>
+    
+    private void ticketAnalytics() {
+<span class="nc" id="L201">        DisplayUtils.printInfo(&quot;Redirecting to Ticket Management → Ticket Reports...&quot;);</span>
+<span class="nc" id="L202">        waitForEnter();</span>
+        // Note: In future enhancement, could integrate directly here
+<span class="nc" id="L204">    }</span>
+    
+    private void appointmentAnalytics() {
+<span class="nc" id="L207">        DisplayUtils.printInfo(&quot;Redirecting to Appointment Management → Appointment Reports...&quot;);</span>
+<span class="nc" id="L208">        waitForEnter();</span>
+        // Note: In future enhancement, could integrate directly here
+<span class="nc" id="L210">    }</span>
+    
+    private void exportReports() {
+<span class="nc" id="L213">        DisplayUtils.printHeader(&quot;EXPORT REPORTS&quot;);</span>
+<span class="nc" id="L214">        DisplayUtils.printInfo(&quot;Export functionality will be available in the next iteration&quot;);</span>
+<span class="nc" id="L215">        DisplayUtils.printInfo(&quot;Planned formats: CSV, JSON, PDF&quot;);</span>
+<span class="nc" id="L216">        waitForEnter();</span>
+<span class="nc" id="L217">    }</span>
+    
+    // ==================== DATA LOADING ====================
+    
+    /**
+     * Load all system data with comprehensive error handling
+     * Applies Phase 5 lessons: robust error handling and null checking
+     */
+    private SystemDataBundle loadSystemData() throws ApiException {
+<span class="nc" id="L226">        logger.debug(&quot;Loading comprehensive system data&quot;);</span>
+        
+<span class="nc" id="L228">        SystemDataBundle data = new SystemDataBundle();</span>
+<span class="nc" id="L229">        boolean hasErrors = false;</span>
+        
+        try {
+<span class="nc" id="L232">            data.clients = apiService.getAllClients();</span>
+<span class="nc" id="L233">            logger.debug(&quot;Loaded {} clients&quot;, data.clients.size());</span>
+<span class="nc" id="L234">        } catch (ApiException e) {</span>
+<span class="nc" id="L235">            logger.warn(&quot;Failed to load clients for reporting&quot;, e);</span>
+<span class="nc" id="L236">            data.clients = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L237">            hasErrors = true;</span>
+<span class="nc" id="L238">        }</span>
+        
+        try {
+<span class="nc" id="L241">            data.technicians = apiService.getAllTechnicians();</span>
+<span class="nc" id="L242">            logger.debug(&quot;Loaded {} technicians&quot;, data.technicians.size());</span>
+<span class="nc" id="L243">        } catch (ApiException e) {</span>
+<span class="nc" id="L244">            logger.warn(&quot;Failed to load technicians for reporting&quot;, e);</span>
+<span class="nc" id="L245">            data.technicians = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L246">            hasErrors = true;</span>
+<span class="nc" id="L247">        }</span>
+        
+        try {
+<span class="nc" id="L250">            data.tickets = apiService.getAllTickets();</span>
+<span class="nc" id="L251">            logger.debug(&quot;Loaded {} tickets&quot;, data.tickets.size());</span>
+<span class="nc" id="L252">        } catch (ApiException e) {</span>
+<span class="nc" id="L253">            logger.warn(&quot;Failed to load tickets for reporting&quot;, e);</span>
+<span class="nc" id="L254">            data.tickets = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L255">            hasErrors = true;</span>
+<span class="nc" id="L256">        }</span>
+        
+        try {
+<span class="nc" id="L259">            data.appointments = apiService.getAllAppointments();</span>
+<span class="nc" id="L260">            logger.debug(&quot;Loaded {} appointments&quot;, data.appointments.size());</span>
+<span class="nc" id="L261">        } catch (ApiException e) {</span>
+<span class="nc" id="L262">            logger.warn(&quot;Failed to load appointments for reporting&quot;, e);</span>
+<span class="nc" id="L263">            data.appointments = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L264">            hasErrors = true;</span>
+<span class="nc" id="L265">        }</span>
+        
+        try {
+<span class="nc" id="L268">            data.overdueTickets = apiService.getOverdueTickets();</span>
+<span class="nc" id="L269">            logger.debug(&quot;Loaded {} overdue tickets&quot;, data.overdueTickets.size());</span>
+<span class="nc" id="L270">        } catch (ApiException e) {</span>
+<span class="nc" id="L271">            logger.warn(&quot;Failed to load overdue tickets for reporting&quot;, e);</span>
+<span class="nc" id="L272">            data.overdueTickets = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L273">            hasErrors = true;</span>
+<span class="nc" id="L274">        }</span>
+        
+<span class="nc" id="L276">        data.loadTimestamp = LocalDateTime.now();</span>
+<span class="nc" id="L277">        data.hasDataErrors = hasErrors;</span>
+        
+<span class="nc bnc" id="L279" title="All 2 branches missed.">        if (hasErrors) {</span>
+<span class="nc" id="L280">            DisplayUtils.printWarning(&quot;Some data could not be loaded - reports may be incomplete&quot;);</span>
+        }
+        
+<span class="nc" id="L283">        return data;</span>
+    }
+    
+    // ==================== DISPLAY METHODS ====================
+    
+    private void displaySystemHealthStatus() throws ApiException {
+        // Quick system health check for menu header
+        try {
+<span class="nc" id="L291">            List&lt;Client&gt; clients = apiService.getAllClients();</span>
+<span class="nc" id="L292">            List&lt;Technician&gt; technicians = apiService.getAllTechnicians();</span>
+<span class="nc" id="L293">            List&lt;Ticket&gt; tickets = apiService.getAllTickets();</span>
+            
+<span class="nc" id="L295">            long activeClients = clients.stream().filter(c -&gt; c.isActive()).count();</span>
+<span class="nc" id="L296">            long activeTechnicians = technicians.stream()</span>
+<span class="nc" id="L297">                .filter(t -&gt; &quot;ACTIVE&quot;.equals(t.getStatus())).count();</span>
+<span class="nc" id="L298">            long openTickets = tickets.stream()</span>
+<span class="nc" id="L299">                .filter(t -&gt; &quot;OPEN&quot;.equals(t.getStatus())).count();</span>
+                
+<span class="nc" id="L301">            System.out.println(&quot;🏥 System Health: &quot; + </span>
+                activeClients + &quot; active clients, &quot; +
+                activeTechnicians + &quot; active technicians, &quot; +
+                openTickets + &quot; open tickets&quot;);
+                
+<span class="nc" id="L306">        } catch (ApiException e) {</span>
+            // Fail gracefully - this is just for display
+<span class="nc" id="L308">            System.out.println(&quot;🏥 System Health: Unable to load status&quot;);</span>
+<span class="nc" id="L309">        }</span>
+<span class="nc" id="L310">    }</span>
+    
+    private void displayExecutiveSummary(SystemDataBundle data) {
+<span class="nc" id="L313">        System.out.println(&quot;📊 EXECUTIVE SUMMARY&quot;);</span>
+<span class="nc" id="L314">        System.out.println(&quot;═&quot;.repeat(80));</span>
+        
+        // Core metrics with null safety
+<span class="nc bnc" id="L317" title="All 2 branches missed.">        long totalClients = data.clients != null ? data.clients.size() : 0;</span>
+<span class="nc bnc" id="L318" title="All 2 branches missed.">        long activeClients = data.clients != null ? </span>
+<span class="nc bnc" id="L319" title="All 4 branches missed.">            data.clients.stream().filter(c -&gt; c != null &amp;&amp; c.isActive()).count() : 0;</span>
+            
+<span class="nc bnc" id="L321" title="All 2 branches missed.">        long totalTechnicians = data.technicians != null ? data.technicians.size() : 0;</span>
+<span class="nc bnc" id="L322" title="All 2 branches missed.">        long activeTechnicians = data.technicians != null ?</span>
+<span class="nc bnc" id="L323" title="All 4 branches missed.">            data.technicians.stream().filter(t -&gt; t != null &amp;&amp; &quot;ACTIVE&quot;.equals(t.getStatus())).count() : 0;</span>
+            
+<span class="nc bnc" id="L325" title="All 2 branches missed.">        long totalTickets = data.tickets != null ? data.tickets.size() : 0;</span>
+<span class="nc bnc" id="L326" title="All 2 branches missed.">        long openTickets = data.tickets != null ?</span>
+<span class="nc bnc" id="L327" title="All 4 branches missed.">            data.tickets.stream().filter(t -&gt; t != null &amp;&amp; &quot;OPEN&quot;.equals(t.getStatus())).count() : 0;</span>
+            
+<span class="nc bnc" id="L329" title="All 2 branches missed.">        long totalAppointments = data.appointments != null ? data.appointments.size() : 0;</span>
+        
+<span class="nc" id="L331">        System.out.printf(&quot;Clients:       %d total (%d active)\n&quot;, totalClients, activeClients);</span>
+<span class="nc" id="L332">        System.out.printf(&quot;Technicians:   %d total (%d active)\n&quot;, totalTechnicians, activeTechnicians);</span>
+<span class="nc" id="L333">        System.out.printf(&quot;Tickets:       %d total (%d open)\n&quot;, totalTickets, openTickets);</span>
+<span class="nc" id="L334">        System.out.printf(&quot;Appointments:  %d total\n&quot;, totalAppointments);</span>
+<span class="nc bnc" id="L335" title="All 2 branches missed.">        System.out.printf(&quot;Data Quality:  %s\n&quot;, data.hasDataErrors ? &quot;⚠️ Partial&quot; : &quot;✅ Complete&quot;);</span>
+<span class="nc" id="L336">        System.out.println();</span>
+<span class="nc" id="L337">    }</span>
+    
+    private void displayKPIMetrics(SystemDataBundle data) {
+<span class="nc" id="L340">        System.out.println(&quot;📈 KEY PERFORMANCE INDICATORS&quot;);</span>
+<span class="nc" id="L341">        System.out.println(&quot;─&quot;.repeat(40));</span>
+        
+        // Calculate KPIs with null safety
+<span class="nc" id="L344">        double clientRetentionRate = calculateClientRetentionRate(data);</span>
+<span class="nc" id="L345">        double ticketResolutionRate = calculateTicketResolutionRate(data);</span>
+<span class="nc" id="L346">        double technicianUtilization = calculateTechnicianUtilization(data);</span>
+<span class="nc bnc" id="L347" title="All 2 branches missed.">        int overdueCount = data.overdueTickets != null ? data.overdueTickets.size() : 0;</span>
+        
+<span class="nc" id="L349">        System.out.printf(&quot;Client Retention:     %.1f%%\n&quot;, clientRetentionRate);</span>
+<span class="nc" id="L350">        System.out.printf(&quot;Ticket Resolution:    %.1f%%\n&quot;, ticketResolutionRate);</span>
+<span class="nc" id="L351">        System.out.printf(&quot;Tech Utilization:     %.1f%%\n&quot;, technicianUtilization);</span>
+<span class="nc" id="L352">        System.out.printf(&quot;Overdue Tickets:      %d\n&quot;, overdueCount);</span>
+<span class="nc" id="L353">        System.out.println();</span>
+<span class="nc" id="L354">    }</span>
+    
+    private void displaySystemHealth(SystemDataBundle data) {
+<span class="nc" id="L357">        System.out.println(&quot;🏥 SYSTEM HEALTH&quot;);</span>
+<span class="nc" id="L358">        System.out.println(&quot;─&quot;.repeat(40));</span>
+        
+        // Health indicators
+<span class="nc" id="L361">        String clientHealth = getClientHealthStatus(data);</span>
+<span class="nc" id="L362">        String technicianHealth = getTechnicianHealthStatus(data);</span>
+<span class="nc" id="L363">        String ticketHealth = getTicketHealthStatus(data);</span>
+        
+<span class="nc" id="L365">        System.out.println(&quot;Client Health:        &quot; + clientHealth);</span>
+<span class="nc" id="L366">        System.out.println(&quot;Technician Health:    &quot; + technicianHealth);</span>
+<span class="nc" id="L367">        System.out.println(&quot;Ticket Health:        &quot; + ticketHealth);</span>
+<span class="nc" id="L368">        System.out.println();</span>
+<span class="nc" id="L369">    }</span>
+    
+    private void displayRecommendations(SystemDataBundle data) {
+<span class="nc" id="L372">        System.out.println(&quot;💡 RECOMMENDATIONS&quot;);</span>
+<span class="nc" id="L373">        System.out.println(&quot;─&quot;.repeat(40));</span>
+        
+<span class="nc" id="L375">        List&lt;String&gt; recommendations = generateRecommendations(data);</span>
+<span class="nc bnc" id="L376" title="All 2 branches missed.">        if (recommendations.isEmpty()) {</span>
+<span class="nc" id="L377">            System.out.println(&quot;✅ System is operating optimally&quot;);</span>
+        } else {
+<span class="nc bnc" id="L379" title="All 2 branches missed.">            for (String recommendation : recommendations) {</span>
+<span class="nc" id="L380">                System.out.println(&quot;• &quot; + recommendation);</span>
+<span class="nc" id="L381">            }</span>
+        }
+<span class="nc" id="L383">        System.out.println();</span>
+<span class="nc" id="L384">    }</span>
+    
+    // ==================== ANALYTICS METHODS ====================
+    
+    private void displayClientTechnicianMatrix(SystemDataBundle data) {
+<span class="nc" id="L389">        System.out.println(&quot;🔗 CLIENT-TECHNICIAN INTERACTION MATRIX&quot;);</span>
+<span class="nc" id="L390">        System.out.println(&quot;─&quot;.repeat(50));</span>
+        
+<span class="nc bnc" id="L392" title="All 4 branches missed.">        if (data.tickets == null || data.tickets.isEmpty()) {</span>
+<span class="nc" id="L393">            System.out.println(&quot;No ticket data available for analysis&quot;);</span>
+<span class="nc" id="L394">            return;</span>
+        }
+        
+        // Build interaction matrix
+<span class="nc" id="L398">        Map&lt;String, Integer&gt; interactions = new HashMap&lt;&gt;();</span>
+        
+<span class="nc bnc" id="L400" title="All 2 branches missed.">        for (Ticket ticket : data.tickets) {</span>
+<span class="nc bnc" id="L401" title="All 2 branches missed.">            if (ticket == null) continue;</span>
+            
+<span class="nc bnc" id="L403" title="All 2 branches missed.">            String clientId = ticket.getClientId() != null ? ticket.getClientId().toString() : &quot;Unknown&quot;;</span>
+<span class="nc" id="L404">            String techId = getEffectiveTechnicianId(ticket);</span>
+<span class="nc" id="L405">            String key = clientId + &quot;-&quot; + techId;</span>
+            
+<span class="nc" id="L407">            interactions.merge(key, 1, Integer::sum);</span>
+<span class="nc" id="L408">        }</span>
+        
+<span class="nc" id="L410">        System.out.printf(&quot;Total unique client-technician pairs: %d\n&quot;, interactions.size());</span>
+<span class="nc" id="L411">        System.out.printf(&quot;Most active partnerships: %s\n&quot;, </span>
+<span class="nc" id="L412">            interactions.entrySet().stream()</span>
+<span class="nc" id="L413">                .max(Map.Entry.comparingByValue())</span>
+<span class="nc" id="L414">                .map(e -&gt; e.getKey() + &quot; (&quot; + e.getValue() + &quot; tickets)&quot;)</span>
+<span class="nc" id="L415">                .orElse(&quot;None&quot;));</span>
+<span class="nc" id="L416">        System.out.println();</span>
+<span class="nc" id="L417">    }</span>
+    
+    // ==================== UTILITY METHODS ====================
+    
+    /**
+     * Safely extract technician ID from ticket, handling null cases
+     * Applies Phase 5 lesson: robust null checking and embedded object handling
+     */
+    private String getEffectiveTechnicianId(Ticket ticket) {
+<span class="nc bnc" id="L426" title="All 2 branches missed.">        if (ticket == null) return &quot;Unassigned&quot;;</span>
+        
+        // Try direct ID first
+<span class="nc bnc" id="L429" title="All 2 branches missed.">        if (ticket.getAssignedTechnicianId() != null) {</span>
+<span class="nc" id="L430">            return ticket.getAssignedTechnicianId().toString();</span>
+        }
+        
+        // Try embedded technician object
+<span class="nc bnc" id="L434" title="All 4 branches missed.">        if (ticket.getAssignedTechnician() != null &amp;&amp; ticket.getAssignedTechnician().getId() != null) {</span>
+<span class="nc" id="L435">            return ticket.getAssignedTechnician().getId().toString();</span>
+        }
+        
+<span class="nc" id="L438">        return &quot;Unassigned&quot;;</span>
+    }
+    
+    private double calculateClientRetentionRate(SystemDataBundle data) {
+<span class="nc bnc" id="L442" title="All 4 branches missed.">        if (data.clients == null || data.clients.isEmpty()) return 0.0;</span>
+        
+<span class="nc" id="L444">        long activeClients = data.clients.stream()</span>
+<span class="nc bnc" id="L445" title="All 4 branches missed.">            .filter(c -&gt; c != null &amp;&amp; c.isActive())</span>
+<span class="nc" id="L446">            .count();</span>
+            
+<span class="nc" id="L448">        return (activeClients * 100.0) / data.clients.size();</span>
+    }
+    
+    private double calculateTicketResolutionRate(SystemDataBundle data) {
+<span class="nc bnc" id="L452" title="All 4 branches missed.">        if (data.tickets == null || data.tickets.isEmpty()) return 0.0;</span>
+        
+<span class="nc" id="L454">        long closedTickets = data.tickets.stream()</span>
+<span class="nc bnc" id="L455" title="All 4 branches missed.">            .filter(t -&gt; t != null &amp;&amp; &quot;CLOSED&quot;.equals(t.getStatus()))</span>
+<span class="nc" id="L456">            .count();</span>
+            
+<span class="nc" id="L458">        return (closedTickets * 100.0) / data.tickets.size();</span>
+    }
+    
+    private double calculateTechnicianUtilization(SystemDataBundle data) {
+<span class="nc bnc" id="L462" title="All 4 branches missed.">        if (data.technicians == null || data.technicians.isEmpty()) return 0.0;</span>
+        
+<span class="nc" id="L464">        double avgWorkload = data.technicians.stream()</span>
+<span class="nc bnc" id="L465" title="All 4 branches missed.">            .filter(t -&gt; t != null &amp;&amp; t.getCurrentWorkload() != null)</span>
+<span class="nc" id="L466">            .mapToInt(Technician::getCurrentWorkload)</span>
+<span class="nc" id="L467">            .average()</span>
+<span class="nc" id="L468">            .orElse(0.0);</span>
+            
+        // Assume 10 tickets is 100% utilization
+<span class="nc" id="L471">        return Math.min((avgWorkload / 10.0) * 100.0, 100.0);</span>
+    }
+    
+    private String getClientHealthStatus(SystemDataBundle data) {
+<span class="nc" id="L475">        double retentionRate = calculateClientRetentionRate(data);</span>
+<span class="nc bnc" id="L476" title="All 2 branches missed.">        if (retentionRate &gt;= 90) return &quot;🟢 Excellent&quot;;</span>
+<span class="nc bnc" id="L477" title="All 2 branches missed.">        if (retentionRate &gt;= 75) return &quot;🟡 Good&quot;;</span>
+<span class="nc" id="L478">        return &quot;🔴 Needs Attention&quot;;</span>
+    }
+    
+    private String getTechnicianHealthStatus(SystemDataBundle data) {
+<span class="nc" id="L482">        double utilization = calculateTechnicianUtilization(data);</span>
+<span class="nc bnc" id="L483" title="All 4 branches missed.">        if (utilization &gt;= 70 &amp;&amp; utilization &lt;= 90) return &quot;🟢 Optimal&quot;;</span>
+<span class="nc bnc" id="L484" title="All 2 branches missed.">        if (utilization &lt; 50) return &quot;🟡 Underutilized&quot;;</span>
+<span class="nc" id="L485">        return &quot;🔴 Overloaded&quot;;</span>
+    }
+    
+    private String getTicketHealthStatus(SystemDataBundle data) {
+<span class="nc" id="L489">        double resolutionRate = calculateTicketResolutionRate(data);</span>
+<span class="nc bnc" id="L490" title="All 2 branches missed.">        int overdueCount = data.overdueTickets != null ? data.overdueTickets.size() : 0;</span>
+        
+<span class="nc bnc" id="L492" title="All 4 branches missed.">        if (resolutionRate &gt;= 80 &amp;&amp; overdueCount == 0) return &quot;🟢 Excellent&quot;;</span>
+<span class="nc bnc" id="L493" title="All 4 branches missed.">        if (resolutionRate &gt;= 60 &amp;&amp; overdueCount &lt; 5) return &quot;🟡 Good&quot;;</span>
+<span class="nc" id="L494">        return &quot;🔴 Needs Attention&quot;;</span>
+    }
+    
+    private List&lt;String&gt; generateRecommendations(SystemDataBundle data) {
+<span class="nc" id="L498">        List&lt;String&gt; recommendations = new ArrayList&lt;&gt;();</span>
+        
+<span class="nc" id="L500">        double retentionRate = calculateClientRetentionRate(data);</span>
+<span class="nc" id="L501">        double resolutionRate = calculateTicketResolutionRate(data);</span>
+<span class="nc" id="L502">        double utilization = calculateTechnicianUtilization(data);</span>
+<span class="nc bnc" id="L503" title="All 2 branches missed.">        int overdueCount = data.overdueTickets != null ? data.overdueTickets.size() : 0;</span>
+        
+<span class="nc bnc" id="L505" title="All 2 branches missed.">        if (retentionRate &lt; 75) {</span>
+<span class="nc" id="L506">            recommendations.add(&quot;Improve client retention - consider client satisfaction surveys&quot;);</span>
+        }
+        
+<span class="nc bnc" id="L509" title="All 2 branches missed.">        if (resolutionRate &lt; 70) {</span>
+<span class="nc" id="L510">            recommendations.add(&quot;Focus on ticket resolution - review workflow processes&quot;);</span>
+        }
+        
+<span class="nc bnc" id="L513" title="All 2 branches missed.">        if (utilization &lt; 50) {</span>
+<span class="nc" id="L514">            recommendations.add(&quot;Technician capacity available - consider taking on more clients&quot;);</span>
+<span class="nc bnc" id="L515" title="All 2 branches missed.">        } else if (utilization &gt; 90) {</span>
+<span class="nc" id="L516">            recommendations.add(&quot;Consider hiring additional technicians - current team overloaded&quot;);</span>
+        }
+        
+<span class="nc bnc" id="L519" title="All 2 branches missed.">        if (overdueCount &gt; 0) {</span>
+<span class="nc" id="L520">            recommendations.add(&quot;Address &quot; + overdueCount + &quot; overdue tickets immediately&quot;);</span>
+        }
+        
+<span class="nc" id="L523">        return recommendations;</span>
+    }
+    
+    /**
+     * Get utilization level description for workload analysis
+     */
+    private String getUtilizationLevel(int workload, double avgWorkload) {
+<span class="nc bnc" id="L530" title="All 2 branches missed.">        if (avgWorkload == 0) return &quot;(baseline)&quot;;</span>
+        
+<span class="nc" id="L532">        double ratio = workload / avgWorkload;</span>
+<span class="nc bnc" id="L533" title="All 2 branches missed.">        if (ratio &gt; 1.5) return &quot;(🔴 overloaded)&quot;;</span>
+<span class="nc bnc" id="L534" title="All 2 branches missed.">        if (ratio &gt; 1.2) return &quot;(🟡 high)&quot;;</span>
+<span class="nc bnc" id="L535" title="All 2 branches missed.">        if (ratio &lt; 0.5) return &quot;(🟢 available)&quot;;</span>
+<span class="nc" id="L536">        return &quot;(🟢 optimal)&quot;;</span>
+    }
+    
+    /**
+     * Display troubleshooting steps when API errors occur
+     * Applies Phase 5 lesson: detailed diagnostic information
+     */
+    private void displayTroubleshootingSteps(String operation, ApiException e) {
+<span class="nc" id="L544">        System.out.println();</span>
+<span class="nc" id="L545">        System.out.println(&quot;🔧 TROUBLESHOOTING STEPS for &quot; + operation + &quot;:&quot;);</span>
+<span class="nc" id="L546">        System.out.println(&quot;─&quot;.repeat(60));</span>
+<span class="nc" id="L547">        System.out.println(&quot;1. Check server connection: &quot; + apiService.getBaseUrl());</span>
+<span class="nc" id="L548">        System.out.println(&quot;2. Verify API server is running&quot;);</span>
+<span class="nc" id="L549">        System.out.println(&quot;3. Check network connectivity&quot;);</span>
+<span class="nc" id="L550">        System.out.println(&quot;4. Review server logs for errors&quot;);</span>
+<span class="nc" id="L551">        System.out.println(&quot;5. Try individual entity reports if available&quot;);</span>
+        
+<span class="nc bnc" id="L553" title="All 2 branches missed.">        if (e.getStatusCode() == 404) {</span>
+<span class="nc" id="L554">            System.out.println(&quot;6. API endpoint may not exist - check server version&quot;);</span>
+<span class="nc bnc" id="L555" title="All 2 branches missed.">        } else if (e.getStatusCode() == 500) {</span>
+<span class="nc" id="L556">            System.out.println(&quot;6. Server error - check server logs and data integrity&quot;);</span>
+        }
+<span class="nc" id="L558">        System.out.println();</span>
+<span class="nc" id="L559">    }</span>
+    
+    private void displayServiceTypeEffectiveness(SystemDataBundle data) {
+<span class="nc" id="L562">        System.out.println(&quot;🛠️ SERVICE TYPE EFFECTIVENESS&quot;);</span>
+<span class="nc" id="L563">        System.out.println(&quot;─&quot;.repeat(50));</span>
+        
+<span class="nc bnc" id="L565" title="All 4 branches missed.">        if (data.tickets == null || data.tickets.isEmpty()) {</span>
+<span class="nc" id="L566">            System.out.println(&quot;No ticket data available for service type analysis&quot;);</span>
+<span class="nc" id="L567">            System.out.println();</span>
+<span class="nc" id="L568">            return;</span>
+        }
+        
+        // Analyze ticket resolution by service type
+<span class="nc" id="L572">        Map&lt;String, ServiceTypeStats&gt; serviceStats = new HashMap&lt;&gt;();</span>
+        
+<span class="nc bnc" id="L574" title="All 2 branches missed.">        for (Ticket ticket : data.tickets) {</span>
+<span class="nc bnc" id="L575" title="All 4 branches missed.">            if (ticket == null || ticket.getServiceType() == null) continue;</span>
+            
+<span class="nc" id="L577">            String serviceType = ticket.getServiceType();</span>
+<span class="nc" id="L578">            ServiceTypeStats stats = serviceStats.computeIfAbsent(serviceType, k -&gt; new ServiceTypeStats());</span>
+            
+<span class="nc" id="L580">            stats.totalTickets++;</span>
+<span class="nc bnc" id="L581" title="All 2 branches missed.">            if (&quot;CLOSED&quot;.equals(ticket.getStatus())) {</span>
+<span class="nc" id="L582">                stats.resolvedTickets++;</span>
+            }
+<span class="nc bnc" id="L584" title="All 2 branches missed.">            if (&quot;OPEN&quot;.equals(ticket.getStatus())) {</span>
+<span class="nc" id="L585">                stats.openTickets++;</span>
+            }
+            
+            // Analyze priority distribution
+<span class="nc bnc" id="L589" title="All 2 branches missed.">            String priority = ticket.getPriority() != null ? ticket.getPriority() : &quot;UNKNOWN&quot;;</span>
+<span class="nc" id="L590">            stats.priorityDistribution.merge(priority, 1, Integer::sum);</span>
+            
+            // Calculate average resolution time (simulated since we don't have resolution time data)
+<span class="nc bnc" id="L593" title="All 4 branches missed.">            if (&quot;CLOSED&quot;.equals(ticket.getStatus()) &amp;&amp; ticket.getCreatedAt() != null) {</span>
+                // Use created date as proxy for resolution estimation
+<span class="nc" id="L595">                long daysSinceCreation = java.time.temporal.ChronoUnit.DAYS.between(</span>
+<span class="nc" id="L596">                    ticket.getCreatedAt().toLocalDate(), </span>
+<span class="nc" id="L597">                    LocalDateTime.now().toLocalDate()</span>
+                );
+<span class="nc" id="L599">                stats.totalResolutionDays += Math.max(1, daysSinceCreation); // Minimum 1 day</span>
+            }
+<span class="nc" id="L601">        }</span>
+        
+        // Display analysis
+<span class="nc bnc" id="L604" title="All 2 branches missed.">        for (Map.Entry&lt;String, ServiceTypeStats&gt; entry : serviceStats.entrySet()) {</span>
+<span class="nc" id="L605">            String serviceType = entry.getKey();</span>
+<span class="nc" id="L606">            ServiceTypeStats stats = entry.getValue();</span>
+            
+<span class="nc bnc" id="L608" title="All 2 branches missed.">            double resolutionRate = stats.totalTickets &gt; 0 ? </span>
+<span class="nc" id="L609">                (stats.resolvedTickets * 100.0 / stats.totalTickets) : 0.0;</span>
+<span class="nc bnc" id="L610" title="All 2 branches missed.">            double avgResolutionDays = stats.resolvedTickets &gt; 0 ? </span>
+<span class="nc" id="L611">                (stats.totalResolutionDays / (double) stats.resolvedTickets) : 0.0;</span>
+                
+<span class="nc" id="L613">            System.out.printf(&quot;%s Service Type:\n&quot;, serviceType);</span>
+<span class="nc" id="L614">            System.out.printf(&quot;  Total Tickets:      %d\n&quot;, stats.totalTickets);</span>
+<span class="nc" id="L615">            System.out.printf(&quot;  Resolution Rate:    %.1f%%\n&quot;, resolutionRate);</span>
+<span class="nc" id="L616">            System.out.printf(&quot;  Avg Resolution:     %.1f days\n&quot;, avgResolutionDays);</span>
+<span class="nc" id="L617">            System.out.printf(&quot;  Open Tickets:       %d\n&quot;, stats.openTickets);</span>
+            
+            // Priority breakdown
+<span class="nc" id="L620">            String topPriority = stats.priorityDistribution.entrySet().stream()</span>
+<span class="nc" id="L621">                .max(Map.Entry.comparingByValue())</span>
+<span class="nc" id="L622">                .map(Map.Entry::getKey)</span>
+<span class="nc" id="L623">                .orElse(&quot;None&quot;);</span>
+<span class="nc" id="L624">            System.out.printf(&quot;  Most Common Priority: %s\n&quot;, topPriority);</span>
+<span class="nc" id="L625">            System.out.println();</span>
+<span class="nc" id="L626">        }</span>
+        
+        // Service type recommendations
+<span class="nc" id="L629">        System.out.println(&quot;🔍 SERVICE TYPE INSIGHTS:&quot;);</span>
+<span class="nc" id="L630">        ServiceTypeStats bestPerforming = serviceStats.values().stream()</span>
+<span class="nc" id="L631">            .max((s1, s2) -&gt; Double.compare(</span>
+<span class="nc bnc" id="L632" title="All 2 branches missed.">                s1.totalTickets &gt; 0 ? (s1.resolvedTickets * 100.0 / s1.totalTickets) : 0,</span>
+<span class="nc bnc" id="L633" title="All 2 branches missed.">                s2.totalTickets &gt; 0 ? (s2.resolvedTickets * 100.0 / s2.totalTickets) : 0</span>
+<span class="nc" id="L634">            )).orElse(null);</span>
+            
+<span class="nc bnc" id="L636" title="All 2 branches missed.">        if (bestPerforming != null) {</span>
+<span class="nc" id="L637">            String bestType = serviceStats.entrySet().stream()</span>
+<span class="nc bnc" id="L638" title="All 2 branches missed.">                .filter(e -&gt; e.getValue() == bestPerforming)</span>
+<span class="nc" id="L639">                .map(Map.Entry::getKey)</span>
+<span class="nc" id="L640">                .findFirst().orElse(&quot;Unknown&quot;);</span>
+<span class="nc" id="L641">            System.out.printf(&quot;• Best performing service type: %s\n&quot;, bestType);</span>
+        }
+        
+<span class="nc" id="L644">        long totalOpenTickets = serviceStats.values().stream().mapToLong(s -&gt; s.openTickets).sum();</span>
+<span class="nc bnc" id="L645" title="All 2 branches missed.">        if (totalOpenTickets &gt; 0) {</span>
+<span class="nc" id="L646">            System.out.printf(&quot;• Focus needed: %d open tickets across all service types\n&quot;, totalOpenTickets);</span>
+        }
+<span class="nc" id="L648">        System.out.println();</span>
+<span class="nc" id="L649">    }</span>
+    
+    private void displayResolutionPatterns(SystemDataBundle data) {
+<span class="nc" id="L652">        System.out.println(&quot;📋 RESOLUTION PATTERNS&quot;);</span>
+<span class="nc" id="L653">        System.out.println(&quot;─&quot;.repeat(50));</span>
+        
+<span class="nc bnc" id="L655" title="All 4 branches missed.">        if (data.tickets == null || data.tickets.isEmpty()) {</span>
+<span class="nc" id="L656">            System.out.println(&quot;No ticket data available for resolution pattern analysis&quot;);</span>
+<span class="nc" id="L657">            System.out.println();</span>
+<span class="nc" id="L658">            return;</span>
+        }
+        
+        // Analyze ticket resolution patterns
+<span class="nc" id="L662">        Map&lt;String, Integer&gt; resolutionByTechnician = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L663">        Map&lt;String, Integer&gt; resolutionByServiceType = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L664">        Map&lt;String, Integer&gt; resolutionByPriority = new HashMap&lt;&gt;();</span>
+        
+<span class="nc" id="L666">        int totalResolved = 0;</span>
+<span class="nc" id="L667">        int totalUnassigned = 0;</span>
+        
+<span class="nc bnc" id="L669" title="All 2 branches missed.">        for (Ticket ticket : data.tickets) {</span>
+<span class="nc bnc" id="L670" title="All 2 branches missed.">            if (ticket == null) continue;</span>
+            
+<span class="nc bnc" id="L672" title="All 2 branches missed.">            if (&quot;CLOSED&quot;.equals(ticket.getStatus())) {</span>
+<span class="nc" id="L673">                totalResolved++;</span>
+                
+                // Resolution by technician
+<span class="nc" id="L676">                String techId = getEffectiveTechnicianId(ticket);</span>
+<span class="nc" id="L677">                resolutionByTechnician.merge(techId, 1, Integer::sum);</span>
+                
+                // Resolution by service type
+<span class="nc bnc" id="L680" title="All 2 branches missed.">                String serviceType = ticket.getServiceType() != null ? ticket.getServiceType() : &quot;UNKNOWN&quot;;</span>
+<span class="nc" id="L681">                resolutionByServiceType.merge(serviceType, 1, Integer::sum);</span>
+                
+                // Resolution by priority
+<span class="nc bnc" id="L684" title="All 2 branches missed.">                String priority = ticket.getPriority() != null ? ticket.getPriority() : &quot;UNKNOWN&quot;;</span>
+<span class="nc" id="L685">                resolutionByPriority.merge(priority, 1, Integer::sum);</span>
+            }
+            
+<span class="nc bnc" id="L688" title="All 2 branches missed.">            if (getEffectiveTechnicianId(ticket).equals(&quot;Unassigned&quot;)) {</span>
+<span class="nc" id="L689">                totalUnassigned++;</span>
+            }
+<span class="nc" id="L691">        }</span>
+        
+<span class="nc" id="L693">        System.out.printf(&quot;Total Resolved Tickets: %d\n&quot;, totalResolved);</span>
+<span class="nc" id="L694">        System.out.printf(&quot;Unassigned Tickets: %d\n&quot;, totalUnassigned);</span>
+<span class="nc" id="L695">        System.out.println();</span>
+        
+        // Top performing technicians
+<span class="nc" id="L698">        System.out.println(&quot;🏆 TOP RESOLVING TECHNICIANS:&quot;);</span>
+<span class="nc" id="L699">        resolutionByTechnician.entrySet().stream()</span>
+<span class="nc bnc" id="L700" title="All 2 branches missed.">            .filter(e -&gt; !e.getKey().equals(&quot;Unassigned&quot;))</span>
+<span class="nc" id="L701">            .sorted((e1, e2) -&gt; e2.getValue().compareTo(e1.getValue()))</span>
+<span class="nc" id="L702">            .limit(5)</span>
+<span class="nc" id="L703">            .forEach(entry -&gt; {</span>
+<span class="nc" id="L704">                System.out.printf(&quot;  Technician %s: %d tickets resolved\n&quot;, </span>
+<span class="nc" id="L705">                    entry.getKey(), entry.getValue());</span>
+<span class="nc" id="L706">            });</span>
+<span class="nc" id="L707">        System.out.println();</span>
+        
+        // Resolution by service type
+<span class="nc" id="L710">        System.out.println(&quot;🛠️ RESOLUTION BY SERVICE TYPE:&quot;);</span>
+<span class="nc" id="L711">        final int finalTotalResolved = totalResolved;</span>
+<span class="nc" id="L712">        resolutionByServiceType.entrySet().stream()</span>
+<span class="nc" id="L713">            .sorted((e1, e2) -&gt; e2.getValue().compareTo(e1.getValue()))</span>
+<span class="nc" id="L714">            .forEach(entry -&gt; {</span>
+<span class="nc bnc" id="L715" title="All 2 branches missed.">                double percentage = finalTotalResolved &gt; 0 ? (entry.getValue() * 100.0 / finalTotalResolved) : 0;</span>
+<span class="nc" id="L716">                System.out.printf(&quot;  %s: %d tickets (%.1f%%)\n&quot;, </span>
+<span class="nc" id="L717">                    entry.getKey(), entry.getValue(), percentage);</span>
+<span class="nc" id="L718">            });</span>
+<span class="nc" id="L719">        System.out.println();</span>
+        
+        // Resolution by priority
+<span class="nc" id="L722">        System.out.println(&quot;🔴 RESOLUTION BY PRIORITY:&quot;);</span>
+<span class="nc" id="L723">        String[] priorityOrder = {&quot;URGENT&quot;, &quot;HIGH&quot;, &quot;MEDIUM&quot;, &quot;LOW&quot;, &quot;UNKNOWN&quot;};</span>
+<span class="nc bnc" id="L724" title="All 2 branches missed.">        for (String priority : priorityOrder) {</span>
+<span class="nc" id="L725">            Integer count = resolutionByPriority.get(priority);</span>
+<span class="nc bnc" id="L726" title="All 4 branches missed.">            if (count != null &amp;&amp; count &gt; 0) {</span>
+<span class="nc bnc" id="L727" title="All 2 branches missed.">                double percentage = finalTotalResolved &gt; 0 ? (count * 100.0 / finalTotalResolved) : 0;</span>
+<span class="nc" id="L728">                System.out.printf(&quot;  %s: %d tickets (%.1f%%)\n&quot;, priority, count, percentage);</span>
+            }
+        }
+<span class="nc" id="L731">        System.out.println();</span>
+        
+        // Pattern insights
+<span class="nc" id="L734">        System.out.println(&quot;🔍 RESOLUTION INSIGHTS:&quot;);</span>
+<span class="nc bnc" id="L735" title="All 2 branches missed.">        if (totalUnassigned &gt; 0) {</span>
+<span class="nc" id="L736">            System.out.printf(&quot;• %d tickets need technician assignment\n&quot;, totalUnassigned);</span>
+        }
+        
+<span class="nc" id="L739">        String topServiceType = resolutionByServiceType.entrySet().stream()</span>
+<span class="nc" id="L740">            .max(Map.Entry.comparingByValue())</span>
+<span class="nc" id="L741">            .map(Map.Entry::getKey)</span>
+<span class="nc" id="L742">            .orElse(&quot;None&quot;);</span>
+<span class="nc bnc" id="L743" title="All 2 branches missed.">        if (!topServiceType.equals(&quot;None&quot;)) {</span>
+<span class="nc" id="L744">            System.out.printf(&quot;• Most resolved service type: %s\n&quot;, topServiceType);</span>
+        }
+        
+<span class="nc bnc" id="L747" title="All 2 branches missed.">        if (totalResolved == 0) {</span>
+<span class="nc" id="L748">            System.out.println(&quot;• No resolved tickets found - focus on closing completed work&quot;);</span>
+        }
+<span class="nc" id="L750">        System.out.println();</span>
+<span class="nc" id="L751">    }</span>
+    
+    private void displayWorkloadDistribution(SystemDataBundle data) {
+<span class="nc" id="L754">        System.out.println(&quot;⚖️ WORKLOAD DISTRIBUTION&quot;);</span>
+<span class="nc" id="L755">        System.out.println(&quot;─&quot;.repeat(50));</span>
+        
+<span class="nc bnc" id="L757" title="All 4 branches missed.">        if (data.technicians == null || data.technicians.isEmpty()) {</span>
+<span class="nc" id="L758">            System.out.println(&quot;No technician data available for workload analysis&quot;);</span>
+<span class="nc" id="L759">            System.out.println();</span>
+<span class="nc" id="L760">            return;</span>
+        }
+        
+        // Analyze workload distribution
+<span class="nc" id="L764">        Map&lt;String, WorkloadStats&gt; workloadMap = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L765">        int totalWorkload = 0;</span>
+<span class="nc" id="L766">        int activeTechnicians = 0;</span>
+        
+<span class="nc bnc" id="L768" title="All 2 branches missed.">        for (Technician tech : data.technicians) {</span>
+<span class="nc bnc" id="L769" title="All 2 branches missed.">            if (tech == null) continue;</span>
+            
+<span class="nc bnc" id="L771" title="All 2 branches missed.">            String techId = tech.getId() != null ? tech.getId().toString() : &quot;Unknown&quot;;</span>
+<span class="nc bnc" id="L772" title="All 2 branches missed.">            String status = tech.getStatus() != null ? tech.getStatus() : &quot;UNKNOWN&quot;;</span>
+<span class="nc bnc" id="L773" title="All 2 branches missed.">            int currentWorkload = tech.getCurrentWorkload() != null ? tech.getCurrentWorkload() : 0;</span>
+            
+<span class="nc" id="L775">            WorkloadStats stats = new WorkloadStats();</span>
+<span class="nc bnc" id="L776" title="All 2 branches missed.">            stats.technicianName = tech.getFullName() != null ? tech.getFullName() : &quot;Unknown&quot;;</span>
+<span class="nc" id="L777">            stats.status = status;</span>
+<span class="nc" id="L778">            stats.currentWorkload = currentWorkload;</span>
+<span class="nc bnc" id="L779" title="All 2 branches missed.">            stats.skills = tech.getSkills() != null ? tech.getSkills().size() : 0;</span>
+            
+<span class="nc" id="L781">            workloadMap.put(techId, stats);</span>
+            
+<span class="nc bnc" id="L783" title="All 2 branches missed.">            if (&quot;ACTIVE&quot;.equals(status)) {</span>
+<span class="nc" id="L784">                activeTechnicians++;</span>
+<span class="nc" id="L785">                totalWorkload += currentWorkload;</span>
+            }
+            
+            // Count assigned tickets from ticket data
+<span class="nc bnc" id="L789" title="All 2 branches missed.">            if (data.tickets != null) {</span>
+<span class="nc" id="L790">                long assignedTickets = data.tickets.stream()</span>
+<span class="nc bnc" id="L791" title="All 4 branches missed.">                    .filter(t -&gt; t != null &amp;&amp; techId.equals(getEffectiveTechnicianId(t)))</span>
+<span class="nc" id="L792">                    .count();</span>
+<span class="nc" id="L793">                stats.assignedTickets = (int) assignedTickets;</span>
+            }
+<span class="nc" id="L795">        }</span>
+        
+<span class="nc bnc" id="L797" title="All 2 branches missed.">        double avgWorkload = activeTechnicians &gt; 0 ? (totalWorkload / (double) activeTechnicians) : 0;</span>
+        
+<span class="nc" id="L799">        System.out.printf(&quot;Active Technicians: %d\n&quot;, activeTechnicians);</span>
+<span class="nc" id="L800">        System.out.printf(&quot;Total Workload: %d tickets\n&quot;, totalWorkload);</span>
+<span class="nc" id="L801">        System.out.printf(&quot;Average Workload: %.1f tickets per technician\n&quot;, avgWorkload);</span>
+<span class="nc" id="L802">        System.out.println();</span>
+        
+        // Display individual technician workloads
+<span class="nc" id="L805">        System.out.println(&quot;👨‍🔧 INDIVIDUAL WORKLOAD BREAKDOWN:&quot;);</span>
+<span class="nc" id="L806">        workloadMap.entrySet().stream()</span>
+<span class="nc" id="L807">            .filter(e -&gt; &quot;ACTIVE&quot;.equals(e.getValue().status))</span>
+<span class="nc" id="L808">            .sorted((e1, e2) -&gt; Integer.compare(e2.getValue().currentWorkload, e1.getValue().currentWorkload))</span>
+<span class="nc" id="L809">            .forEach(entry -&gt; {</span>
+<span class="nc" id="L810">                WorkloadStats stats = entry.getValue();</span>
+<span class="nc" id="L811">                String utilization = getUtilizationLevel(stats.currentWorkload, avgWorkload);</span>
+<span class="nc" id="L812">                System.out.printf(&quot;  %s: %d tickets %s\n&quot;, </span>
+<span class="nc" id="L813">                    stats.technicianName, stats.currentWorkload, utilization);</span>
+<span class="nc" id="L814">                System.out.printf(&quot;    Skills: %d | Assigned: %d tickets\n&quot;, </span>
+<span class="nc" id="L815">                    stats.skills, stats.assignedTickets);</span>
+<span class="nc" id="L816">            });</span>
+<span class="nc" id="L817">        System.out.println();</span>
+        
+        // Workload distribution insights
+<span class="nc" id="L820">        System.out.println(&quot;🔍 WORKLOAD INSIGHTS:&quot;);</span>
+        
+<span class="nc" id="L822">        long overloaded = workloadMap.values().stream()</span>
+<span class="nc bnc" id="L823" title="All 4 branches missed.">            .filter(s -&gt; &quot;ACTIVE&quot;.equals(s.status) &amp;&amp; s.currentWorkload &gt; avgWorkload * 1.5)</span>
+<span class="nc" id="L824">            .count();</span>
+<span class="nc" id="L825">        long underutilized = workloadMap.values().stream()</span>
+<span class="nc bnc" id="L826" title="All 4 branches missed.">            .filter(s -&gt; &quot;ACTIVE&quot;.equals(s.status) &amp;&amp; s.currentWorkload &lt; avgWorkload * 0.5)</span>
+<span class="nc" id="L827">            .count();</span>
+            
+<span class="nc bnc" id="L829" title="All 2 branches missed.">        if (overloaded &gt; 0) {</span>
+<span class="nc" id="L830">            System.out.printf(&quot;• %d technicians are overloaded (&gt;150%% avg workload)\n&quot;, overloaded);</span>
+        }
+<span class="nc bnc" id="L832" title="All 2 branches missed.">        if (underutilized &gt; 0) {</span>
+<span class="nc" id="L833">            System.out.printf(&quot;• %d technicians are underutilized (&lt;50%% avg workload)\n&quot;, underutilized);</span>
+        }
+        
+<span class="nc bnc" id="L836" title="All 4 branches missed.">        if (overloaded == 0 &amp;&amp; underutilized == 0) {</span>
+<span class="nc" id="L837">            System.out.println(&quot;• Workload is well balanced across technicians&quot;);</span>
+        }
+        
+        // Capacity analysis
+<span class="nc" id="L841">        int totalCapacity = (int) workloadMap.values().stream()</span>
+<span class="nc" id="L842">            .filter(s -&gt; &quot;ACTIVE&quot;.equals(s.status))</span>
+<span class="nc" id="L843">            .count() * 10; // Assume 10 tickets per technician capacity</span>
+<span class="nc bnc" id="L844" title="All 2 branches missed.">        double utilizationRate = totalCapacity &gt; 0 ? (totalWorkload * 100.0 / totalCapacity) : 0;</span>
+<span class="nc" id="L845">        System.out.printf(&quot;• System utilization: %.1f%% of total capacity\n&quot;, utilizationRate);</span>
+        
+<span class="nc bnc" id="L847" title="All 2 branches missed.">        if (utilizationRate &gt; 90) {</span>
+<span class="nc" id="L848">            System.out.println(&quot;• Consider hiring additional technicians&quot;);</span>
+<span class="nc bnc" id="L849" title="All 2 branches missed.">        } else if (utilizationRate &lt; 50) {</span>
+<span class="nc" id="L850">            System.out.println(&quot;• Capacity available for additional clients&quot;);</span>
+        }
+        
+<span class="nc" id="L853">        System.out.println();</span>
+<span class="nc" id="L854">    }</span>
+    
+    private void displayResponseTimeMetrics(SystemDataBundle data) {
+<span class="nc" id="L857">        System.out.println(&quot;⏱️ RESPONSE TIME METRICS&quot;);</span>
+<span class="nc" id="L858">        System.out.println(&quot;─&quot;.repeat(50));</span>
+        
+<span class="nc bnc" id="L860" title="All 4 branches missed.">        if (data.tickets == null || data.tickets.isEmpty()) {</span>
+<span class="nc" id="L861">            System.out.println(&quot;No ticket data available for response time analysis&quot;);</span>
+<span class="nc" id="L862">            System.out.println();</span>
+<span class="nc" id="L863">            return;</span>
+        }
+        
+        // Calculate response time metrics (simulated based on available data)
+<span class="nc" id="L867">        LocalDateTime now = LocalDateTime.now();</span>
+<span class="nc" id="L868">        long totalTickets = data.tickets.size();</span>
+<span class="nc" id="L869">        long recentTickets = 0;</span>
+<span class="nc" id="L870">        long quickResponses = 0;</span>
+<span class="nc" id="L871">        long slowResponses = 0;</span>
+<span class="nc" id="L872">        double totalResponseDays = 0;</span>
+        
+<span class="nc bnc" id="L874" title="All 2 branches missed.">        for (Ticket ticket : data.tickets) {</span>
+<span class="nc bnc" id="L875" title="All 4 branches missed.">            if (ticket == null || ticket.getCreatedAt() == null) continue;</span>
+            
+<span class="nc" id="L877">            long daysOld = java.time.temporal.ChronoUnit.DAYS.between(</span>
+<span class="nc" id="L878">                ticket.getCreatedAt().toLocalDate(), now.toLocalDate());</span>
+            
+            // Consider tickets from last 30 days for response analysis
+<span class="nc bnc" id="L881" title="All 2 branches missed.">            if (daysOld &lt;= 30) {</span>
+<span class="nc" id="L882">                recentTickets++;</span>
+<span class="nc" id="L883">                totalResponseDays += daysOld;</span>
+                
+                // Simulate response time based on status and assignment
+<span class="nc bnc" id="L886" title="All 2 branches missed.">                if (getEffectiveTechnicianId(ticket).equals(&quot;Unassigned&quot;)) {</span>
+<span class="nc" id="L887">                    slowResponses++; // Unassigned tickets are slow responses</span>
+<span class="nc bnc" id="L888" title="All 4 branches missed.">                } else if (&quot;CLOSED&quot;.equals(ticket.getStatus()) &amp;&amp; daysOld &lt;= 3) {</span>
+<span class="nc" id="L889">                    quickResponses++; // Closed within 3 days is quick</span>
+<span class="nc bnc" id="L890" title="All 2 branches missed.">                } else if (daysOld &gt; 7) {</span>
+<span class="nc" id="L891">                    slowResponses++; // Open for more than 7 days is slow</span>
+                }
+            }
+<span class="nc" id="L894">        }</span>
+        
+<span class="nc bnc" id="L896" title="All 2 branches missed.">        double avgResponseDays = recentTickets &gt; 0 ? (totalResponseDays / recentTickets) : 0;</span>
+<span class="nc bnc" id="L897" title="All 2 branches missed.">        double quickResponseRate = recentTickets &gt; 0 ? (quickResponses * 100.0 / recentTickets) : 0;</span>
+<span class="nc bnc" id="L898" title="All 2 branches missed.">        double slowResponseRate = recentTickets &gt; 0 ? (slowResponses * 100.0 / recentTickets) : 0;</span>
+        
+<span class="nc" id="L900">        System.out.printf(&quot;Recent Tickets (30 days): %d\n&quot;, recentTickets);</span>
+<span class="nc" id="L901">        System.out.printf(&quot;Average Response Time: %.1f days\n&quot;, avgResponseDays);</span>
+<span class="nc" id="L902">        System.out.printf(&quot;Quick Responses (≤3 days): %d (%.1f%%)\n&quot;, quickResponses, quickResponseRate);</span>
+<span class="nc" id="L903">        System.out.printf(&quot;Slow Responses (&gt;7 days): %d (%.1f%%)\n&quot;, slowResponses, slowResponseRate);</span>
+<span class="nc" id="L904">        System.out.println();</span>
+        
+        // Response time insights
+<span class="nc" id="L907">        System.out.println(&quot;🔍 RESPONSE TIME INSIGHTS:&quot;);</span>
+<span class="nc bnc" id="L908" title="All 2 branches missed.">        if (avgResponseDays &lt;= 2) {</span>
+<span class="nc" id="L909">            System.out.println(&quot;• Excellent response time - team is highly responsive&quot;);</span>
+<span class="nc bnc" id="L910" title="All 2 branches missed.">        } else if (avgResponseDays &lt;= 5) {</span>
+<span class="nc" id="L911">            System.out.println(&quot;• Good response time - within acceptable range&quot;);</span>
+        } else {
+<span class="nc" id="L913">            System.out.println(&quot;• Response time needs improvement - consider workflow optimization&quot;);</span>
+        }
+        
+<span class="nc bnc" id="L916" title="All 2 branches missed.">        if (slowResponseRate &gt; 30) {</span>
+<span class="nc" id="L917">            System.out.println(&quot;• High number of slow responses - review assignment process&quot;);</span>
+        }
+        
+<span class="nc bnc" id="L920" title="All 2 branches missed.">        if (quickResponseRate &gt; 70) {</span>
+<span class="nc" id="L921">            System.out.println(&quot;• Excellent quick response rate - team is efficient&quot;);</span>
+        }
+<span class="nc" id="L923">        System.out.println();</span>
+<span class="nc" id="L924">    }</span>
+    
+    private void displayThroughputMetrics(SystemDataBundle data) {
+<span class="nc" id="L927">        System.out.println(&quot;📊 THROUGHPUT METRICS&quot;);</span>
+<span class="nc" id="L928">        System.out.println(&quot;─&quot;.repeat(50));</span>
+        
+<span class="nc bnc" id="L930" title="All 4 branches missed.">        if (data.tickets == null || data.tickets.isEmpty()) {</span>
+<span class="nc" id="L931">            System.out.println(&quot;No ticket data available for throughput analysis&quot;);</span>
+<span class="nc" id="L932">            System.out.println();</span>
+<span class="nc" id="L933">            return;</span>
+        }
+        
+        // Calculate throughput metrics
+<span class="nc" id="L937">        LocalDateTime now = LocalDateTime.now();</span>
+<span class="nc" id="L938">        long totalTickets = data.tickets.size();</span>
+<span class="nc" id="L939">        long ticketsThisWeek = 0;</span>
+<span class="nc" id="L940">        long resolvedThisWeek = 0;</span>
+<span class="nc" id="L941">        long ticketsThisMonth = 0;</span>
+<span class="nc" id="L942">        long resolvedThisMonth = 0;</span>
+        
+<span class="nc bnc" id="L944" title="All 2 branches missed.">        for (Ticket ticket : data.tickets) {</span>
+<span class="nc bnc" id="L945" title="All 4 branches missed.">            if (ticket == null || ticket.getCreatedAt() == null) continue;</span>
+            
+<span class="nc" id="L947">            long daysOld = java.time.temporal.ChronoUnit.DAYS.between(</span>
+<span class="nc" id="L948">                ticket.getCreatedAt().toLocalDate(), now.toLocalDate());</span>
+            
+<span class="nc bnc" id="L950" title="All 2 branches missed.">            if (daysOld &lt;= 7) {</span>
+<span class="nc" id="L951">                ticketsThisWeek++;</span>
+<span class="nc bnc" id="L952" title="All 2 branches missed.">                if (&quot;CLOSED&quot;.equals(ticket.getStatus())) {</span>
+<span class="nc" id="L953">                    resolvedThisWeek++;</span>
+                }
+            }
+            
+<span class="nc bnc" id="L957" title="All 2 branches missed.">            if (daysOld &lt;= 30) {</span>
+<span class="nc" id="L958">                ticketsThisMonth++;</span>
+<span class="nc bnc" id="L959" title="All 2 branches missed.">                if (&quot;CLOSED&quot;.equals(ticket.getStatus())) {</span>
+<span class="nc" id="L960">                    resolvedThisMonth++;</span>
+                }
+            }
+<span class="nc" id="L963">        }</span>
+        
+<span class="nc" id="L965">        double weeklyThroughput = resolvedThisWeek;</span>
+<span class="nc" id="L966">        double monthlyThroughput = resolvedThisMonth;</span>
+<span class="nc" id="L967">        double weeklyCreationRate = ticketsThisWeek;</span>
+<span class="nc" id="L968">        double monthlyCreationRate = ticketsThisMonth;</span>
+        
+<span class="nc" id="L970">        System.out.printf(&quot;Tickets Created This Week: %d\n&quot;, ticketsThisWeek);</span>
+<span class="nc" id="L971">        System.out.printf(&quot;Tickets Resolved This Week: %d\n&quot;, resolvedThisWeek);</span>
+<span class="nc" id="L972">        System.out.printf(&quot;Weekly Throughput Rate: %.1f tickets/week\n&quot;, weeklyThroughput);</span>
+<span class="nc" id="L973">        System.out.println();</span>
+        
+<span class="nc" id="L975">        System.out.printf(&quot;Tickets Created This Month: %d\n&quot;, ticketsThisMonth);</span>
+<span class="nc" id="L976">        System.out.printf(&quot;Tickets Resolved This Month: %d\n&quot;, resolvedThisMonth);</span>
+<span class="nc" id="L977">        System.out.printf(&quot;Monthly Throughput Rate: %.1f tickets/month\n&quot;, monthlyThroughput);</span>
+<span class="nc" id="L978">        System.out.println();</span>
+        
+        // Throughput insights
+<span class="nc" id="L981">        System.out.println(&quot;🔍 THROUGHPUT INSIGHTS:&quot;);</span>
+<span class="nc bnc" id="L982" title="All 2 branches missed.">        if (resolvedThisWeek &gt;= ticketsThisWeek) {</span>
+<span class="nc" id="L983">            System.out.println(&quot;• Excellent - resolving tickets as fast as they're created&quot;);</span>
+<span class="nc bnc" id="L984" title="All 2 branches missed.">        } else if (resolvedThisWeek &gt;= ticketsThisWeek * 0.8) {</span>
+<span class="nc" id="L985">            System.out.println(&quot;• Good throughput - keeping up with ticket creation&quot;);</span>
+        } else {
+<span class="nc" id="L987">            System.out.println(&quot;• Throughput concern - tickets creating faster than resolution&quot;);</span>
+        }
+        
+<span class="nc bnc" id="L990" title="All 2 branches missed.">        if (monthlyThroughput &gt; 0) {</span>
+<span class="nc" id="L991">            double projectedMonthly = (weeklyThroughput * 4);</span>
+<span class="nc" id="L992">            System.out.printf(&quot;• Projected monthly resolution: %.0f tickets\n&quot;, projectedMonthly);</span>
+        }
+<span class="nc" id="L994">        System.out.println();</span>
+<span class="nc" id="L995">    }</span>
+    
+    private void displayUtilizationMetrics(SystemDataBundle data) {
+<span class="nc" id="L998">        System.out.println(&quot;📈 UTILIZATION METRICS&quot;);</span>
+<span class="nc" id="L999">        System.out.println(&quot;─&quot;.repeat(50));</span>
+        
+<span class="nc bnc" id="L1001" title="All 4 branches missed.">        if (data.technicians == null || data.technicians.isEmpty()) {</span>
+<span class="nc" id="L1002">            System.out.println(&quot;No technician data available for utilization analysis&quot;);</span>
+<span class="nc" id="L1003">            System.out.println();</span>
+<span class="nc" id="L1004">            return;</span>
+        }
+        
+        // Calculate utilization metrics
+<span class="nc" id="L1008">        int activeTechnicians = 0;</span>
+<span class="nc" id="L1009">        int totalWorkload = 0;</span>
+<span class="nc" id="L1010">        int maxCapacity = 0;</span>
+<span class="nc" id="L1011">        Map&lt;String, Integer&gt; statusCounts = new HashMap&lt;&gt;();</span>
+        
+<span class="nc bnc" id="L1013" title="All 2 branches missed.">        for (Technician tech : data.technicians) {</span>
+<span class="nc bnc" id="L1014" title="All 2 branches missed.">            if (tech == null) continue;</span>
+            
+<span class="nc bnc" id="L1016" title="All 2 branches missed.">            String status = tech.getStatus() != null ? tech.getStatus() : &quot;UNKNOWN&quot;;</span>
+<span class="nc" id="L1017">            statusCounts.merge(status, 1, Integer::sum);</span>
+            
+<span class="nc bnc" id="L1019" title="All 2 branches missed.">            if (&quot;ACTIVE&quot;.equals(status)) {</span>
+<span class="nc" id="L1020">                activeTechnicians++;</span>
+<span class="nc bnc" id="L1021" title="All 2 branches missed.">                int workload = tech.getCurrentWorkload() != null ? tech.getCurrentWorkload() : 0;</span>
+<span class="nc" id="L1022">                totalWorkload += workload;</span>
+<span class="nc" id="L1023">                maxCapacity += 10; // Assume 10 tickets per technician capacity</span>
+            }
+<span class="nc" id="L1025">        }</span>
+        
+<span class="nc bnc" id="L1027" title="All 2 branches missed.">        double utilizationRate = maxCapacity &gt; 0 ? (totalWorkload * 100.0 / maxCapacity) : 0;</span>
+<span class="nc bnc" id="L1028" title="All 2 branches missed.">        double avgWorkloadPerTech = activeTechnicians &gt; 0 ? (totalWorkload / (double) activeTechnicians) : 0;</span>
+        
+<span class="nc" id="L1030">        System.out.printf(&quot;Active Technicians: %d\n&quot;, activeTechnicians);</span>
+<span class="nc" id="L1031">        System.out.printf(&quot;Total Current Workload: %d tickets\n&quot;, totalWorkload);</span>
+<span class="nc" id="L1032">        System.out.printf(&quot;Maximum Capacity: %d tickets\n&quot;, maxCapacity);</span>
+<span class="nc" id="L1033">        System.out.printf(&quot;System Utilization: %.1f%%\n&quot;, utilizationRate);</span>
+<span class="nc" id="L1034">        System.out.printf(&quot;Average Workload per Technician: %.1f tickets\n&quot;, avgWorkloadPerTech);</span>
+<span class="nc" id="L1035">        System.out.println();</span>
+        
+        // Technician status breakdown
+<span class="nc" id="L1038">        System.out.println(&quot;👨‍🔧 TECHNICIAN STATUS BREAKDOWN:&quot;);</span>
+<span class="nc" id="L1039">        statusCounts.forEach((status, count) -&gt; {</span>
+<span class="nc" id="L1040">            System.out.printf(&quot;  %s: %d technicians\n&quot;, status, count);</span>
+<span class="nc" id="L1041">        });</span>
+<span class="nc" id="L1042">        System.out.println();</span>
+        
+        // Utilization insights
+<span class="nc" id="L1045">        System.out.println(&quot;🔍 UTILIZATION INSIGHTS:&quot;);</span>
+<span class="nc bnc" id="L1046" title="All 2 branches missed.">        if (utilizationRate &gt; 90) {</span>
+<span class="nc" id="L1047">            System.out.println(&quot;• High utilization - consider hiring additional technicians&quot;);</span>
+<span class="nc bnc" id="L1048" title="All 2 branches missed.">        } else if (utilizationRate &gt; 70) {</span>
+<span class="nc" id="L1049">            System.out.println(&quot;• Good utilization - team is efficiently utilized&quot;);</span>
+<span class="nc bnc" id="L1050" title="All 2 branches missed.">        } else if (utilizationRate &lt; 50) {</span>
+<span class="nc" id="L1051">            System.out.println(&quot;• Low utilization - capacity available for more work&quot;);</span>
+        } else {
+<span class="nc" id="L1053">            System.out.println(&quot;• Moderate utilization - balanced workload&quot;);</span>
+        }
+        
+<span class="nc bnc" id="L1056" title="All 2 branches missed.">        if (avgWorkloadPerTech &gt; 8) {</span>
+<span class="nc" id="L1057">            System.out.println(&quot;• Individual workloads are high - monitor for burnout&quot;);</span>
+<span class="nc bnc" id="L1058" title="All 2 branches missed.">        } else if (avgWorkloadPerTech &lt; 3) {</span>
+<span class="nc" id="L1059">            System.out.println(&quot;• Individual workloads are light - opportunity for more clients&quot;);</span>
+        }
+<span class="nc" id="L1061">        System.out.println();</span>
+<span class="nc" id="L1062">    }</span>
+    
+    private void displayTrendAnalysis(SystemDataBundle data) {
+<span class="nc" id="L1065">        System.out.println(&quot;📉 TREND ANALYSIS&quot;);</span>
+<span class="nc" id="L1066">        System.out.println(&quot;─&quot;.repeat(50));</span>
+        
+<span class="nc bnc" id="L1068" title="All 4 branches missed.">        if (data.tickets == null || data.tickets.isEmpty()) {</span>
+<span class="nc" id="L1069">            System.out.println(&quot;No ticket data available for trend analysis&quot;);</span>
+<span class="nc" id="L1070">            System.out.println();</span>
+<span class="nc" id="L1071">            return;</span>
+        }
+        
+        // Analyze trends over time periods
+<span class="nc" id="L1075">        LocalDateTime now = LocalDateTime.now();</span>
+<span class="nc" id="L1076">        Map&lt;String, Integer&gt; weeklyTrends = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L1077">        Map&lt;String, Integer&gt; priorityTrends = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L1078">        Map&lt;String, Integer&gt; serviceTypeTrends = new HashMap&lt;&gt;();</span>
+        
+        // Group tickets by week and analyze patterns
+<span class="nc bnc" id="L1081" title="All 2 branches missed.">        for (Ticket ticket : data.tickets) {</span>
+<span class="nc bnc" id="L1082" title="All 4 branches missed.">            if (ticket == null || ticket.getCreatedAt() == null) continue;</span>
+            
+<span class="nc" id="L1084">            long daysOld = java.time.temporal.ChronoUnit.DAYS.between(</span>
+<span class="nc" id="L1085">                ticket.getCreatedAt().toLocalDate(), now.toLocalDate());</span>
+            
+            String weekBucket;
+<span class="nc bnc" id="L1088" title="All 2 branches missed.">            if (daysOld &lt;= 7) weekBucket = &quot;This Week&quot;;</span>
+<span class="nc bnc" id="L1089" title="All 2 branches missed.">            else if (daysOld &lt;= 14) weekBucket = &quot;Last Week&quot;;</span>
+<span class="nc bnc" id="L1090" title="All 2 branches missed.">            else if (daysOld &lt;= 21) weekBucket = &quot;2 Weeks Ago&quot;;</span>
+<span class="nc bnc" id="L1091" title="All 2 branches missed.">            else if (daysOld &lt;= 30) weekBucket = &quot;3-4 Weeks Ago&quot;;</span>
+<span class="nc" id="L1092">            else weekBucket = &quot;Older&quot;;</span>
+            
+<span class="nc" id="L1094">            weeklyTrends.merge(weekBucket, 1, Integer::sum);</span>
+            
+            // Track recent trends (last 30 days)
+<span class="nc bnc" id="L1097" title="All 2 branches missed.">            if (daysOld &lt;= 30) {</span>
+<span class="nc bnc" id="L1098" title="All 2 branches missed.">                String priority = ticket.getPriority() != null ? ticket.getPriority() : &quot;UNKNOWN&quot;;</span>
+<span class="nc" id="L1099">                priorityTrends.merge(priority, 1, Integer::sum);</span>
+                
+<span class="nc bnc" id="L1101" title="All 2 branches missed.">                String serviceType = ticket.getServiceType() != null ? ticket.getServiceType() : &quot;UNKNOWN&quot;;</span>
+<span class="nc" id="L1102">                serviceTypeTrends.merge(serviceType, 1, Integer::sum);</span>
+            }
+<span class="nc" id="L1104">        }</span>
+        
+        // Display weekly trend
+<span class="nc" id="L1107">        System.out.println(&quot;📅 WEEKLY TICKET TRENDS:&quot;);</span>
+<span class="nc" id="L1108">        String[] weekOrder = {&quot;This Week&quot;, &quot;Last Week&quot;, &quot;2 Weeks Ago&quot;, &quot;3-4 Weeks Ago&quot;, &quot;Older&quot;};</span>
+<span class="nc bnc" id="L1109" title="All 2 branches missed.">        for (String week : weekOrder) {</span>
+<span class="nc" id="L1110">            Integer count = weeklyTrends.get(week);</span>
+<span class="nc bnc" id="L1111" title="All 4 branches missed.">            if (count != null &amp;&amp; count &gt; 0) {</span>
+<span class="nc" id="L1112">                System.out.printf(&quot;  %s: %d tickets\n&quot;, week, count);</span>
+            }
+        }
+<span class="nc" id="L1115">        System.out.println();</span>
+        
+        // Display priority trends
+<span class="nc" id="L1118">        System.out.println(&quot;🔴 RECENT PRIORITY TRENDS (30 days):&quot;);</span>
+<span class="nc" id="L1119">        priorityTrends.entrySet().stream()</span>
+<span class="nc" id="L1120">            .sorted((e1, e2) -&gt; {</span>
+<span class="nc" id="L1121">                String[] order = {&quot;URGENT&quot;, &quot;HIGH&quot;, &quot;MEDIUM&quot;, &quot;LOW&quot;, &quot;UNKNOWN&quot;};</span>
+<span class="nc" id="L1122">                int pos1 = java.util.Arrays.asList(order).indexOf(e1.getKey());</span>
+<span class="nc" id="L1123">                int pos2 = java.util.Arrays.asList(order).indexOf(e2.getKey());</span>
+<span class="nc bnc" id="L1124" title="All 2 branches missed.">                if (pos1 == -1) pos1 = order.length;</span>
+<span class="nc bnc" id="L1125" title="All 2 branches missed.">                if (pos2 == -1) pos2 = order.length;</span>
+<span class="nc" id="L1126">                return Integer.compare(pos1, pos2);</span>
+            })
+<span class="nc" id="L1128">            .forEach(entry -&gt; {</span>
+<span class="nc" id="L1129">                System.out.printf(&quot;  %s: %d tickets\n&quot;, entry.getKey(), entry.getValue());</span>
+<span class="nc" id="L1130">            });</span>
+<span class="nc" id="L1131">        System.out.println();</span>
+        
+        // Display service type trends
+<span class="nc" id="L1134">        System.out.println(&quot;🛠️ RECENT SERVICE TYPE TRENDS (30 days):&quot;);</span>
+<span class="nc" id="L1135">        serviceTypeTrends.entrySet().stream()</span>
+<span class="nc" id="L1136">            .sorted((e1, e2) -&gt; e2.getValue().compareTo(e1.getValue()))</span>
+<span class="nc" id="L1137">            .forEach(entry -&gt; {</span>
+<span class="nc" id="L1138">                System.out.printf(&quot;  %s: %d tickets\n&quot;, entry.getKey(), entry.getValue());</span>
+<span class="nc" id="L1139">            });</span>
+<span class="nc" id="L1140">        System.out.println();</span>
+        
+        // Trend insights
+<span class="nc" id="L1143">        System.out.println(&quot;🔍 TREND INSIGHTS:&quot;);</span>
+<span class="nc" id="L1144">        Integer thisWeek = weeklyTrends.get(&quot;This Week&quot;);</span>
+<span class="nc" id="L1145">        Integer lastWeek = weeklyTrends.get(&quot;Last Week&quot;);</span>
+        
+<span class="nc bnc" id="L1147" title="All 4 branches missed.">        if (thisWeek != null &amp;&amp; lastWeek != null) {</span>
+<span class="nc bnc" id="L1148" title="All 2 branches missed.">            if (thisWeek &gt; lastWeek) {</span>
+<span class="nc" id="L1149">                System.out.printf(&quot;• Increasing trend: %d more tickets this week vs last week\n&quot;, </span>
+<span class="nc" id="L1150">                    thisWeek - lastWeek);</span>
+<span class="nc bnc" id="L1151" title="All 2 branches missed.">            } else if (thisWeek &lt; lastWeek) {</span>
+<span class="nc" id="L1152">                System.out.printf(&quot;• Decreasing trend: %d fewer tickets this week vs last week\n&quot;, </span>
+<span class="nc" id="L1153">                    lastWeek - thisWeek);</span>
+            } else {
+<span class="nc" id="L1155">                System.out.println(&quot;• Stable trend: consistent ticket volume week-over-week&quot;);</span>
+            }
+        }
+        
+<span class="nc" id="L1159">        String topPriority = priorityTrends.entrySet().stream()</span>
+<span class="nc" id="L1160">            .max(Map.Entry.comparingByValue())</span>
+<span class="nc" id="L1161">            .map(Map.Entry::getKey)</span>
+<span class="nc" id="L1162">            .orElse(&quot;None&quot;);</span>
+<span class="nc bnc" id="L1163" title="All 2 branches missed.">        if (!topPriority.equals(&quot;None&quot;)) {</span>
+<span class="nc" id="L1164">            System.out.printf(&quot;• Most common priority: %s\n&quot;, topPriority);</span>
+        }
+        
+<span class="nc" id="L1167">        String topServiceType = serviceTypeTrends.entrySet().stream()</span>
+<span class="nc" id="L1168">            .max(Map.Entry.comparingByValue())</span>
+<span class="nc" id="L1169">            .map(Map.Entry::getKey)</span>
+<span class="nc" id="L1170">            .orElse(&quot;None&quot;);</span>
+<span class="nc bnc" id="L1171" title="All 2 branches missed.">        if (!topServiceType.equals(&quot;None&quot;)) {</span>
+<span class="nc" id="L1172">            System.out.printf(&quot;• Most common service type: %s\n&quot;, topServiceType);</span>
+        }
+<span class="nc" id="L1174">        System.out.println();</span>
+<span class="nc" id="L1175">    }</span>
+    
+    // ==================== DATA CLASSES ====================
+    
+    /**
+     * Container for all system data with validation
+     * Provides null-safe data access patterns
+     */
+    private static class SystemDataBundle {
+        List&lt;Client&gt; clients;
+        List&lt;Technician&gt; technicians;
+        List&lt;Ticket&gt; tickets;
+        List&lt;Appointment&gt; appointments;
+        List&lt;Ticket&gt; overdueTickets;
+        LocalDateTime loadTimestamp;
+        boolean hasDataErrors;
+        
+        boolean isValid() {
+<span class="nc bnc" id="L1193" title="All 8 branches missed.">            return clients != null || technicians != null || tickets != null || appointments != null;</span>
+        }
+    }
+    
+    /**
+     * Statistics container for service type analysis
+     */
+<span class="nc" id="L1200">    private static class ServiceTypeStats {</span>
+<span class="nc" id="L1201">        int totalTickets = 0;</span>
+<span class="nc" id="L1202">        int resolvedTickets = 0;</span>
+<span class="nc" id="L1203">        int openTickets = 0;</span>
+<span class="nc" id="L1204">        long totalResolutionDays = 0;</span>
+<span class="nc" id="L1205">        Map&lt;String, Integer&gt; priorityDistribution = new HashMap&lt;&gt;();</span>
+    }
+    
+    /**
+     * Statistics container for workload analysis
+     */
+<span class="nc" id="L1211">    private static class WorkloadStats {</span>
+<span class="nc" id="L1212">        String technicianName = &quot;&quot;;</span>
+<span class="nc" id="L1213">        String status = &quot;&quot;;</span>
+<span class="nc" id="L1214">        int currentWorkload = 0;</span>
+<span class="nc" id="L1215">        int skills = 0;</span>
+<span class="nc" id="L1216">        int assignedTickets = 0;</span>
+    }
+} 
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

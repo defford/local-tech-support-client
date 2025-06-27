@@ -59,11 +59,11 @@ import java.util.stream.Collectors;
     )
     private int daysAhead;
 
-    @Option(
+<span class="nc" id="L62">    @Option(</span>
         names = {&quot;--include-past&quot;},
         description = &quot;Include past appointments&quot;
     )
-<span class="nc" id="L66">    private boolean includePast = false;</span>
+    private boolean includePast = false;
 
     @Override
     public Integer call() {
@@ -171,7 +171,7 @@ import java.util.stream.Collectors;
 <span class="nc bnc" id="L171" title="All 2 branches missed.">            for (Client client : clients) {</span>
 <span class="nc" id="L172">                List&lt;Appointment&gt; clientAppointments = getAppointmentsForClient(client.getId(), filteredAppointments, apiService);</span>
 <span class="nc" id="L173">                clientAppointmentMap.put(client, clientAppointments);</span>
-            }
+<span class="nc" id="L174">            }</span>
         }
         
 <span class="nc" id="L177">        return clientAppointmentMap;</span>
@@ -233,10 +233,10 @@ import java.util.stream.Collectors;
 <span class="nc bnc" id="L233" title="All 3 branches missed.">        switch (format.toLowerCase()) {</span>
             case &quot;json&quot;:
 <span class="nc" id="L235">                return JsonFormatter.withMetadata(</span>
-<span class="nc" id="L236">                    &quot;Client Appointments Report&quot;, </span>
-<span class="nc" id="L237">                    clientAppointmentMap, </span>
-<span class="nc" id="L238">                    serverUrl, </span>
-<span class="nc" id="L239">                    timestamp</span>
+                    &quot;Client Appointments Report&quot;, 
+                    clientAppointmentMap, 
+                    serverUrl, 
+                    timestamp
                 );
                 
             case &quot;table&quot;:
@@ -327,14 +327,14 @@ import java.util.stream.Collectors;
 <span class="nc" id="L327">                String relativeTime = getRelativeTime(appointment.getScheduledStartTime());</span>
                 
 <span class="nc" id="L329">                output.append(String.format(&quot;     %s %s (%s)&quot;, </span>
-<span class="nc" id="L330">                    statusEmoji, timeInfo, relativeTime));</span>
+                    statusEmoji, timeInfo, relativeTime));
                 
                 // Add ticket information if available
 <span class="nc bnc" id="L333" title="All 2 branches missed.">                if (appointment.getTicket() != null) {</span>
 <span class="nc" id="L334">                    output.append(String.format(&quot; | Ticket #%d: %s&quot;, </span>
 <span class="nc" id="L335">                        appointment.getTicket().getId(),</span>
 <span class="nc" id="L336">                        appointment.getTicket().getTitle()));</span>
-<span class="nc" id="L337">                } else {</span>
+                } else {
 <span class="nc" id="L338">                    output.append(String.format(&quot; | Ticket #%d&quot;, appointment.getTicketId()));</span>
                 }
                 
@@ -353,10 +353,10 @@ import java.util.stream.Collectors;
 <span class="nc bnc" id="L353" title="All 2 branches missed.">                    if (notes.length() &gt; 60) notes = notes.substring(0, 57) + &quot;...&quot;;</span>
 <span class="nc" id="L354">                    output.append(String.format(&quot;       📝 %s\n&quot;, notes));</span>
                 }
-            }
+<span class="nc" id="L356">            }</span>
             
 <span class="nc" id="L358">            output.append(&quot;\n&quot;);</span>
-        }
+<span class="nc" id="L359">        }</span>
         
         // Statistics
 <span class="nc bnc" id="L362" title="All 2 branches missed.">        if (totalAppointments &gt; 0) {</span>

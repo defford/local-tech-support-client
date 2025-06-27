@@ -8,6 +8,7 @@ import com.localtechsupport.cli.command.TechnicianScheduleCommand;
 import com.localtechsupport.cli.command.ClientAppointmentsCommand;
 import com.localtechsupport.cli.command.ClientTechnicianHistoryCommand;
 import com.localtechsupport.cli.command.TechnicianFeedbackCommand;
+import com.localtechsupport.cli.command.InteractiveMenuCommand;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
@@ -37,6 +38,7 @@ import java.util.concurrent.Callable;
         ClientAppointmentsCommand.class,
         ClientTechnicianHistoryCommand.class,
         TechnicianFeedbackCommand.class,
+        InteractiveMenuCommand.class,
         CommandLine.HelpCommand.class
     },
     mixinStandardHelpOptions = true
@@ -83,7 +85,10 @@ public class CliApplication implements Callable<Integer> {
         System.out.println("🖥️  Local Tech Support CLI v1.0");
         System.out.println("=====================================");
         System.out.println();
-        System.out.println("Available commands (8 core business questions):");
+        System.out.println("🎯 INTERACTIVE MODE (Recommended):");
+        System.out.println("  interactive, menu, i              - Launch full interactive menu system");
+        System.out.println();
+        System.out.println("📋 DIRECT COMMANDS (8 core business questions):");
         System.out.println("  client-tickets                    - What tickets does each client have?");
         System.out.println("  overdue-tickets                   - What tickets are currently overdue?");
         System.out.println("  technician-workload               - What tickets are assigned to each technician?");
@@ -93,6 +98,7 @@ public class CliApplication implements Callable<Integer> {
         System.out.println("  client-technician-history         - What clients have used which technicians?");
         System.out.println("  technician-feedback               - What feedback ratings has each technician received?");
         System.out.println();
+        System.out.println("💡 TIP: Use 'tech-support-cli interactive' for the full menu experience!");
         System.out.println("Use 'tech-support-cli <command> --help' for detailed command usage.");
         System.out.println("Use 'tech-support-cli --help' for global options.");
         System.out.println();
