@@ -877,3 +877,60 @@
 2025-06-27 14:00:34.336 [com.localtechsupport.cli.CliApplication.main()] INFO  c.l.cli.service.ApiService - Successfully fetched 2 tickets for client 6
 2025-06-27 14:00:34.343 [com.localtechsupport.cli.CliApplication.main()] INFO  c.l.cli.service.ApiService - Successfully fetched 1 tickets for client 7
 2025-06-27 14:00:34.350 [com.localtechsupport.cli.CliApplication.main()] INFO  c.l.cli.service.ApiService - Successfully fetched 2 tickets for client 8
+2025-08-03 12:08:10.184 [main] INFO  c.l.c.command.InteractiveMenuCommand - Launching interactive menu system
+2025-08-03 12:08:10.492 [main] INFO  c.l.cli.client.TechSupportApiClient - TechSupportApiClient initialized with base URL: http://localhost:8080
+2025-08-03 12:08:10.493 [main] INFO  c.l.cli.service.ApiService - ApiService initialized with base URL: http://localhost:8080
+2025-08-03 12:08:10.496 [main] INFO  c.l.cli.menu.MenuManager - MenuManager initialized
+2025-08-03 12:08:10.496 [main] INFO  c.l.cli.menu.MenuManager - Starting interactive menu system
+2025-08-03 12:08:10.544 [main] WARN  c.l.cli.client.TechSupportApiClient - Connection test failed: Failed to connect to localhost/[0:0:0:0:0:0:0:1]:8080
+2025-08-03 12:08:10.544 [main] INFO  c.l.c.command.InteractiveMenuCommand - Interactive menu system exited with code: 1
+2025-08-03 12:08:10.544 [main] INFO  c.l.cli.service.ApiService - Closing API service
+2025-08-03 12:08:29.567 [main] INFO  c.l.c.command.InteractiveMenuCommand - Launching interactive menu system
+2025-08-03 12:08:30.033 [main] INFO  c.l.cli.client.TechSupportApiClient - TechSupportApiClient initialized with base URL: http://localhost:8080
+2025-08-03 12:08:30.035 [main] INFO  c.l.cli.service.ApiService - ApiService initialized with base URL: http://localhost:8080
+2025-08-03 12:08:30.039 [main] INFO  c.l.cli.menu.MenuManager - MenuManager initialized
+2025-08-03 12:08:30.040 [main] INFO  c.l.cli.menu.MenuManager - Starting interactive menu system
+2025-08-03 12:08:30.132 [main] WARN  c.l.cli.client.TechSupportApiClient - Connection test failed: Connection reset
+2025-08-03 12:08:30.132 [main] INFO  c.l.c.command.InteractiveMenuCommand - Interactive menu system exited with code: 1
+2025-08-03 12:08:30.132 [main] INFO  c.l.cli.service.ApiService - Closing API service
+2025-08-03 12:15:00.661 [main] INFO  c.l.c.command.InteractiveMenuCommand - Launching interactive menu system
+2025-08-03 12:15:00.990 [main] INFO  c.l.cli.client.TechSupportApiClient - TechSupportApiClient initialized with base URL: http://localhost:8080
+2025-08-03 12:15:00.992 [main] INFO  c.l.cli.service.ApiService - ApiService initialized with base URL: http://localhost:8080
+2025-08-03 12:15:00.999 [main] INFO  c.l.cli.menu.MenuManager - MenuManager initialized
+2025-08-03 12:15:01.000 [main] INFO  c.l.cli.menu.MenuManager - Starting interactive menu system
+2025-08-03 13:13:35.395 [main] INFO  c.l.cli.client.TechSupportApiClient - TechSupportApiClient initialized with base URL: http://localhost:61909
+2025-08-03 13:13:35.540 [main] INFO  c.l.cli.client.TechSupportApiClient - TechSupportApiClient initialized with base URL: http://localhost:61911
+2025-08-03 13:13:35.546 [main] INFO  c.l.cli.client.TechSupportApiClient - TechSupportApiClient initialized with base URL: http://localhost:61913
+2025-08-03 13:13:35.553 [main] INFO  c.l.cli.client.TechSupportApiClient - TechSupportApiClient initialized with base URL: http://localhost:61915
+2025-08-03 13:13:35.556 [main] INFO  c.l.cli.client.TechSupportApiClient - TechSupportApiClient initialized with base URL: http://localhost:61916
+2025-08-03 13:13:35.557 [main] INFO  c.l.cli.client.TechSupportApiClient - TechSupportApiClient initialized with base URL: http://localhost:8080
+2025-08-03 13:13:35.561 [main] INFO  c.l.cli.client.TechSupportApiClient - TechSupportApiClient initialized with base URL: http://localhost:61917
+2025-08-03 13:13:35.566 [main] ERROR c.l.cli.client.TechSupportApiClient - Unexpected error while calling http://localhost:61917/api/bad: API call failed with status 400: Bad request
+2025-08-03 13:13:35.571 [main] INFO  c.l.cli.client.TechSupportApiClient - TechSupportApiClient initialized with base URL: http://localhost:61919
+2025-08-03 13:13:35.574 [main] ERROR c.l.cli.client.TechSupportApiClient - Unexpected error while calling http://localhost:61919/api/nonexistent: API call failed with status 404: Resource not found
+2025-08-03 13:13:35.576 [main] INFO  c.l.cli.client.TechSupportApiClient - TechSupportApiClient initialized with base URL: http://localhost:61921
+2025-08-03 13:13:35.582 [main] ERROR c.l.cli.client.TechSupportApiClient - Network error while calling http://localhost:61921/api/test: Failed to connect to localhost/[0:0:0:0:0:0:0:1]:61921
+2025-08-03 13:13:35.584 [main] INFO  c.l.cli.client.TechSupportApiClient - TechSupportApiClient initialized with base URL: http://localhost:61924
+2025-08-03 13:13:35.596 [main] ERROR c.l.cli.client.TechSupportApiClient - Network error while calling http://localhost:61924/api/empty: No content to map due to end-of-input
+ at [Source: REDACTED (`StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION` disabled); line: 1]
+2025-08-03 13:13:35.600 [main] INFO  c.l.cli.client.TechSupportApiClient - TechSupportApiClient initialized with base URL: http://localhost:61926
+2025-08-03 13:13:35.608 [main] INFO  c.l.cli.client.TechSupportApiClient - TechSupportApiClient initialized with base URL: http://localhost:61927
+2025-08-03 13:13:35.639 [main] INFO  c.l.cli.client.TechSupportApiClient - TechSupportApiClient initialized with base URL: http://localhost:61929
+2025-08-03 13:14:07.036 [main] INFO  c.l.cli.client.TechSupportApiClient - TechSupportApiClient initialized with base URL: http://localhost:61960
+2025-08-03 13:14:07.172 [main] INFO  c.l.cli.client.TechSupportApiClient - TechSupportApiClient initialized with base URL: http://localhost:61962
+2025-08-03 13:14:07.298 [main] INFO  c.l.cli.client.TechSupportApiClient - TechSupportApiClient initialized with base URL: http://localhost:61964
+2025-08-03 13:14:07.308 [main] INFO  c.l.cli.client.TechSupportApiClient - TechSupportApiClient initialized with base URL: http://localhost:61966
+2025-08-03 13:14:07.320 [main] INFO  c.l.cli.client.TechSupportApiClient - TechSupportApiClient initialized with base URL: http://localhost:61968
+2025-08-03 13:14:07.326 [main] ERROR c.l.cli.client.TechSupportApiClient - Unexpected error while calling http://localhost:61968/api/bad: API call failed with status 400: Bad request
+2025-08-03 13:14:07.334 [main] INFO  c.l.cli.client.TechSupportApiClient - TechSupportApiClient initialized with base URL: http://localhost:61970
+2025-08-03 13:14:07.338 [main] ERROR c.l.cli.client.TechSupportApiClient - Unexpected error while calling http://localhost:61970/api/nonexistent: API call failed with status 404: Resource not found
+2025-08-03 13:14:07.342 [main] INFO  c.l.cli.client.TechSupportApiClient - TechSupportApiClient initialized with base URL: http://localhost:61972
+2025-08-03 13:14:07.353 [main] ERROR c.l.cli.client.TechSupportApiClient - Network error while calling http://localhost:61972/api/test: Failed to connect to localhost/[0:0:0:0:0:0:0:1]:61972
+2025-08-03 13:14:07.358 [main] INFO  c.l.cli.client.TechSupportApiClient - TechSupportApiClient initialized with base URL: http://localhost:61975
+2025-08-03 13:14:07.391 [main] ERROR c.l.cli.client.TechSupportApiClient - Network error while calling http://localhost:61975/api/empty: No content to map due to end-of-input
+ at [Source: REDACTED (`StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION` disabled); line: 1]
+2025-08-03 13:14:07.404 [main] INFO  c.l.cli.client.TechSupportApiClient - TechSupportApiClient initialized with base URL: http://localhost:61977
+2025-08-03 13:14:07.488 [main] INFO  c.l.cli.client.TechSupportApiClient - TechSupportApiClient initialized with base URL: http://localhost:61979
+2025-08-03 13:14:07.590 [main] INFO  c.l.cli.client.TechSupportApiClient - TechSupportApiClient initialized with base URL: http://localhost:61981
+2025-08-03 13:14:07.595 [main] INFO  c.l.cli.client.TechSupportApiClient - TechSupportApiClient initialized with base URL: http://localhost:61982
+2025-08-03 13:14:07.596 [main] INFO  c.l.cli.client.TechSupportApiClient - TechSupportApiClient initialized with base URL: http://localhost:8080
