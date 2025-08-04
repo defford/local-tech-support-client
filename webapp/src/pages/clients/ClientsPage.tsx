@@ -10,20 +10,31 @@ import {
   Button, 
   TextInput,
   Select,
-  Stack
+  Stack,
+  ActionIcon,
+  Menu
 } from '@mantine/core';
 import { 
   IconPlus, 
   IconSearch, 
-  IconFilter 
+  IconFilter,
+  IconEdit,
+  IconEye,
+  IconDots,
+  IconUserCheck,
+  IconUserX,
+  IconTrash
 } from '@tabler/icons-react';
 import { useState } from 'react';
-import { useClients } from '../../hooks';
-import { DataTable, LoadingSpinner, ErrorAlert, ClientStatusBadge } from '../../components/ui';
+import { useNavigate } from 'react-router-dom';
+import { useClients, useActivateClient, useSuspendClient, useDeleteClient } from '../../hooks';
+import { DataTable, ErrorAlert, ClientStatusBadge } from '../../components/ui';
+import { ClientModal } from '../../components/forms';
 import { Client, ClientStatus, PaginationParams } from '../../types';
 import type { DataTableColumn } from '../../components/ui';
 
 export function ClientsPage() {
+  const navigate = useNavigate();
   const [pagination, setPagination] = useState<PaginationParams>({
     page: 0,
     size: 20,
@@ -32,6 +43,8 @@ export function ClientsPage() {
   
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('');
+  const [modalOpened, setModalOpened] = useState(false);
+  const [editingClient, setEditingClient] = useState<Client | undefined>();
 
   const { 
     data: clientsData, 
@@ -40,12 +53,62 @@ export function ClientsPage() {
     refetch
   } = useClients(pagination);
 
+  const activateClientMutation = useActivateClient();
+  const suspendClientMutation = useSuspendClient();
+  const deleteClientMutation = useDeleteClient();
+
   const handlePageChange = (page: number) => {
     setPagination(prev => ({ ...prev, page }));
   };
 
   const handlePageSizeChange = (size: number) => {
     setPagination(prev => ({ ...prev, size, page: 0 }));
+  };
+
+  const handleCreateClient = () => {
+    setEditingClient(undefined);
+    setModalOpened(true);
+  };
+
+  const handleEditClient = (client: Client) => {
+    setEditingClient(client);
+    setModalOpened(true);
+  };
+
+  const handleViewClient = (client: Client) => {
+    navigate(`/clients/${client.id}`);
+  };
+
+  const handleActivateClient = async (client: Client) => {
+    try {
+      await activateClientMutation.mutateAsync(client.id);
+    } catch (error) {
+      console.error('Failed to activate client:', error);
+    }
+  };
+
+  const handleSuspendClient = async (client: Client) => {
+    try {
+      await suspendClientMutation.mutateAsync(client.id);
+    } catch (error) {
+      console.error('Failed to suspend client:', error);
+    }
+  };
+
+  const handleDeleteClient = async (client: Client) => {
+    if (window.confirm(`Are you sure you want to delete ${client.firstName} ${client.lastName}?`)) {
+      try {
+        await deleteClientMutation.mutateAsync(client.id);
+      } catch (error) {
+        console.error('Failed to delete client:', error);
+      }
+    }
+  };
+
+  const handleModalSuccess = () => {
+    setModalOpened(false);
+    setEditingClient(undefined);
+    refetch();
   };
 
   const columns: DataTableColumn<Client>[] = [
@@ -82,6 +145,69 @@ export function ClientsPage() {
       header: 'Created',
       render: (client) => new Date(client.createdAt).toLocaleDateString(),
       width: 120
+    },
+    {
+      key: 'actions',
+      header: 'Actions',
+      render: (client) => (
+        <Group gap="xs">
+          <ActionIcon
+            variant="subtle"
+            color="blue"
+            onClick={() => handleViewClient(client)}
+            size="sm"
+          >
+            <IconEye size="1rem" />
+          </ActionIcon>
+          
+          <Menu shadow="md" width={180}>
+            <Menu.Target>
+              <ActionIcon variant="subtle" color="gray" size="sm">
+                <IconDots size="1rem" />
+              </ActionIcon>
+            </Menu.Target>
+
+            <Menu.Dropdown>
+              <Menu.Item
+                leftSection={<IconEdit size="0.875rem" />}
+                onClick={() => handleEditClient(client)}
+              >
+                Edit Client
+              </Menu.Item>
+              
+              {client.status !== ClientStatus.ACTIVE ? (
+                <Menu.Item
+                  leftSection={<IconUserCheck size="0.875rem" />}
+                  onClick={() => handleActivateClient(client)}
+                  disabled={activateClientMutation.isPending}
+                >
+                  Activate
+                </Menu.Item>
+              ) : (
+                <Menu.Item
+                  leftSection={<IconUserX size="0.875rem" />}
+                  onClick={() => handleSuspendClient(client)}
+                  disabled={suspendClientMutation.isPending}
+                >
+                  Suspend
+                </Menu.Item>
+              )}
+              
+              <Menu.Divider />
+              
+              <Menu.Item
+                color="red"
+                leftSection={<IconTrash size="0.875rem" />}
+                onClick={() => handleDeleteClient(client)}
+                disabled={deleteClientMutation.isPending}
+              >
+                Delete Client
+              </Menu.Item>
+            </Menu.Dropdown>
+          </Menu>
+        </Group>
+      ),
+      width: 120
     }
   ];
 
@@ -109,6 +235,7 @@ export function ClientsPage() {
         <Button
           leftSection={<IconPlus size="1rem" />}
           variant="filled"
+          onClick={handleCreateClient}
         >
           New Client
         </Button>
@@ -148,6 +275,14 @@ export function ClientsPage() {
         onPageChange={handlePageChange}
         onPageSizeChange={handlePageSizeChange}
         emptyMessage="No clients found"
+      />
+
+      {/* Client Modal */}
+      <ClientModal
+        opened={modalOpened}
+        onClose={() => setModalOpened(false)}
+        client={editingClient}
+        onSuccess={handleModalSuccess}
       />
     </Stack>
   );
