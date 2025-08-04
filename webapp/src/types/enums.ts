@@ -31,7 +31,12 @@ export enum TicketPriority {
 export enum ServiceType {
   HARDWARE = 'HARDWARE',
   SOFTWARE = 'SOFTWARE',
-  NETWORK = 'NETWORK'
+  NETWORK = 'NETWORK',
+  PRINTER = 'PRINTER',
+  EMAIL = 'EMAIL',
+  SECURITY = 'SECURITY',
+  BACKUP = 'BACKUP',
+  CONSULTATION = 'CONSULTATION'
 }
 
 export enum AppointmentStatus {
@@ -61,3 +66,26 @@ export const isServiceType = (value: string): value is ServiceType =>
 
 export const isAppointmentStatus = (value: string): value is AppointmentStatus =>
   Object.values(AppointmentStatus).includes(value as AppointmentStatus);
+
+export enum SatisfactionLevel {
+  EXCELLENT = 'EXCELLENT',
+  VERY_GOOD = 'VERY_GOOD',
+  GOOD = 'GOOD',
+  AVERAGE = 'AVERAGE',
+  POOR = 'POOR',
+  VERY_POOR = 'VERY_POOR',
+  UNKNOWN = 'UNKNOWN'
+}
+
+export enum SystemLoadLevel {
+  NONE = 'NONE',
+  LOW = 'LOW',
+  MEDIUM = 'MEDIUM',
+  HIGH = 'HIGH'
+}
+
+export const isSatisfactionLevel = (value: string): value is SatisfactionLevel =>
+  Object.values(SatisfactionLevel).includes(value as SatisfactionLevel);
+
+export const isSystemLoadLevel = (value: string): value is SystemLoadLevel =>
+  Object.values(SystemLoadLevel).includes(value as SystemLoadLevel);

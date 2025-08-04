@@ -3,7 +3,7 @@
  */
 
 import { http, HttpResponse } from 'msw';
-import type { Client, ClientStatus, PagedResponse } from '../../../types';
+import { Client, ClientStatus, PagedResponse } from '../../../types';
 
 // Mock client data
 const mockClients: Client[] = [

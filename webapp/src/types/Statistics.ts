@@ -52,12 +52,18 @@ export interface SkillInfo {
 
 /**
  * Feedback statistics from the API
+ * Response from GET /api/feedback/statistics
  */
 export interface FeedbackStatistics {
   totalFeedback: number;
   averageRating: number;
-  ratingDistribution: Record<string, number>;
-  recentFeedback: FeedbackSummary[];
+  ratingDistribution: Record<number, number>; // Rating (1-5) to count
+  satisfactionLevel: string;
+  feedbackTrends: Record<string, number>;
+  highRatingsCount: number;
+  lowRatingsCount: number;
+  improvementScore: number;
+  responseRate: number;
 }
 
 /**
@@ -174,5 +180,44 @@ export const StatisticsUtils = {
       medium: Math.round(avgTickets * 0.6),
       high: Math.round(avgTickets * 1.0)
     };
+  },
+
+  /**
+   * Get percentage of high ratings (4-5 stars) from feedback statistics
+   */
+  getHighSatisfactionPercentage: (stats: FeedbackStatistics): number => {
+    if (stats.totalFeedback === 0) return 0;
+    return (stats.highRatingsCount / stats.totalFeedback) * 100;
+  },
+
+  /**
+   * Get percentage of low ratings (1-2 stars) from feedback statistics
+   */
+  getLowSatisfactionPercentage: (stats: FeedbackStatistics): number => {
+    if (stats.totalFeedback === 0) return 0;
+    return (stats.lowRatingsCount / stats.totalFeedback) * 100;
+  },
+
+  /**
+   * Get satisfaction level emoji based on average rating
+   */
+  getSatisfactionEmoji: (averageRating: number): string => {
+    if (averageRating >= 4.5) return '😊';
+    if (averageRating >= 4.0) return '🙂';
+    if (averageRating >= 3.0) return '😐';
+    if (averageRating >= 2.0) return '😞';
+    return '😠';
+  },
+
+  /**
+   * Get detailed satisfaction level description
+   */
+  getDetailedSatisfactionLevel: (averageRating: number): string => {
+    if (averageRating >= 4.5) return 'EXCELLENT';
+    if (averageRating >= 4.0) return 'VERY_GOOD';
+    if (averageRating >= 3.5) return 'GOOD';
+    if (averageRating >= 3.0) return 'AVERAGE';
+    if (averageRating >= 2.0) return 'POOR';
+    return 'VERY_POOR';
   }
 };

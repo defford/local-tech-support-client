@@ -22,12 +22,16 @@ export type {
   AppointmentRescheduleRequest 
 } from './appointments';
 
-// Default exports for easier importing
-const services = {
+// Import services for collection
+import { ClientService } from './clients';
+import { TechnicianService } from './technicians';
+import { TicketService } from './tickets';
+import { AppointmentService } from './appointments';
+
+// Service collection
+export const services = {
   clients: ClientService,
   technicians: TechnicianService,
   tickets: TicketService,
   appointments: AppointmentService
 };
-
-export default services;

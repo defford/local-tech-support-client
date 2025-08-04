@@ -6,7 +6,8 @@
 import { Alert, Button, Collapse, Group, Text, AlertProps } from '@mantine/core';
 import { IconAlertCircle, IconRefresh, IconChevronDown, IconChevronUp } from '@tabler/icons-react';
 import { useState } from 'react';
-import { ApiError, ApiClientUtils } from '../../services/api/client';
+import { ApiError } from '../../types';
+import { ApiClientUtils } from '../../services/api/client';
 
 export interface ErrorAlertProps extends Omit<AlertProps, 'title' | 'children'> {
   error: Error | ApiError | string;
@@ -50,7 +51,7 @@ const getErrorDetails = (error: Error | ApiError | string): string | null => {
     }, null, 2);
   }
 
-  return error.stack || null;
+  return (error as Error).stack || null;
 };
 
 /**
