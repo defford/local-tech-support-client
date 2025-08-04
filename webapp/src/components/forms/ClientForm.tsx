@@ -13,28 +13,22 @@ import {
   Alert,
   LoadingOverlay
 } from '@mantine/core';
-import { useForm, zodResolver } from '@mantine/form';
+import { useForm } from '@mantine/form';
 import { notifications } from '@mantine/notifications';
 import { IconCheck, IconX } from '@tabler/icons-react';
-import { z } from 'zod';
 import { useEffect } from 'react';
 import { Client, ClientRequest, ClientStatus } from '../../types';
 import { useCreateClient, useUpdateClient } from '../../hooks';
 
-/**
- * Client form validation schema
- */
-const clientFormSchema = z.object({
-  firstName: z.string().min(1, 'First name is required').max(50, 'First name too long'),
-  lastName: z.string().min(1, 'Last name is required').max(50, 'Last name too long'),
-  email: z.string().email('Invalid email address').max(100, 'Email too long'),
-  phone: z.string().min(10, 'Phone number must be at least 10 digits').max(20, 'Phone number too long'),
-  address: z.string().max(200, 'Address too long').optional(),
-  notes: z.string().max(500, 'Notes too long').optional(),
-  status: z.nativeEnum(ClientStatus, { required_error: 'Status is required' })
-});
-
-type ClientFormValues = z.infer<typeof clientFormSchema>;
+interface ClientFormValues {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  address: string;
+  notes: string;
+  status: ClientStatus;
+}
 
 interface ClientFormProps {
   client?: Client;
@@ -48,7 +42,6 @@ export function ClientForm({ client, onSuccess, onCancel }: ClientFormProps) {
   const updateClientMutation = useUpdateClient();
 
   const form = useForm<ClientFormValues>({
-    validate: zodResolver(clientFormSchema),
     initialValues: {
       firstName: client?.firstName || '',
       lastName: client?.lastName || '',
@@ -57,6 +50,42 @@ export function ClientForm({ client, onSuccess, onCancel }: ClientFormProps) {
       address: client?.address || '',
       notes: client?.notes || '',
       status: client?.status || ClientStatus.ACTIVE
+    },
+    validate: {
+      firstName: (value) => {
+        if (!value || value.trim().length === 0) return 'First name is required';
+        if (value.length > 50) return 'First name too long';
+        return null;
+      },
+      lastName: (value) => {
+        if (!value || value.trim().length === 0) return 'Last name is required';
+        if (value.length > 50) return 'Last name too long';
+        return null;
+      },
+      email: (value) => {
+        if (!value || value.trim().length === 0) return 'Email is required';
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) return 'Invalid email address';
+        if (value.length > 100) return 'Email too long';
+        return null;
+      },
+      phone: (value) => {
+        if (!value || value.trim().length === 0) return 'Phone number is required';
+        if (value.length < 10) return 'Phone number must be at least 10 digits';
+        if (value.length > 20) return 'Phone number too long';
+        return null;
+      },
+      address: (value) => {
+        if (value && value.length > 200) return 'Address too long';
+        return null;
+      },
+      notes: (value) => {
+        if (value && value.length > 500) return 'Notes too long';
+        return null;
+      },
+      status: (value) => {
+        if (!value) return 'Status is required';
+        return null;
+      }
     }
   });
 

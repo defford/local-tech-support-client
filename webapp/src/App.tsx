@@ -6,7 +6,14 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { MantineProvider, ColorSchemeScript, Container, Text, Title } from '@mantine/core';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
+import { Notifications } from '@mantine/notifications';
 import { AppShellLayout } from './components/layout';
+import { 
+  DashboardPage, 
+  ClientsPage, 
+  ClientDetailPage, 
+  NotFoundPage 
+} from './pages';
 
 // Create a client instance
 const queryClient = new QueryClient({
@@ -35,21 +42,7 @@ const queryClient = new QueryClient({
   },
 });
 
-// Placeholder components for pages
-const DashboardPage = () => (
-  <Container>
-    <Title order={1} mb="md">Dashboard</Title>
-    <Text>Welcome to the Tech Support System</Text>
-  </Container>
-);
-
-const ClientsPage = () => (
-  <Container>
-    <Title order={1} mb="md">Clients</Title>
-    <Text>Client management coming soon...</Text>
-  </Container>
-);
-
+// Placeholder components for pages not yet implemented
 const TechniciansPage = () => (
   <Container>
     <Title order={1} mb="md">Technicians</Title>
@@ -78,24 +71,19 @@ const ReportsPage = () => (
   </Container>
 );
 
-const NotFoundPage = () => (
-  <Container>
-    <Title order={1} mb="md">404 - Page Not Found</Title>
-    <Text>The page you're looking for doesn't exist.</Text>
-  </Container>
-);
-
 function App() {
   return (
     <>
       <ColorSchemeScript defaultColorScheme="light" />
       <QueryClientProvider client={queryClient}>
         <MantineProvider defaultColorScheme="light">
+          <Notifications />
           <Router>
             <AppShellLayout>
               <Routes>
                 <Route path="/" element={<DashboardPage />} />
                 <Route path="/clients" element={<ClientsPage />} />
+                <Route path="/clients/:id" element={<ClientDetailPage />} />
                 <Route path="/technicians" element={<TechniciansPage />} />
                 <Route path="/tickets" element={<TicketsPage />} />
                 <Route path="/appointments" element={<AppointmentsPage />} />
