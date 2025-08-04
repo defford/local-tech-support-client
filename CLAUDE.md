@@ -4,54 +4,79 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is a Java 17 Maven-based CLI application for the Local Tech Support System. It provides both interactive menu-driven access and direct command execution for complete system management, integrating with a REST API backend running on `localhost:8080` (default).
+This is a **monorepo** containing the Local Tech Support System with both CLI and web applications:
+
+- **`cli/`** - Java 17 Maven-based CLI application (fully functional)
+- **`webapp/`** - React 19 + TypeScript web application (Phase 1 complete)
+
+Both applications integrate with the same REST API backend running on `localhost:8080` (default).
+
+**Current Status:** Phase 1 React foundation complete, ready for Phase 2 core development.
 
 ## Essential Commands
 
-### Build and Package
+### CLI Application (Java)
 ```bash
+# Navigate to CLI directory
+cd cli/
+
 # Clean build and create executable JAR
 mvn clean package
 
 # Quick compile without tests
 mvn clean compile
 
-# Run directly with Maven during development
-mvn compile exec:java -Dexec.mainClass="com.localtechsupport.cli.CliApplication" -Dexec.args="interactive"
-```
-
-### Testing
-```bash
 # Run all tests
 mvn test
 
-# Run specific test class
-mvn test -Dtest=TechSupportApiClientTest
+# Run directly with Maven during development
+mvn compile exec:java -Dexec.mainClass="com.localtechsupport.cli.CliApplication" -Dexec.args="interactive"
 
-# Run tests with coverage report
-mvn test jacoco:report
-
-# View coverage report at: target/site/jacoco/index.html
-```
-
-### Application Execution
-```bash
 # Interactive mode (recommended for development)
 java -jar target/tech-support-cli.jar interactive
 
 # Direct command mode
 java -jar target/tech-support-cli.jar client-tickets
-java -jar target/tech-support-cli.jar overdue-tickets
-java -jar target/tech-support-cli.jar --server http://localhost:8080 technician-workload
+```
+
+### Web Application (React)
+```bash
+# Navigate to webapp directory
+cd webapp/
+
+# Install dependencies (first time only)
+npm install
+
+# Start development server
+npm run dev
+
+# Run tests
+npm test
+
+# Build for production
+npm run build
+
+# Run linting
+npm run lint
+
+# Type checking
+npm run type-check
 ```
 
 ## Architecture Overview
 
-### Core Components
+### CLI Application (Java)
 - **CliApplication.java**: Main entry point using PicoCLI for command routing
 - **TechSupportApiClient.java**: HTTP client layer using OkHttp for REST API communication
 - **ApiService.java**: Business logic layer providing complete CRUD operations
 - **MenuManager.java**: Interactive menu system with navigation and lifecycle management
+
+### Web Application (React) - Phase 1 Complete
+- **Tech Stack**: React 19 + TypeScript + Vite + Mantine UI + TanStack Query
+- **Layout System**: AppShell with responsive Header and Navigation components
+- **API Layer**: Axios client with TanStack Query hooks for all entities
+- **Testing**: Vitest + Testing Library + MSW for comprehensive testing
+- **Type System**: Complete TypeScript definitions matching Java models
 
 ### Menu System Architecture
 The application uses a hierarchical menu system with specialized menus:
@@ -124,9 +149,17 @@ The application uses a hierarchical menu system with specialized menus:
 
 ### ALWAYS REMEMBER
 - Follow the REACT_MIGRATION_PLAN.md
+- Work in appropriate directory (`cli/` for Java, `webapp/` for React)
 - Follow clean git branching strategies
+- Test both applications when making changes
+
+### Current Migration Status
+- **✅ Phase 1 Complete**: React foundation with TypeScript, Mantine UI, routing, API layer, testing
+- **🚀 Next Phase**: Phase 2 - Core entity CRUD development (Clients, Technicians, Tickets)
 
 ## Development Guidelines
 
 ### Task Completion
-- Always end your task with a list of actions the user can use to manually test the changes.
+- Always end your task with a list of actions the user can use to manually test the changes
+- Test both CLI and webapp when relevant
+- Update documentation to reflect changes
