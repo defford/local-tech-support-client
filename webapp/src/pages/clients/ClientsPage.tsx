@@ -25,9 +25,9 @@ import {
   IconUserX,
   IconTrash
 } from '@tabler/icons-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useClients, useActivateClient, useSuspendClient, useDeleteClient } from '../../hooks';
+import { useClients, useClientSearch, useActivateClient, useSuspendClient, useDeleteClient } from '../../hooks';
 import { DataTable, ErrorAlert, ClientStatusBadge } from '../../components/ui';
 import { ClientModal } from '../../components/forms';
 import { Client, ClientStatus, PaginationParams } from '../../types';
@@ -42,16 +42,40 @@ export function ClientsPage() {
   });
   
   const [searchQuery, setSearchQuery] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('');
   const [modalOpened, setModalOpened] = useState(false);
   const [editingClient, setEditingClient] = useState<Client | undefined>();
+
+  // Debounce search query
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchQuery);
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
+  // Reset pagination when search/filter changes
+  useEffect(() => {
+    setPagination(prev => ({ ...prev, page: 0 }));
+  }, [debouncedSearch, statusFilter]);
+
+  // Construct search params when filters are applied
+  const searchParams = debouncedSearch.trim() || statusFilter ? {
+    query: debouncedSearch.trim(),
+    status: statusFilter || undefined,
+    ...pagination
+  } : undefined;
 
   const { 
     data: clientsData, 
     isLoading, 
     error,
     refetch
-  } = useClients(pagination);
+  } = searchParams ? 
+    useClientSearch(searchParams) : 
+    useClients(pagination);
 
   const activateClientMutation = useActivateClient();
   const suspendClientMutation = useSuspendClient();
