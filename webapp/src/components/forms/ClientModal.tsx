@@ -3,7 +3,7 @@
  * Modal wrapper for ClientForm with better UX
  */
 
-import { Modal, Title } from '@mantine/core';
+import { Modal } from '@mantine/core';
 import { Client } from '../../types';
 import { ClientForm } from './ClientForm';
 
@@ -26,11 +26,7 @@ export function ClientModal({ opened, onClose, client, onSuccess }: ClientModalP
     <Modal
       opened={opened}
       onClose={onClose}
-      title={
-        <Title order={3}>
-          {isEditing ? 'Edit Client' : 'Create New Client'}
-        </Title>
-      }
+      title={isEditing ? 'Edit Client' : 'Create New Client'}
       size="lg"
       centered
     >

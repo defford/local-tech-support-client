@@ -46,8 +46,8 @@ export * from '@testing-library/react';
 // Override render method
 export { customRender as render };
 
-// Helper function to create a mock query client
-export const createMockQueryClient = () => {
+// Helper function to create a test query client
+export const createTestQueryClient = () => {
   return new QueryClient({
     defaultOptions: {
       queries: {
@@ -65,3 +65,21 @@ export const createMockQueryClient = () => {
     },
   });
 };
+
+// Test QueryClientProvider for hook testing
+export const TestQueryClientProvider = ({ children, client }: { 
+  children: React.ReactNode; 
+  client: QueryClient;
+}) => (
+  <QueryClientProvider client={client}>
+    <MantineProvider>
+      {children}
+    </MantineProvider>
+  </QueryClientProvider>
+);
+
+// Alternative render function with providers
+export const renderWithProviders = (
+  ui: React.ReactElement,
+  options?: Omit<RenderOptions, 'wrapper'>
+) => render(ui, { wrapper: AllTheProviders, ...options });
