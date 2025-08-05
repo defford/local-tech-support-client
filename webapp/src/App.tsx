@@ -5,6 +5,7 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
+import { ThemeProvider } from './components/theme-provider';
 import { AppShellLayout } from './components/layout';
 import { 
   DashboardPage, 
@@ -12,8 +13,6 @@ import {
   // ClientDetailPage, // TODO: Uncomment when basic version is created
   NotFoundPage 
 } from './pages';
-
-// TODO: Add ShadCN UI ThemeProvider here later
 
 // Create a client instance
 const queryClient = new QueryClient({
@@ -75,24 +74,30 @@ const ReportsPage = () => (
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      {/* TODO: Add ShadCN UI ThemeProvider wrapper here */}
-      <Router>
-        <AppShellLayout>
-          <Routes>
-            <Route path="/" element={<DashboardPage />} />
-            <Route path="/clients" element={<ClientsPage />} />
-            {/* TODO: Uncomment when basic ClientDetailPage is created */}
-            {/* <Route path="/clients/:id" element={<ClientDetailPage />} /> */}
-            <Route path="/technicians" element={<TechniciansPage />} />
-            <Route path="/tickets" element={<TicketsPage />} />
-            <Route path="/appointments" element={<AppointmentsPage />} />
-            <Route path="/reports" element={<ReportsPage />} />
-            <Route path="*" element={<NotFoundPage />} />
-          </Routes>
-        </AppShellLayout>
-      </Router>
-      {/* React Query DevTools - only in development */}
-      {import.meta.env.DEV && <ReactQueryDevtools initialIsOpen={false} />}
+      <ThemeProvider
+        attribute="class"
+        defaultTheme="system"
+        enableSystem
+        disableTransitionOnChange
+      >
+        <Router>
+          <AppShellLayout>
+            <Routes>
+              <Route path="/" element={<DashboardPage />} />
+              <Route path="/clients" element={<ClientsPage />} />
+              {/* TODO: Uncomment when basic ClientDetailPage is created */}
+              {/* <Route path="/clients/:id" element={<ClientDetailPage />} /> */}
+              <Route path="/technicians" element={<TechniciansPage />} />
+              <Route path="/tickets" element={<TicketsPage />} />
+              <Route path="/appointments" element={<AppointmentsPage />} />
+              <Route path="/reports" element={<ReportsPage />} />
+              <Route path="*" element={<NotFoundPage />} />
+            </Routes>
+          </AppShellLayout>
+        </Router>
+        {/* React Query DevTools - only in development */}
+        {import.meta.env.DEV && <ReactQueryDevtools initialIsOpen={false} />}
+      </ThemeProvider>
     </QueryClientProvider>
   );
 }
