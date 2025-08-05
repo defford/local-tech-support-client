@@ -3,6 +3,7 @@
  */
 
 export { DashboardPage } from './Dashboard';
-export { ClientsPage } from './clients/ClientsPage';
-export { ClientDetailPage } from './clients/ClientDetailPage';
+export { ClientsPageBasic as ClientsPage } from './clients/ClientsPage.basic';
+// TODO: Create basic ClientDetailPage when ShadCN UI is integrated
+// export { ClientDetailPage } from './clients/ClientDetailPage';
 export { NotFoundPage } from './NotFound';

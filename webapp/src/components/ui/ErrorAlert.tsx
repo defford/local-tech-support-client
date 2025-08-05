@@ -1,200 +1,153 @@
 /**
- * Error alert component for displaying errors
- * Built with Mantine Alert component
+ * Error alert component with basic HTML/CSS implementation
+ * TODO: Replace with ShadCN UI Alert component
  */
 
-import { Alert, Button, Collapse, Group, Text, AlertProps } from '@mantine/core';
-import { IconAlertCircle, IconRefresh, IconChevronDown, IconChevronUp } from '@tabler/icons-react';
+import { IconExclamationTriangle, IconRefresh, IconX } from '@tabler/icons-react';
 import { useState } from 'react';
-import { ApiError } from '../../types';
-import { ApiClientUtils } from '../../services/api/client';
 
-export interface ErrorAlertProps extends Omit<AlertProps, 'title' | 'children'> {
-  error: Error | ApiError | string;
+export interface ErrorAlertProps {
+  error: string | Error | any;
   title?: string;
   showRetry?: boolean;
   onRetry?: () => void;
   showDetails?: boolean;
-  className?: string;
+  onClose?: () => void;
+  variant?: 'error' | 'warning' | 'info';
 }
 
-/**
- * Get user-friendly error message
- */
-const getErrorMessage = (error: Error | ApiError | string): string => {
-  if (typeof error === 'string') {
-    return error;
-  }
-
-  if (error && typeof error === 'object' && 'status' in error) {
-    return ApiClientUtils.getUserFriendlyErrorMessage(error as ApiError);
-  }
-
-  return error.message || 'An unexpected error occurred';
-};
-
-/**
- * Get error details for display
- */
-const getErrorDetails = (error: Error | ApiError | string): string | null => {
-  if (typeof error === 'string') {
-    return null;
-  }
-
-  if (error && typeof error === 'object' && 'status' in error) {
-    const apiError = error as ApiError;
-    return JSON.stringify({
-      status: apiError.status,
-      path: apiError.path,
-      timestamp: apiError.timestamp,
-      details: apiError.details
-    }, null, 2);
-  }
-
-  return (error as Error).stack || null;
-};
-
-/**
- * ErrorAlert component
- */
 export function ErrorAlert({
   error,
   title = 'Error',
   showRetry = false,
   onRetry,
   showDetails = false,
-  color = 'red',
-  variant = 'light',
-  className,
-  ...props
+  onClose,
+  variant = 'error'
 }: ErrorAlertProps) {
-  const [detailsOpen, setDetailsOpen] = useState(false);
+  const [showFullDetails, setShowFullDetails] = useState(false);
   
-  const errorMessage = getErrorMessage(error);
-  const errorDetails = getErrorDetails(error);
-  const hasDetails = showDetails && errorDetails;
+  const errorMessage = typeof error === 'string' 
+    ? error 
+    : error?.message || error?.toString() || 'An unexpected error occurred';
+
+  const variantClasses = {
+    error: 'bg-red-50 border-red-200 text-red-800',
+    warning: 'bg-yellow-50 border-yellow-200 text-yellow-800',
+    info: 'bg-blue-50 border-blue-200 text-blue-800'
+  };
+
+  const iconColor = {
+    error: 'text-red-600',
+    warning: 'text-yellow-600',
+    info: 'text-blue-600'
+  };
 
   return (
-    <Alert
-      icon={<IconAlertCircle size="1rem" />}
-      title={title}
-      color={color}
-      variant={variant}
-      className={className}
-      {...props}
-    >
-      <div>
-        <Text size="sm" mb={hasDetails || showRetry ? 'sm' : 0}>
-          {errorMessage}
-        </Text>
-
-        {(hasDetails || showRetry) && (
-          <Group gap="sm">
-            {showRetry && onRetry && (
-              <Button
-                size="xs"
-                variant="outline"
-                leftSection={<IconRefresh size="0.75rem" />}
+    <div className={`border rounded-md p-4 ${variantClasses[variant]}`}>
+      <div className="flex items-start">
+        <div className={`flex-shrink-0 ${iconColor[variant]}`}>
+          <IconExclamationTriangle size={20} />
+        </div>
+        
+        <div className="ml-3 flex-1">
+          <div className="flex items-center justify-between">
+            <h3 className="text-sm font-medium">{title}</h3>
+            {onClose && (
+              <button
+                onClick={onClose}
+                className={`ml-2 ${iconColor[variant]} hover:opacity-75`}
+              >
+                <IconX size={16} />
+              </button>
+            )}
+          </div>
+          
+          <div className="mt-2 text-sm">
+            <p>{errorMessage}</p>
+            
+            {showDetails && error?.stack && (
+              <div className="mt-2">
+                <button
+                  onClick={() => setShowFullDetails(!showFullDetails)}
+                  className="text-xs underline hover:no-underline"
+                >
+                  {showFullDetails ? 'Hide details' : 'Show details'}
+                </button>
+                
+                {showFullDetails && (
+                  <pre className="mt-2 text-xs bg-white bg-opacity-50 p-2 rounded border overflow-x-auto">
+                    {error.stack}
+                  </pre>
+                )}
+              </div>
+            )}
+          </div>
+          
+          {showRetry && onRetry && (
+            <div className="mt-3">
+              <button
                 onClick={onRetry}
+                className={`inline-flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-md ${
+                  variant === 'error' 
+                    ? 'bg-red-600 text-white hover:bg-red-700' 
+                    : variant === 'warning'
+                    ? 'bg-yellow-600 text-white hover:bg-yellow-700'
+                    : 'bg-blue-600 text-white hover:bg-blue-700'
+                }`}
               >
+                <IconRefresh size={16} />
                 Retry
-              </Button>
-            )}
-
-            {hasDetails && (
-              <Button
-                size="xs"
-                variant="subtle"
-                rightSection={
-                  detailsOpen ? 
-                    <IconChevronUp size="0.75rem" /> : 
-                    <IconChevronDown size="0.75rem" />
-                }
-                onClick={() => setDetailsOpen(!detailsOpen)}
-              >
-                {detailsOpen ? 'Hide Details' : 'Show Details'}
-              </Button>
-            )}
-          </Group>
-        )}
-
-        {hasDetails && (
-          <Collapse in={detailsOpen}>
-            <Text
-              size="xs"
-              c="dimmed"
-              mt="sm"
-              component="pre"
-              style={{
-                backgroundColor: 'var(--mantine-color-gray-0)',
-                padding: '8px',
-                borderRadius: '4px',
-                overflow: 'auto',
-                maxHeight: '200px',
-                fontFamily: 'monospace'
-              }}
-            >
-              {errorDetails}
-            </Text>
-          </Collapse>
-        )}
+              </button>
+            </div>
+          )}
+        </div>
       </div>
-    </Alert>
+    </div>
   );
 }
 
-/**
- * Network error alert
- */
 export function NetworkErrorAlert({ onRetry, ...props }: Omit<ErrorAlertProps, 'error'>) {
   return (
     <ErrorAlert
-      error="Unable to connect to the server. Please check your internet connection and try again."
+      error="Network connection failed. Please check your internet connection and try again."
       title="Connection Error"
       showRetry
       onRetry={onRetry}
+      variant="error"
       {...props}
     />
   );
 }
 
-/**
- * Validation error alert
- */
 export function ValidationErrorAlert({ error, ...props }: ErrorAlertProps) {
   return (
     <ErrorAlert
       error={error}
       title="Validation Error"
-      color="orange"
+      variant="warning"
       {...props}
     />
   );
 }
 
-/**
- * Permission error alert
- */
 export function PermissionErrorAlert(props: Omit<ErrorAlertProps, 'error'>) {
   return (
     <ErrorAlert
       error="You don't have permission to perform this action."
-      title="Access Denied"
-      color="red"
+      title="Permission Denied"
+      variant="error"
       {...props}
     />
   );
 }
 
-/**
- * Not found error alert
- */
 export function NotFoundErrorAlert({ resource = 'resource', ...props }: Omit<ErrorAlertProps, 'error'> & { resource?: string }) {
   return (
     <ErrorAlert
-      error={`The requested ${resource} was not found.`}
+      error={`The requested ${resource} could not be found.`}
       title="Not Found"
-      color="yellow"
+      variant="warning"
       {...props}
     />
   );

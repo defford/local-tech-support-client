@@ -1,172 +1,224 @@
 /**
- * Reusable data table component with pagination
- * Built with Mantine Table component
+ * Data table component with basic HTML/CSS implementation
+ * TODO: Replace with ShadCN UI Table component
  */
 
-import { Table, Pagination, Text, Group, Select, Loader, Alert } from '@mantine/core';
-import { IconAlertCircle } from '@tabler/icons-react';
-import { PagedResponse, PagedResponseUtils } from '../../types';
+import { useState } from 'react';
+import { IconChevronLeft, IconChevronRight } from '@tabler/icons-react';
 
 export interface DataTableColumn<T> {
-  key: string;
+  key: keyof T | string;
   header: string;
-  render?: (item: T) => React.ReactNode;
+  accessor?: (item: T) => React.ReactNode;
   sortable?: boolean;
-  width?: string | number;
+  width?: string;
 }
 
 export interface DataTableProps<T> {
-  data?: PagedResponse<T>;
+  data: T[];
   columns: DataTableColumn<T>[];
   loading?: boolean;
-  error?: Error | null;
-  onPageChange?: (page: number) => void;
-  onPageSizeChange?: (size: number) => void;
-  onSort?: (field: string, direction: 'asc' | 'desc') => void;
-  striped?: boolean;
-  highlightOnHover?: boolean;
+  error?: string | null;
+  onRowClick?: (item: T) => void;
+  pagination?: {
+    page: number;
+    pageSize: number;
+    total: number;
+    onPageChange: (page: number) => void;
+  };
   emptyMessage?: string;
-  className?: string;
+  loadingMessage?: string;
 }
-
-const PAGE_SIZE_OPTIONS = [
-  { value: '10', label: '10 per page' },
-  { value: '20', label: '20 per page' },
-  { value: '50', label: '50 per page' },
-  { value: '100', label: '100 per page' }
-];
 
 export function DataTable<T extends Record<string, any>>({
   data,
   columns,
   loading = false,
   error = null,
-  onPageChange,
-  onPageSizeChange,
-  onSort,
-  striped = true,
-  highlightOnHover = true,
+  onRowClick,
+  pagination,
   emptyMessage = 'No data available',
-  className
+  loadingMessage = 'Loading...'
 }: DataTableProps<T>) {
-  // Handle loading state
-  if (loading) {
-    return (
-      <div style={{ display: 'flex', justifyContent: 'center', padding: '2rem' }}>
-        <Loader size="lg" />
-      </div>
-    );
-  }
+  const [sortColumn, setSortColumn] = useState<string | null>(null);
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
 
-  // Handle error state
-  if (error) {
-    return (
-      <Alert
-        icon={<IconAlertCircle size="1rem" />}
-        title="Error loading data"
-        color="red"
-        variant="light"
-      >
-        {error.message || 'An unexpected error occurred'}
-      </Alert>
-    );
-  }
-
-  // Handle empty data
-  if (!data || !PagedResponseUtils.hasContent(data)) {
-    return (
-      <div style={{ textAlign: 'center', padding: '2rem' }}>
-        <Text size="lg" c="dimmed">
-          {emptyMessage}
-        </Text>
-      </div>
-    );
-  }
-
-  const handlePageChange = (page: number) => {
-    onPageChange?.(page - 1); // Convert to 0-based for API
-  };
-
-  const handlePageSizeChange = (value: string | null) => {
-    if (value) {
-      onPageSizeChange?.(parseInt(value, 10));
+  const handleSort = (column: DataTableColumn<T>) => {
+    if (!column.sortable) return;
+    
+    const columnKey = typeof column.key === 'string' ? column.key : String(column.key);
+    
+    if (sortColumn === columnKey) {
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortColumn(columnKey);
+      setSortDirection('asc');
     }
   };
+
+  const sortedData = [...data].sort((a, b) => {
+    if (!sortColumn) return 0;
+    
+    const aValue = a[sortColumn];
+    const bValue = b[sortColumn];
+    
+    if (aValue < bValue) return sortDirection === 'asc' ? -1 : 1;
+    if (aValue > bValue) return sortDirection === 'asc' ? 1 : -1;
+    return 0;
+  });
 
   const renderCellContent = (item: T, column: DataTableColumn<T>) => {
-    if (column.render) {
-      return column.render(item);
+    if (column.accessor) {
+      return column.accessor(item);
     }
     
-    // Default rendering - get nested property value
-    const keys = column.key.split('.');
-    let value = item;
-    for (const key of keys) {
-      value = value?.[key];
-    }
-    
+    const value = item[column.key];
     return value?.toString() || '';
   };
 
+  if (loading) {
+    return (
+      <div className="bg-white border border-gray-200 rounded-lg">
+        <div className="flex items-center justify-center py-12">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+            <p className="mt-2 text-gray-600">{loadingMessage}</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="bg-white border border-gray-200 rounded-lg">
+        <div className="flex items-center justify-center py-12">
+          <div className="text-center text-red-600">
+            <p>Error: {error}</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (data.length === 0) {
+    return (
+      <div className="bg-white border border-gray-200 rounded-lg">
+        <div className="flex items-center justify-center py-12">
+          <p className="text-gray-500">{emptyMessage}</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className={className}>
-      {/* Table */}
-      <Table
-        striped={striped}
-        highlightOnHover={highlightOnHover}
-        withTableBorder
-        withColumnBorders
-      >
-        <Table.Thead>
-          <Table.Tr>
-            {columns.map((column) => (
-              <Table.Th
-                key={column.key}
-                style={{ width: column.width }}
-              >
-                {column.header}
-              </Table.Th>
-            ))}
-          </Table.Tr>
-        </Table.Thead>
-        <Table.Tbody>
-          {data.content.map((item, index) => (
-            <Table.Tr key={item.id || index}>
-              {columns.map((column) => (
-                <Table.Td key={`${item.id || index}-${column.key}`}>
-                  {renderCellContent(item, column)}
-                </Table.Td>
+    <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+      <div className="overflow-x-auto">
+        <table className="min-w-full divide-y divide-gray-200">
+          <thead className="bg-gray-50">
+            <tr>
+              {columns.map((column, index) => (
+                <th
+                  key={index}
+                  className={`px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider ${
+                    column.sortable ? 'cursor-pointer hover:bg-gray-100' : ''
+                  }`}
+                  style={column.width ? { width: column.width } : undefined}
+                  onClick={() => handleSort(column)}
+                >
+                  <div className="flex items-center">
+                    {column.header}
+                    {column.sortable && sortColumn === column.key && (
+                      <span className="ml-1">
+                        {sortDirection === 'asc' ? '↑' : '↓'}
+                      </span>
+                    )}
+                  </div>
+                </th>
               ))}
-            </Table.Tr>
-          ))}
-        </Table.Tbody>
-      </Table>
+            </tr>
+          </thead>
+          <tbody className="bg-white divide-y divide-gray-200">
+            {sortedData.map((item, rowIndex) => (
+              <tr
+                key={rowIndex}
+                className={`${
+                  onRowClick ? 'cursor-pointer hover:bg-gray-50' : ''
+                }`}
+                onClick={() => onRowClick?.(item)}
+              >
+                {columns.map((column, colIndex) => (
+                  <td
+                    key={colIndex}
+                    className="px-6 py-4 whitespace-nowrap text-sm text-gray-900"
+                  >
+                    {renderCellContent(item, column)}
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
 
-      {/* Pagination Controls */}
-      {data.totalPages > 1 && (
-        <Group justify="space-between" mt="md">
-          <Group>
-            <Text size="sm" c="dimmed">
-              {PagedResponseUtils.getPageRangeText(data)}
-            </Text>
-            {onPageSizeChange && (
-              <Select
-                data={PAGE_SIZE_OPTIONS}
-                value={data.size.toString()}
-                onChange={handlePageSizeChange}
-                size="sm"
-                w={120}
-              />
-            )}
-          </Group>
-
-          <Pagination
-            total={data.totalPages}
-            value={PagedResponseUtils.getCurrentPageNumber(data)}
-            onChange={handlePageChange}
-            size="sm"
-          />
-        </Group>
+      {pagination && (
+        <div className="bg-white px-4 py-3 border-t border-gray-200 flex items-center justify-between">
+          <div className="flex-1 flex justify-between sm:hidden">
+            <button
+              onClick={() => pagination.onPageChange(pagination.page - 1)}
+              disabled={pagination.page <= 1}
+              className="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Previous
+            </button>
+            <button
+              onClick={() => pagination.onPageChange(pagination.page + 1)}
+              disabled={pagination.page >= Math.ceil(pagination.total / pagination.pageSize)}
+              className="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Next
+            </button>
+          </div>
+          
+          <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+            <div>
+              <p className="text-sm text-gray-700">
+                Showing{' '}
+                <span className="font-medium">
+                  {(pagination.page - 1) * pagination.pageSize + 1}
+                </span>{' '}
+                to{' '}
+                <span className="font-medium">
+                  {Math.min(pagination.page * pagination.pageSize, pagination.total)}
+                </span>{' '}
+                of{' '}
+                <span className="font-medium">{pagination.total}</span> results
+              </p>
+            </div>
+            
+            <div className="flex items-center space-x-2">
+              <button
+                onClick={() => pagination.onPageChange(pagination.page - 1)}
+                disabled={pagination.page <= 1}
+                className="relative inline-flex items-center px-2 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed rounded-l-md"
+              >
+                <IconChevronLeft size={16} />
+              </button>
+              
+              <span className="px-3 py-1 text-sm text-gray-700">
+                Page {pagination.page} of {Math.ceil(pagination.total / pagination.pageSize)}
+              </span>
+              
+              <button
+                onClick={() => pagination.onPageChange(pagination.page + 1)}
+                disabled={pagination.page >= Math.ceil(pagination.total / pagination.pageSize)}
+                className="relative inline-flex items-center px-2 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed rounded-r-md"
+              >
+                <IconChevronRight size={16} />
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

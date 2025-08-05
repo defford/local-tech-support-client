@@ -8,7 +8,7 @@ import { cleanup } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { server } from './mocks/server';
 
-// Mock window.matchMedia for Mantine components
+// Mock window.matchMedia for responsive design testing
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
   value: (query: string) => ({

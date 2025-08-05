@@ -1,16 +1,8 @@
 /**
  * 404 Not Found page component
+ * Basic HTML implementation - TODO: Replace with ShadCN UI components
  */
 
-import { 
-  Container,
-  Title,
-  Text,
-  Button,
-  Group,
-  Center,
-  Stack
-} from '@mantine/core';
 import { IconHome, IconArrowLeft } from '@tabler/icons-react';
 import { Link, useNavigate } from 'react-router-dom';
 
@@ -18,50 +10,41 @@ export function NotFoundPage() {
   const navigate = useNavigate();
 
   return (
-    <Container size="md">
-      <Center style={{ minHeight: '70vh' }}>
-        <Stack align="center" gap="xl">
-          <div style={{ textAlign: 'center' }}>
-            <Title
-              order={1}
-              size="8rem"
-              fw={900}
-              c="blue.6"
-              style={{ lineHeight: 1 }}
-            >
+    <div className="container mx-auto px-4">
+      <div className="flex items-center justify-center min-h-[70vh]">
+        <div className="text-center space-y-8">
+          <div>
+            <h1 className="text-8xl font-black text-blue-600 leading-none">
               404
-            </Title>
-            <Title order={2} size="2rem" fw={700} mt="sm">
+            </h1>
+            <h2 className="text-3xl font-bold mt-4">
               Page Not Found
-            </Title>
-            <Text c="dimmed" size="lg" mt="md" maw={500}>
+            </h2>
+            <p className="text-gray-600 text-lg mt-4 max-w-lg">
               The page you are looking for might have been removed, 
               had its name changed, or is temporarily unavailable.
-            </Text>
+            </p>
           </div>
 
-          <Group>
-            <Button
-              component={Link}
+          <div className="flex gap-4 justify-center">
+            <Link
               to="/"
-              leftSection={<IconHome size="1rem" />}
-              variant="filled"
-              size="md"
+              className="bg-blue-600 text-white px-6 py-3 rounded-md hover:bg-blue-700 flex items-center gap-2"
             >
+              <IconHome size={16} />
               Go to Dashboard
-            </Button>
-            <Button
+            </Link>
+            <button
               onClick={() => navigate(-1)}
-              leftSection={<IconArrowLeft size="1rem" />}
-              variant="light"
-              size="md"
+              className="bg-gray-100 text-gray-700 px-6 py-3 rounded-md hover:bg-gray-200 flex items-center gap-2"
             >
+              <IconArrowLeft size={16} />
               Go Back
-            </Button>
-          </Group>
-        </Stack>
-      </Center>
-    </Container>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }
 

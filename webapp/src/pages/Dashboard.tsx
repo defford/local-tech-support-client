@@ -1,20 +1,9 @@
 /**
  * Dashboard page component
  * Main landing page with system overview
+ * Basic HTML implementation - TODO: Replace with ShadCN UI components
  */
 
-import { 
-  Title, 
-  Text, 
-  SimpleGrid, 
-  Card, 
-  Group,
-  ThemeIcon,
-  Stack,
-  Progress,
-  Badge,
-  ActionIcon
-} from '@mantine/core';
 import { 
   IconUsers, 
   IconTool, 
@@ -25,7 +14,6 @@ import {
   IconRefresh
 } from '@tabler/icons-react';
 import { useTicketStatistics, useTechnicianStatistics } from '../hooks';
-import { LoadingSpinner, ErrorAlert } from '../components/ui';
 
 interface StatCardProps {
   title: string;
@@ -40,42 +28,50 @@ interface StatCardProps {
 }
 
 function StatCard({ title, value, icon, color, description, trend }: StatCardProps) {
+  const colorClasses = {
+    blue: 'bg-blue-100 text-blue-600',
+    green: 'bg-green-100 text-green-600',
+    orange: 'bg-orange-100 text-orange-600',
+    purple: 'bg-purple-100 text-purple-600',
+    red: 'bg-red-100 text-red-600'
+  };
+
   return (
-    <Card withBorder padding="lg" radius="md">
-      <Group justify="apart">
+    <div className="bg-white border border-gray-200 rounded-lg p-6">
+      <div className="flex items-start justify-between">
         <div>
-          <Text c="dimmed" size="sm" tt="uppercase" fw={700}>
+          <p className="text-gray-500 text-sm uppercase font-bold tracking-wider">
             {title}
-          </Text>
-          <Text fw={700} size="xl">
+          </p>
+          <p className="text-2xl font-bold mt-1">
             {value}
-          </Text>
+          </p>
           {description && (
-            <Text c="dimmed" size="sm">
+            <p className="text-gray-500 text-sm mt-1">
               {description}
-            </Text>
+            </p>
           )}
         </div>
-        <ThemeIcon color={color} size={38} radius="md" variant="light">
+        <div className={`w-10 h-10 rounded-md flex items-center justify-center ${colorClasses[color as keyof typeof colorClasses] || colorClasses.blue}`}>
           {icon}
-        </ThemeIcon>
-      </Group>
+        </div>
+      </div>
       
       {trend && (
-        <Group justify="apart" mt="md">
-          <Text size="sm" c="dimmed">
+        <div className="flex items-center justify-between mt-4">
+          <span className="text-sm text-gray-500">
             vs last month
-          </Text>
-          <Badge 
-            color={trend.positive ? 'green' : 'red'} 
-            variant="light"
-            size="sm"
-          >
+          </span>
+          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+            trend.positive 
+              ? 'bg-green-100 text-green-800' 
+              : 'bg-red-100 text-red-800'
+          }`}>
             {trend.positive ? '+' : ''}{trend.value}%
-          </Badge>
-        </Group>
+          </span>
+        </div>
       )}
-    </Card>
+    </div>
   );
 }
 
@@ -98,52 +94,64 @@ export function DashboardPage() {
   const hasError = ticketStatsError || techStatsError;
 
   if (isLoading) {
-    return <LoadingSpinner message="Loading dashboard..." centered />;
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-2 text-gray-600">Loading dashboard...</p>
+        </div>
+      </div>
+    );
   }
 
   if (hasError) {
     return (
-      <ErrorAlert
-        error={ticketStatsError || techStatsError || 'Failed to load dashboard data'}
-        title="Dashboard Error"
-        showRetry
-        onRetry={() => {
-          refetchTicketStats();
-          refetchTechStats();
-        }}
-      />
-    );
-  }
-
-  return (
-    <Stack gap="xl">
-      {/* Page Header */}
-      <Group justify="space-between">
-        <div>
-          <Title order={1}>Dashboard</Title>
-          <Text c="dimmed" size="lg">
-            System overview and key metrics
-          </Text>
-        </div>
-        <ActionIcon
-          variant="light"
-          size="lg"
+      <div className="bg-red-50 border border-red-200 rounded-md p-4">
+        <h3 className="text-lg font-medium text-red-800">Dashboard Error</h3>
+        <p className="text-red-700 mt-1">
+          {String(ticketStatsError || techStatsError || 'Failed to load dashboard data')}
+        </p>
+        <button
           onClick={() => {
             refetchTicketStats();
             refetchTechStats();
           }}
+          className="mt-3 bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700"
+        >
+          Retry
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-8">
+      {/* Page Header */}
+      <div className="flex items-start justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
+          <p className="text-gray-600 text-lg mt-1">
+            System overview and key metrics
+          </p>
+        </div>
+        <button
+          onClick={() => {
+            refetchTicketStats();
+            refetchTechStats();
+          }}
+          className="p-2 rounded-md hover:bg-gray-100"
           title="Refresh data"
         >
-          <IconRefresh size="1.2rem" />
-        </ActionIcon>
-      </Group>
+          <IconRefresh size={20} />
+        </button>
+      </div>
 
       {/* Key Statistics */}
-      <SimpleGrid cols={{ base: 1, sm: 2, lg: 4 }} spacing="lg">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatCard
           title="Total Clients"
           value="124" // TODO: Get from API
-          icon={<IconUsers size="1.5rem" />}
+          icon={<IconUsers size={24} />}
           color="blue"
           description="Active users"
           trend={{ value: 12, positive: true }}
@@ -152,7 +160,7 @@ export function DashboardPage() {
         <StatCard
           title="Active Technicians"
           value={techStats?.activeTechnicians || 0}
-          icon={<IconTool size="1.5rem" />}
+          icon={<IconTool size={24} />}
           color="green"
           description="Available now"
         />
@@ -160,7 +168,7 @@ export function DashboardPage() {
         <StatCard
           title="Open Tickets"
           value={ticketStats?.openTickets || 0}
-          icon={<IconTicket size="1.5rem" />}
+          icon={<IconTicket size={24} />}
           color="orange"
           description="Pending resolution"
         />
@@ -168,105 +176,115 @@ export function DashboardPage() {
         <StatCard
           title="Today's Appointments"
           value="8" // TODO: Get from API
-          icon={<IconCalendarEvent size="1.5rem" />}
+          icon={<IconCalendarEvent size={24} />}
           color="purple"
           description="Scheduled"
         />
-      </SimpleGrid>
+      </div>
 
       {/* Quick Status Overview */}
-      <SimpleGrid cols={{ base: 1, lg: 2 }} spacing="lg">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Ticket Status */}
-        <Card withBorder padding="lg" radius="md">
-          <Group justify="space-between" mb="md">
-            <Text size="lg" fw={600}>
+        <div className="bg-white border border-gray-200 rounded-lg p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-semibold">
               Ticket Status
-            </Text>
-            <Badge variant="light" color="blue">
+            </h3>
+            <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
               {ticketStats?.totalTickets || 0} Total
-            </Badge>
-          </Group>
+            </span>
+          </div>
           
           {ticketStats && (
-            <Stack gap="sm">
+            <div className="space-y-4">
               <div>
-                <Group justify="space-between" mb={5}>
-                  <Text size="sm">Open Tickets</Text>
-                  <Text size="sm" fw={500}>
+                <div className="flex justify-between mb-2">
+                  <span className="text-sm text-gray-700">Open Tickets</span>
+                  <span className="text-sm font-medium">
                     {ticketStats.openTickets} ({Math.round((ticketStats.openTickets / ticketStats.totalTickets) * 100)}%)
-                  </Text>
-                </Group>
-                <Progress 
-                  value={(ticketStats.openTickets / ticketStats.totalTickets) * 100} 
-                  color="orange"
-                  size="sm"
-                />
+                  </span>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div 
+                    className="bg-orange-500 h-2 rounded-full" 
+                    style={{ width: `${(ticketStats.openTickets / ticketStats.totalTickets) * 100}%` }}
+                  />
+                </div>
               </div>
               
               <div>
-                <Group justify="space-between" mb={5}>
-                  <Text size="sm">Resolved Tickets</Text>
-                  <Text size="sm" fw={500}>
+                <div className="flex justify-between mb-2">
+                  <span className="text-sm text-gray-700">Resolved Tickets</span>
+                  <span className="text-sm font-medium">
                     {ticketStats.resolvedTickets} ({Math.round((ticketStats.resolvedTickets / ticketStats.totalTickets) * 100)}%)
-                  </Text>
-                </Group>
-                <Progress 
-                  value={(ticketStats.resolvedTickets / ticketStats.totalTickets) * 100} 
-                  color="green"
-                  size="sm"
-                />
+                  </span>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div 
+                    className="bg-green-500 h-2 rounded-full" 
+                    style={{ width: `${(ticketStats.resolvedTickets / ticketStats.totalTickets) * 100}%` }}
+                  />
+                </div>
               </div>
-            </Stack>
+            </div>
           )}
-        </Card>
+        </div>
 
         {/* System Health */}
-        <Card withBorder padding="lg" radius="md">
-          <Group justify="space-between" mb="md">
-            <Text size="lg" fw={600}>
+        <div className="bg-white border border-gray-200 rounded-lg p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-semibold">
               System Health
-            </Text>
-            <Badge variant="light" color="green">
+            </h3>
+            <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
               Healthy
-            </Badge>
-          </Group>
+            </span>
+          </div>
           
-          <Stack gap="sm">
-            <Group justify="apart">
-              <Text size="sm">Average Resolution Time</Text>
-              <Text size="sm" fw={500}>
+          <div className="space-y-3">
+            <div className="flex justify-between">
+              <span className="text-sm text-gray-700">Average Resolution Time</span>
+              <span className="text-sm font-medium">
                 {ticketStats?.averageResolutionTimeHours?.toFixed(1) || 0}h
-              </Text>
-            </Group>
+              </span>
+            </div>
             
-            <Group justify="apart">
-              <Text size="sm">Tickets Resolved Today</Text>
-              <Text size="sm" fw={500}>
+            <div className="flex justify-between">
+              <span className="text-sm text-gray-700">Tickets Resolved Today</span>
+              <span className="text-sm font-medium">
                 {ticketStats?.ticketsResolvedToday || 0}
-              </Text>
-            </Group>
+              </span>
+            </div>
             
-            <Group justify="apart">
-              <Text size="sm">Average Tickets per Technician</Text>
-              <Text size="sm" fw={500}>
+            <div className="flex justify-between">
+              <span className="text-sm text-gray-700">Average Tickets per Technician</span>
+              <span className="text-sm font-medium">
                 {techStats?.averageTicketsPerTechnician?.toFixed(1) || 0}
-              </Text>
-            </Group>
-          </Stack>
-        </Card>
-      </SimpleGrid>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
 
       {/* Quick Actions */}
-      <Card withBorder padding="lg" radius="md">
-        <Text size="lg" fw={600} mb="md">
+      <div className="bg-white border border-gray-200 rounded-lg p-6">
+        <h3 className="text-lg font-semibold mb-4">
           Quick Actions
-        </Text>
-        <Text c="dimmed">
+        </h3>
+        <p className="text-gray-600">
           This section will contain quick action buttons for common tasks like creating tickets, 
           scheduling appointments, and viewing overdue items.
-        </Text>
-      </Card>
-    </Stack>
+        </p>
+      </div>
+
+      {/* Note about ShadCN UI */}
+      <div className="bg-blue-50 border border-blue-200 rounded-md p-4">
+        <p className="text-blue-800 text-sm">
+          <strong>Note:</strong> This dashboard is using basic HTML/CSS components. 
+          ShadCN UI integration is planned to replace these with professional components.
+        </p>
+      </div>
+    </div>
   );
 }
 

@@ -1,15 +1,8 @@
 /**
  * Navigation sidebar component
+ * Basic HTML implementation - TODO: Replace with ShadCN UI components
  */
 
-import { 
-  NavLink, 
-  ScrollArea, 
-  Text, 
-  Divider, 
-  Group,
-  Badge
-} from '@mantine/core';
 import { 
   IconDashboard,
   IconUsers,
@@ -17,7 +10,6 @@ import {
   IconTicket,
   IconCalendar,
   IconChartBar,
-  IconHome,
   IconSettings,
   IconQuestionMark
 } from '@tabler/icons-react';
@@ -32,60 +24,51 @@ interface NavItem {
   icon: React.ReactNode;
   href: string;
   badge?: string | number;
-  color?: string;
 }
 
 const mainNavItems: NavItem[] = [
   {
     label: 'Dashboard',
-    icon: <IconDashboard size="1rem" />,
-    href: '/',
-    color: 'blue'
+    icon: <IconDashboard size={16} />,
+    href: '/'
   },
   {
     label: 'Clients',
-    icon: <IconUsers size="1rem" />,
-    href: '/clients',
-    color: 'green'
+    icon: <IconUsers size={16} />,
+    href: '/clients'
   },
   {
     label: 'Technicians',
-    icon: <IconTool size="1rem" />,
-    href: '/technicians',
-    color: 'orange'
+    icon: <IconTool size={16} />,
+    href: '/technicians'
   },
   {
     label: 'Tickets',
-    icon: <IconTicket size="1rem" />,
-    href: '/tickets',
-    color: 'red'
+    icon: <IconTicket size={16} />,
+    href: '/tickets'
   },
   {
     label: 'Appointments',
-    icon: <IconCalendar size="1rem" />,
-    href: '/appointments',
-    color: 'purple'
+    icon: <IconCalendar size={16} />,
+    href: '/appointments'
   },
   {
     label: 'Reports',
-    icon: <IconChartBar size="1rem" />,
-    href: '/reports',
-    color: 'cyan'
+    icon: <IconChartBar size={16} />,
+    href: '/reports'
   }
 ];
 
 const bottomNavItems: NavItem[] = [
   {
     label: 'Settings',
-    icon: <IconSettings size="1rem" />,
-    href: '/settings',
-    color: 'gray'
+    icon: <IconSettings size={16} />,
+    href: '/settings'
   },
   {
     label: 'Help',
-    icon: <IconQuestionMark size="1rem" />,
-    href: '/help',
-    color: 'gray'
+    icon: <IconQuestionMark size={16} />,
+    href: '/help'
   }
 ];
 
@@ -96,58 +79,66 @@ export function Navigation({ onLinkClick }: NavigationProps) {
     const isActive = location.pathname === item.href;
 
     return (
-      <NavLink
+      <Link
         key={item.href}
-        component={Link}
         to={item.href}
-        label={item.label}
-        leftSection={item.icon}
-        rightSection={
-          item.badge ? (
-            <Badge size="xs" variant="filled" color={item.color}>
-              {item.badge}
-            </Badge>
-          ) : null
-        }
-        active={isActive}
-        color={item.color}
-        variant="filled"
         onClick={onLinkClick}
-      />
+        className={`flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-colors ${
+          isActive 
+            ? 'bg-blue-100 text-blue-700 font-medium' 
+            : 'text-gray-700 hover:bg-gray-100'
+        }`}
+      >
+        {item.icon}
+        <span>{item.label}</span>
+        {item.badge && (
+          <span className="ml-auto bg-blue-500 text-white text-xs px-2 py-1 rounded-full">
+            {item.badge}
+          </span>
+        )}
+      </Link>
     );
   };
 
   return (
-    <ScrollArea style={{ height: '100%' }}>
-      <div style={{ padding: '1rem' }}>
+    <div className="h-full overflow-y-auto">
+      <div className="p-4">
         {/* Main Navigation */}
-        <Text size="xs" tt="uppercase" fw={700} c="dimmed" mb="sm">
-          Main Menu
-        </Text>
-        
-        {mainNavItems.map(renderNavItem)}
+        <div className="mb-6">
+          <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
+            Main Menu
+          </h3>
+          <nav className="space-y-1">
+            {mainNavItems.map(renderNavItem)}
+          </nav>
+        </div>
 
-        <Divider my="md" />
+        {/* Divider */}
+        <div className="border-t border-gray-200 my-4"></div>
 
         {/* System Navigation */}
-        <Text size="xs" tt="uppercase" fw={700} c="dimmed" mb="sm">
-          System
-        </Text>
-        
-        {bottomNavItems.map(renderNavItem)}
+        <div className="mb-6">
+          <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
+            System
+          </h3>
+          <nav className="space-y-1">
+            {bottomNavItems.map(renderNavItem)}
+          </nav>
+        </div>
 
-        <Divider my="md" />
+        {/* Divider */}
+        <div className="border-t border-gray-200 my-4"></div>
 
         {/* App Info */}
-        <Group justify="center" mt="xl">
-          <Text size="xs" c="dimmed" ta="center">
+        <div className="text-center mt-8">
+          <p className="text-xs text-gray-500">
             Tech Support System
             <br />
             v1.0.0
-          </Text>
-        </Group>
+          </p>
+        </div>
       </div>
-    </ScrollArea>
+    </div>
   );
 }
 

@@ -4,8 +4,8 @@
  */
 
 // DataTable
-export { default as DataTable } from './DataTable';
-export type { DataTableProps, DataTableColumn } from './DataTable';
+export { default as DataTable } from './DataTable.basic';
+export type { DataTableProps, DataTableColumn } from './DataTable.basic';
 
 // Status Badges
 export {
@@ -15,7 +15,7 @@ export {
   TicketStatusBadge,
   PriorityBadge,
   AppointmentStatusBadge
-} from './StatusBadge';
+} from './StatusBadge.basic';
 export type {
   StatusBadgeProps,
   ClientStatusBadgeProps,
@@ -23,7 +23,7 @@ export type {
   TicketStatusBadgeProps,
   PriorityBadgeProps,
   AppointmentStatusBadgeProps
-} from './StatusBadge';
+} from './StatusBadge.basic';
 
 // Loading Spinners
 export {
@@ -31,8 +31,8 @@ export {
   TableLoadingSpinner,
   PageLoadingSpinner,
   CardLoadingSpinner
-} from './LoadingSpinner';
-export type { LoadingSpinnerProps } from './LoadingSpinner';
+} from './LoadingSpinner.basic';
+export type { LoadingSpinnerProps } from './LoadingSpinner.basic';
 
 // Error Alerts
 export {
@@ -41,5 +41,5 @@ export {
   ValidationErrorAlert,
   PermissionErrorAlert,
   NotFoundErrorAlert
-} from './ErrorAlert';
-export type { ErrorAlertProps } from './ErrorAlert';
+} from './ErrorAlert.basic';
+export type { ErrorAlertProps } from './ErrorAlert.basic';

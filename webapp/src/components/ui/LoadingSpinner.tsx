@@ -1,112 +1,83 @@
 /**
- * Loading spinner component with various display options
- * Built with Mantine Loader component
+ * Loading spinner component with basic HTML/CSS implementation
+ * TODO: Replace with ShadCN UI Skeleton/Loading components
  */
 
-import { Loader, Center, Stack, Text, LoaderProps } from '@mantine/core';
-
-export interface LoadingSpinnerProps extends LoaderProps {
+export interface LoadingSpinnerProps {
   message?: string;
+  size?: 'sm' | 'md' | 'lg' | 'xl';
   centered?: boolean;
-  fullPage?: boolean;
   overlay?: boolean;
 }
 
-/**
- * Basic loading spinner
- */
+const getSizeClasses = (size: 'sm' | 'md' | 'lg' | 'xl') => {
+  switch (size) {
+    case 'sm':
+      return 'h-4 w-4';
+    case 'lg':
+      return 'h-8 w-8';
+    case 'xl':
+      return 'h-12 w-12';
+    default:
+      return 'h-6 w-6';
+  }
+};
+
 export function LoadingSpinner({
-  message,
-  centered = false,
-  fullPage = false,
-  overlay = false,
+  message = 'Loading...',
   size = 'md',
-  color = 'blue',
-  ...props
+  centered = false,
+  overlay = false
 }: LoadingSpinnerProps) {
+  const sizeClasses = getSizeClasses(size);
+  
   const spinner = (
-    <Stack align="center" gap="md">
-      <Loader size={size} color={color} {...props} />
+    <div className="flex flex-col items-center">
+      <div className={`animate-spin rounded-full border-2 border-gray-300 border-t-blue-600 ${sizeClasses}`} />
       {message && (
-        <Text size="sm" c="dimmed">
-          {message}
-        </Text>
+        <p className="mt-2 text-sm text-gray-600">{message}</p>
       )}
-    </Stack>
+    </div>
   );
 
-  if (fullPage) {
+  if (overlay) {
     return (
-      <div
-        style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          backgroundColor: overlay ? 'rgba(255, 255, 255, 0.8)' : 'transparent',
-          zIndex: overlay ? 1000 : 'auto'
-        }}
-      >
-        {spinner}
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="bg-white rounded-lg p-6">
+          {spinner}
+        </div>
       </div>
     );
   }
 
   if (centered) {
     return (
-      <Center style={{ minHeight: '200px' }}>
+      <div className="flex items-center justify-center h-64">
         {spinner}
-      </Center>
+      </div>
     );
   }
 
   return spinner;
 }
 
-/**
- * Inline loading spinner for buttons or small spaces
- */
-export function InlineSpinner({ size = 'xs', ...props }: LoaderProps) {
-  return <Loader size={size} {...props} />;
-}
-
-/**
- * Table loading spinner
- */
 export function TableLoadingSpinner({ message = 'Loading data...' }: { message?: string }) {
   return (
-    <Center style={{ padding: '2rem' }}>
+    <div className="flex items-center justify-center py-8">
       <LoadingSpinner message={message} size="lg" />
-    </Center>
+    </div>
   );
 }
 
-/**
- * Page loading spinner
- */
 export function PageLoadingSpinner({ message = 'Loading page...' }: { message?: string }) {
-  return (
-    <LoadingSpinner
-      message={message}
-      size="xl"
-      fullPage
-      overlay
-    />
-  );
+  return <LoadingSpinner message={message} size="lg" centered />;
 }
 
-/**
- * Card loading spinner
- */
 export function CardLoadingSpinner({ message }: { message?: string }) {
   return (
-    <Center style={{ minHeight: '150px' }}>
+    <div className="p-4">
       <LoadingSpinner message={message} />
-    </Center>
+    </div>
   );
 }
 

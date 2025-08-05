@@ -30,6 +30,8 @@ import { useNavigate } from 'react-router-dom';
 import { useClients, useClientSearch, useActivateClient, useSuspendClient, useDeleteClient } from '../../hooks';
 import { DataTable, ErrorAlert, ClientStatusBadge } from '../../components/ui';
 import { ClientModal } from '../../components/forms';
+import { TestModal } from '../../components/forms/TestModal';
+import { SimpleTestModal } from '../../components/forms/SimpleTestModal';
 import { Client, ClientStatus, PaginationParams } from '../../types';
 import type { DataTableColumn } from '../../components/ui';
 
@@ -90,8 +92,11 @@ export function ClientsPage() {
   };
 
   const handleCreateClient = () => {
+    console.log('🚀 handleCreateClient called');
+    console.log('📝 modalOpened before:', modalOpened);
     setEditingClient(undefined);
     setModalOpened(true);
+    console.log('📝 modalOpened should now be true');
   };
 
   const handleEditClient = (client: Client) => {
@@ -301,13 +306,19 @@ export function ClientsPage() {
         emptyMessage="No clients found"
       />
 
+      {/* Test Modal - for debugging */}
+      <TestModal
+        opened={modalOpened}
+        onClose={() => setModalOpened(false)}
+      />
+      
       {/* Client Modal */}
-      <ClientModal
+      {/* <ClientModal
         opened={modalOpened}
         onClose={() => setModalOpened(false)}
         client={editingClient}
         onSuccess={handleModalSuccess}
-      />
+      /> */}
     </Stack>
   );
 }

@@ -1,26 +1,9 @@
 /**
  * Application header component
+ * Basic HTML implementation - TODO: Replace with ShadCN UI components
  */
 
-import { 
-  Group, 
-  Burger, 
-  Title, 
-  ActionIcon, 
-  Menu, 
-  Avatar, 
-  Text,
-  useMantineColorScheme,
-  rem
-} from '@mantine/core';
-import { 
-  IconSun, 
-  IconMoon, 
-  IconSettings, 
-  IconLogout, 
-  IconUser,
-  IconBell
-} from '@tabler/icons-react';
+import { IconUser, IconBell } from '@tabler/icons-react';
 
 export interface HeaderProps {
   opened: boolean;
@@ -28,77 +11,47 @@ export interface HeaderProps {
 }
 
 export function Header({ opened, toggle }: HeaderProps) {
-  const { colorScheme, toggleColorScheme } = useMantineColorScheme();
-
   return (
-    <Group h="100%" px="md" justify="space-between">
-      <Group>
-        <Burger 
-          opened={opened} 
-          onClick={toggle} 
-          hiddenFrom="sm" 
-          size="sm" 
-        />
-        <Title size={rem(24)} c="blue.6">
-          Tech Support System
-        </Title>
-      </Group>
-
-      <Group>
-        {/* Color scheme toggle */}
-        <ActionIcon
-          variant="subtle"
-          size="lg"
-          onClick={() => toggleColorScheme()}
-          title={`Switch to ${colorScheme === 'dark' ? 'light' : 'dark'} mode`}
+    <div className="flex items-center justify-between h-full">
+      <div className="flex items-center gap-3">
+        {/* Burger Menu for Mobile */}
+        <button
+          onClick={toggle}
+          className="p-2 rounded-md hover:bg-gray-100 md:hidden"
+          aria-label="Toggle navigation"
         >
-          {colorScheme === 'dark' ? (
-            <IconSun size="1.2rem" />
-          ) : (
-            <IconMoon size="1.2rem" />
-          )}
-        </ActionIcon>
+          <div className="w-5 h-5 flex flex-col justify-center">
+            <span className={`block h-0.5 w-5 bg-gray-600 transition-transform ${opened ? 'rotate-45 translate-y-1' : ''}`} />
+            <span className={`block h-0.5 w-5 bg-gray-600 mt-1 transition-opacity ${opened ? 'opacity-0' : ''}`} />
+            <span className={`block h-0.5 w-5 bg-gray-600 mt-1 transition-transform ${opened ? '-rotate-45 -translate-y-1' : ''}`} />
+          </div>
+        </button>
+        
+        <h1 className="text-xl font-semibold text-blue-600">
+          Tech Support System
+        </h1>
+      </div>
 
-        {/* Notifications */}
-        <ActionIcon
-          variant="subtle"
-          size="lg"
+      <div className="flex items-center gap-2">
+        {/* Notifications - TODO: Add dropdown with ShadCN UI */}
+        <button 
+          className="p-2 rounded-md hover:bg-gray-100"
           title="Notifications"
         >
-          <IconBell size="1.2rem" />
-        </ActionIcon>
+          <IconBell size={20} />
+        </button>
 
-        {/* User menu */}
-        <Menu shadow="md" width={200}>
-          <Menu.Target>
-            <ActionIcon variant="subtle" size="lg">
-              <Avatar size="sm" radius="xl">
-                <IconUser size="1rem" />
-              </Avatar>
-            </ActionIcon>
-          </Menu.Target>
-
-          <Menu.Dropdown>
-            <Menu.Label>Account</Menu.Label>
-            <Menu.Item leftSection={<IconUser size="0.9rem" />}>
-              Profile
-            </Menu.Item>
-            <Menu.Item leftSection={<IconSettings size="0.9rem" />}>
-              Settings
-            </Menu.Item>
-            
-            <Menu.Divider />
-            
-            <Menu.Item 
-              leftSection={<IconLogout size="0.9rem" />}
-              color="red"
-            >
-              Logout
-            </Menu.Item>
-          </Menu.Dropdown>
-        </Menu>
-      </Group>
-    </Group>
+        {/* User Menu - TODO: Add dropdown with ShadCN UI */}
+        <button 
+          className="p-2 rounded-md hover:bg-gray-100"
+          title="User menu"
+        >
+          <div className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center">
+            <IconUser size={16} />
+          </div>
+        </button>
+      </div>
+    </div>
   );
 }
 

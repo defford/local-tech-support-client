@@ -1,105 +1,119 @@
 /**
- * Status badge component for displaying various entity statuses
- * Built with Mantine Badge component
+ * Status badge component with basic HTML/CSS implementation
+ * TODO: Replace with ShadCN UI Badge component
  */
 
-import { Badge, BadgeProps } from '@mantine/core';
-import {
-  ClientStatus,
-  TechnicianStatus,
-  TicketStatus,
-  TicketPriority,
-  AppointmentStatus
+import { 
+  ClientStatus, 
+  TechnicianStatus, 
+  TicketStatus, 
+  TicketPriority, 
+  AppointmentStatus 
 } from '../../types';
 
-export interface StatusBadgeProps extends Omit<BadgeProps, 'color' | 'variant'> {
-  status: ClientStatus | TechnicianStatus | TicketStatus | TicketPriority | AppointmentStatus | string;
-  variant?: 'light' | 'filled' | 'outline' | 'dot';
-  size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
+export interface StatusBadgeProps {
+  status: string;
+  size?: 'sm' | 'md' | 'lg';
+  children?: React.ReactNode;
 }
 
-/**
- * Get appropriate color for different status types
- */
-const getStatusColor = (status: string): string => {
+const getStatusClasses = (status: string) => {
+  const normalizedStatus = status.toUpperCase();
+  
   // Client statuses
-  if (status === ClientStatus.ACTIVE) return 'green';
-  if (status === ClientStatus.SUSPENDED) return 'yellow';
-  if (status === ClientStatus.TERMINATED) return 'red';
-
+  if (normalizedStatus === ClientStatus.ACTIVE) {
+    return 'bg-green-100 text-green-800';
+  }
+  if (normalizedStatus === ClientStatus.SUSPENDED) {
+    return 'bg-yellow-100 text-yellow-800';
+  }
+  if (normalizedStatus === ClientStatus.TERMINATED) {
+    return 'bg-red-100 text-red-800';
+  }
+  
   // Technician statuses
-  if (status === TechnicianStatus.ACTIVE) return 'green';
-  if (status === TechnicianStatus.ON_VACATION) return 'blue';
-  if (status === TechnicianStatus.SICK_LEAVE) return 'orange';
-  if (status === TechnicianStatus.TERMINATED) return 'red';
-
+  if (normalizedStatus === TechnicianStatus.ACTIVE) {
+    return 'bg-green-100 text-green-800';
+  }
+  if (normalizedStatus === TechnicianStatus.ON_BREAK) {
+    return 'bg-yellow-100 text-yellow-800';
+  }
+  if (normalizedStatus === TechnicianStatus.ON_VACATION) {
+    return 'bg-blue-100 text-blue-800';
+  }
+  if (normalizedStatus === TechnicianStatus.INACTIVE) {
+    return 'bg-gray-100 text-gray-800';
+  }
+  
   // Ticket statuses
-  if (status === TicketStatus.OPEN) return 'blue';
-  if (status === TicketStatus.CLOSED) return 'green';
-
+  if (normalizedStatus === TicketStatus.OPEN) {
+    return 'bg-blue-100 text-blue-800';
+  }
+  if (normalizedStatus === TicketStatus.IN_PROGRESS) {
+    return 'bg-yellow-100 text-yellow-800';
+  }
+  if (normalizedStatus === TicketStatus.RESOLVED) {
+    return 'bg-green-100 text-green-800';
+  }
+  if (normalizedStatus === TicketStatus.CLOSED) {
+    return 'bg-gray-100 text-gray-800';
+  }
+  
   // Ticket priorities
-  if (status === TicketPriority.URGENT) return 'red';
-  if (status === TicketPriority.HIGH) return 'orange';
-  if (status === TicketPriority.MEDIUM) return 'yellow';
-  if (status === TicketPriority.LOW) return 'green';
-
+  if (normalizedStatus === TicketPriority.LOW) {
+    return 'bg-gray-100 text-gray-800';
+  }
+  if (normalizedStatus === TicketPriority.MEDIUM) {
+    return 'bg-yellow-100 text-yellow-800';
+  }
+  if (normalizedStatus === TicketPriority.HIGH) {
+    return 'bg-orange-100 text-orange-800';
+  }
+  if (normalizedStatus === TicketPriority.URGENT) {
+    return 'bg-red-100 text-red-800';
+  }
+  
   // Appointment statuses
-  if (status === AppointmentStatus.PENDING) return 'yellow';
-  if (status === AppointmentStatus.CONFIRMED) return 'blue';
-  if (status === AppointmentStatus.IN_PROGRESS) return 'orange';
-  if (status === AppointmentStatus.COMPLETED) return 'green';
-  if (status === AppointmentStatus.CANCELLED) return 'red';
-  if (status === AppointmentStatus.NO_SHOW) return 'red';
-
-  // Special status indicators
-  if (status === 'OVERDUE') return 'red';
-  if (status === 'UNASSIGNED') return 'yellow';
-  if (status === 'ACTIVE') return 'green';
-
+  if (normalizedStatus === AppointmentStatus.SCHEDULED) {
+    return 'bg-blue-100 text-blue-800';
+  }
+  if (normalizedStatus === AppointmentStatus.IN_PROGRESS) {
+    return 'bg-yellow-100 text-yellow-800';
+  }
+  if (normalizedStatus === AppointmentStatus.COMPLETED) {
+    return 'bg-green-100 text-green-800';
+  }
+  if (normalizedStatus === AppointmentStatus.CANCELLED) {
+    return 'bg-red-100 text-red-800';
+  }
+  
   // Default
-  return 'gray';
+  return 'bg-gray-100 text-gray-800';
 };
 
-/**
- * Format status text for display
- */
-const formatStatusText = (status: string): string => {
-  return status
-    .toLowerCase()
-    .split('_')
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(' ');
+const getSizeClasses = (size: 'sm' | 'md' | 'lg') => {
+  switch (size) {
+    case 'sm':
+      return 'px-2 py-1 text-xs';
+    case 'lg':
+      return 'px-3 py-2 text-base';
+    default:
+      return 'px-2 py-1 text-sm';
+  }
 };
 
-/**
- * StatusBadge component
- */
-export function StatusBadge({
-  status,
-  variant = 'light',
-  size = 'sm',
-  children,
-  ...props
-}: StatusBadgeProps) {
-  const color = getStatusColor(status);
-  const displayText = children || formatStatusText(status);
-
+export function StatusBadge({ status, size = 'md', children }: StatusBadgeProps) {
+  const statusClasses = getStatusClasses(status);
+  const sizeClasses = getSizeClasses(size);
+  
   return (
-    <Badge
-      color={color}
-      variant={variant}
-      size={size}
-      {...props}
-    >
-      {displayText}
-    </Badge>
+    <span className={`inline-flex items-center font-medium rounded-full ${statusClasses} ${sizeClasses}`}>
+      {children || status}
+    </span>
   );
 }
 
-/**
- * Specialized status badge components for type safety
- */
-
+// Type-safe component variants
 export interface ClientStatusBadgeProps extends Omit<StatusBadgeProps, 'status'> {
   status: ClientStatus;
 }

@@ -1,12 +1,12 @@
 /**
  * Custom testing utilities
  * Provides pre-configured wrappers for testing React components
+ * TODO: Add ShadCN UI providers when integrated
  */
 
 import React from 'react';
 import { render, RenderOptions } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { MantineProvider } from '@mantine/core';
 import { BrowserRouter } from 'react-router-dom';
 
 // Create a custom render function that includes providers
@@ -26,11 +26,10 @@ function AllTheProviders({ children }: { children: React.ReactNode }) {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <MantineProvider>
-        <BrowserRouter>
-          {children}
-        </BrowserRouter>
-      </MantineProvider>
+      {/* TODO: Add ShadCN UI ThemeProvider here when integrated */}
+      <BrowserRouter>
+        {children}
+      </BrowserRouter>
     </QueryClientProvider>
   );
 }
@@ -72,9 +71,8 @@ export const TestQueryClientProvider = ({ children, client }: {
   client: QueryClient;
 }) => (
   <QueryClientProvider client={client}>
-    <MantineProvider>
-      {children}
-    </MantineProvider>
+    {/* TODO: Add ShadCN UI ThemeProvider here when integrated */}
+    {children}
   </QueryClientProvider>
 );
 

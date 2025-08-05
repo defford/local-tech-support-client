@@ -3,17 +3,17 @@
  */
 
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { MantineProvider, ColorSchemeScript, Container, Text, Title } from '@mantine/core';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
-import { Notifications } from '@mantine/notifications';
 import { AppShellLayout } from './components/layout';
 import { 
   DashboardPage, 
   ClientsPage, 
-  ClientDetailPage, 
+  // ClientDetailPage, // TODO: Uncomment when basic version is created
   NotFoundPage 
 } from './pages';
+
+// TODO: Add ShadCN UI ThemeProvider here later
 
 // Create a client instance
 const queryClient = new QueryClient({
@@ -43,60 +43,57 @@ const queryClient = new QueryClient({
 });
 
 // Placeholder components for pages not yet implemented
+// TODO: Replace with ShadCN UI components later
 const TechniciansPage = () => (
-  <Container>
-    <Title order={1} mb="md">Technicians</Title>
-    <Text>Technician management coming soon...</Text>
-  </Container>
+  <div className="container mx-auto p-4">
+    <h1 className="text-2xl font-bold mb-4">Technicians</h1>
+    <p>Technician management coming soon...</p>
+  </div>
 );
 
 const TicketsPage = () => (
-  <Container>
-    <Title order={1} mb="md">Tickets</Title>
-    <Text>Ticket management coming soon...</Text>
-  </Container>
+  <div className="container mx-auto p-4">
+    <h1 className="text-2xl font-bold mb-4">Tickets</h1>
+    <p>Ticket management coming soon...</p>
+  </div>
 );
 
 const AppointmentsPage = () => (
-  <Container>
-    <Title order={1} mb="md">Appointments</Title>
-    <Text>Appointment management coming soon...</Text>
-  </Container>
+  <div className="container mx-auto p-4">
+    <h1 className="text-2xl font-bold mb-4">Appointments</h1>
+    <p>Appointment management coming soon...</p>
+  </div>
 );
 
 const ReportsPage = () => (
-  <Container>
-    <Title order={1} mb="md">Reports & Analytics</Title>
-    <Text>Reports and analytics coming soon...</Text>
-  </Container>
+  <div className="container mx-auto p-4">
+    <h1 className="text-2xl font-bold mb-4">Reports & Analytics</h1>
+    <p>Reports and analytics coming soon...</p>
+  </div>
 );
 
 function App() {
   return (
-    <>
-      <ColorSchemeScript defaultColorScheme="light" />
-      <QueryClientProvider client={queryClient}>
-        <MantineProvider defaultColorScheme="light">
-          <Notifications />
-          <Router>
-            <AppShellLayout>
-              <Routes>
-                <Route path="/" element={<DashboardPage />} />
-                <Route path="/clients" element={<ClientsPage />} />
-                <Route path="/clients/:id" element={<ClientDetailPage />} />
-                <Route path="/technicians" element={<TechniciansPage />} />
-                <Route path="/tickets" element={<TicketsPage />} />
-                <Route path="/appointments" element={<AppointmentsPage />} />
-                <Route path="/reports" element={<ReportsPage />} />
-                <Route path="*" element={<NotFoundPage />} />
-              </Routes>
-            </AppShellLayout>
-          </Router>
-        </MantineProvider>
-        {/* React Query DevTools - only in development */}
-        {import.meta.env.DEV && <ReactQueryDevtools initialIsOpen={false} />}
-      </QueryClientProvider>
-    </>
+    <QueryClientProvider client={queryClient}>
+      {/* TODO: Add ShadCN UI ThemeProvider wrapper here */}
+      <Router>
+        <AppShellLayout>
+          <Routes>
+            <Route path="/" element={<DashboardPage />} />
+            <Route path="/clients" element={<ClientsPage />} />
+            {/* TODO: Uncomment when basic ClientDetailPage is created */}
+            {/* <Route path="/clients/:id" element={<ClientDetailPage />} /> */}
+            <Route path="/technicians" element={<TechniciansPage />} />
+            <Route path="/tickets" element={<TicketsPage />} />
+            <Route path="/appointments" element={<AppointmentsPage />} />
+            <Route path="/reports" element={<ReportsPage />} />
+            <Route path="*" element={<NotFoundPage />} />
+          </Routes>
+        </AppShellLayout>
+      </Router>
+      {/* React Query DevTools - only in development */}
+      {import.meta.env.DEV && <ReactQueryDevtools initialIsOpen={false} />}
+    </QueryClientProvider>
   );
 }
 

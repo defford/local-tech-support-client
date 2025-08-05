@@ -1,10 +1,9 @@
 /**
  * Main application shell layout
- * Built with Mantine AppShell component
+ * Basic HTML layout - TODO: Replace with ShadCN UI components
  */
 
-import { AppShell, Burger, Group, Title, useMantineTheme } from '@mantine/core';
-import { useDisclosure } from '@mantine/hooks';
+import { useState } from 'react';
 import { Navigation } from './Navigation';
 import { Header } from './Header';
 
@@ -13,31 +12,40 @@ export interface AppShellLayoutProps {
 }
 
 export function AppShellLayout({ children }: AppShellLayoutProps) {
-  const [opened, { toggle }] = useDisclosure(false);
-  const theme = useMantineTheme();
+  const [opened, setOpened] = useState(false);
+  const toggle = () => setOpened(!opened);
 
   return (
-    <AppShell
-      header={{ height: 60 }}
-      navbar={{
-        width: 280,
-        breakpoint: 'sm',
-        collapsed: { mobile: !opened }
-      }}
-      padding="md"
-    >
-      <AppShell.Header>
+    <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <header className="bg-white border-b border-gray-200 px-4 py-3">
         <Header opened={opened} toggle={toggle} />
-      </AppShell.Header>
+      </header>
 
-      <AppShell.Navbar>
-        <Navigation onLinkClick={() => toggle()} />
-      </AppShell.Navbar>
+      <div className="flex">
+        {/* Sidebar */}
+        <aside 
+          className={`bg-white border-r border-gray-200 w-64 min-h-screen transition-transform duration-200 ${
+            opened ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
+          }`}
+        >
+          <Navigation onLinkClick={() => setOpened(false)} />
+        </aside>
 
-      <AppShell.Main>
-        {children}
-      </AppShell.Main>
-    </AppShell>
+        {/* Main Content */}
+        <main className="flex-1 p-6">
+          {children}
+        </main>
+      </div>
+
+      {/* Mobile overlay */}
+      {opened && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-50 md:hidden z-40"
+          onClick={() => setOpened(false)}
+        />
+      )}
+    </div>
   );
 }
 
