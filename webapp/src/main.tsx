@@ -1,9 +1,7 @@
 import React from 'react'
 import { createRoot } from 'react-dom/client'
-import './index.css'
+import './globals.css'
 import App from './App.tsx'
-
-// TODO: Add ShadCN UI CSS imports here later
 
 createRoot(document.getElementById('root')!).render(
   <React.StrictMode>

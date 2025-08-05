@@ -1,115 +1,125 @@
 /**
- * Status badge component with basic HTML/CSS implementation
- * TODO: Replace with ShadCN UI Badge component
+ * Status badge component for displaying various entity statuses
+ * Built with ShadCN UI Badge component
  */
 
-import { 
-  ClientStatus, 
-  TechnicianStatus, 
-  TicketStatus, 
-  TicketPriority, 
-  AppointmentStatus 
+import { Badge } from '@/components/ui/badge';
+import { cva, type VariantProps } from 'class-variance-authority';
+import { cn } from '@/lib/utils';
+import {
+  ClientStatus,
+  TechnicianStatus,
+  TicketStatus,
+  TicketPriority,
+  AppointmentStatus
 } from '../../types';
 
-export interface StatusBadgeProps {
-  status: string;
+const statusBadgeVariants = cva(
+  'inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2',
+  {
+    variants: {
+      variant: {
+        default: 'border-transparent bg-primary text-primary-foreground',
+        secondary: 'border-transparent bg-secondary text-secondary-foreground',
+        destructive: 'border-transparent bg-destructive text-destructive-foreground',
+        outline: 'text-foreground',
+        success: 'border-transparent bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100',
+        warning: 'border-transparent bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-100',
+        info: 'border-transparent bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-100',
+        error: 'border-transparent bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-100',
+        gray: 'border-transparent bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-100',
+      },
+      size: {
+        sm: 'text-xs px-2 py-0.5',
+        md: 'text-sm px-2.5 py-0.5',
+        lg: 'text-sm px-3 py-1',
+      },
+    },
+    defaultVariants: {
+      variant: 'default',
+      size: 'sm',
+    },
+  }
+);
+
+export interface StatusBadgeProps extends React.HTMLAttributes<HTMLDivElement>, VariantProps<typeof statusBadgeVariants> {
+  status: ClientStatus | TechnicianStatus | TicketStatus | TicketPriority | AppointmentStatus | string;
   size?: 'sm' | 'md' | 'lg';
-  children?: React.ReactNode;
 }
 
-const getStatusClasses = (status: string) => {
-  const normalizedStatus = status.toUpperCase();
-  
+/**
+ * Get appropriate variant for different status types
+ */
+const getStatusVariant = (status: string): 'success' | 'warning' | 'info' | 'error' | 'gray' => {
   // Client statuses
-  if (normalizedStatus === ClientStatus.ACTIVE) {
-    return 'bg-green-100 text-green-800';
-  }
-  if (normalizedStatus === ClientStatus.SUSPENDED) {
-    return 'bg-yellow-100 text-yellow-800';
-  }
-  if (normalizedStatus === ClientStatus.TERMINATED) {
-    return 'bg-red-100 text-red-800';
-  }
-  
+  if (status === ClientStatus.ACTIVE) return 'success';
+  if (status === ClientStatus.SUSPENDED) return 'warning';
+  if (status === ClientStatus.TERMINATED) return 'error';
+
   // Technician statuses
-  if (normalizedStatus === TechnicianStatus.ACTIVE) {
-    return 'bg-green-100 text-green-800';
-  }
-  if (normalizedStatus === TechnicianStatus.ON_BREAK) {
-    return 'bg-yellow-100 text-yellow-800';
-  }
-  if (normalizedStatus === TechnicianStatus.ON_VACATION) {
-    return 'bg-blue-100 text-blue-800';
-  }
-  if (normalizedStatus === TechnicianStatus.INACTIVE) {
-    return 'bg-gray-100 text-gray-800';
-  }
-  
+  if (status === TechnicianStatus.ACTIVE) return 'success';
+  if (status === TechnicianStatus.ON_VACATION) return 'info';
+  if (status === TechnicianStatus.SICK_LEAVE) return 'warning';
+  if (status === TechnicianStatus.TERMINATED) return 'error';
+
   // Ticket statuses
-  if (normalizedStatus === TicketStatus.OPEN) {
-    return 'bg-blue-100 text-blue-800';
-  }
-  if (normalizedStatus === TicketStatus.IN_PROGRESS) {
-    return 'bg-yellow-100 text-yellow-800';
-  }
-  if (normalizedStatus === TicketStatus.RESOLVED) {
-    return 'bg-green-100 text-green-800';
-  }
-  if (normalizedStatus === TicketStatus.CLOSED) {
-    return 'bg-gray-100 text-gray-800';
-  }
-  
+  if (status === TicketStatus.OPEN) return 'info';
+  if (status === TicketStatus.CLOSED) return 'success';
+
   // Ticket priorities
-  if (normalizedStatus === TicketPriority.LOW) {
-    return 'bg-gray-100 text-gray-800';
-  }
-  if (normalizedStatus === TicketPriority.MEDIUM) {
-    return 'bg-yellow-100 text-yellow-800';
-  }
-  if (normalizedStatus === TicketPriority.HIGH) {
-    return 'bg-orange-100 text-orange-800';
-  }
-  if (normalizedStatus === TicketPriority.URGENT) {
-    return 'bg-red-100 text-red-800';
-  }
-  
+  if (status === TicketPriority.URGENT) return 'error';
+  if (status === TicketPriority.HIGH) return 'warning';
+  if (status === TicketPriority.MEDIUM) return 'warning';
+  if (status === TicketPriority.LOW) return 'success';
+
   // Appointment statuses
-  if (normalizedStatus === AppointmentStatus.SCHEDULED) {
-    return 'bg-blue-100 text-blue-800';
-  }
-  if (normalizedStatus === AppointmentStatus.IN_PROGRESS) {
-    return 'bg-yellow-100 text-yellow-800';
-  }
-  if (normalizedStatus === AppointmentStatus.COMPLETED) {
-    return 'bg-green-100 text-green-800';
-  }
-  if (normalizedStatus === AppointmentStatus.CANCELLED) {
-    return 'bg-red-100 text-red-800';
-  }
-  
+  if (status === AppointmentStatus.PENDING) return 'warning';
+  if (status === AppointmentStatus.CONFIRMED) return 'info';
+  if (status === AppointmentStatus.IN_PROGRESS) return 'warning';
+  if (status === AppointmentStatus.COMPLETED) return 'success';
+  if (status === AppointmentStatus.CANCELLED) return 'error';
+  if (status === AppointmentStatus.NO_SHOW) return 'error';
+
+  // Special status indicators
+  if (status === 'OVERDUE') return 'error';
+  if (status === 'UNASSIGNED') return 'warning';
+  if (status === 'ACTIVE') return 'success';
+
   // Default
-  return 'bg-gray-100 text-gray-800';
+  return 'gray';
 };
 
-const getSizeClasses = (size: 'sm' | 'md' | 'lg') => {
-  switch (size) {
-    case 'sm':
-      return 'px-2 py-1 text-xs';
-    case 'lg':
-      return 'px-3 py-2 text-base';
-    default:
-      return 'px-2 py-1 text-sm';
-  }
+/**
+ * Format status text for display
+ */
+const formatStatusText = (status: string): string => {
+  return status
+    .toLowerCase()
+    .split('_')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
 };
 
-export function StatusBadge({ status, size = 'md', children }: StatusBadgeProps) {
-  const statusClasses = getStatusClasses(status);
-  const sizeClasses = getSizeClasses(size);
-  
+/**
+ * StatusBadge component
+ */
+export function StatusBadge({
+  status,
+  size = 'sm',
+  className,
+  children,
+  ...props
+}: StatusBadgeProps) {
+  const variant = getStatusVariant(status);
+  const displayText = children || formatStatusText(status);
+
   return (
-    <span className={`inline-flex items-center font-medium rounded-full ${statusClasses} ${sizeClasses}`}>
-      {children || status}
-    </span>
+    <div
+      className={cn(statusBadgeVariants({ variant, size }), className)}
+      {...props}
+    >
+      {displayText}
+    </div>
   );
 }
 
