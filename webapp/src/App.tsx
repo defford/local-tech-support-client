@@ -10,6 +10,7 @@ import { AppShellLayout } from './components/layout';
 import { 
   DashboardPage, 
   ClientsPage, 
+  TechniciansPage,
   // ClientDetailPage, // TODO: Uncomment when basic version is created
   NotFoundPage 
 } from './pages';
@@ -43,12 +44,6 @@ const queryClient = new QueryClient({
 
 // Placeholder components for pages not yet implemented
 // TODO: Replace with ShadCN UI components later
-const TechniciansPage = () => (
-  <div className="container mx-auto p-4">
-    <h1 className="text-2xl font-bold mb-4">Technicians</h1>
-    <p>Technician management coming soon...</p>
-  </div>
-);
 
 const TicketsPage = () => (
   <div className="container mx-auto p-4">
