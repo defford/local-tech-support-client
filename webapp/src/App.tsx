@@ -20,9 +20,9 @@ const queryClient = new QueryClient({
     queries: {
       staleTime: 5 * 60 * 1000, // 5 minutes
       gcTime: 10 * 60 * 1000, // 10 minutes (was cacheTime)
-      retry: (failureCount, error: any) => {
+      retry: (failureCount, error: unknown) => {
         // Don't retry on 4xx errors except 429 (rate limit)
-        if (error?.status >= 400 && error?.status < 500 && error?.status !== 429) {
+        if ((error as any)?.status >= 400 && (error as any)?.status < 500 && (error as any)?.status !== 429) {
           return false;
         }
         return failureCount < 3;
@@ -30,9 +30,9 @@ const queryClient = new QueryClient({
       retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
     },
     mutations: {
-      retry: (failureCount, error: any) => {
+      retry: (failureCount, error: unknown) => {
         // Don't retry mutations on client errors
-        if (error?.status >= 400 && error?.status < 500) {
+        if ((error as any)?.status >= 400 && (error as any)?.status < 500) {
           return false;
         }
         return failureCount < 2;
