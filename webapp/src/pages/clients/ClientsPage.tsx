@@ -105,6 +105,7 @@ export function ClientsPage() {
 
   return (
     <div className="space-y-8">
+      
       {/* Page Header */}
       <div className="flex justify-between items-start pb-2">
         <div className="space-y-1">

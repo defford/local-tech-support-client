@@ -11,6 +11,7 @@ export function ClientsPageBasic() {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
+  
 
   // Mock data for now
   const mockClients = [
