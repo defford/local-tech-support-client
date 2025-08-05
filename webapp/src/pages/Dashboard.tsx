@@ -1,7 +1,6 @@
 /**
  * Dashboard page component
- * Main landing page with system overview
- * Basic HTML implementation - TODO: Replace with ShadCN UI components
+ * Main landing page with system overview using ShadCN UI components
  */
 
 import { 
@@ -14,6 +13,17 @@ import {
   IconRefresh
 } from '@tabler/icons-react';
 import { useTicketStatistics, useTechnicianStatistics } from '../hooks';
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardAction,
+  CardFooter,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 
 interface StatCardProps {
   title: string;
@@ -37,41 +47,43 @@ function StatCard({ title, value, icon, color, description, trend }: StatCardPro
   };
 
   return (
-    <div className="bg-white border border-gray-200 rounded-lg p-6">
-      <div className="flex items-start justify-between">
-        <div>
-          <p className="text-gray-500 text-sm uppercase font-bold tracking-wider">
-            {title}
-          </p>
-          <p className="text-2xl font-bold mt-1">
-            {value}
-          </p>
-          {description && (
-            <p className="text-gray-500 text-sm mt-1">
-              {description}
-            </p>
-          )}
+    <Card>
+      <CardHeader>
+        <div className="flex items-start justify-between">
+          <div>
+            <CardTitle className="text-sm uppercase font-bold tracking-wider text-muted-foreground">
+              {title}
+            </CardTitle>
+            <div className="text-2xl font-bold mt-1 text-foreground">
+              {value}
+            </div>
+            {description && (
+              <CardDescription className="mt-1">
+                {description}
+              </CardDescription>
+            )}
+          </div>
+          <CardAction>
+            <div className={`w-10 h-10 rounded-md flex items-center justify-center ${colorClasses[color as keyof typeof colorClasses] || colorClasses.blue}`}>
+              {icon}
+            </div>
+          </CardAction>
         </div>
-        <div className={`w-10 h-10 rounded-md flex items-center justify-center ${colorClasses[color as keyof typeof colorClasses] || colorClasses.blue}`}>
-          {icon}
-        </div>
-      </div>
+      </CardHeader>
       
       {trend && (
-        <div className="flex items-center justify-between mt-4">
-          <span className="text-sm text-gray-500">
-            vs last month
-          </span>
-          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-            trend.positive 
-              ? 'bg-green-100 text-green-800' 
-              : 'bg-red-100 text-red-800'
-          }`}>
-            {trend.positive ? '+' : ''}{trend.value}%
-          </span>
-        </div>
+        <CardFooter className="pt-0">
+          <div className="flex items-center justify-between w-full">
+            <span className="text-sm text-muted-foreground">
+              vs last month
+            </span>
+            <Badge variant={trend.positive ? "default" : "destructive"}>
+              {trend.positive ? '+' : ''}{trend.value}%
+            </Badge>
+          </div>
+        </CardFooter>
       )}
-    </div>
+    </Card>  
   );
 }
 
@@ -97,8 +109,8 @@ export function DashboardPage() {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-2 text-gray-600">Loading dashboard...</p>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+          <p className="mt-2 text-muted-foreground">Loading dashboard...</p>
         </div>
       </div>
     );
@@ -106,21 +118,25 @@ export function DashboardPage() {
 
   if (hasError) {
     return (
-      <div className="bg-red-50 border border-red-200 rounded-md p-4">
-        <h3 className="text-lg font-medium text-red-800">Dashboard Error</h3>
-        <p className="text-red-700 mt-1">
-          {String(ticketStatsError || techStatsError || 'Failed to load dashboard data')}
-        </p>
-        <button
-          onClick={() => {
-            refetchTicketStats();
-            refetchTechStats();
-          }}
-          className="mt-3 bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700"
-        >
-          Retry
-        </button>
-      </div>
+      <Card className="border-destructive">
+        <CardHeader>
+          <CardTitle className="text-destructive">Dashboard Error</CardTitle>
+          <CardDescription className="text-destructive/80">
+            {String(ticketStatsError || techStatsError || 'Failed to load dashboard data')}
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Button
+            variant="destructive"
+            onClick={() => {
+              refetchTicketStats();
+              refetchTechStats();
+            }}
+          >
+            Retry
+          </Button>
+        </CardContent>
+      </Card>
     );
   }
 
@@ -129,21 +145,22 @@ export function DashboardPage() {
       {/* Page Header */}
       <div className="flex items-start justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-          <p className="text-gray-600 text-lg mt-1">
+          <h1 className="text-3xl font-bold text-foreground">Dashboard</h1>
+          <p className="text-muted-foreground text-lg mt-1">
             System overview and key metrics
           </p>
         </div>
-        <button
+        <Button
+          variant="ghost"
+          size="sm"
           onClick={() => {
             refetchTicketStats();
             refetchTechStats();
           }}
-          className="p-2 rounded-md hover:bg-gray-100"
           title="Refresh data"
         >
           <IconRefresh size={20} />
-        </button>
+        </Button>
       </div>
 
       {/* Key Statistics */}
@@ -185,26 +202,27 @@ export function DashboardPage() {
       {/* Quick Status Overview */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Ticket Status */}
-        <div className="bg-white border border-gray-200 rounded-lg p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold">
-              Ticket Status
-            </h3>
-            <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
-              {ticketStats?.totalTickets || 0} Total
-            </span>
-          </div>
+        <Card>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle>Ticket Status</CardTitle>
+              <Badge variant="secondary">
+                {ticketStats?.totalTickets || 0} Total
+              </Badge>
+            </div>
+          </CardHeader>
+          <CardContent>
           
           {ticketStats && (
             <div className="space-y-4">
               <div>
                 <div className="flex justify-between mb-2">
-                  <span className="text-sm text-gray-700">Open Tickets</span>
+                  <span className="text-sm text-muted-foreground">Open Tickets</span>
                   <span className="text-sm font-medium">
                     {ticketStats.openTickets} ({Math.round((ticketStats.openTickets / ticketStats.totalTickets) * 100)}%)
                   </span>
                 </div>
-                <div className="w-full bg-gray-200 rounded-full h-2">
+                <div className="w-full bg-muted rounded-full h-2">
                   <div 
                     className="bg-orange-500 h-2 rounded-full" 
                     style={{ width: `${(ticketStats.openTickets / ticketStats.totalTickets) * 100}%` }}
@@ -214,12 +232,12 @@ export function DashboardPage() {
               
               <div>
                 <div className="flex justify-between mb-2">
-                  <span className="text-sm text-gray-700">Resolved Tickets</span>
+                  <span className="text-sm text-muted-foreground">Resolved Tickets</span>
                   <span className="text-sm font-medium">
                     {ticketStats.resolvedTickets} ({Math.round((ticketStats.resolvedTickets / ticketStats.totalTickets) * 100)}%)
                   </span>
                 </div>
-                <div className="w-full bg-gray-200 rounded-full h-2">
+                <div className="w-full bg-muted rounded-full h-2">
                   <div 
                     className="bg-green-500 h-2 rounded-full" 
                     style={{ width: `${(ticketStats.resolvedTickets / ticketStats.totalTickets) * 100}%` }}
@@ -228,62 +246,69 @@ export function DashboardPage() {
               </div>
             </div>
           )}
-        </div>
+          </CardContent>
+        </Card>
 
         {/* System Health */}
-        <div className="bg-white border border-gray-200 rounded-lg p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold">
-              System Health
-            </h3>
-            <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
-              Healthy
-            </span>
-          </div>
+        <Card>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle>System Health</CardTitle>
+              <Badge variant="default" className="bg-green-100 text-green-800">
+                Healthy
+              </Badge>
+            </div>
+          </CardHeader>
+          <CardContent>
           
           <div className="space-y-3">
             <div className="flex justify-between">
-              <span className="text-sm text-gray-700">Average Resolution Time</span>
+              <span className="text-sm text-muted-foreground">Average Resolution Time</span>
               <span className="text-sm font-medium">
                 {ticketStats?.averageResolutionTimeHours?.toFixed(1) || 0}h
               </span>
             </div>
             
             <div className="flex justify-between">
-              <span className="text-sm text-gray-700">Tickets Resolved Today</span>
+              <span className="text-sm text-muted-foreground">Tickets Resolved Today</span>
               <span className="text-sm font-medium">
                 {ticketStats?.ticketsResolvedToday || 0}
               </span>
             </div>
             
             <div className="flex justify-between">
-              <span className="text-sm text-gray-700">Average Tickets per Technician</span>
+              <span className="text-sm text-muted-foreground">Average Tickets per Technician</span>
               <span className="text-sm font-medium">
                 {techStats?.averageTicketsPerTechnician?.toFixed(1) || 0}
               </span>
             </div>
           </div>
-        </div>
+          </CardContent>
+        </Card>
       </div>
 
       {/* Quick Actions */}
-      <div className="bg-white border border-gray-200 rounded-lg p-6">
-        <h3 className="text-lg font-semibold mb-4">
-          Quick Actions
-        </h3>
-        <p className="text-gray-600">
-          This section will contain quick action buttons for common tasks like creating tickets, 
-          scheduling appointments, and viewing overdue items.
-        </p>
-      </div>
+      <Card>
+        <CardHeader>
+          <CardTitle>Quick Actions</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <CardDescription>
+            This section will contain quick action buttons for common tasks like creating tickets, 
+            scheduling appointments, and viewing overdue items.
+          </CardDescription>
+        </CardContent>
+      </Card>
 
-      {/* Note about ShadCN UI */}
-      <div className="bg-blue-50 border border-blue-200 rounded-md p-4">
-        <p className="text-blue-800 text-sm">
-          <strong>Note:</strong> This dashboard is using basic HTML/CSS components. 
-          ShadCN UI integration is planned to replace these with professional components.
-        </p>
-      </div>
+      {/* Note about ShadCN UI Migration Complete */}
+      <Card className="border-green-200 bg-green-50">
+        <CardContent className="pt-6">
+          <p className="text-green-800 text-sm">
+            <strong>✅ Phase 3 Complete:</strong> This dashboard now uses ShadCN UI components 
+            for professional design and consistent user experience.
+          </p>
+        </CardContent>
+      </Card>
     </div>
   );
 }
