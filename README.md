@@ -37,7 +37,7 @@ Modern React + TypeScript web application providing the same functionality as th
 **Tech Stack:**
 - React 19 + TypeScript
 - Vite build tool
-- Mantine UI framework
+- ShadCN UI framework
 - Zustand state management
 - TanStack Query for API
 - Vitest + Testing Library
@@ -61,7 +61,7 @@ This project is migrating from Java CLI to React web application following the c
 
 **✅ Phase 1 Complete:** Foundation & Infrastructure
 - Complete TypeScript foundation with all Java model types
-- Full Mantine UI layout system with responsive navigation
+- Full ShadCN UI layout system with responsive navigation
 - React Router integration with working navigation
 - Comprehensive API layer with TanStack Query hooks
 - Complete testing framework (Vitest + MSW) with 5/5 tests passing

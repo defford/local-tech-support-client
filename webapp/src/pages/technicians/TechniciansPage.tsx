@@ -3,7 +3,7 @@
  */
 
 import { useState } from 'react';
-import { Plus, Search, Users, UserCheck, UserX, UserMinus, Settings } from 'lucide-react';
+import { Plus, Search, Users, UserCheck, UserX, UserMinus, Settings, ChevronUp, ChevronDown, MoreHorizontal, Edit, Trash2, Eye } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -13,6 +13,8 @@ import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Checkbox } from '@/components/ui/checkbox';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { useTechnicians } from '@/hooks/useTechnicians';
 import { TechnicianForm } from '@/components/forms/TechnicianForm';
 import { TechnicianStatus, Technician } from '@/types';
@@ -21,25 +23,111 @@ import { TechnicianUtils } from '@/types/Technician';
 export function TechniciansPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<TechnicianStatus | 'ALL'>('ALL');
+  const [skillsFilter, setSkillsFilter] = useState('');
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [selectedTechnicians, setSelectedTechnicians] = useState<Set<number>>(new Set());
+  const [sortColumn, setSortColumn] = useState<string | null>(null);
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
+  const [currentPage, setCurrentPage] = useState(0);
+  const [pageSize] = useState(20);
   
   // Fetch technicians data with pagination
   const { data, isLoading, error, refetch } = useTechnicians({ 
-    page: 0, 
-    size: 50 
+    page: currentPage, 
+    size: pageSize 
   });
 
-  // Filter technicians based on search and status
-  const filteredTechnicians = data?.content?.filter(technician => {
-    const fullName = TechnicianUtils.getFullName(technician);
-    const matchesSearch = !searchQuery || 
-      fullName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      technician.email.toLowerCase().includes(searchQuery.toLowerCase());
-    
-    const matchesStatus = statusFilter === 'ALL' || technician.status === statusFilter;
-    
-    return matchesSearch && matchesStatus;
-  }) || [];
+  // Filter and sort technicians
+  const filteredAndSortedTechnicians = (() => {
+    let filtered = data?.content?.filter(technician => {
+      if (!technician) return false;
+      
+      const fullName = TechnicianUtils.getFullName(technician);
+      const matchesSearch = !searchQuery || 
+        fullName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (technician.email || '').toLowerCase().includes(searchQuery.toLowerCase());
+      
+      const matchesStatus = statusFilter === 'ALL' || technician.status === statusFilter;
+      
+      const matchesSkills = !skillsFilter || 
+        (technician.skills && technician.skills.some(skill => 
+          skill.toLowerCase().includes(skillsFilter.toLowerCase())
+        ));
+      
+      return matchesSearch && matchesStatus && matchesSkills;
+    }) || [];
+
+    // Apply sorting
+    if (sortColumn) {
+      filtered = [...filtered].sort((a, b) => {
+        let aValue: string | number;
+        let bValue: string | number;
+
+        switch (sortColumn) {
+          case 'name':
+            aValue = TechnicianUtils.getFullName(a);
+            bValue = TechnicianUtils.getFullName(b);
+            break;
+          case 'status':
+            aValue = a.status;
+            bValue = b.status;
+            break;
+          case 'workload':
+            aValue = TechnicianUtils.getWorkloadLevel(a);
+            bValue = TechnicianUtils.getWorkloadLevel(b);
+            break;
+          case 'email':
+            aValue = a.email || '';
+            bValue = b.email || '';
+            break;
+          default:
+            return 0;
+        }
+
+        if (aValue < bValue) return sortDirection === 'asc' ? -1 : 1;
+        if (aValue > bValue) return sortDirection === 'asc' ? 1 : -1;
+        return 0;
+      });
+    }
+
+    return filtered;
+  })();
+
+  // Table helper functions
+  const handleSort = (column: string) => {
+    if (sortColumn === column) {
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortColumn(column);
+      setSortDirection('asc');
+    }
+  };
+
+  const handleSelectAll = (checked: boolean) => {
+    if (checked) {
+      setSelectedTechnicians(new Set(filteredAndSortedTechnicians.map(t => t.id)));
+    } else {
+      setSelectedTechnicians(new Set());
+    }
+  };
+
+  const handleSelectTechnician = (id: number, checked: boolean) => {
+    const newSelected = new Set(selectedTechnicians);
+    if (checked) {
+      newSelected.add(id);
+    } else {
+      newSelected.delete(id);
+    }
+    setSelectedTechnicians(newSelected);
+  };
+
+  const clearFilters = () => {
+    setSearchQuery('');
+    setStatusFilter('ALL');
+    setSkillsFilter('');
+    setSortColumn(null);
+    setSortDirection('asc');
+  };
 
   const getStatusBadgeVariant = (status: TechnicianStatus) => {
     switch (status) {
@@ -72,7 +160,9 @@ export function TechniciansPage() {
   };
 
 
-  const formatPhone = (phone: string) => {
+  const formatPhone = (phone: string | null | undefined) => {
+    if (!phone) return 'N/A';
+    
     // Format phone number as (XXX) XXX-XXXX
     const cleaned = phone.replace(/\D/g, '');
     if (cleaned.length === 10) {
@@ -81,7 +171,7 @@ export function TechniciansPage() {
     return phone;
   };
 
-  const formatSkills = (skills: string[]) => {
+  const formatSkills = (skills: string[] | null | undefined) => {
     if (!skills || skills.length === 0) return null;
     
     // Show first 2 skills, then "+N more" if there are more
@@ -184,49 +274,91 @@ export function TechniciansPage() {
           <CardDescription>Find and filter technicians quickly</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="flex flex-col sm:flex-row gap-4">
-            <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-              <Input
-                placeholder="Search technicians by name or email..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 bg-background/50 border-border/50 focus:bg-background transition-colors"
-              />
+          <div className="flex flex-col gap-4">
+            <div className="flex flex-col sm:flex-row gap-4">
+              <div className="flex-1 relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+                <Input
+                  placeholder="Search technicians by name or email..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-10 bg-background/50 border-border/50 focus:bg-background transition-colors"
+                />
+              </div>
+              
+              <Select value={statusFilter} onValueChange={(value: TechnicianStatus | 'ALL') => setStatusFilter(value)}>
+                <SelectTrigger className="w-full sm:w-[180px] bg-background/50 border-border/50">
+                  <SelectValue placeholder="All Statuses" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="ALL">All Statuses</SelectItem>
+                  <SelectItem value="ACTIVE">
+                    <div className="flex items-center gap-2">
+                      <UserCheck className="h-3 w-3" />
+                      Active
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="ON_VACATION">
+                    <div className="flex items-center gap-2">
+                      <Settings className="h-3 w-3" />
+                      On Vacation
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="SICK_LEAVE">
+                    <div className="flex items-center gap-2">
+                      <UserMinus className="h-3 w-3" />
+                      Sick Leave
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="TERMINATED">
+                    <div className="flex items-center gap-2">
+                      <UserX className="h-3 w-3" />
+                      Terminated
+                    </div>
+                  </SelectItem>
+                </SelectContent>
+              </Select>
             </div>
-            
-            <Select value={statusFilter} onValueChange={(value: TechnicianStatus | 'ALL') => setStatusFilter(value)}>
-              <SelectTrigger className="w-full sm:w-[180px] bg-background/50 border-border/50">
-                <SelectValue placeholder="All Statuses" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="ALL">All Statuses</SelectItem>
-                <SelectItem value="ACTIVE">
-                  <div className="flex items-center gap-2">
-                    <UserCheck className="h-3 w-3" />
-                    Active
-                  </div>
-                </SelectItem>
-                <SelectItem value="ON_VACATION">
-                  <div className="flex items-center gap-2">
-                    <Settings className="h-3 w-3" />
-                    On Vacation
-                  </div>
-                </SelectItem>
-                <SelectItem value="SICK_LEAVE">
-                  <div className="flex items-center gap-2">
-                    <UserMinus className="h-3 w-3" />
-                    Sick Leave
-                  </div>
-                </SelectItem>
-                <SelectItem value="TERMINATED">
-                  <div className="flex items-center gap-2">
-                    <UserX className="h-3 w-3" />
-                    Terminated
-                  </div>
-                </SelectItem>
-              </SelectContent>
-            </Select>
+
+            <div className="flex flex-col sm:flex-row gap-4">
+              <div className="flex-1">
+                <Input
+                  placeholder="Filter by skills..."
+                  value={skillsFilter}
+                  onChange={(e) => setSkillsFilter(e.target.value)}
+                  className="bg-background/50 border-border/50 focus:bg-background transition-colors"
+                />
+              </div>
+              
+              {(searchQuery || statusFilter !== 'ALL' || skillsFilter || sortColumn) && (
+                <Button variant="outline" onClick={clearFilters} className="shrink-0">
+                  Clear Filters
+                </Button>
+              )}
+            </div>
+
+            {selectedTechnicians.size > 0 && (
+              <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg border border-border/50">
+                <span className="text-sm font-medium">
+                  {selectedTechnicians.size} technician{selectedTechnicians.size !== 1 ? 's' : ''} selected
+                </span>
+                <div className="flex gap-2">
+                  <Button variant="outline" size="sm">
+                    Export Selected
+                  </Button>
+                  <Button variant="outline" size="sm">
+                    Bulk Actions
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={() => setSelectedTechnicians(new Set())}
+                  >
+                    Clear Selection
+                  </Button>
+                </div>
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>
@@ -236,10 +368,10 @@ export function TechniciansPage() {
         <CardHeader className="pb-4">
           <CardTitle className="text-xl font-semibold flex items-center gap-2">
             <Users className="h-5 w-5" />
-            Technicians {data && <span className="text-muted-foreground font-normal">({filteredTechnicians.length})</span>}
+            Technicians {data && <span className="text-muted-foreground font-normal">({filteredAndSortedTechnicians.length})</span>}
           </CardTitle>
           <CardDescription className="text-base">
-            {data ? `Showing ${filteredTechnicians.length} of ${data.totalElements} technicians` : 'Loading technicians...'}
+            {data ? `Showing ${filteredAndSortedTechnicians.length} of ${data.totalElements} technicians` : 'Loading technicians...'}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -257,56 +389,118 @@ export function TechniciansPage() {
                 </div>
               ))}
             </div>
-          ) : filteredTechnicians.length === 0 ? (
+          ) : filteredAndSortedTechnicians.length === 0 ? (
             <div className="text-center py-8">
               <p className="text-muted-foreground">No technicians found matching your criteria.</p>
-              {searchQuery || statusFilter !== 'ALL' ? (
+              {(searchQuery || statusFilter !== 'ALL' || skillsFilter) && (
                 <Button 
                   variant="outline" 
-                  onClick={() => {
-                    setSearchQuery('');
-                    setStatusFilter('ALL');
-                  }}
+                  onClick={clearFilters}
                   className="mt-2"
                 >
                   Clear Filters
                 </Button>
-              ) : null}
+              )}
             </div>
           ) : (
             <div className="rounded-md border border-border/50 overflow-hidden">
               <Table>
                 <TableHeader>
                   <TableRow className="bg-muted/30 hover:bg-muted/50 border-b border-border/50">
+                    <TableHead className="w-12">
+                      <Checkbox 
+                        checked={
+                          filteredAndSortedTechnicians.length > 0 && 
+                          filteredAndSortedTechnicians.every(t => selectedTechnicians.has(t.id))
+                        }
+                        onCheckedChange={handleSelectAll}
+                      />
+                    </TableHead>
                     <TableHead className="font-semibold text-foreground">ID</TableHead>
-                    <TableHead className="font-semibold text-foreground">Name</TableHead>
-                    <TableHead className="font-semibold text-foreground">Email</TableHead>
-                    <TableHead className="font-semibold text-foreground">Phone</TableHead>
-                    <TableHead className="font-semibold text-foreground">Status</TableHead>
+                    <TableHead 
+                      className="font-semibold text-foreground cursor-pointer hover:bg-muted/50 select-none" 
+                      onClick={() => handleSort('name')}
+                    >
+                      <div className="flex items-center gap-2">
+                        Name
+                        {sortColumn === 'name' && (
+                          sortDirection === 'asc' ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />
+                        )}
+                      </div>
+                    </TableHead>
+                    <TableHead 
+                      className="font-semibold text-foreground cursor-pointer hover:bg-muted/50 select-none" 
+                      onClick={() => handleSort('email')}
+                    >
+                      <div className="flex items-center gap-2">
+                        Email & Phone
+                        {sortColumn === 'email' && (
+                          sortDirection === 'asc' ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />
+                        )}
+                      </div>
+                    </TableHead>
+                    <TableHead 
+                      className="font-semibold text-foreground cursor-pointer hover:bg-muted/50 select-none" 
+                      onClick={() => handleSort('status')}
+                    >
+                      <div className="flex items-center gap-2">
+                        Status
+                        {sortColumn === 'status' && (
+                          sortDirection === 'asc' ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />
+                        )}
+                      </div>
+                    </TableHead>
                     <TableHead className="font-semibold text-foreground">Skills</TableHead>
-                    <TableHead className="font-semibold text-foreground">Workload</TableHead>
+                    <TableHead 
+                      className="font-semibold text-foreground cursor-pointer hover:bg-muted/50 select-none" 
+                      onClick={() => handleSort('workload')}
+                    >
+                      <div className="flex items-center gap-2">
+                        Workload
+                        {sortColumn === 'workload' && (
+                          sortDirection === 'asc' ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />
+                        )}
+                      </div>
+                    </TableHead>
                     <TableHead className="text-right font-semibold text-foreground">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filteredTechnicians.map((technician, index) => (
+                  {filteredAndSortedTechnicians.map((technician, index) => {
+                    if (!technician) return null;
+                    const isSelected = selectedTechnicians.has(technician.id);
+                    
+                    return (
                     <TableRow 
                       key={technician.id} 
                       className={`border-b border-border/30 hover:bg-muted/20 transition-colors ${
                         index % 2 === 0 ? 'bg-background/50' : 'bg-card/30'
-                      }`}
+                      } ${isSelected ? 'bg-primary/5 border-primary/20' : ''}`}
                     >
+                      <TableCell>
+                        <Checkbox 
+                          checked={isSelected}
+                          onCheckedChange={(checked) => handleSelectTechnician(technician.id, checked as boolean)}
+                        />
+                      </TableCell>
                       <TableCell className="font-mono text-sm text-muted-foreground">
                         #{technician.id}
                       </TableCell>
                       <TableCell className="font-semibold text-foreground">
-                        {TechnicianUtils.getFullName(technician)}
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-xs font-semibold text-primary">
+                            {TechnicianUtils.getFullName(technician).charAt(0).toUpperCase()}
+                          </div>
+                          {TechnicianUtils.getFullName(technician) || 'Unknown'}
+                        </div>
                       </TableCell>
-                      <TableCell className="text-muted-foreground">
-                        {technician.email}
-                      </TableCell>
-                      <TableCell className="font-mono text-sm text-muted-foreground">
-                        {formatPhone(technician.phone)}
+                      <TableCell>
+                        <div className="space-y-1">
+                          <div className="text-sm text-foreground">{technician.email || 'N/A'}</div>
+                          <div className="text-xs text-muted-foreground font-mono">
+                            {formatPhone(technician.phone)}
+                          </div>
+                        </div>
                       </TableCell>
                       <TableCell>
                         <Badge variant={getStatusBadgeVariant(technician.status)} className="gap-1">
@@ -321,14 +515,98 @@ export function TechniciansPage() {
                         {getWorkloadIndicator(technician)}
                       </TableCell>
                       <TableCell className="text-right">
-                        <Button variant="ghost" size="sm" className="hover:bg-primary/10 hover:text-primary">
-                          View Details
-                        </Button>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="sm">
+                              <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem>
+                              <Eye className="mr-2 h-4 w-4" />
+                              View Details
+                            </DropdownMenuItem>
+                            <DropdownMenuItem>
+                              <Edit className="mr-2 h-4 w-4" />
+                              Edit Technician
+                            </DropdownMenuItem>
+                            <DropdownMenuItem className="text-destructive">
+                              <Trash2 className="mr-2 h-4 w-4" />
+                              Delete
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                       </TableCell>
                     </TableRow>
-                  ))}
+                    );
+                  })}
                 </TableBody>
               </Table>
+            </div>
+          )}
+
+          {/* Pagination */}
+          {data && data.totalPages > 1 && (
+            <div className="border-t bg-card px-4 py-3 flex items-center justify-between">
+              <div className="flex-1 flex justify-between sm:hidden">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentPage(currentPage - 1)}
+                  disabled={currentPage === 0}
+                >
+                  Previous
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentPage(currentPage + 1)}
+                  disabled={currentPage >= data.totalPages - 1}
+                >
+                  Next
+                </Button>
+              </div>
+              
+              <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                <div>
+                  <p className="text-sm text-muted-foreground">
+                    Showing{' '}
+                    <span className="font-medium text-foreground">
+                      {currentPage * pageSize + 1}
+                    </span>{' '}
+                    to{' '}
+                    <span className="font-medium text-foreground">
+                      {Math.min((currentPage + 1) * pageSize, data.totalElements)}
+                    </span>{' '}
+                    of{' '}
+                    <span className="font-medium text-foreground">{data.totalElements}</span> results
+                  </p>
+                </div>
+                
+                <div className="flex items-center space-x-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setCurrentPage(currentPage - 1)}
+                    disabled={currentPage === 0}
+                  >
+                    Previous
+                  </Button>
+                  
+                  <span className="px-3 py-1 text-sm text-muted-foreground">
+                    Page {currentPage + 1} of {data.totalPages}
+                  </span>
+                  
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setCurrentPage(currentPage + 1)}
+                    disabled={currentPage >= data.totalPages - 1}
+                  >
+                    Next
+                  </Button>
+                </div>
+              </div>
             </div>
           )}
         </CardContent>
@@ -356,7 +634,7 @@ export function TechniciansPage() {
             </CardHeader>
             <CardContent>
               <div className="text-3xl font-bold text-emerald-700 dark:text-emerald-300">
-                {data.content.filter(t => t.status === 'ACTIVE').length}
+                {data.content.filter(t => t && t.status === 'ACTIVE').length}
               </div>
               <p className="text-xs text-muted-foreground mt-1">Currently working</p>
             </CardContent>
@@ -370,7 +648,7 @@ export function TechniciansPage() {
             </CardHeader>
             <CardContent>
               <div className="text-3xl font-bold text-blue-700 dark:text-blue-300">
-                {data.content.filter(t => t.status === 'ON_VACATION').length}
+                {data.content.filter(t => t && t.status === 'ON_VACATION').length}
               </div>
               <p className="text-xs text-muted-foreground mt-1">Currently on vacation</p>
             </CardContent>
@@ -384,7 +662,7 @@ export function TechniciansPage() {
             </CardHeader>
             <CardContent>
               <div className="text-3xl font-bold text-amber-700 dark:text-amber-300">
-                {data.content.filter(t => t.status === 'SICK_LEAVE').length}
+                {data.content.filter(t => t && t.status === 'SICK_LEAVE').length}
               </div>
               <p className="text-xs text-muted-foreground mt-1">On sick leave</p>
             </CardContent>

@@ -7,11 +7,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 This is a **monorepo** containing the Local Tech Support System with both CLI and web applications:
 
 - **`cli/`** - Java 17 Maven-based CLI application (fully functional)
-- **`webapp/`** - React 19 + TypeScript web application (Phase 1 complete)
+- **`webapp/`** - React 19 + TypeScript web application (ShadCN UI migration complete)
 
 Both applications integrate with the same REST API backend running on `localhost:8080` (default).
 
-**Current Status:** Phase 1 React foundation complete, ready for Phase 2 core development.
+**Current Status:** ShadCN UI migration complete through Phase 4. Professional UI components with dark/light theme system implemented. Ready for feature development.
 
 ## Essential Commands
 
@@ -71,9 +71,12 @@ npm run type-check
 - **ApiService.java**: Business logic layer providing complete CRUD operations
 - **MenuManager.java**: Interactive menu system with navigation and lifecycle management
 
-### Web Application (React) - Phase 1 Complete
-- **Tech Stack**: React 19 + TypeScript + Vite + Mantine UI + TanStack Query
-- **Layout System**: AppShell with responsive Header and Navigation components
+### Web Application (React) - ShadCN UI Migration Complete
+- **Tech Stack**: React 19 + TypeScript + Vite + ShadCN UI + TanStack Query + Tailwind CSS
+- **UI Framework**: ShadCN UI with Radix UI primitives (replaced Mantine UI)
+- **Styling**: Tailwind CSS v4 with CSS variables and dark mode support
+- **Theme System**: next-themes with system preference detection and manual switching
+- **Layout System**: Card-based responsive layout with professional theming
 - **API Layer**: Axios client with TanStack Query hooks for all entities
 - **Testing**: Vitest + Testing Library + MSW for comprehensive testing
 - **Type System**: Complete TypeScript definitions matching Java models
@@ -96,12 +99,23 @@ The application uses a hierarchical menu system with specialized menus:
 6. Results formatted by specialized formatters (JsonFormatter, ClientTicketsFormatter)
 
 ### Key Dependencies
+
+#### CLI Application (Java)
 - **PicoCLI**: Command-line interface framework
 - **OkHttp**: HTTP client for API communication
 - **Jackson**: JSON serialization/deserialization
 - **JUnit 5 + Mockito + AssertJ**: Testing framework
 - **MockWebServer**: HTTP mocking for tests
 - **Logback**: Logging framework
+
+#### Web Application (React)
+- **ShadCN UI**: Component library with Radix UI primitives
+- **Tailwind CSS**: Utility-first CSS framework (v4 with CSS variables)
+- **next-themes**: Theme management with system preference detection
+- **TanStack Query**: Data fetching and caching
+- **React Hook Form**: Form state management with Zod validation
+- **Lucide React**: Modern icon library
+- **Vite**: Build tool and development server
 
 ## Development Patterns
 
@@ -148,14 +162,18 @@ The application uses a hierarchical menu system with specialized menus:
 - Breadcrumb navigation shows current menu path
 
 ### ALWAYS REMEMBER
-- Follow the REACT_MIGRATION_PLAN.md
+- ShadCN UI migration is complete - use ShadCN components for all new development
 - Work in appropriate directory (`cli/` for Java, `webapp/` for React)
 - Follow clean git branching strategies
 - Test both applications when making changes
+- Use SHADCN_CONVERSION_TRACKER.md to understand completed migration work
 
-### Current Migration Status
-- **✅ Phase 1 Complete**: React foundation with TypeScript, Mantine UI, routing, API layer, testing
-- **🚀 Next Phase**: Phase 2 - Core entity CRUD development (Clients, Technicians, Tickets)
+### Current ShadCN UI Migration Status
+- **✅ Phase 1 Complete**: Infrastructure setup (Tailwind CSS, ShadCN init, build system)
+- **✅ Phase 2 Complete**: Core components (Button, Input, Select, Dialog, Badge, Alert)
+- **✅ Phase 3 Complete**: Data display components (Table, Skeleton, Card) 
+- **✅ Phase 4 Complete**: Theme provider system with dark/light mode switching
+- **🚀 Ready for**: Feature development with professional ShadCN UI components
 
 ## Development Guidelines
 
