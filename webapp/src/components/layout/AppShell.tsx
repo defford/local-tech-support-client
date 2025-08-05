@@ -16,24 +16,24 @@ export function AppShellLayout({ children }: AppShellLayoutProps) {
   const toggle = () => setOpened(!opened);
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="bg-white border-b border-gray-200 px-4 py-3">
+      <header className="bg-card/50 backdrop-blur-sm border-b border-border/50 px-4 py-3 sticky top-0 z-50">
         <Header opened={opened} toggle={toggle} />
       </header>
 
       <div className="flex">
         {/* Sidebar */}
         <aside 
-          className={`bg-white border-r border-gray-200 w-64 min-h-screen transition-transform duration-200 ${
-            opened ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
+          className={`bg-card/30 backdrop-blur-sm border-r border-border/50 w-64 min-h-[calc(100vh-73px)] transition-all duration-300 ease-out ${
+            opened ? 'translate-x-0 shadow-xl' : '-translate-x-full md:translate-x-0 md:shadow-sm'
           }`}
         >
           <Navigation onLinkClick={() => setOpened(false)} />
         </aside>
 
         {/* Main Content */}
-        <main className="flex-1 p-6">
+        <main className="flex-1 p-6 bg-gradient-to-br from-background to-muted/20 min-h-[calc(100vh-73px)]">
           {children}
         </main>
       </div>
@@ -41,7 +41,7 @@ export function AppShellLayout({ children }: AppShellLayoutProps) {
       {/* Mobile overlay */}
       {opened && (
         <div 
-          className="fixed inset-0 bg-black bg-opacity-50 md:hidden z-40"
+          className="fixed inset-0 bg-background/80 backdrop-blur-sm md:hidden z-40 transition-opacity duration-300"
           onClick={() => setOpened(false)}
         />
       )}

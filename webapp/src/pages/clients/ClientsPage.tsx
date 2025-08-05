@@ -3,7 +3,7 @@
  */
 
 import { useState } from 'react';
-import { Plus, Search } from 'lucide-react';
+import { Plus, Search, Users, UserCheck, UserX, UserMinus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -42,13 +42,26 @@ export function ClientsPage() {
   const getStatusBadgeVariant = (status: ClientStatus) => {
     switch (status) {
       case 'ACTIVE':
-        return 'default';
+        return 'default' as const;
       case 'SUSPENDED':
-        return 'secondary';
+        return 'secondary' as const;
       case 'TERMINATED':
-        return 'destructive';
+        return 'destructive' as const;
       default:
-        return 'outline';
+        return 'outline' as const;
+    }
+  };
+
+  const getStatusIcon = (status: ClientStatus) => {
+    switch (status) {
+      case 'ACTIVE':
+        return <UserCheck className="h-3 w-3" />;
+      case 'SUSPENDED':
+        return <UserMinus className="h-3 w-3" />;
+      case 'TERMINATED':
+        return <UserX className="h-3 w-3" />;
+      default:
+        return null;
     }
   };
 
@@ -91,12 +104,14 @@ export function ClientsPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {/* Page Header */}
-      <div className="flex justify-between items-start">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Clients</h1>
-          <p className="text-muted-foreground">Manage client accounts and information</p>
+      <div className="flex justify-between items-start pb-2">
+        <div className="space-y-1">
+          <h1 className="text-4xl font-bold tracking-tight bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text">
+            Clients
+          </h1>
+          <p className="text-muted-foreground text-lg">Manage client accounts and information</p>
         </div>
         
         <Dialog open={isCreateModalOpen} onOpenChange={setIsCreateModalOpen}>
@@ -125,32 +140,47 @@ export function ClientsPage() {
       </div>
 
       {/* Filters and Search */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Filters</CardTitle>
-          <CardDescription>Search and filter clients</CardDescription>
+      <Card className="shadow-sm border-border/50 bg-card/50 backdrop-blur-sm">
+        <CardHeader className="pb-4">
+          <CardTitle className="text-xl font-semibold">Search & Filter</CardTitle>
+          <CardDescription>Find and filter clients quickly</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="flex gap-4">
+          <div className="flex flex-col sm:flex-row gap-4">
             <div className="flex-1 relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
               <Input
                 placeholder="Search clients by name or email..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10"
+                className="pl-10 bg-background/50 border-border/50 focus:bg-background transition-colors"
               />
             </div>
             
             <Select value={statusFilter} onValueChange={(value: ClientStatus | 'ALL') => setStatusFilter(value)}>
-              <SelectTrigger className="w-[180px]">
+              <SelectTrigger className="w-full sm:w-[180px] bg-background/50 border-border/50">
                 <SelectValue placeholder="All Statuses" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="ALL">All Statuses</SelectItem>
-                <SelectItem value="ACTIVE">Active</SelectItem>
-                <SelectItem value="SUSPENDED">Suspended</SelectItem>
-                <SelectItem value="TERMINATED">Terminated</SelectItem>
+                <SelectItem value="ACTIVE">
+                  <div className="flex items-center gap-2">
+                    <UserCheck className="h-3 w-3" />
+                    Active
+                  </div>
+                </SelectItem>
+                <SelectItem value="SUSPENDED">
+                  <div className="flex items-center gap-2">
+                    <UserMinus className="h-3 w-3" />
+                    Suspended
+                  </div>
+                </SelectItem>
+                <SelectItem value="TERMINATED">
+                  <div className="flex items-center gap-2">
+                    <UserX className="h-3 w-3" />
+                    Terminated
+                  </div>
+                </SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -158,12 +188,13 @@ export function ClientsPage() {
       </Card>
 
       {/* Clients Table */}
-      <Card>
-        <CardHeader>
-          <CardTitle>
-            Clients {data && `(${filteredClients.length})`}
+      <Card className="shadow-sm border-border/50 bg-card/50 backdrop-blur-sm">
+        <CardHeader className="pb-4">
+          <CardTitle className="text-xl font-semibold flex items-center gap-2">
+            <Users className="h-5 w-5" />
+            Clients {data && <span className="text-muted-foreground font-normal">({filteredClients.length})</span>}
           </CardTitle>
-          <CardDescription>
+          <CardDescription className="text-base">
             {data ? `Showing ${filteredClients.length} of ${data.totalElements} clients` : 'Loading clients...'}
           </CardDescription>
         </CardHeader>
@@ -199,97 +230,117 @@ export function ClientsPage() {
               ) : null}
             </div>
           ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>ID</TableHead>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Email</TableHead>
-                  <TableHead>Phone</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Created</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredClients.map((client) => (
-                  <TableRow key={client.id}>
-                    <TableCell className="font-mono text-sm">
-                      {client.id}
-                    </TableCell>
-                    <TableCell className="font-medium">
-                      {client.firstName} {client.lastName}
-                    </TableCell>
-                    <TableCell className="text-muted-foreground">
-                      {client.email}
-                    </TableCell>
-                    <TableCell className="font-mono text-sm">
-                      {formatPhone(client.phone)}
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant={getStatusBadgeVariant(client.status)}>
-                        {client.status}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-muted-foreground">
-                      {formatDate(client.createdAt)}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <Button variant="ghost" size="sm">
-                        View Details
-                      </Button>
-                    </TableCell>
+            <div className="rounded-md border border-border/50 overflow-hidden">
+              <Table>
+                <TableHeader>
+                  <TableRow className="bg-muted/30 hover:bg-muted/50 border-b border-border/50">
+                    <TableHead className="font-semibold text-foreground">ID</TableHead>
+                    <TableHead className="font-semibold text-foreground">Name</TableHead>
+                    <TableHead className="font-semibold text-foreground">Email</TableHead>
+                    <TableHead className="font-semibold text-foreground">Phone</TableHead>
+                    <TableHead className="font-semibold text-foreground">Status</TableHead>
+                    <TableHead className="font-semibold text-foreground">Created</TableHead>
+                    <TableHead className="text-right font-semibold text-foreground">Actions</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {filteredClients.map((client, index) => (
+                    <TableRow 
+                      key={client.id} 
+                      className={`border-b border-border/30 hover:bg-muted/20 transition-colors ${
+                        index % 2 === 0 ? 'bg-background/50' : 'bg-card/30'
+                      }`}
+                    >
+                      <TableCell className="font-mono text-sm text-muted-foreground">
+                        #{client.id}
+                      </TableCell>
+                      <TableCell className="font-semibold text-foreground">
+                        {client.firstName} {client.lastName}
+                      </TableCell>
+                      <TableCell className="text-muted-foreground">
+                        {client.email}
+                      </TableCell>
+                      <TableCell className="font-mono text-sm text-muted-foreground">
+                        {formatPhone(client.phone)}
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant={getStatusBadgeVariant(client.status)} className="gap-1">
+                          {getStatusIcon(client.status)}
+                          {client.status}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-muted-foreground text-sm">
+                        {formatDate(client.createdAt)}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <Button variant="ghost" size="sm" className="hover:bg-primary/10 hover:text-primary">
+                          View Details
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
           )}
         </CardContent>
       </Card>
 
       {/* Summary Statistics */}
       {data && (
-        <div className="grid gap-4 md:grid-cols-4">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Clients</CardTitle>
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+          <Card className="relative overflow-hidden shadow-sm border-border/50 bg-gradient-to-br from-card to-card/50 backdrop-blur-sm">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+              <CardTitle className="text-sm font-medium text-muted-foreground">Total Clients</CardTitle>
+              <Users className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{data.totalElements}</div>
+              <div className="text-3xl font-bold text-foreground">{data.totalElements}</div>
+              <p className="text-xs text-muted-foreground mt-1">All registered clients</p>
             </CardContent>
+            <div className="absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-primary/20 to-primary/40" />
           </Card>
           
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Active</CardTitle>
+          <Card className="relative overflow-hidden shadow-sm border-border/50 bg-gradient-to-br from-card to-emerald-50/20 dark:to-emerald-950/20 backdrop-blur-sm">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+              <CardTitle className="text-sm font-medium text-muted-foreground">Active</CardTitle>
+              <UserCheck className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-green-600">
+              <div className="text-3xl font-bold text-emerald-700 dark:text-emerald-300">
                 {data.content.filter(c => c.status === 'ACTIVE').length}
               </div>
+              <p className="text-xs text-muted-foreground mt-1">Active accounts</p>
             </CardContent>
+            <div className="absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-emerald-400/40 to-emerald-500/60" />
           </Card>
           
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Suspended</CardTitle>
+          <Card className="relative overflow-hidden shadow-sm border-border/50 bg-gradient-to-br from-card to-amber-50/20 dark:to-amber-950/20 backdrop-blur-sm">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+              <CardTitle className="text-sm font-medium text-muted-foreground">Suspended</CardTitle>
+              <UserMinus className="h-4 w-4 text-amber-600 dark:text-amber-400" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-yellow-600">
+              <div className="text-3xl font-bold text-amber-700 dark:text-amber-300">
                 {data.content.filter(c => c.status === 'SUSPENDED').length}
               </div>
+              <p className="text-xs text-muted-foreground mt-1">Temporarily suspended</p>
             </CardContent>
+            <div className="absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-amber-400/40 to-amber-500/60" />
           </Card>
           
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Terminated</CardTitle>
+          <Card className="relative overflow-hidden shadow-sm border-border/50 bg-gradient-to-br from-card to-red-50/20 dark:to-red-950/20 backdrop-blur-sm">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+              <CardTitle className="text-sm font-medium text-muted-foreground">Terminated</CardTitle>
+              <UserX className="h-4 w-4 text-red-600 dark:text-red-400" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-red-600">
+              <div className="text-3xl font-bold text-red-700 dark:text-red-300">
                 {data.content.filter(c => c.status === 'TERMINATED').length}
               </div>
+              <p className="text-xs text-muted-foreground mt-1">Permanently closed</p>
             </CardContent>
+            <div className="absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-red-400/40 to-red-500/60" />
           </Card>
         </div>
       )}
