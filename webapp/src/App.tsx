@@ -12,6 +12,7 @@ import {
   ClientsPage, 
   TechniciansPage,
   TechnicianDetailPage,
+  TicketsPage,
   // ClientDetailPage, // TODO: Uncomment when basic version is created
   NotFoundPage 
 } from './pages';
@@ -45,13 +46,6 @@ const queryClient = new QueryClient({
 
 // Placeholder components for pages not yet implemented
 // TODO: Replace with ShadCN UI components later
-
-const TicketsPage = () => (
-  <div className="container mx-auto p-4">
-    <h1 className="text-2xl font-bold mb-4">Tickets</h1>
-    <p>Ticket management coming soon...</p>
-  </div>
-);
 
 const AppointmentsPage = () => (
   <div className="container mx-auto p-4">
