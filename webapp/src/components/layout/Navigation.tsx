@@ -1,6 +1,5 @@
 /**
- * Navigation sidebar component
- * Basic HTML implementation - TODO: Replace with ShadCN UI components
+ * Navigation sidebar component with live ticket statistics badges
  */
 
 import { 
@@ -14,6 +13,7 @@ import {
   IconQuestionMark
 } from '@tabler/icons-react';
 import { Link, useLocation } from 'react-router-dom';
+import { useTicketStatistics, useOverdueTickets } from '../../hooks/useTickets';
 
 export interface NavigationProps {
   onLinkClick?: () => void;
@@ -24,9 +24,11 @@ interface NavItem {
   icon: React.ReactNode;
   href: string;
   badge?: string | number;
+  badgeColor?: 'urgent' | 'overdue' | 'primary';
 }
 
-const mainNavItems: NavItem[] = [
+// Create base navigation items (without dynamic badges)
+const createMainNavItems = (ticketBadges: { count: number; color?: 'urgent' | 'overdue' | 'primary' } = { count: 0 }): NavItem[] => [
   {
     label: 'Dashboard',
     icon: <IconDashboard size={16} />,
@@ -45,7 +47,9 @@ const mainNavItems: NavItem[] = [
   {
     label: 'Tickets',
     icon: <IconTicket size={16} />,
-    href: '/tickets'
+    href: '/tickets',
+    badge: ticketBadges.count > 0 ? ticketBadges.count : undefined,
+    badgeColor: ticketBadges.color
   },
   {
     label: 'Appointments',
@@ -74,9 +78,50 @@ const bottomNavItems: NavItem[] = [
 
 export function Navigation({ onLinkClick }: NavigationProps) {
   const location = useLocation();
+  
+  // Fetch ticket statistics for badges
+  const { data: ticketStats } = useTicketStatistics(true);
+  const { data: overdueTickets } = useOverdueTickets(undefined, true);
+
+  // Calculate ticket badge data
+  const getTicketBadgeData = () => {
+    if (!ticketStats && !overdueTickets?.content) {
+      return { count: 0 };
+    }
+
+    // Priority: Show urgent tickets first, then overdue, then open
+    const urgentCount = ticketStats?.ticketsByPriority?.['URGENT'] || 0;
+    const overdueCount = overdueTickets?.content?.length || 0;
+    const openCount = ticketStats?.openTickets || 0;
+
+    if (urgentCount > 0) {
+      return { count: urgentCount, color: 'urgent' as const };
+    } else if (overdueCount > 0) {
+      return { count: overdueCount, color: 'overdue' as const };
+    } else if (openCount > 0) {
+      return { count: openCount, color: 'primary' as const };
+    }
+    
+    return { count: 0 };
+  };
+
+  const ticketBadgeData = getTicketBadgeData();
+  const mainNavItems = createMainNavItems(ticketBadgeData);
 
   const renderNavItem = (item: NavItem) => {
     const isActive = location.pathname === item.href;
+
+    const getBadgeClasses = (badgeColor?: 'urgent' | 'overdue' | 'primary') => {
+      switch (badgeColor) {
+        case 'urgent':
+          return 'bg-red-500 text-white animate-pulse';
+        case 'overdue':
+          return 'bg-orange-500 text-white';
+        case 'primary':
+        default:
+          return 'bg-blue-500 text-white';
+      }
+    };
 
     return (
       <Link
@@ -92,7 +137,16 @@ export function Navigation({ onLinkClick }: NavigationProps) {
         {item.icon}
         <span>{item.label}</span>
         {item.badge && (
-          <span className="ml-auto bg-blue-500 text-white text-xs px-2 py-1 rounded-full">
+          <span 
+            className={`ml-auto text-xs px-2 py-1 rounded-full font-medium ${getBadgeClasses(item.badgeColor)}`}
+            title={
+              item.badgeColor === 'urgent' 
+                ? `${item.badge} urgent tickets` 
+                : item.badgeColor === 'overdue' 
+                ? `${item.badge} overdue tickets` 
+                : `${item.badge} open tickets`
+            }
+          >
             {item.badge}
           </span>
         )}

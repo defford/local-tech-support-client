@@ -148,3 +148,63 @@ export function TechnicianErrorBoundary({ children }: { children: ReactNode }) {
     </ErrorBoundary>
   );
 }
+
+// Custom error boundary for ticket-specific errors
+export function TicketErrorBoundary({ children }: { children: ReactNode }) {
+  return (
+    <ErrorBoundary
+      fallback={
+        <div className="p-6 max-w-lg mx-auto">
+          <Alert variant="destructive">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription className="ml-2">
+              <div className="space-y-2">
+                <p className="font-medium">Unable to load ticket data</p>
+                <p className="text-sm">
+                  There was an error loading the ticket information. This could be due to a network issue or the ticket may have been moved or deleted.
+                </p>
+              </div>
+            </AlertDescription>
+          </Alert>
+          <div className="mt-4 flex gap-2 flex-wrap">
+            <Button variant="outline" onClick={() => window.location.reload()}>
+              <RefreshCw className="h-4 w-4 mr-2" />
+              Refresh Page
+            </Button>
+            <Button variant="outline" onClick={() => window.history.back()}>
+              Go Back
+            </Button>
+            <Button 
+              variant="outline" 
+              onClick={() => window.location.href = '/tickets'}
+            >
+              View All Tickets
+            </Button>
+          </div>
+        </div>
+      }
+      onError={(error, errorInfo) => {
+        // Log ticket-specific errors with additional context
+        console.error('Ticket module error:', {
+          error: error.message,
+          stack: error.stack,
+          componentStack: errorInfo.componentStack,
+          timestamp: new Date().toISOString(),
+          url: window.location.href,
+          userAgent: navigator.userAgent
+        });
+        
+        // In production, you might want to send this to an error reporting service
+        if (process.env.NODE_ENV === 'production') {
+          // Example: Send to error reporting service
+          // errorReportingService.captureException(error, { 
+          //   tags: { module: 'tickets' },
+          //   extra: { componentStack: errorInfo.componentStack }
+          // });
+        }
+      }}
+    >
+      {children}
+    </ErrorBoundary>
+  );
+}

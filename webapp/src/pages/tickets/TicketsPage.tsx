@@ -178,6 +178,8 @@ export function TicketsPage() {
       refetch();
     } catch (error) {
       console.error('Failed to delete ticket:', error);
+      // The error is already handled by the mutation hook and will be shown in the UI
+      // Additional user feedback could be added here if needed
     }
   };
 

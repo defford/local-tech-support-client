@@ -161,6 +161,8 @@ export function TicketDetailPage() {
       navigate('/tickets');
     } catch (error) {
       console.error('Failed to delete ticket:', error);
+      // Error is handled by the mutation hook and displayed in UI
+      // Keep modal open so user can see error and try again
     }
   };
 
@@ -170,6 +172,7 @@ export function TicketDetailPage() {
       refetch();
     } catch (error) {
       console.error('Failed to close ticket:', error);
+      // Error state is managed by the mutation hook
     }
   };
 
@@ -179,6 +182,7 @@ export function TicketDetailPage() {
       refetch();
     } catch (error) {
       console.error('Failed to reopen ticket:', error);
+      // Error state is managed by the mutation hook
     }
   };
 
