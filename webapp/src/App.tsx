@@ -14,6 +14,8 @@ import {
   TechnicianDetailPage,
   TicketsPage,
   TicketDetailPage,
+  AppointmentsPage,
+  AppointmentDetailPage,
   // ClientDetailPage, // TODO: Uncomment when basic version is created
   NotFoundPage 
 } from './pages';
@@ -48,13 +50,6 @@ const queryClient = new QueryClient({
 // Placeholder components for pages not yet implemented
 // TODO: Replace with ShadCN UI components later
 
-const AppointmentsPage = () => (
-  <div className="container mx-auto p-4">
-    <h1 className="text-2xl font-bold mb-4">Appointments</h1>
-    <p>Appointment management coming soon...</p>
-  </div>
-);
-
 const ReportsPage = () => (
   <div className="container mx-auto p-4">
     <h1 className="text-2xl font-bold mb-4">Reports & Analytics</h1>
@@ -83,6 +78,7 @@ function App() {
               <Route path="/tickets" element={<TicketsPage />} />
               <Route path="/tickets/:id" element={<TicketDetailPage />} />
               <Route path="/appointments" element={<AppointmentsPage />} />
+              <Route path="/appointments/:id" element={<AppointmentDetailPage />} />
               <Route path="/reports" element={<ReportsPage />} />
               <Route path="*" element={<NotFoundPage />} />
             </Routes>
