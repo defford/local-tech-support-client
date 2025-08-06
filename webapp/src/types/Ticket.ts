@@ -58,7 +58,7 @@ export interface TicketUpdateRequest {
  * Ticket assignment request type
  */
 export interface TicketAssignmentRequest {
-  assignedTechnicianId: number;
+  technicianId: number; // Server expects 'technicianId', not 'assignedTechnicianId'
 }
 
 /**

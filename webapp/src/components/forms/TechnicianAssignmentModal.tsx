@@ -47,10 +47,34 @@ export function TechnicianAssignmentModal({
   const handleAssign = async () => {
     if (!selectedTechnicianId) return;
 
+    // Find the selected technician to validate
+    const selectedTechnician = availableTechnicians.find(t => t.id === selectedTechnicianId);
+    if (!selectedTechnician) {
+      console.error('Selected technician not found in available list');
+      return;
+    }
+
     try {
+      console.log('Assigning ticket:', {
+        ticketId,
+        selectedTechnicianId,
+        selectedTechnician: {
+          id: selectedTechnician.id,
+          name: `${selectedTechnician.firstName} ${selectedTechnician.lastName}`,
+          email: selectedTechnician.email,
+          status: selectedTechnician.status
+        },
+        assignmentData: { technicianId: selectedTechnicianId }
+      });
+      
+      // Double-check that the technician is active
+      if (selectedTechnician.status !== 'ACTIVE') {
+        throw new Error(`Technician ${selectedTechnician.firstName} ${selectedTechnician.lastName} is not active (Status: ${selectedTechnician.status})`);
+      }
+      
       await assignTicketMutation.mutateAsync({
         id: ticketId,
-        assignment: { assignedTechnicianId: selectedTechnicianId }
+        assignment: { technicianId: selectedTechnicianId }
       });
       
       onSuccess?.();
@@ -58,6 +82,22 @@ export function TechnicianAssignmentModal({
       setSelectedTechnicianId(null);
     } catch (error) {
       console.error('Failed to assign technician:', error);
+      console.error('Full error object:', error);
+      console.error('Error details:', {
+        ticketId,
+        selectedTechnicianId,
+        selectedTechnician: selectedTechnician ? {
+          id: selectedTechnician.id,
+          name: `${selectedTechnician.firstName} ${selectedTechnician.lastName}`,
+          status: selectedTechnician.status,
+          skills: selectedTechnician.skills
+        } : 'NOT_FOUND',
+        assignmentPayload: { technicianId: selectedTechnicianId },
+        endpoint: `/api/tickets/${ticketId}/assign`,
+        errorResponse: (error as any)?.response?.data,
+        errorStatus: (error as any)?.response?.status,
+        errorMessage: (error as any)?.message || error
+      });
     }
   };
 
@@ -103,7 +143,19 @@ export function TechnicianAssignmentModal({
             <Alert variant="destructive" className="mb-4">
               <AlertCircle className="h-4 w-4" />
               <AlertDescription>
-                Failed to assign technician: {assignTicketMutation.error.message}
+                <div className="space-y-2">
+                  <div>Failed to assign technician: {assignTicketMutation.error.message}</div>
+                  {(assignTicketMutation.error as any)?.response?.data && (
+                    <div className="text-xs text-red-700 dark:text-red-300">
+                      Server Error: {JSON.stringify((assignTicketMutation.error as any).response.data)}
+                    </div>
+                  )}
+                  {(assignTicketMutation.error as any)?.response?.status && (
+                    <div className="text-xs text-red-700 dark:text-red-300">
+                      Status: {(assignTicketMutation.error as any).response.status}
+                    </div>
+                  )}
+                </div>
               </AlertDescription>
             </Alert>
           )}

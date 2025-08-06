@@ -52,8 +52,8 @@ export function TicketDetailPage() {
   
   // Fetch ticket data
   const { data: ticket, isLoading: ticketLoading, error: ticketError, refetch } = useTicket(ticketId);
-  const { data: clientsData } = useClients();
-  const { data: techniciansData } = useTechnicians();
+  const { data: clientsData, isLoading: clientsLoading } = useClients();
+  const { data: techniciansData, isLoading: techniciansLoading } = useTechnicians();
   
   // Mutations
   const deleteTicketMutation = useDeleteTicket();
@@ -61,8 +61,9 @@ export function TicketDetailPage() {
   const reopenTicketMutation = useReopenTicket();
 
   // Find related client and technician
-  const client = clientsData?.content?.find(c => c.id === ticket?.clientId);
-  const assignedTechnician = techniciansData?.content?.find(t => t.id === ticket?.assignedTechnicianId);
+  // First try the embedded client object, then lookup by clientId
+  const client = ticket?.client || clientsData?.content?.find(c => c.id === ticket?.clientId);
+  const assignedTechnician = ticket?.assignedTechnician || techniciansData?.content?.find(t => t.id === ticket?.assignedTechnicianId);
 
   if (ticketLoading) {
     return <TicketDetailSkeleton />;
@@ -307,11 +308,31 @@ export function TicketDetailPage() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              {client ? (
+              {clientsLoading ? (
+                <div className="space-y-3">
+                  <div className="flex items-center space-x-3">
+                    <Skeleton className="h-4 w-4 rounded-full" />
+                    <div className="space-y-2">
+                      <Skeleton className="h-4 w-32" />
+                      <Skeleton className="h-3 w-24" />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <Skeleton className="h-4 w-48" />
+                    <Skeleton className="h-4 w-36" />
+                  </div>
+                </div>
+              ) : client ? (
                 <div className="space-y-3">
                   <div>
-                    <p className="font-medium text-lg">{client.firstName} {client.lastName}</p>
-                    <p className="text-sm text-muted-foreground">Client</p>
+                    <button 
+                      className="font-medium text-lg hover:text-primary transition-colors cursor-pointer"
+                      onClick={() => navigate(`/clients/${client.id}`)}
+                      title="View client details"
+                    >
+                      {client.firstName} {client.lastName}
+                    </button>
+                    <p className="text-sm text-muted-foreground">Client ID: {ticket.clientId} • Click name to view details</p>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="flex items-center space-x-3">
@@ -334,7 +355,22 @@ export function TicketDetailPage() {
                 </div>
               ) : (
                 <div className="text-center py-4">
-                  <p className="text-sm text-muted-foreground">Client information not available</p>
+                  <User className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
+                  <p className="text-sm text-muted-foreground">
+                    {ticket.clientName || ticket.clientEmail ? (
+                      <span>
+                        Client: {ticket.clientName || 'Unknown'}<br />
+                        {ticket.clientEmail && <span className="text-xs">Email: {ticket.clientEmail}</span>}
+                        <br />
+                        <span className="text-xs text-yellow-600">Full client details loading... (ID: {ticket.clientId})</span>
+                      </span>
+                    ) : (
+                      <span>
+                        Client information not available<br />
+                        <span className="text-xs text-red-600">Client ID: {ticket.clientId} - Check if client exists</span>
+                      </span>
+                    )}
+                  </p>
                 </div>
               )}
             </CardContent>

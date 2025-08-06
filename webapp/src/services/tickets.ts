@@ -103,7 +103,13 @@ export class TicketService {
    * Assign ticket to technician
    */
   static async assignTicket(id: number, assignment: TicketAssignmentRequest): Promise<TicketAssignmentResult> {
+    console.log('TicketService.assignTicket called with:', { id, assignment });
+    console.log('Endpoint:', ENDPOINTS.TICKET_ASSIGN(id));
+    console.log('Full payload:', assignment);
+    console.log('Server should be running on: http://localhost:8080');
+    
     const response = await apiClient.post<TicketAssignmentResult>(ENDPOINTS.TICKET_ASSIGN(id), assignment);
+    console.log('Assignment successful:', response.data);
     return response.data;
   }
 
