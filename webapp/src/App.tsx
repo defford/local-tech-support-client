@@ -13,6 +13,7 @@ import {
   TechniciansPage,
   TechnicianDetailPage,
   TicketsPage,
+  TicketDetailPage,
   // ClientDetailPage, // TODO: Uncomment when basic version is created
   NotFoundPage 
 } from './pages';
@@ -80,6 +81,7 @@ function App() {
               <Route path="/technicians" element={<TechniciansPage />} />
               <Route path="/technicians/:id" element={<TechnicianDetailPage />} />
               <Route path="/tickets" element={<TicketsPage />} />
+              <Route path="/tickets/:id" element={<TicketDetailPage />} />
               <Route path="/appointments" element={<AppointmentsPage />} />
               <Route path="/reports" element={<ReportsPage />} />
               <Route path="*" element={<NotFoundPage />} />

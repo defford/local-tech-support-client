@@ -425,7 +425,7 @@ export function TicketsPage() {
               </div>
               
               <div className="flex gap-3 flex-wrap">
-                <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <Select value={statusFilter} onValueChange={(value) => setStatusFilter(value as typeof statusFilter)}>
                   <SelectTrigger className="w-[140px] bg-background border-border/50">
                     <SelectValue />
                   </SelectTrigger>
@@ -438,7 +438,7 @@ export function TicketsPage() {
                   </SelectContent>
                 </Select>
 
-                <Select value={priorityFilter} onValueChange={setPriorityFilter}>
+                <Select value={priorityFilter} onValueChange={(value) => setPriorityFilter(value as typeof priorityFilter)}>
                   <SelectTrigger className="w-[130px] bg-background border-border/50">
                     <SelectValue />
                   </SelectTrigger>
@@ -451,7 +451,7 @@ export function TicketsPage() {
                   </SelectContent>
                 </Select>
 
-                <Select value={serviceTypeFilter} onValueChange={setServiceTypeFilter}>
+                <Select value={serviceTypeFilter} onValueChange={(value) => setServiceTypeFilter(value as typeof serviceTypeFilter)}>
                   <SelectTrigger className="w-[140px] bg-background border-border/50">
                     <SelectValue />
                   </SelectTrigger>

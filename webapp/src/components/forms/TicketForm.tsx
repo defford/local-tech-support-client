@@ -66,7 +66,7 @@ export function TicketForm({ ticket, onSuccess, onCancel }: TicketFormProps) {
 
   // Fetch clients for the dropdown
   const { data: clientsResponse } = useClients({ page: 0, size: 100 });
-  const clients = clientsResponse?.data || [];
+  const clients = clientsResponse?.content || [];
 
   const form = useForm<TicketFormValues>({
     resolver: zodResolver(ticketFormSchema),
@@ -318,7 +318,7 @@ export function TicketForm({ ticket, onSuccess, onCancel }: TicketFormProps) {
                     <div className="flex items-center gap-2">
                       <User className="h-4 w-4" />
                       <div>
-                        <div className="font-medium">{client.name}</div>
+                        <div className="font-medium">{client.firstName} {client.lastName}</div>
                         <div className="text-xs text-muted-foreground">{client.email}</div>
                       </div>
                     </div>
