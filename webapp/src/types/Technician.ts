@@ -112,5 +112,28 @@ export const TechnicianUtils = {
     if (workload < 3) return 'LOW';
     if (workload < 6) return 'MEDIUM';
     return 'HIGH';
+  },
+
+  /**
+   * Get initials from first and last name
+   */
+  getInitials: (technician: Pick<Technician, 'firstName' | 'lastName'>): string => {
+    const first = technician.firstName?.trim() || '';
+    const last = technician.lastName?.trim() || '';
+    
+    const firstInitial = first.charAt(0).toUpperCase();
+    const lastInitial = last.charAt(0).toUpperCase();
+    
+    if (!firstInitial && !lastInitial) return '??';
+    if (!firstInitial) return lastInitial;
+    if (!lastInitial) return firstInitial;
+    return `${firstInitial}${lastInitial}`;
+  },
+
+  /**
+   * Check if technician is available (active status)
+   */
+  isAvailable: (technician: Technician): boolean => {
+    return TechnicianUtils.isActive(technician);
   }
 };

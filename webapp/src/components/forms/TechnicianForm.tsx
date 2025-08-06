@@ -24,6 +24,7 @@ import { Badge } from '@/components/ui/badge';
 
 import { Technician, TechnicianRequest, TechnicianStatus } from '../../types';
 import { useCreateTechnician, useUpdateTechnician } from '../../hooks';
+import { SkillsSelector } from './SkillsSelector';
 
 const technicianFormSchema = z.object({
   firstName: z
@@ -60,7 +61,6 @@ export function TechnicianForm({ technician, onSuccess, onCancel }: TechnicianFo
   const createTechnicianMutation = useCreateTechnician();
   const updateTechnicianMutation = useUpdateTechnician();
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
-  const [newSkill, setNewSkill] = useState('');
 
   const form = useForm<TechnicianFormValues>({
     resolver: zodResolver(technicianFormSchema),
@@ -88,25 +88,8 @@ export function TechnicianForm({ technician, onSuccess, onCancel }: TechnicianFo
     }
   }, [technician, form]);
 
-  const handleAddSkill = () => {
-    const skillToAdd = newSkill.trim();
-    if (skillToAdd && !form.getValues('skills').includes(skillToAdd)) {
-      const currentSkills = form.getValues('skills');
-      form.setValue('skills', [...currentSkills, skillToAdd]);
-      setNewSkill('');
-    }
-  };
-
-  const handleRemoveSkill = (skillToRemove: string) => {
-    const currentSkills = form.getValues('skills');
-    form.setValue('skills', currentSkills.filter(skill => skill !== skillToRemove));
-  };
-
-  const handleSkillKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      handleAddSkill();
-    }
+  const handleSkillsChange = (skills: string[]) => {
+    form.setValue('skills', skills, { shouldValidate: true });
   };
 
   const handleSubmit = async (values: TechnicianFormValues) => {
@@ -130,7 +113,6 @@ export function TechnicianForm({ technician, onSuccess, onCancel }: TechnicianFo
       } else {
         result = await createTechnicianMutation.mutateAsync(technicianData);
         form.reset();
-        setNewSkill('');
       }
 
       setShowSuccessMessage(true);
@@ -248,51 +230,20 @@ export function TechnicianForm({ technician, onSuccess, onCancel }: TechnicianFo
         <div className="space-y-3">
           <Label>Skills *</Label>
           
-          {/* Current Skills */}
-          {currentSkills.length > 0 && (
-            <div className="flex flex-wrap gap-2 p-3 border rounded-md bg-muted/30">
-              {currentSkills.map((skill, index) => (
-                <Badge key={index} variant="secondary" className="gap-1">
-                  {skill}
-                  <button
-                    type="button"
-                    onClick={() => handleRemoveSkill(skill)}
-                    className="ml-1 hover:text-destructive"
-                    disabled={isLoading}
-                  >
-                    <Trash2 className="h-3 w-3" />
-                  </button>
-                </Badge>
-              ))}
-            </div>
-          )}
-
-          {/* Add New Skill */}
-          <div className="flex gap-2">
-            <Input
-              placeholder="Enter a skill (e.g., Hardware, Software, Network)"
-              value={newSkill}
-              onChange={(e) => setNewSkill(e.target.value)}
-              onKeyPress={handleSkillKeyPress}
-              disabled={isLoading}
-              className="flex-1"
-            />
-            <Button 
-              type="button" 
-              variant="outline" 
-              onClick={handleAddSkill}
-              disabled={isLoading || !newSkill.trim()}
-            >
-              <Plus className="h-4 w-4" />
-            </Button>
-          </div>
+          <SkillsSelector
+            selectedSkills={currentSkills}
+            onChange={handleSkillsChange}
+            disabled={isLoading}
+            placeholder="Add skills (e.g., Hardware, Software, Network...)"
+            maxSkills={15}
+          />
 
           {form.formState.errors.skills && (
             <p className="text-sm text-red-600">{form.formState.errors.skills.message}</p>
           )}
           
           <p className="text-sm text-muted-foreground">
-            Add technical skills this technician can handle. Common skills include: Hardware, Software, Network, Printer, Email, Security, Backup, Consultation.
+            Add technical skills this technician can handle. Use the autocomplete suggestions or add custom skills.
           </p>
         </div>
 

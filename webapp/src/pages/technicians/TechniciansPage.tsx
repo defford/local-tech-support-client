@@ -3,6 +3,7 @@
  */
 
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Plus, Search, Users, UserCheck, UserX, UserMinus, Settings, ChevronUp, ChevronDown, MoreHorizontal, Edit, Trash2, Eye } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -15,16 +16,22 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Checkbox } from '@/components/ui/checkbox';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { useTechnicians } from '@/hooks/useTechnicians';
+import { useTechnicians, useDeleteTechnician } from '@/hooks/useTechnicians';
 import { TechnicianForm } from '@/components/forms/TechnicianForm';
 import { TechnicianStatus, Technician } from '@/types';
 import { TechnicianUtils } from '@/types/Technician';
+import { TechnicianErrorBoundary } from '@/components/ErrorBoundary';
 
 export function TechniciansPage() {
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<TechnicianStatus | 'ALL'>('ALL');
   const [skillsFilter, setSkillsFilter] = useState('');
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editingTechnician, setEditingTechnician] = useState<Technician | null>(null);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [deletingTechnician, setDeletingTechnician] = useState<Technician | null>(null);
   const [selectedTechnicians, setSelectedTechnicians] = useState<Set<number>>(new Set());
   const [sortColumn, setSortColumn] = useState<string | null>(null);
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
@@ -36,6 +43,9 @@ export function TechniciansPage() {
     page: currentPage, 
     size: pageSize 
   });
+
+  // Delete technician mutation
+  const deleteTechnicianMutation = useDeleteTechnician();
 
   // Filter and sort technicians
   const filteredAndSortedTechnicians = (() => {
@@ -127,6 +137,59 @@ export function TechniciansPage() {
     setSkillsFilter('');
     setSortColumn(null);
     setSortDirection('asc');
+  };
+
+  const handleDeleteTechnician = async () => {
+    if (!deletingTechnician) return;
+    
+    try {
+      await deleteTechnicianMutation.mutateAsync(deletingTechnician.id);
+      setIsDeleteModalOpen(false);
+      setDeletingTechnician(null);
+      refetch();
+    } catch (error) {
+      // Error is handled by the mutation hook
+      console.error('Failed to delete technician:', error);
+    }
+  };
+
+  const handleExportSelected = () => {
+    const selectedTechniciansList = filteredAndSortedTechnicians.filter(t => 
+      selectedTechnicians.has(t.id)
+    );
+    
+    if (selectedTechniciansList.length === 0) return;
+
+    // Create CSV content
+    const headers = ['ID', 'Name', 'Email', 'Phone', 'Status', 'Skills'];
+    const csvContent = [
+      headers.join(','),
+      ...selectedTechniciansList.map(technician => [
+        technician.id,
+        `"${TechnicianUtils.getFullName(technician)}"`,
+        `"${technician.email || ''}"`,
+        `"${technician.phone || ''}"`,
+        technician.status,
+        `"${(technician.skills || []).join(', ')}"`
+      ].join(','))
+    ].join('\n');
+
+    // Create and download file
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `technicians_export_${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const handleBulkStatusUpdate = (newStatus: TechnicianStatus) => {
+    // TODO: Implement bulk status update functionality
+    console.log('Bulk status update to:', newStatus, 'for technicians:', Array.from(selectedTechnicians));
+    // This would require a bulk update API endpoint
   };
 
   const getStatusBadgeVariant = (status: TechnicianStatus) => {
@@ -231,7 +294,8 @@ export function TechniciansPage() {
   }
 
   return (
-    <div className="space-y-8">
+    <TechnicianErrorBoundary>
+      <div className="space-y-8">
       
       {/* Page Header */}
       <div className="flex justify-between items-start pb-2">
@@ -266,6 +330,87 @@ export function TechniciansPage() {
           </DialogContent>
         </Dialog>
       </div>
+
+      {/* Edit Technician Modal */}
+      <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Edit Technician</DialogTitle>
+            <DialogDescription>
+              Update technician information and skills.
+            </DialogDescription>
+          </DialogHeader>
+          {editingTechnician && (
+            <TechnicianForm 
+              technician={editingTechnician}
+              onSuccess={() => {
+                setIsEditModalOpen(false);
+                setEditingTechnician(null);
+                refetch();
+              }}
+              onCancel={() => {
+                setIsEditModalOpen(false);
+                setEditingTechnician(null);
+              }}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Modal */}
+      <Dialog open={isDeleteModalOpen} onOpenChange={setIsDeleteModalOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Delete Technician</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete this technician? This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          {deletingTechnician && (
+            <div className="py-4">
+              <div className="flex items-center space-x-4 p-4 border rounded-lg">
+                <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center text-sm font-semibold text-primary">
+                  {TechnicianUtils.getFullName(deletingTechnician).charAt(0).toUpperCase()}
+                </div>
+                <div>
+                  <p className="font-medium text-foreground">
+                    {TechnicianUtils.getFullName(deletingTechnician)}
+                  </p>
+                  <p className="text-sm text-muted-foreground">{deletingTechnician.email}</p>
+                </div>
+              </div>
+              
+              {deleteTechnicianMutation.error && (
+                <Alert variant="destructive" className="mt-4">
+                  <AlertDescription>
+                    Failed to delete technician: {deleteTechnicianMutation.error.message}
+                  </AlertDescription>
+                </Alert>
+              )}
+              
+              <div className="flex justify-end space-x-2 mt-6">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setIsDeleteModalOpen(false);
+                    setDeletingTechnician(null);
+                  }}
+                  disabled={deleteTechnicianMutation.isPending}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  variant="destructive"
+                  onClick={handleDeleteTechnician}
+                  disabled={deleteTechnicianMutation.isPending}
+                >
+                  {deleteTechnicianMutation.isPending ? 'Deleting...' : 'Delete Technician'}
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
 
       {/* Filters and Search */}
       <Card className="shadow-sm border-border/50 bg-card/50 backdrop-blur-sm">
@@ -343,12 +488,34 @@ export function TechniciansPage() {
                   {selectedTechnicians.size} technician{selectedTechnicians.size !== 1 ? 's' : ''} selected
                 </span>
                 <div className="flex gap-2">
-                  <Button variant="outline" size="sm">
+                  <Button variant="outline" size="sm" onClick={handleExportSelected}>
                     Export Selected
                   </Button>
-                  <Button variant="outline" size="sm">
-                    Bulk Actions
-                  </Button>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="outline" size="sm">
+                        Bulk Actions
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={() => handleBulkStatusUpdate(TechnicianStatus.ACTIVE)}>
+                        <UserCheck className="mr-2 h-4 w-4" />
+                        Mark as Active
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleBulkStatusUpdate(TechnicianStatus.ON_VACATION)}>
+                        <Settings className="mr-2 h-4 w-4" />
+                        Mark as On Vacation
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleBulkStatusUpdate(TechnicianStatus.SICK_LEAVE)}>
+                        <UserMinus className="mr-2 h-4 w-4" />
+                        Mark as Sick Leave
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleBulkStatusUpdate(TechnicianStatus.TERMINATED)} className="text-destructive">
+                        <UserX className="mr-2 h-4 w-4" />
+                        Mark as Terminated
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                   <Button 
                     variant="outline" 
                     size="sm" 
@@ -522,15 +689,21 @@ export function TechniciansPage() {
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
-                            <DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => navigate(`/technicians/${technician.id}`)}>
                               <Eye className="mr-2 h-4 w-4" />
                               View Details
                             </DropdownMenuItem>
-                            <DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => {
+                              setEditingTechnician(technician);
+                              setIsEditModalOpen(true);
+                            }}>
                               <Edit className="mr-2 h-4 w-4" />
                               Edit Technician
                             </DropdownMenuItem>
-                            <DropdownMenuItem className="text-destructive">
+                            <DropdownMenuItem className="text-destructive" onClick={() => {
+                              setDeletingTechnician(technician);
+                              setIsDeleteModalOpen(true);
+                            }}>
                               <Trash2 className="mr-2 h-4 w-4" />
                               Delete
                             </DropdownMenuItem>
@@ -670,7 +843,8 @@ export function TechniciansPage() {
           </Card>
         </div>
       )}
-    </div>
+      </div>
+    </TechnicianErrorBoundary>
   );
 }
 

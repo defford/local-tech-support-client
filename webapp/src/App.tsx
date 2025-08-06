@@ -11,6 +11,7 @@ import {
   DashboardPage, 
   ClientsPage, 
   TechniciansPage,
+  TechnicianDetailPage,
   // ClientDetailPage, // TODO: Uncomment when basic version is created
   NotFoundPage 
 } from './pages';
@@ -83,6 +84,7 @@ function App() {
               {/* TODO: Uncomment when basic ClientDetailPage is created */}
               {/* <Route path="/clients/:id" element={<ClientDetailPage />} /> */}
               <Route path="/technicians" element={<TechniciansPage />} />
+              <Route path="/technicians/:id" element={<TechnicianDetailPage />} />
               <Route path="/tickets" element={<TicketsPage />} />
               <Route path="/appointments" element={<AppointmentsPage />} />
               <Route path="/reports" element={<ReportsPage />} />
