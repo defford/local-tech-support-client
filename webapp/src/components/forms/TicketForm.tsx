@@ -119,7 +119,7 @@ export function TicketForm({ ticket, defaultClientId, onSuccess, onCancel }: Tic
           serviceType: values.serviceType,
           priority: values.priority,
           clientId: values.clientId,
-          dueAt: values.dueAt || undefined,
+          dueAt: values.dueAt ? (values.dueAt.includes(':') && values.dueAt.split(':').length === 2 ? `${values.dueAt}:00` : values.dueAt) : undefined,
         };
 
         result = await createTicketMutation.mutateAsync(createData);
