@@ -25,11 +25,11 @@ import { AppointmentDiagnostics } from '@/components/diagnostics/AppointmentDiag
 import { TechnicianUtils } from '@/types/Technician';
 
 /**
- * Appointment form validation schema
+ * Appointment form validation schema - dynamic based on mode
  */
-const appointmentFormSchema = z.object({
-  ticketId: z.number().min(1, 'Please select a ticket'),
-  technicianId: z.number().min(1, 'Please select a technician'),
+const createAppointmentFormSchema = (isEditing: boolean) => z.object({
+  ticketId: isEditing ? z.number() : z.number().min(1, 'Please select a ticket'),
+  technicianId: isEditing ? z.number() : z.number().min(1, 'Please select a technician'),
   scheduledStartTime: z.string().min(1, 'Start time is required'),
   scheduledEndTime: z.string().min(1, 'End time is required'),
   notes: z.string().optional(),
@@ -67,7 +67,7 @@ const appointmentFormSchema = z.object({
   }
 );
 
-type AppointmentFormData = z.infer<typeof appointmentFormSchema>;
+type AppointmentFormData = z.infer<ReturnType<typeof createAppointmentFormSchema>>;
 
 interface AppointmentFormProps {
   appointment?: Appointment;
@@ -109,11 +109,12 @@ export function AppointmentForm({ appointment, onSuccess, onCancel, mode }: Appo
   ) || [];
   
   // Form setup
+  const appointmentFormSchema = createAppointmentFormSchema(isEditing);
   const form = useForm<AppointmentFormData>({
     resolver: zodResolver(appointmentFormSchema),
     defaultValues: {
-      ticketId: appointment?.ticketId || 0,
-      technicianId: appointment?.technicianId || 0,
+      ticketId: appointment?.ticketId || (isEditing ? 1 : 0),
+      technicianId: appointment?.technicianId || (isEditing ? 1 : 0),
       scheduledStartTime: appointment?.scheduledStartTime ? 
         new Date(appointment.scheduledStartTime).toISOString().slice(0, 16) : 
         // Default to 1 hour from now
@@ -233,6 +234,7 @@ export function AppointmentForm({ appointment, onSuccess, onCancel, mode }: Appo
   
   const isLoading = createAppointmentMutation.isPending || updateAppointmentMutation.isPending || rescheduleAppointmentMutation.isPending;
   const hasConflicts = conflicts.length > 0;
+  
   
   return (
     <div className="space-y-6">
