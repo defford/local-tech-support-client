@@ -19,7 +19,9 @@ import {
   FileText,
   UserCheck,
   UserX,
-  UserMinus
+  UserMinus,
+  ExternalLink,
+  Info
 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
@@ -35,20 +37,63 @@ import {
   useClientAppointments 
 } from '@/hooks/useClients';
 import { ClientForm } from '@/components/forms/ClientForm';
+import { TicketForm } from '@/components/forms/TicketForm';
+import { AppointmentForm } from '@/components/forms/AppointmentForm';
 import { ClientUtils } from '@/types/Client';
-import { ClientStatus } from '@/types';
+import { ClientStatus, TicketStatus } from '@/types';
 
 export function ClientDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  
+  // Modal state management
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isTicketModalOpen, setIsTicketModalOpen] = useState(false);
+  const [isAppointmentModalOpen, setIsAppointmentModalOpen] = useState(false);
+  const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
 
   const clientId = parseInt(id || '0', 10);
   
   // Fetch client data
   const { data: client, isLoading: clientLoading, error: clientError } = useClient(clientId);
-  const { data: tickets, isLoading: ticketsLoading } = useClientTickets(clientId);
-  const { data: appointments, isLoading: appointmentsLoading } = useClientAppointments(clientId);
+  const { data: tickets, isLoading: ticketsLoading, refetch: refetchTickets } = useClientTickets(clientId);
+  const { data: appointments, isLoading: appointmentsLoading, refetch: refetchAppointments } = useClientAppointments(clientId);
+  
+  // Helper functions for quick actions
+  const handleCreateTicket = () => {
+    setIsTicketModalOpen(true);
+  };
+  
+  const handleScheduleAppointment = () => {
+    // Check if client has open tickets
+    const openTickets = tickets?.content?.filter(ticket => ticket.status === TicketStatus.OPEN) || [];
+    if (openTickets.length === 0) {
+      // Show a more user-friendly message
+      const shouldCreateTicket = window.confirm(
+        'No open tickets found for this client. Would you like to create a ticket first?'
+      );
+      if (shouldCreateTicket) {
+        setIsTicketModalOpen(true);
+      }
+      return;
+    }
+    setIsAppointmentModalOpen(true);
+  };
+  
+  const handleSendEmail = () => {
+    setIsEmailModalOpen(true);
+  };
+  
+  const onTicketSuccess = () => {
+    setIsTicketModalOpen(false);
+    refetchTickets();
+  };
+  
+  const onAppointmentSuccess = () => {
+    setIsAppointmentModalOpen(false);
+    refetchAppointments();
+  };
+  
 
   if (clientLoading) {
     return <ClientDetailSkeleton />;
@@ -365,15 +410,30 @@ export function ClientDetailPage() {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-2">
-              <Button variant="outline" size="sm" className="w-full justify-start">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="w-full justify-start"
+                onClick={handleScheduleAppointment}
+              >
                 <Calendar className="h-4 w-4 mr-2" />
                 Schedule Appointment
               </Button>
-              <Button variant="outline" size="sm" className="w-full justify-start">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="w-full justify-start"
+                onClick={handleCreateTicket}
+              >
                 <Activity className="h-4 w-4 mr-2" />
                 Create New Ticket
               </Button>
-              <Button variant="outline" size="sm" className="w-full justify-start">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="w-full justify-start"
+                onClick={handleSendEmail}
+              >
                 <Mail className="h-4 w-4 mr-2" />
                 Send Email
               </Button>
@@ -399,6 +459,112 @@ export function ClientDetailPage() {
             }}
             onCancel={() => setIsEditModalOpen(false)}
           />
+        </DialogContent>
+      </Dialog>
+
+      {/* Create Ticket Modal */}
+      <Dialog open={isTicketModalOpen} onOpenChange={setIsTicketModalOpen}>
+        <DialogContent className="max-w-4xl">
+          <DialogHeader>
+            <DialogTitle>Create New Ticket</DialogTitle>
+            <DialogDescription>
+              Create a new support ticket for {ClientUtils.getFullName(client)}
+            </DialogDescription>
+          </DialogHeader>
+          <TicketForm
+            ticket={client ? {
+              id: 0,
+              title: '',
+              description: '',
+              serviceType: 'HARDWARE' as const,
+              status: 'OPEN' as const,
+              priority: 'MEDIUM' as const,
+              clientId: client.id,
+              createdAt: new Date().toISOString(),
+              updatedAt: new Date().toISOString()
+            } : undefined}
+            onSuccess={onTicketSuccess}
+            onCancel={() => setIsTicketModalOpen(false)}
+          />
+        </DialogContent>
+      </Dialog>
+
+      {/* Schedule Appointment Modal */}
+      <Dialog open={isAppointmentModalOpen} onOpenChange={setIsAppointmentModalOpen}>
+        <DialogContent className="max-w-4xl">
+          <DialogHeader>
+            <DialogTitle>Schedule Appointment</DialogTitle>
+            <DialogDescription>
+              Schedule an appointment for {ClientUtils.getFullName(client)}
+            </DialogDescription>
+          </DialogHeader>
+          <AppointmentForm
+            appointment={undefined}
+            onSuccess={onAppointmentSuccess}
+            onCancel={() => setIsAppointmentModalOpen(false)}
+          />
+        </DialogContent>
+      </Dialog>
+
+      {/* Send Email Modal */}
+      <Dialog open={isEmailModalOpen} onOpenChange={setIsEmailModalOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Mail className="h-5 w-5" />
+              Contact {ClientUtils.getFullName(client)}
+            </DialogTitle>
+            <DialogDescription>
+              Client contact information
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <Card>
+              <CardContent className="p-4 space-y-3">
+                <div className="flex items-center gap-3">
+                  <Mail className="h-4 w-4 text-muted-foreground" />
+                  <div>
+                    <p className="font-medium">Email</p>
+                    <p className="text-sm text-muted-foreground">{client?.email}</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <Phone className="h-4 w-4 text-muted-foreground" />
+                  <div>
+                    <p className="font-medium">Phone</p>
+                    <p className="text-sm text-muted-foreground">{formatPhone(client?.phone || '')}</p>
+                  </div>
+                </div>
+                {client?.address && (
+                  <div className="flex items-start gap-3">
+                    <MapPin className="h-4 w-4 text-muted-foreground mt-0.5" />
+                    <div>
+                      <p className="font-medium">Address</p>
+                      <p className="text-sm text-muted-foreground">{client.address}</p>
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+            <div className="flex flex-col gap-2">
+              <Button 
+                onClick={() => {
+                  window.open(`mailto:${client?.email}`, '_blank');
+                }}
+                className="w-full"
+              >
+                <ExternalLink className="h-4 w-4 mr-2" />
+                Open Email Client
+              </Button>
+              <Button 
+                variant="outline" 
+                onClick={() => setIsEmailModalOpen(false)}
+                className="w-full"
+              >
+                Close
+              </Button>
+            </div>
+          </div>
         </DialogContent>
       </Dialog>
     </div>
