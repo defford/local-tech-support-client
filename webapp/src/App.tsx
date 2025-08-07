@@ -3,6 +3,7 @@
  */
 
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { Suspense, lazy } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { ThemeProvider } from './components/theme-provider';
@@ -16,9 +17,20 @@ import {
   TicketDetailPage,
   AppointmentsPage,
   AppointmentDetailPage,
-  // ClientDetailPage, // TODO: Uncomment when basic version is created
-  NotFoundPage 
+  ClientDetailPage,
+  NotFoundPage,
+  ReportsPage 
 } from './pages';
+
+// Simple lazy wrapper that returns an element for Routes
+const lazyLoad = (loader: Parameters<typeof lazy>[0]) => {
+  const C = lazy(loader);
+  return (
+    <Suspense fallback={<div className="p-4 text-sm text-muted-foreground">Loading…</div>}>
+      <C />
+    </Suspense>
+  );
+};
 
 // Create a client instance
 const queryClient = new QueryClient({
@@ -47,16 +59,6 @@ const queryClient = new QueryClient({
   },
 });
 
-// Placeholder components for pages not yet implemented
-// TODO: Replace with ShadCN UI components later
-
-const ReportsPage = () => (
-  <div className="container mx-auto p-4">
-    <h1 className="text-2xl font-bold mb-4">Reports & Analytics</h1>
-    <p>Reports and analytics coming soon...</p>
-  </div>
-);
-
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
@@ -71,8 +73,7 @@ function App() {
             <Routes>
               <Route path="/" element={<DashboardPage />} />
               <Route path="/clients" element={<ClientsPage />} />
-              {/* TODO: Uncomment when basic ClientDetailPage is created */}
-              {/* <Route path="/clients/:id" element={<ClientDetailPage />} /> */}
+              <Route path="/clients/:id" element={<ClientDetailPage />} />
               <Route path="/technicians" element={<TechniciansPage />} />
               <Route path="/technicians/:id" element={<TechnicianDetailPage />} />
               <Route path="/tickets" element={<TicketsPage />} />
@@ -80,6 +81,9 @@ function App() {
               <Route path="/appointments" element={<AppointmentsPage />} />
               <Route path="/appointments/:id" element={<AppointmentDetailPage />} />
               <Route path="/reports" element={<ReportsPage />} />
+              <Route path="/reports/available-technicians" element={lazyLoad(() => import('./pages/reports/AvailableTechniciansReport'))} />
+              <Route path="/reports/overdue-tickets" element={lazyLoad(() => import('./pages/reports/OverdueTicketsReport'))} />
+              <Route path="/reports/technician-workload" element={lazyLoad(() => import('./pages/reports/TechnicianWorkloadReport'))} />
               <Route path="*" element={<NotFoundPage />} />
             </Routes>
           </AppShellLayout>

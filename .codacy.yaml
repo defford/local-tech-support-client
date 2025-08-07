@@ -1,0 +1,15 @@
+engines:
+  revive:
+    enabled: false
+  eslint:
+    enabled: true
+  semgrep:
+    enabled: true
+  trivy:
+    enabled: true
+
+exclude_paths:
+  - cli/**/target/**
+  - webapp/node_modules/**
+  - webapp/dist/**
+
