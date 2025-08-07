@@ -25,17 +25,13 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Ticket, TicketCreateRequest, TicketUpdateRequest, TicketPriority, ServiceType } from '../../types';
 import { useCreateTicket, useUpdateTicket, useClients } from '../../hooks';
 
-const ticketFormSchema = z.object({
-  title: z
-    .string()
-    .min(1, 'Title is required')
-    .max(200, 'Title must be 200 characters or less'),
+// Base schema for shared fields
+const baseTicketFormSchema = z.object({
   description: z
     .string()
     .min(1, 'Description is required')
     .max(1000, 'Description must be 1000 characters or less'),
   serviceType: z.nativeEnum(ServiceType, { message: 'Service type is required' }),
-  priority: z.nativeEnum(TicketPriority, { message: 'Priority is required' }),
   clientId: z
     .number({ message: 'Client selection is required' })
     .min(1, 'Please select a client'),
@@ -50,7 +46,22 @@ const ticketFormSchema = z.object({
     }, 'Due date must be in the future'),
 });
 
-type TicketFormValues = z.infer<typeof ticketFormSchema>;
+// Schema for creating tickets (no title/priority required)
+const createTicketFormSchema = baseTicketFormSchema.extend({
+  title: z.string().optional(), // Keep for form display but not required
+  priority: z.nativeEnum(TicketPriority).optional(), // Keep for form display but not required
+});
+
+// Schema for editing tickets (title/priority required)
+const editTicketFormSchema = baseTicketFormSchema.extend({
+  title: z
+    .string()
+    .min(1, 'Title is required')
+    .max(200, 'Title must be 200 characters or less'),
+  priority: z.nativeEnum(TicketPriority, { message: 'Priority is required' }),
+});
+
+type TicketFormValues = z.infer<typeof createTicketFormSchema>;
 
 interface TicketFormProps {
   ticket?: Ticket;
@@ -70,7 +81,7 @@ export function TicketForm({ ticket, defaultClientId, onSuccess, onCancel }: Tic
   const clients = clientsResponse?.content || [];
 
   const form = useForm<TicketFormValues>({
-    resolver: zodResolver(ticketFormSchema),
+    resolver: zodResolver(isEditing ? editTicketFormSchema : createTicketFormSchema),
     defaultValues: {
       title: ticket?.title || '',
       description: ticket?.description || '',
@@ -114,10 +125,8 @@ export function TicketForm({ ticket, defaultClientId, onSuccess, onCancel }: Tic
         });
       } else {
         const createData: TicketCreateRequest = {
-          title: values.title.trim(),
           description: values.description.trim(),
           serviceType: values.serviceType,
-          priority: values.priority,
           clientId: values.clientId,
           dueAt: values.dueAt ? (values.dueAt.includes(':') && values.dueAt.split(':').length === 2 ? `${values.dueAt}:00` : values.dueAt) : undefined,
         };
@@ -209,49 +218,60 @@ export function TicketForm({ ticket, defaultClientId, onSuccess, onCancel }: Tic
           </Alert>
         )}
 
-        {/* Title and Priority */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="md:col-span-2 space-y-2">
-            <Label htmlFor="title">Title *</Label>
-            <Input
-              id="title"
-              placeholder="Brief description of the issue"
-              {...form.register('title')}
-              disabled={isLoading}
-            />
-            {form.formState.errors.title && (
-              <p className="text-sm text-red-600">{form.formState.errors.title.message}</p>
-            )}
-          </div>
+        {/* Title and Priority - Only shown for editing */}
+        {isEditing && (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="md:col-span-2 space-y-2">
+              <Label htmlFor="title">Title *</Label>
+              <Input
+                id="title"
+                placeholder="Brief description of the issue"
+                {...form.register('title')}
+                disabled={isLoading}
+              />
+              {form.formState.errors.title && (
+                <p className="text-sm text-red-600">{form.formState.errors.title.message}</p>
+              )}
+            </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="priority">Priority *</Label>
-            <Select
-              value={form.watch('priority')}
-              onValueChange={(value) => form.setValue('priority', value as TicketPriority)}
-              disabled={isLoading}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select priority" />
-              </SelectTrigger>
-              <SelectContent>
-                {Object.values(TicketPriority).map((priority) => (
-                  <SelectItem key={priority} value={priority}>
-                    <div className="flex items-center gap-2">
-                      <span>{getPriorityIcon(priority)}</span>
-                      <span className={getPriorityColor(priority)}>
-                        {priority.charAt(0) + priority.slice(1).toLowerCase()}
-                      </span>
-                    </div>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            {form.formState.errors.priority && (
-              <p className="text-sm text-red-600">{form.formState.errors.priority.message}</p>
-            )}
+            <div className="space-y-2">
+              <Label htmlFor="priority">Priority *</Label>
+              <Select
+                value={form.watch('priority')}
+                onValueChange={(value) => form.setValue('priority', value as TicketPriority)}
+                disabled={isLoading}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select priority" />
+                </SelectTrigger>
+                <SelectContent>
+                  {Object.values(TicketPriority).map((priority) => (
+                    <SelectItem key={priority} value={priority}>
+                      <div className="flex items-center gap-2">
+                        <span>{getPriorityIcon(priority)}</span>
+                        <span className={getPriorityColor(priority)}>
+                          {priority.charAt(0) + priority.slice(1).toLowerCase()}
+                        </span>
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {form.formState.errors.priority && (
+                <p className="text-sm text-red-600">{form.formState.errors.priority.message}</p>
+              )}
+            </div>
           </div>
-        </div>
+        )}
+
+        {/* Notice for ticket creation */}
+        {!isEditing && (
+          <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+            <p className="text-sm text-blue-700">
+              <strong>Note:</strong> Title and priority will be automatically generated by the system based on your description and service type.
+            </p>
+          </div>
+        )}
 
         {/* Description */}
         <div className="space-y-2">
