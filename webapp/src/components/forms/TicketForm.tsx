@@ -54,11 +54,12 @@ type TicketFormValues = z.infer<typeof ticketFormSchema>;
 
 interface TicketFormProps {
   ticket?: Ticket;
+  defaultClientId?: number;
   onSuccess?: (ticket: Ticket) => void;
   onCancel?: () => void;
 }
 
-export function TicketForm({ ticket, onSuccess, onCancel }: TicketFormProps) {
+export function TicketForm({ ticket, defaultClientId, onSuccess, onCancel }: TicketFormProps) {
   const isEditing = !!ticket;
   const createTicketMutation = useCreateTicket();
   const updateTicketMutation = useUpdateTicket();
@@ -75,7 +76,7 @@ export function TicketForm({ ticket, onSuccess, onCancel }: TicketFormProps) {
       description: ticket?.description || '',
       serviceType: ticket?.serviceType || ServiceType.HARDWARE,
       priority: ticket?.priority || TicketPriority.MEDIUM,
-      clientId: ticket?.clientId || 0,
+      clientId: ticket?.clientId || defaultClientId || 0,
       dueAt: ticket?.dueAt ? new Date(ticket.dueAt).toISOString().slice(0, 16) : '',
     },
   });

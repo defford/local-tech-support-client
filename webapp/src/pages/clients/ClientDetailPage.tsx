@@ -472,17 +472,8 @@ export function ClientDetailPage() {
             </DialogDescription>
           </DialogHeader>
           <TicketForm
-            ticket={client ? {
-              id: 0,
-              title: '',
-              description: '',
-              serviceType: 'HARDWARE' as const,
-              status: 'OPEN' as const,
-              priority: 'MEDIUM' as const,
-              clientId: client.id,
-              createdAt: new Date().toISOString(),
-              updatedAt: new Date().toISOString()
-            } : undefined}
+            ticket={undefined}
+            defaultClientId={client?.id}
             onSuccess={onTicketSuccess}
             onCancel={() => setIsTicketModalOpen(false)}
           />
