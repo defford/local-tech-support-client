@@ -35,10 +35,11 @@ export interface AppointmentCreateRequest {
 
 /**
  * Appointment update request type
+ * Field names match the Java model's @JsonProperty annotations
  */
 export interface AppointmentUpdateRequest {
-  scheduledStartTime?: string; // ISO date string
-  scheduledEndTime?: string; // ISO date string
+  startTime?: string; // ISO date string - maps to @JsonProperty("startTime")
+  endTime?: string; // ISO date string - maps to @JsonProperty("endTime")
   status?: AppointmentStatus;
   notes?: string;
 }

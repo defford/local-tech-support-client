@@ -176,8 +176,8 @@ export function AppointmentForm({ appointment, onSuccess, onCancel }: Appointmen
     try {
       if (isEditing && appointment) {
         const updateData: AppointmentUpdateRequest = {
-          scheduledStartTime: new Date(data.scheduledStartTime).toISOString(),
-          scheduledEndTime: new Date(data.scheduledEndTime).toISOString(),
+          startTime: new Date(data.scheduledStartTime).toISOString(),
+          endTime: new Date(data.scheduledEndTime).toISOString(),
           notes: data.notes,
         };
         
