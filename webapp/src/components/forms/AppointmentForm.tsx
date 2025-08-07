@@ -36,6 +36,17 @@ const appointmentFormSchema = z.object({
 }).refine(
   (data) => {
     const start = new Date(data.scheduledStartTime);
+    const now = new Date();
+    // Allow appointments to be scheduled at least 5 minutes in the future
+    return start.getTime() > now.getTime() + (5 * 60 * 1000);
+  },
+  {
+    message: 'Start time must be at least 5 minutes in the future',
+    path: ['scheduledStartTime'],
+  }
+).refine(
+  (data) => {
+    const start = new Date(data.scheduledStartTime);
     const end = new Date(data.scheduledEndTime);
     return end > start;
   },
@@ -99,9 +110,13 @@ export function AppointmentForm({ appointment, onSuccess, onCancel }: Appointmen
       ticketId: appointment?.ticketId || 0,
       technicianId: appointment?.technicianId || 0,
       scheduledStartTime: appointment?.scheduledStartTime ? 
-        new Date(appointment.scheduledStartTime).toISOString().slice(0, 16) : '',
+        new Date(appointment.scheduledStartTime).toISOString().slice(0, 16) : 
+        // Default to 1 hour from now
+        new Date(Date.now() + 60 * 60 * 1000).toISOString().slice(0, 16),
       scheduledEndTime: appointment?.scheduledEndTime ? 
-        new Date(appointment.scheduledEndTime).toISOString().slice(0, 16) : '',
+        new Date(appointment.scheduledEndTime).toISOString().slice(0, 16) : 
+        // Default to 2 hours from now (1 hour duration)
+        new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString().slice(0, 16),
       notes: appointment?.notes || '',
     },
   });

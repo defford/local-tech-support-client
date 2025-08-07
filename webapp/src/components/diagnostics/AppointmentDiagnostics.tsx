@@ -160,22 +160,37 @@ export function AppointmentDiagnostics({ failedAppointment, onClose }: Appointme
     const isFuture = startTime > new Date(now.getTime() + 5 * 60 * 1000); // 5 minutes from now
     const isDurationValid = duration >= 30 && duration <= 480; // 30 min to 8 hours
     
-    if (!isFuture || !isDurationValid) {
-      results[3] = {
-        name: 'Date/Time Validation',
-        status: 'fail',
-        message: 'Invalid appointment timing',
-        details: `Future: ${isFuture ? 'Yes' : 'No'}, Duration: ${duration} minutes`,
-        suggestion: 'Ensure appointment is in the future and duration is 30min-8hr'
-      };
+    let validationStatus = 'pass';
+    let validationMessage = 'Appointment timing is valid';
+    let validationDetails = `Duration: ${duration} minutes`;
+    let validationSuggestion: string | undefined = undefined;
+    
+    if (!isFuture && !isDurationValid) {
+      validationStatus = 'fail';
+      validationMessage = 'Invalid appointment timing';
+      validationDetails = `Start time is ${isFuture ? 'valid' : 'in the past'}, Duration: ${duration} minutes (${isDurationValid ? 'valid' : 'invalid'})`;
+      validationSuggestion = 'Ensure appointment is at least 5 minutes in the future and duration is 30min-8hr';
+    } else if (!isFuture) {
+      validationStatus = 'fail';
+      validationMessage = 'Start time must be in the future';
+      validationDetails = `Start time is ${Math.round((now.getTime() - startTime.getTime()) / (1000 * 60))} minutes in the past`;
+      validationSuggestion = 'Choose a start time at least 5 minutes in the future';
+    } else if (!isDurationValid) {
+      validationStatus = 'fail';
+      validationMessage = 'Invalid appointment duration';
+      validationDetails = `Duration: ${duration} minutes (must be 30-480 minutes)`;
+      validationSuggestion = 'Set appointment duration between 30 minutes and 8 hours';
     } else {
-      results[3] = {
-        name: 'Date/Time Validation',
-        status: 'pass',
-        message: 'Appointment timing is valid',
-        details: `Duration: ${duration} minutes, ${Math.round((startTime.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))} days from now`
-      };
+      validationDetails = `Duration: ${duration} minutes, ${Math.round((startTime.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))} days from now`;
     }
+    
+    results[3] = {
+      name: 'Date/Time Validation',
+      status: validationStatus as 'pass' | 'fail',
+      message: validationMessage,
+      details: validationDetails,
+      suggestion: validationSuggestion
+    };
     setDiagnosticResults([...results]);
     
     // 5. Check Technician Availability (if technician is valid)
