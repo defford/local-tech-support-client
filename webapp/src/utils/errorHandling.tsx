@@ -3,6 +3,8 @@
  * Provides consistent error handling, user-friendly messages, and recovery actions
  */
 
+import React from 'react';
+
 /**
  * Error types that can occur in the application
  */

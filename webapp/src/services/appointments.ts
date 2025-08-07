@@ -168,6 +168,34 @@ export class AppointmentService {
   }
 
   /**
+   * Mark appointment as no-show
+   */
+  static async markAppointmentNoShow(id: number, notes?: string): Promise<Appointment> {
+    const response = await apiClient.post<Appointment>(`${ENDPOINTS.APPOINTMENTS}/${id}/no-show`, {
+      notes
+    });
+    return response.data;
+  }
+
+  /**
+   * Check technician availability for a time slot
+   */
+  static async checkTechnicianAvailability(
+    technicianId: number,
+    startTime: string,
+    endTime: string
+  ): Promise<boolean> {
+    const response = await apiClient.get<boolean>(`${ENDPOINTS.APPOINTMENTS}/availability`, {
+      params: {
+        technicianId,
+        startTime,
+        endTime
+      }
+    });
+    return response.data;
+  }
+
+  /**
    * Check for appointment conflicts
    */
   static async checkAppointmentConflicts(appointment: AppointmentCreateRequest): Promise<AppointmentConflict[]> {

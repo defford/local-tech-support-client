@@ -232,6 +232,27 @@ export function useCancelAppointment() {
 }
 
 /**
+ * Hook to mark an appointment as no-show
+ */
+export function useMarkNoShowAppointment() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, notes }: { id: number; notes?: string }) =>
+      AppointmentService.markAppointmentNoShow(id, notes),
+    onSuccess: (noShowAppointment) => {
+      queryClient.setQueryData(
+        appointmentKeys.detail(noShowAppointment.id),
+        noShowAppointment
+      );
+      queryClient.invalidateQueries({ queryKey: appointmentKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: appointmentKeys.upcoming() });
+      queryClient.invalidateQueries({ queryKey: appointmentKeys.availableSlots() });
+    },
+  });
+}
+
+/**
  * Hook to reschedule an appointment
  */
 export function useRescheduleAppointment() {
@@ -259,6 +280,19 @@ export function useCheckAppointmentConflicts() {
   return useMutation({
     mutationFn: (appointment: AppointmentCreateRequest) =>
       AppointmentService.checkAppointmentConflicts(appointment),
+  });
+}
+
+/**
+ * Hook to check technician availability
+ */
+export function useCheckTechnicianAvailability() {
+  return useMutation({
+    mutationFn: ({ technicianId, startTime, endTime }: { 
+      technicianId: number; 
+      startTime: string; 
+      endTime: string; 
+    }) => AppointmentService.checkTechnicianAvailability(technicianId, startTime, endTime),
   });
 }
 

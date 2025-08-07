@@ -7,7 +7,7 @@ import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { CalendarDays, Clock, User, Ticket as TicketIcon, AlertTriangle, Check, X } from 'lucide-react';
+import { CalendarDays, Clock, User, Ticket as TicketIcon, AlertTriangle, Check, X, Wrench } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -16,11 +16,13 @@ import { Textarea } from '@/components/ui/textarea';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { useCreateAppointment, useUpdateAppointment, useCheckAppointmentConflicts } from '@/hooks/useAppointments';
+import { useCreateAppointment, useUpdateAppointment, useCheckAppointmentConflicts, useCheckTechnicianAvailability } from '@/hooks/useAppointments';
 import { useTickets } from '@/hooks/useTickets';
 import { useTechnicians } from '@/hooks/useTechnicians';
 import { Appointment, AppointmentCreateRequest, AppointmentUpdateRequest, AppointmentStatus, TechnicianStatus, TicketStatus } from '@/types';
 import { AppointmentConflict } from '@/services/appointments';
+import { AppointmentDiagnostics } from '@/components/diagnostics/AppointmentDiagnostics';
+import { TechnicianUtils } from '@/types/Technician';
 
 /**
  * Appointment form validation schema
@@ -65,6 +67,9 @@ interface AppointmentFormProps {
 export function AppointmentForm({ appointment, onSuccess, onCancel }: AppointmentFormProps) {
   const [conflicts, setConflicts] = useState<AppointmentConflict[]>([]);
   const [isCheckingConflicts, setIsCheckingConflicts] = useState(false);
+  const [availabilityStatus, setAvailabilityStatus] = useState<'checking' | 'available' | 'unavailable' | null>(null);
+  const [showDiagnostics, setShowDiagnostics] = useState(false);
+  const [failedAppointmentData, setFailedAppointmentData] = useState<AppointmentCreateRequest | null>(null);
   
   const isEditing = !!appointment;
   
@@ -72,6 +77,7 @@ export function AppointmentForm({ appointment, onSuccess, onCancel }: Appointmen
   const createAppointmentMutation = useCreateAppointment();
   const updateAppointmentMutation = useUpdateAppointment();
   const checkConflictsMutation = useCheckAppointmentConflicts();
+  const checkAvailabilityMutation = useCheckTechnicianAvailability();
   
   // Data queries
   const { data: ticketsData, isLoading: ticketsLoading } = useTickets();
@@ -103,29 +109,50 @@ export function AppointmentForm({ appointment, onSuccess, onCancel }: Appointmen
   // Watch form values for conflict checking
   const watchedValues = form.watch();
   
-  // Check conflicts when form values change
+  // Check conflicts and availability when form values change
   useEffect(() => {
     const { ticketId, technicianId, scheduledStartTime, scheduledEndTime } = watchedValues;
     
-    if (ticketId && technicianId && scheduledStartTime && scheduledEndTime && !isEditing) {
-      const appointmentRequest: AppointmentCreateRequest = {
-        ticketId,
-        technicianId,
-        scheduledStartTime: new Date(scheduledStartTime).toISOString(),
-        scheduledEndTime: new Date(scheduledEndTime).toISOString(),
-        notes: watchedValues.notes,
-      };
+    if (ticketId && technicianId && scheduledStartTime && scheduledEndTime) {
+      // Check conflicts (for new appointments only)
+      if (!isEditing) {
+        const appointmentRequest: AppointmentCreateRequest = {
+          ticketId,
+          technicianId,
+          startTime: new Date(scheduledStartTime).toISOString(),
+          endTime: new Date(scheduledEndTime).toISOString(),
+          notes: watchedValues.notes,
+        };
+        
+        setIsCheckingConflicts(true);
+        checkConflictsMutation.mutate(appointmentRequest, {
+          onSuccess: (conflictData) => {
+            setConflicts(conflictData);
+            setIsCheckingConflicts(false);
+          },
+          onError: () => {
+            setIsCheckingConflicts(false);
+          },
+        });
+      }
       
-      setIsCheckingConflicts(true);
-      checkConflictsMutation.mutate(appointmentRequest, {
-        onSuccess: (conflictData) => {
-          setConflicts(conflictData);
-          setIsCheckingConflicts(false);
+      // Check technician availability (for all appointments)
+      setAvailabilityStatus('checking');
+      checkAvailabilityMutation.mutate({
+        technicianId,
+        startTime: new Date(scheduledStartTime).toISOString(),
+        endTime: new Date(scheduledEndTime).toISOString(),
+      }, {
+        onSuccess: (isAvailable) => {
+          setAvailabilityStatus(isAvailable ? 'available' : 'unavailable');
         },
         onError: () => {
-          setIsCheckingConflicts(false);
+          setAvailabilityStatus(null);
         },
       });
+    } else {
+      setAvailabilityStatus(null);
+      setConflicts([]);
     }
   }, [watchedValues.ticketId, watchedValues.technicianId, watchedValues.scheduledStartTime, watchedValues.scheduledEndTime, isEditing]);
   
@@ -147,8 +174,8 @@ export function AppointmentForm({ appointment, onSuccess, onCancel }: Appointmen
         const createData: AppointmentCreateRequest = {
           ticketId: data.ticketId,
           technicianId: data.technicianId,
-          scheduledStartTime: new Date(data.scheduledStartTime).toISOString(),
-          scheduledEndTime: new Date(data.scheduledEndTime).toISOString(),
+          startTime: new Date(data.scheduledStartTime).toISOString(),
+          endTime: new Date(data.scheduledEndTime).toISOString(),
           notes: data.notes,
         };
         
@@ -158,6 +185,18 @@ export function AppointmentForm({ appointment, onSuccess, onCancel }: Appointmen
       onSuccess?.();
     } catch (error) {
       console.error('Failed to save appointment:', error);
+      
+      // Store failed appointment data for diagnostics
+      if (!isEditing) {
+        const createData: AppointmentCreateRequest = {
+          ticketId: data.ticketId,
+          technicianId: data.technicianId,
+          startTime: new Date(data.scheduledStartTime).toISOString(),
+          endTime: new Date(data.scheduledEndTime).toISOString(),
+          notes: data.notes,
+        };
+        setFailedAppointmentData(createData);
+      }
     }
   };
   
@@ -219,7 +258,7 @@ export function AppointmentForm({ appointment, onSuccess, onCancel }: Appointmen
                 {availableTechnicians.map((technician) => (
                   <SelectItem key={technician.id} value={technician.id.toString()}>
                     <div className="flex items-center justify-between w-full">
-                      <span>{technician.name}</span>
+                      <span>{TechnicianUtils.getFullName(technician)}</span>
                       <div className="flex items-center gap-2">
                         <Badge variant="outline">
                           {technician.skills?.join(', ') || 'No skills listed'}
@@ -316,6 +355,34 @@ export function AppointmentForm({ appointment, onSuccess, onCancel }: Appointmen
           </Alert>
         )}
         
+        {/* Availability Status */}
+        {availabilityStatus === 'checking' && (
+          <Alert>
+            <Clock className="h-4 w-4" />
+            <AlertDescription>
+              Checking technician availability...
+            </AlertDescription>
+          </Alert>
+        )}
+        
+        {availabilityStatus === 'available' && (
+          <Alert className="border-l-4 border-l-green-500 bg-green-50/50 dark:bg-green-950/20">
+            <Check className="h-4 w-4 text-green-600" />
+            <AlertDescription className="text-green-800 dark:text-green-400">
+              ✅ Technician is available for this time slot
+            </AlertDescription>
+          </Alert>
+        )}
+        
+        {availabilityStatus === 'unavailable' && (
+          <Alert variant="destructive">
+            <X className="h-4 w-4" />
+            <AlertDescription>
+              ❌ Technician is not available for this time slot. Please choose a different time or technician.
+            </AlertDescription>
+          </Alert>
+        )}
+        
         {/* Notes */}
         <div className="space-y-2">
           <Label htmlFor="notes" className="text-sm font-medium">
@@ -341,7 +408,7 @@ export function AppointmentForm({ appointment, onSuccess, onCancel }: Appointmen
           </Button>
           <Button
             type="submit"
-            disabled={isLoading || (hasConflicts && !isEditing)}
+            disabled={isLoading || (hasConflicts && !isEditing) || (availabilityStatus === 'unavailable')}
             className="min-w-[120px]"
           >
             {isLoading ? (
@@ -359,18 +426,42 @@ export function AppointmentForm({ appointment, onSuccess, onCancel }: Appointmen
         </div>
       </form>
       
-      {/* API Error Display */}
+      {/* API Error Display with Diagnostic Option */}
       {(createAppointmentMutation.error || updateAppointmentMutation.error) && (
         <Alert variant="destructive">
           <X className="h-4 w-4" />
           <AlertDescription>
-            Failed to save appointment: {
-              (createAppointmentMutation.error as any)?.message || 
-              (updateAppointmentMutation.error as any)?.message || 
-              'Unknown error occurred'
-            }
+            <div className="space-y-3">
+              <p>
+                Failed to save appointment: {
+                  (createAppointmentMutation.error as any)?.message || 
+                  (updateAppointmentMutation.error as any)?.message || 
+                  'Unknown error occurred'
+                }
+              </p>
+              
+              {failedAppointmentData && !isEditing && (
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => setShowDiagnostics(true)}
+                  className="gap-2"
+                >
+                  <Wrench className="h-4 w-4" />
+                  Run Diagnostic Analysis
+                </Button>
+              )}
+            </div>
           </AlertDescription>
         </Alert>
+      )}
+      
+      {/* Diagnostic Tools */}
+      {showDiagnostics && failedAppointmentData && (
+        <AppointmentDiagnostics 
+          failedAppointment={failedAppointmentData}
+          onClose={() => setShowDiagnostics(false)}
+        />
       )}
     </div>
   );

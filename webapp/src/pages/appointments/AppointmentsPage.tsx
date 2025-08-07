@@ -8,7 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import { 
   Plus, Search, Calendar, CalendarDays, Clock, CheckCircle, XCircle, 
   AlertTriangle, User, MoreHorizontal, Edit, Trash2, Eye, Play, 
-  CheckCheck, X, Settings, ChevronUp, ChevronDown, Filter
+  CheckCheck, X, Settings, ChevronUp, ChevronDown, Filter, BarChart3
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -28,19 +28,22 @@ import {
   useStartAppointment, 
   useCompleteAppointment, 
   useCancelAppointment,
+  useMarkNoShowAppointment,
   useBulkAppointmentOperations
 } from '@/hooks/useAppointments';
 import { useTechnicians } from '@/hooks/useTechnicians';
 import { AppointmentForm } from '@/components/forms/AppointmentForm';
+import { AppointmentReports } from '@/components/reports/AppointmentReports';
 import { Appointment, AppointmentStatus } from '@/types';
 import { AppointmentUtils } from '@/types/Appointment';
+import { TechnicianUtils } from '@/types/Technician';
 
 export function AppointmentsPage() {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<AppointmentStatus | 'ALL' | 'UPCOMING' | 'OVERDUE'>('ALL');
   const [technicianFilter, setTechnicianFilter] = useState<number | 'ALL'>('ALL');
-  const [dateFilter, setDateFilter] = useState<'TODAY' | 'THIS_WEEK' | 'THIS_MONTH' | 'ALL'>('ALL');
+  const [dateFilter, setDateFilter] = useState<'TODAY' | 'THIS_WEEK' | 'NEXT_7_DAYS' | 'THIS_MONTH' | 'ALL'>('ALL');
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editingAppointment, setEditingAppointment] = useState<Appointment | null>(null);
@@ -49,7 +52,7 @@ export function AppointmentsPage() {
   const [selectedAppointments, setSelectedAppointments] = useState<Set<number>>(new Set());
   const [sortColumn, setSortColumn] = useState<string | null>('scheduledStartTime');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
-  const [viewMode, setViewMode] = useState<'list' | 'calendar'>('list');
+  const [viewMode, setViewMode] = useState<'list' | 'calendar' | 'reports'>('list');
   const [currentPage, setCurrentPage] = useState(0);
   const [pageSize] = useState(20);
   
@@ -66,6 +69,7 @@ export function AppointmentsPage() {
   const startAppointmentMutation = useStartAppointment();
   const completeAppointmentMutation = useCompleteAppointment();
   const cancelAppointmentMutation = useCancelAppointment();
+  const markNoShowMutation = useMarkNoShowAppointment();
   const { bulkCancel, bulkDelete } = useBulkAppointmentOperations();
 
   // Filter and sort appointments
@@ -77,7 +81,7 @@ export function AppointmentsPage() {
       const matchesSearch = !searchQuery || 
         (appointment.notes || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
         (appointment.ticket?.title || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (appointment.technician?.name || '').toLowerCase().includes(searchQuery.toLowerCase());
+        (appointment.technician ? TechnicianUtils.getFullName(appointment.technician) : '').toLowerCase().includes(searchQuery.toLowerCase());
       
       // Status filter
       const matchesStatus = (() => {
@@ -111,6 +115,10 @@ export function AppointmentsPage() {
             const startOfWeek = new Date(now.setDate(now.getDate() - now.getDay()));
             const endOfWeek = new Date(now.setDate(now.getDate() - now.getDay() + 6));
             return appointmentDate >= startOfWeek && appointmentDate <= endOfWeek;
+          case 'NEXT_7_DAYS':
+            const sevenDaysFromNow = new Date();
+            sevenDaysFromNow.setDate(sevenDaysFromNow.getDate() + 7);
+            return appointmentDate >= now && appointmentDate <= sevenDaysFromNow;
           case 'THIS_MONTH':
             return appointmentDate.getMonth() === now.getMonth() && 
                    appointmentDate.getFullYear() === now.getFullYear();
@@ -139,8 +147,8 @@ export function AppointmentsPage() {
             bValue = statusOrder[b.status as keyof typeof statusOrder] || 0;
             break;
           case 'technician':
-            aValue = a.technician?.name || '';
-            bValue = b.technician?.name || '';
+            aValue = a.technician ? TechnicianUtils.getFullName(a.technician) : '';
+            bValue = b.technician ? TechnicianUtils.getFullName(b.technician) : '';
             break;
           case 'ticket':
             aValue = a.ticket?.title || '';
@@ -223,7 +231,7 @@ export function AppointmentsPage() {
     }
   };
 
-  const handleStatusChange = async (appointment: Appointment, action: 'confirm' | 'start' | 'complete' | 'cancel') => {
+  const handleStatusChange = async (appointment: Appointment, action: 'confirm' | 'start' | 'complete' | 'cancel' | 'no-show') => {
     try {
       switch (action) {
         case 'confirm':
@@ -237,6 +245,9 @@ export function AppointmentsPage() {
           break;
         case 'cancel':
           await cancelAppointmentMutation.mutateAsync({ id: appointment.id });
+          break;
+        case 'no-show':
+          await markNoShowMutation.mutateAsync({ id: appointment.id });
           break;
       }
       refetch();
@@ -355,6 +366,14 @@ export function AppointmentsPage() {
             <CalendarDays className="mr-2 h-4 w-4" />
             Calendar
           </Button>
+          <Button
+            variant={viewMode === 'reports' ? 'default' : 'outline'}
+            onClick={() => setViewMode('reports')}
+            size="sm"
+          >
+            <BarChart3 className="mr-2 h-4 w-4" />
+            Reports
+          </Button>
           
           <Dialog open={isCreateModalOpen} onOpenChange={setIsCreateModalOpen}>
             <DialogTrigger asChild>
@@ -382,6 +401,14 @@ export function AppointmentsPage() {
         </div>
       </div>
 
+      {/* Reports View */}
+      {viewMode === 'reports' && (
+        <AppointmentReports />
+      )}
+
+      {/* List View */}
+      {viewMode === 'list' && (
+        <>
       {/* Statistics Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
         <Card className="border-l-4 border-l-blue-500 bg-gradient-to-r from-blue-50/50 to-background dark:from-blue-950/30">
@@ -498,7 +525,7 @@ export function AppointmentsPage() {
                     <SelectItem value="ALL">All Technicians</SelectItem>
                     {techniciansData?.content?.map(technician => (
                       <SelectItem key={technician.id} value={technician.id.toString()}>
-                        {technician.name}
+                        {TechnicianUtils.getFullName(technician)}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -512,6 +539,7 @@ export function AppointmentsPage() {
                     <SelectItem value="ALL">All Dates</SelectItem>
                     <SelectItem value="TODAY">Today</SelectItem>
                     <SelectItem value="THIS_WEEK">This Week</SelectItem>
+                    <SelectItem value="NEXT_7_DAYS">Next 7 Days</SelectItem>
                     <SelectItem value="THIS_MONTH">This Month</SelectItem>
                   </SelectContent>
                 </Select>
@@ -691,7 +719,7 @@ export function AppointmentsPage() {
                             <User className="h-4 w-4 text-muted-foreground" />
                             <div>
                               <div className="text-sm font-medium">
-                                {appointment.technician?.name || 'Unknown'}
+                                {appointment.technician ? TechnicianUtils.getFullName(appointment.technician) : 'Unknown'}
                               </div>
                               <div className="text-xs text-muted-foreground">
                                 {appointment.technician?.email || 'N/A'}
@@ -768,6 +796,17 @@ export function AppointmentsPage() {
                                 <DropdownMenuItem onClick={() => handleStatusChange(appointment, 'cancel')}>
                                   <X className="mr-2 h-4 w-4" />
                                   Cancel
+                                </DropdownMenuItem>
+                              )}
+                              
+                              {(appointment.status === AppointmentStatus.CONFIRMED && 
+                                new Date() > new Date(appointment.scheduledStartTime)) && (
+                                <DropdownMenuItem 
+                                  onClick={() => handleStatusChange(appointment, 'no-show')}
+                                  className="text-destructive"
+                                >
+                                  <XCircle className="mr-2 h-4 w-4" />
+                                  Mark No-Show
                                 </DropdownMenuItem>
                               )}
                               
@@ -865,6 +904,8 @@ export function AppointmentsPage() {
             Next
           </Button>
         </div>
+      )}
+        </>
       )}
     </div>
   );

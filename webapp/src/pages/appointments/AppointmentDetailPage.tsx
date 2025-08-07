@@ -23,12 +23,14 @@ import {
   useStartAppointment,
   useCompleteAppointment,
   useCancelAppointment,
+  useMarkNoShowAppointment,
   useDeleteAppointment,
   useRescheduleAppointment
 } from '@/hooks/useAppointments';
 import { AppointmentForm } from '@/components/forms/AppointmentForm';
 import { AppointmentStatus } from '@/types';
 import { AppointmentUtils } from '@/types/Appointment';
+import { TechnicianUtils } from '@/types/Technician';
 
 export function AppointmentDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -38,9 +40,11 @@ export function AppointmentDetailPage() {
   const [isRescheduleModalOpen, setIsRescheduleModalOpen] = useState(false);
   const [isCompleteModalOpen, setIsCompleteModalOpen] = useState(false);
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
+  const [isNoShowModalOpen, setIsNoShowModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [completionNotes, setCompletionNotes] = useState('');
   const [cancellationReason, setCancellationReason] = useState('');
+  const [noShowNotes, setNoShowNotes] = useState('');
   
   // Data query
   const { data: appointment, isLoading, error, refetch } = useAppointment(appointmentId);
@@ -50,6 +54,7 @@ export function AppointmentDetailPage() {
   const startAppointmentMutation = useStartAppointment();
   const completeAppointmentMutation = useCompleteAppointment();
   const cancelAppointmentMutation = useCancelAppointment();
+  const markNoShowMutation = useMarkNoShowAppointment();
   const deleteAppointmentMutation = useDeleteAppointment();
   
   if (!id || appointmentId === 0) {
@@ -62,7 +67,7 @@ export function AppointmentDetailPage() {
     );
   }
 
-  const handleStatusChange = async (action: 'confirm' | 'start' | 'complete' | 'cancel') => {
+  const handleStatusChange = async (action: 'confirm' | 'start' | 'complete' | 'cancel' | 'no-show') => {
     if (!appointment) return;
     
     try {
@@ -88,6 +93,14 @@ export function AppointmentDetailPage() {
           });
           setIsCancelModalOpen(false);
           setCancellationReason('');
+          break;
+        case 'no-show':
+          await markNoShowMutation.mutateAsync({
+            id: appointment.id,
+            notes: noShowNotes
+          });
+          setIsNoShowModalOpen(false);
+          setNoShowNotes('');
           break;
       }
       refetch();
@@ -246,6 +259,49 @@ export function AppointmentDetailPage() {
       );
     }
     
+    // No-show option for past confirmed appointments that weren't started
+    if (appointment.status === AppointmentStatus.CONFIRMED && 
+        new Date() > new Date(appointment.scheduledStartTime)) {
+      actions.push(
+        <Dialog key="no-show" open={isNoShowModalOpen} onOpenChange={setIsNoShowModalOpen}>
+          <DialogTrigger asChild>
+            <Button variant="destructive">
+              <XCircle className="mr-2 h-4 w-4" />
+              Mark No-Show
+            </Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Mark as No-Show</DialogTitle>
+              <DialogDescription>
+                Mark this appointment as a no-show. This is typically used when the client doesn't appear for a confirmed appointment.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="noShowNotes">No-Show Notes</Label>
+                <Textarea
+                  id="noShowNotes"
+                  placeholder="Optional notes about the no-show (e.g., attempts to contact client, circumstances, etc.)"
+                  value={noShowNotes}
+                  onChange={(e) => setNoShowNotes(e.target.value)}
+                  className="min-h-[100px]"
+                />
+              </div>
+              <div className="flex justify-end gap-2">
+                <Button variant="outline" onClick={() => setIsNoShowModalOpen(false)}>
+                  Cancel
+                </Button>
+                <Button variant="destructive" onClick={() => handleStatusChange('no-show')}>
+                  Mark as No-Show
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+      );
+    }
+    
     return actions;
   };
 
@@ -390,7 +446,7 @@ export function AppointmentDetailPage() {
                       <User className="h-6 w-6" />
                     </div>
                     <div>
-                      <h3 className="font-semibold text-lg">{appointment.technician.name}</h3>
+                      <h3 className="font-semibold text-lg">{TechnicianUtils.getFullName(appointment.technician)}</h3>
                       <p className="text-muted-foreground">{appointment.technician.email}</p>
                     </div>
                   </div>
