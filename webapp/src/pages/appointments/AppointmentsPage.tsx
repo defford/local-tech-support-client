@@ -845,6 +845,7 @@ export function AppointmentsPage() {
           {editingAppointment && (
             <AppointmentForm 
               appointment={editingAppointment}
+              mode="reschedule"
               onSuccess={() => {
                 setIsEditModalOpen(false);
                 setEditingAppointment(null);

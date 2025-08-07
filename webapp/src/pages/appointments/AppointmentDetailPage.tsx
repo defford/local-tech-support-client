@@ -612,6 +612,7 @@ export function AppointmentDetailPage() {
                     </DialogHeader>
                     <AppointmentForm 
                       appointment={appointment}
+                      mode="reschedule"
                       onSuccess={() => {
                         setIsRescheduleModalOpen(false);
                         refetch();

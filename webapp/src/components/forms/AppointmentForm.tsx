@@ -16,11 +16,11 @@ import { Textarea } from '@/components/ui/textarea';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { useCreateAppointment, useUpdateAppointment, useCheckAppointmentConflicts, useCheckTechnicianAvailability } from '@/hooks/useAppointments';
+import { useCreateAppointment, useUpdateAppointment, useRescheduleAppointment, useCheckAppointmentConflicts, useCheckTechnicianAvailability } from '@/hooks/useAppointments';
 import { useTickets } from '@/hooks/useTickets';
 import { useTechnicians } from '@/hooks/useTechnicians';
 import { Appointment, AppointmentCreateRequest, AppointmentUpdateRequest, AppointmentStatus, TechnicianStatus, TicketStatus } from '@/types';
-import { AppointmentConflict } from '@/services/appointments';
+import { AppointmentConflict, AppointmentRescheduleRequest } from '@/services/appointments';
 import { AppointmentDiagnostics } from '@/components/diagnostics/AppointmentDiagnostics';
 import { TechnicianUtils } from '@/types/Technician';
 
@@ -73,20 +73,25 @@ interface AppointmentFormProps {
   appointment?: Appointment;
   onSuccess?: () => void;
   onCancel?: () => void;
+  mode?: 'create' | 'update' | 'reschedule';
 }
 
-export function AppointmentForm({ appointment, onSuccess, onCancel }: AppointmentFormProps) {
+export function AppointmentForm({ appointment, onSuccess, onCancel, mode }: AppointmentFormProps) {
   const [conflicts, setConflicts] = useState<AppointmentConflict[]>([]);
   const [isCheckingConflicts, setIsCheckingConflicts] = useState(false);
   const [availabilityStatus, setAvailabilityStatus] = useState<'checking' | 'available' | 'unavailable' | null>(null);
   const [showDiagnostics, setShowDiagnostics] = useState(false);
   const [failedAppointmentData, setFailedAppointmentData] = useState<AppointmentCreateRequest | null>(null);
   
-  const isEditing = !!appointment;
+  // Determine the actual mode
+  const actualMode = mode || (appointment ? 'update' : 'create');
+  const isEditing = actualMode !== 'create';
+  const isRescheduling = actualMode === 'reschedule';
   
   // Mutations
   const createAppointmentMutation = useCreateAppointment();
   const updateAppointmentMutation = useUpdateAppointment();
+  const rescheduleAppointmentMutation = useRescheduleAppointment();
   const checkConflictsMutation = useCheckAppointmentConflicts();
   const checkAvailabilityMutation = useCheckTechnicianAvailability();
   
@@ -174,7 +179,18 @@ export function AppointmentForm({ appointment, onSuccess, onCancel }: Appointmen
   // Form submission
   const onSubmit = async (data: AppointmentFormData) => {
     try {
-      if (isEditing && appointment) {
+      if (isRescheduling && appointment) {
+        const rescheduleData: AppointmentRescheduleRequest = {
+          newStartTime: new Date(data.scheduledStartTime).toISOString(),
+          newEndTime: new Date(data.scheduledEndTime).toISOString(),
+          reason: data.notes || 'Rescheduled via web interface',
+        };
+        
+        await rescheduleAppointmentMutation.mutateAsync({
+          id: appointment.id,
+          reschedule: rescheduleData,
+        });
+      } else if (isEditing && appointment) {
         const updateData: AppointmentUpdateRequest = {
           startTime: new Date(data.scheduledStartTime).toISOString(),
           endTime: new Date(data.scheduledEndTime).toISOString(),
@@ -215,7 +231,7 @@ export function AppointmentForm({ appointment, onSuccess, onCancel }: Appointmen
     }
   };
   
-  const isLoading = createAppointmentMutation.isPending || updateAppointmentMutation.isPending;
+  const isLoading = createAppointmentMutation.isPending || updateAppointmentMutation.isPending || rescheduleAppointmentMutation.isPending;
   const hasConflicts = conflicts.length > 0;
   
   return (
@@ -434,7 +450,7 @@ export function AppointmentForm({ appointment, onSuccess, onCancel }: Appointmen
             ) : (
               <>
                 <Check className="mr-2 h-4 w-4" />
-                {isEditing ? 'Update' : 'Create'} Appointment
+                {isRescheduling ? 'Reschedule' : isEditing ? 'Update' : 'Create'} Appointment
               </>
             )}
           </Button>
@@ -442,7 +458,7 @@ export function AppointmentForm({ appointment, onSuccess, onCancel }: Appointmen
       </form>
       
       {/* API Error Display with Diagnostic Option */}
-      {(createAppointmentMutation.error || updateAppointmentMutation.error) && (
+      {(createAppointmentMutation.error || updateAppointmentMutation.error || rescheduleAppointmentMutation.error) && (
         <Alert variant="destructive">
           <X className="h-4 w-4" />
           <AlertDescription>
@@ -451,6 +467,7 @@ export function AppointmentForm({ appointment, onSuccess, onCancel }: Appointmen
                 Failed to save appointment: {
                   (createAppointmentMutation.error as any)?.message || 
                   (updateAppointmentMutation.error as any)?.message || 
+                  (rescheduleAppointmentMutation.error as any)?.message ||
                   'Unknown error occurred'
                 }
               </p>
