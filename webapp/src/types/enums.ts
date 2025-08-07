@@ -30,13 +30,9 @@ export enum TicketPriority {
 
 export enum ServiceType {
   HARDWARE = 'HARDWARE',
-  SOFTWARE = 'SOFTWARE',
-  NETWORK = 'NETWORK',
-  PRINTER = 'PRINTER',
-  EMAIL = 'EMAIL',
-  SECURITY = 'SECURITY',
-  BACKUP = 'BACKUP',
-  CONSULTATION = 'CONSULTATION'
+  SOFTWARE = 'SOFTWARE'
+  // Note: NETWORK causes server 500 error - removed until server issue is fixed
+  // PRINTER, EMAIL, SECURITY, BACKUP, CONSULTATION not supported by current server version
 }
 
 export enum AppointmentStatus {

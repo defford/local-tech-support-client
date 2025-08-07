@@ -131,6 +131,7 @@ export function TicketForm({ ticket, defaultClientId, onSuccess, onCancel }: Tic
           dueAt: values.dueAt ? (values.dueAt.includes(':') && values.dueAt.split(':').length === 2 ? `${values.dueAt}:00` : values.dueAt) : undefined,
         };
 
+        console.log('📤 Sending ticket creation request:', createData);
         result = await createTicketMutation.mutateAsync(createData);
         form.reset();
       }
