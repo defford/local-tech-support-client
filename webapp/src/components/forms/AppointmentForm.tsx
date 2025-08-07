@@ -439,7 +439,7 @@ export function AppointmentForm({ appointment, onSuccess, onCancel, mode }: Appo
           </Button>
           <Button
             type="submit"
-            disabled={isLoading || (hasConflicts && !isEditing) || (availabilityStatus === 'unavailable')}
+            disabled={isLoading || (hasConflicts && !isEditing) || (availabilityStatus === 'unavailable' && !isEditing)}
             className="min-w-[120px]"
           >
             {isLoading ? (
