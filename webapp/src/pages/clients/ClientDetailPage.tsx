@@ -471,12 +471,14 @@ export function ClientDetailPage() {
               Create a new support ticket for {ClientUtils.getFullName(client)}
             </DialogDescription>
           </DialogHeader>
-          <TicketForm
-            ticket={undefined}
-            defaultClientId={client?.id}
-            onSuccess={onTicketSuccess}
-            onCancel={() => setIsTicketModalOpen(false)}
-          />
+          {client && (
+            <TicketForm
+              ticket={undefined}
+              defaultClientId={client.id}
+              onSuccess={onTicketSuccess}
+              onCancel={() => setIsTicketModalOpen(false)}
+            />
+          )}
         </DialogContent>
       </Dialog>
 

@@ -250,9 +250,10 @@ export function ClientsPage() {
                   {filteredClients.map((client, index) => (
                     <TableRow 
                       key={client.id} 
-                      className={`border-b border-border/30 hover:bg-muted/20 transition-colors ${
+                      className={`border-b border-border/30 hover:bg-muted/20 transition-colors cursor-pointer ${
                         index % 2 === 0 ? 'bg-background/50' : 'bg-card/30'
                       }`}
+                      onClick={() => navigate(`/clients/${client.id}`)}
                     >
                       <TableCell className="font-mono text-sm text-muted-foreground">
                         #{client.id}
@@ -280,7 +281,7 @@ export function ClientsPage() {
                           variant="ghost" 
                           size="sm" 
                           className="hover:bg-primary/10 hover:text-primary"
-                          onClick={() => navigate(`/clients/${client.id}`)}
+                          onClick={(e) => { e.stopPropagation(); navigate(`/clients/${client.id}`); }}
                         >
                           View Details
                         </Button>

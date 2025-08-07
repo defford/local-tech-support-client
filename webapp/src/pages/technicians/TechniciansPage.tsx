@@ -640,14 +640,16 @@ export function TechniciansPage() {
                     return (
                     <TableRow 
                       key={technician.id} 
-                      className={`border-b border-border/30 hover:bg-muted/20 transition-colors ${
+                      className={`border-b border-border/30 hover:bg-muted/20 transition-colors cursor-pointer ${
                         index % 2 === 0 ? 'bg-background/50' : 'bg-card/30'
                       } ${isSelected ? 'bg-primary/5 border-primary/20' : ''}`}
+                      onClick={() => navigate(`/technicians/${technician.id}`)}
                     >
                       <TableCell>
                         <Checkbox 
                           checked={isSelected}
                           onCheckedChange={(checked) => handleSelectTechnician(technician.id, checked as boolean)}
+                          onClick={(e) => e.stopPropagation()}
                         />
                       </TableCell>
                       <TableCell className="font-mono text-sm text-muted-foreground">
@@ -684,7 +686,7 @@ export function TechniciansPage() {
                       <TableCell className="text-right">
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="sm">
+                            <Button variant="ghost" size="sm" onClick={(e) => e.stopPropagation()}>
                               <MoreHorizontal className="h-4 w-4" />
                             </Button>
                           </DropdownMenuTrigger>

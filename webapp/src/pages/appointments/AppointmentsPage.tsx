@@ -687,14 +687,16 @@ export function AppointmentsPage() {
                     return (
                       <TableRow 
                         key={appointment.id} 
-                        className={`border-b border-border/30 hover:bg-muted/20 transition-colors ${
+                        className={`border-b border-border/30 hover:bg-muted/20 transition-colors cursor-pointer ${
                           index % 2 === 0 ? 'bg-background/50' : 'bg-card/30'
                         } ${isSelected ? 'bg-primary/5 border-primary/20' : ''} ${isOverdue ? 'bg-red-50/50 dark:bg-red-950/20' : ''}`}
+                        onClick={() => navigate(`/appointments/${appointment.id}`)}
                       >
                         <TableCell>
                           <Checkbox 
                             checked={isSelected}
                             onCheckedChange={(checked) => handleSelectAppointment(appointment.id, checked as boolean)}
+                            onClick={(e) => e.stopPropagation()}
                           />
                         </TableCell>
                         <TableCell className="font-mono text-sm text-muted-foreground">
@@ -751,7 +753,7 @@ export function AppointmentsPage() {
                         <TableCell className="text-right">
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="sm">
+                              <Button variant="ghost" size="sm" onClick={(e) => e.stopPropagation()}>
                                 <MoreHorizontal className="h-4 w-4" />
                               </Button>
                             </DropdownMenuTrigger>

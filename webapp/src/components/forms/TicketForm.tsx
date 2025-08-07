@@ -308,7 +308,7 @@ export function TicketForm({ ticket, defaultClientId, onSuccess, onCancel }: Tic
             <Select
               value={form.watch('clientId')?.toString() || ''}
               onValueChange={(value) => form.setValue('clientId', parseInt(value))}
-              disabled={isLoading}
+              disabled={isLoading || !!defaultClientId}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Select client" />
