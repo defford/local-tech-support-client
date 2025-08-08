@@ -37,7 +37,8 @@ export interface TicketCreateRequest {
   description: string;
   serviceType: ServiceType;
   clientId: number;
-  dueAt?: string; // ISO date string
+  // Backend now accepts optional priority on create
+  priority?: TicketPriority;
 }
 
 /**

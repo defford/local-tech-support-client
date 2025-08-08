@@ -23,9 +23,11 @@ export enum TicketStatus {
 
 export enum TicketPriority {
   LOW = 'LOW',
-  MEDIUM = 'MEDIUM',
+  NORMAL = 'NORMAL',
   HIGH = 'HIGH',
-  URGENT = 'URGENT'
+  URGENT = 'URGENT',
+  // Backward-compatibility alias (maps to NORMAL)
+  MEDIUM = 'NORMAL'
 }
 
 export enum ServiceType {

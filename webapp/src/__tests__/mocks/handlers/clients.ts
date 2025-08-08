@@ -3,7 +3,7 @@
  */
 
 import { http, HttpResponse } from 'msw';
-import { Client, ClientStatus, PagedResponse } from '../../../types';
+import { Client, ClientStatus, PagedResponse, Ticket, Appointment } from '../../../types';
 
 // Mock client data
 const mockClients: Client[] = [
@@ -49,9 +49,52 @@ const mockClients: Client[] = [
   }
 ];
 
+// Mock ticket data for clients
+const mockClientTickets: Record<number, Ticket[]> = {
+  1: [
+    {
+      id: 1,
+      title: 'Computer Issue',
+      description: 'Computer not working properly',
+      status: 'OPEN' as any,
+      priority: 'HIGH' as any,
+      clientId: 1,
+      createdAt: '2024-01-10T00:00:00Z',
+      updatedAt: '2024-01-10T00:00:00Z',
+      type: 'HARDWARE' as any
+    },
+    {
+      id: 2,
+      title: 'Network Problem',
+      description: 'Network connection issues',
+      status: 'CLOSED' as any,
+      priority: 'MEDIUM' as any,
+      clientId: 1,
+      createdAt: '2024-01-08T00:00:00Z',
+      updatedAt: '2024-01-09T00:00:00Z',
+      type: 'NETWORK' as any
+    }
+  ]
+};
+
+// Mock appointment data for clients
+const mockClientAppointments: Record<number, Appointment[]> = {
+  1: [
+    {
+      id: 1,
+      description: 'System Maintenance',
+      status: 'SCHEDULED' as any,
+      scheduledDateTime: '2024-01-20T10:00:00Z',
+      clientId: 1,
+      createdAt: '2024-01-15T00:00:00Z',
+      updatedAt: '2024-01-15T00:00:00Z'
+    }
+  ]
+};
+
 export const clientHandlers = [
   // Get all clients
-  http.get('/api/clients', ({ request }) => {
+  http.get('http://localhost:8080/api/clients', ({ request }) => {
     const url = new URL(request.url);
     const page = parseInt(url.searchParams.get('page') || '0');
     const size = parseInt(url.searchParams.get('size') || '20');
@@ -76,7 +119,7 @@ export const clientHandlers = [
   }),
 
   // Get client by ID
-  http.get('/api/clients/:id', ({ params }) => {
+  http.get('http://localhost:8080/api/clients/:id', ({ params }) => {
     const id = parseInt(params.id as string);
     const client = mockClients.find(c => c.id === id);
     
@@ -88,7 +131,7 @@ export const clientHandlers = [
   }),
 
   // Create client
-  http.post('/api/clients', async ({ request }) => {
+  http.post('http://localhost:8080/api/clients', async ({ request }) => {
     const clientData = await request.json() as Partial<Client>;
     
     const newClient: Client = {
@@ -111,7 +154,7 @@ export const clientHandlers = [
   }),
 
   // Update client
-  http.put('/api/clients/:id', async ({ params, request }) => {
+  http.put('http://localhost:8080/api/clients/:id', async ({ params, request }) => {
     const id = parseInt(params.id as string);
     const updates = await request.json() as Partial<Client>;
     
@@ -131,7 +174,7 @@ export const clientHandlers = [
   }),
 
   // Delete client
-  http.delete('/api/clients/:id', ({ params }) => {
+  http.delete('http://localhost:8080/api/clients/:id', ({ params }) => {
     const id = parseInt(params.id as string);
     const clientIndex = mockClients.findIndex(c => c.id === id);
     
@@ -144,7 +187,7 @@ export const clientHandlers = [
   }),
 
   // Search clients
-  http.get('/api/clients/search', ({ request }) => {
+  http.get('http://localhost:8080/api/clients/search', ({ request }) => {
     const url = new URL(request.url);
     const query = url.searchParams.get('query')?.toLowerCase() || '';
     const status = url.searchParams.get('status');
@@ -170,6 +213,60 @@ export const clientHandlers = [
       first: true,
       last: true,
       empty: filteredClients.length === 0
+    };
+    
+    return HttpResponse.json(response);
+  }),
+
+  // Get client tickets
+  http.get('http://localhost:8080/api/clients/:id/tickets', ({ params, request }) => {
+    const clientId = parseInt(params.id as string);
+    const url = new URL(request.url);
+    const page = parseInt(url.searchParams.get('page') || '0');
+    const size = parseInt(url.searchParams.get('size') || '20');
+    
+    const tickets = mockClientTickets[clientId] || [];
+    const startIndex = page * size;
+    const endIndex = Math.min(startIndex + size, tickets.length);
+    const content = tickets.slice(startIndex, endIndex);
+    
+    const response: PagedResponse<Ticket> = {
+      content,
+      totalElements: tickets.length,
+      totalPages: Math.ceil(tickets.length / size),
+      size,
+      number: page,
+      numberOfElements: content.length,
+      first: page === 0,
+      last: endIndex >= tickets.length,
+      empty: content.length === 0
+    };
+    
+    return HttpResponse.json(response);
+  }),
+
+  // Get client appointments
+  http.get('http://localhost:8080/api/clients/:id/appointments', ({ params, request }) => {
+    const clientId = parseInt(params.id as string);
+    const url = new URL(request.url);
+    const page = parseInt(url.searchParams.get('page') || '0');
+    const size = parseInt(url.searchParams.get('size') || '20');
+    
+    const appointments = mockClientAppointments[clientId] || [];
+    const startIndex = page * size;
+    const endIndex = Math.min(startIndex + size, appointments.length);
+    const content = appointments.slice(startIndex, endIndex);
+    
+    const response: PagedResponse<Appointment> = {
+      content,
+      totalElements: appointments.length,
+      totalPages: Math.ceil(appointments.length / size),
+      size,
+      number: page,
+      numberOfElements: content.length,
+      first: page === 0,
+      last: endIndex >= appointments.length,
+      empty: content.length === 0
     };
     
     return HttpResponse.json(response);

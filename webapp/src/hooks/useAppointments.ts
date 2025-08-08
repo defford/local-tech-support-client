@@ -8,7 +8,8 @@ import {
   Appointment, 
   AppointmentCreateRequest, 
   AppointmentUpdateRequest, 
-  PaginationParams 
+  PaginationParams, 
+  SearchParams 
 } from '../types';
 import { 
   AppointmentService, 
@@ -62,6 +63,19 @@ export function useUpcomingAppointments(params?: PaginationParams) {
     queryKey: appointmentKeys.upcoming(),
     queryFn: () => AppointmentService.getUpcomingAppointments(params),
     staleTime: 1 * 60 * 1000, // 1 minute - more frequent updates for upcoming
+  });
+}
+
+/**
+ * Hook to search appointments by parameters (e.g., date range)
+ */
+export function useAppointmentSearch(searchParams: SearchParams, enabled = true) {
+  return useQuery({
+    queryKey: ['appointments', 'search', searchParams],
+    queryFn: () => AppointmentService.searchAppointments(searchParams),
+    enabled: enabled && !!searchParams,
+    staleTime: 60 * 1000,
+    gcTime: 5 * 60 * 1000,
   });
 }
 

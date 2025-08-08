@@ -9,7 +9,9 @@ import {
   ClientRequest,
   PagedResponse,
   PaginationParams,
-  SearchParams
+  SearchParams,
+  Ticket,
+  Appointment
 } from '../types';
 
 /**
@@ -83,8 +85,8 @@ export class ClientService {
   /**
    * Get client tickets
    */
-  static async getClientTickets(id: number, params?: PaginationParams): Promise<PagedResponse<any>> {
-    const response = await apiClient.get<PagedResponse<any>>(ENDPOINTS.CLIENT_TICKETS(id), {
+  static async getClientTickets(id: number, params?: PaginationParams): Promise<PagedResponse<Ticket>> {
+    const response = await apiClient.get<PagedResponse<Ticket>>(ENDPOINTS.CLIENT_TICKETS(id), {
       params
     });
     return response.data;
@@ -93,8 +95,8 @@ export class ClientService {
   /**
    * Get client appointments
    */
-  static async getClientAppointments(id: number, params?: PaginationParams): Promise<PagedResponse<any>> {
-    const response = await apiClient.get<PagedResponse<any>>(ENDPOINTS.CLIENT_APPOINTMENTS(id), {
+  static async getClientAppointments(id: number, params?: PaginationParams): Promise<PagedResponse<Appointment>> {
+    const response = await apiClient.get<PagedResponse<Appointment>>(ENDPOINTS.CLIENT_APPOINTMENTS(id), {
       params
     });
     return response.data;

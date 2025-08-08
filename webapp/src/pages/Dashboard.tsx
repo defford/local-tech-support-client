@@ -8,12 +8,13 @@ import {
   IconTool, 
   IconTicket, 
   IconCalendarEvent,
-  IconTrendingUp,
-  IconAlertTriangle,
   IconRefresh
 } from '@tabler/icons-react';
-import { useTicketStatistics, useTechnicianStatistics } from '../hooks';
+import { useTicketStatistics, useTechnicianStatistics, useClients } from '../hooks';
+import { useAppointmentSearch } from '@/hooks/useAppointments';
 import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import {
   Card,
   CardContent,
@@ -102,6 +103,20 @@ export function DashboardPage() {
     refetch: refetchTechStats
   } = useTechnicianStatistics();
 
+  // Fetch a single page to obtain total number of clients
+  const { data: clientsPage } = useClients({ page: 0, size: 1 });
+
+  // Compute today's start/end in ISO for date filtering
+  const now = new Date();
+  const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0);
+  const endOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
+  const { data: todaysAppointments } = useAppointmentSearch({
+    startDate: startOfDay.toISOString(),
+    endDate: endOfDay.toISOString(),
+    page: 0,
+    size: 1
+  });
+
   const isLoading = ticketStatsLoading || techStatsLoading;
   const hasError = ticketStatsError || techStatsError;
 
@@ -150,24 +165,31 @@ export function DashboardPage() {
             System overview and key metrics
           </p>
         </div>
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => {
-            refetchTicketStats();
-            refetchTechStats();
-          }}
-          title="Refresh data"
-        >
-          <IconRefresh size={20} />
-        </Button>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => {
+                  refetchTicketStats();
+                  refetchTechStats();
+                }}
+                aria-label="Refresh"
+              >
+                <IconRefresh size={18} />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Refresh</TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
       </div>
 
       {/* Key Statistics */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatCard
           title="Total Clients"
-          value="124" // TODO: Get from API
+          value={clientsPage?.totalElements ?? 0}
           icon={<IconUsers size={24} />}
           color="blue"
           description="Active users"
@@ -192,7 +214,7 @@ export function DashboardPage() {
         
         <StatCard
           title="Today's Appointments"
-          value="8" // TODO: Get from API
+          value={todaysAppointments?.totalElements ?? 0}
           icon={<IconCalendarEvent size={24} />}
           color="purple"
           description="Scheduled"
@@ -219,30 +241,34 @@ export function DashboardPage() {
                 <div className="flex justify-between mb-2">
                   <span className="text-sm text-muted-foreground">Open Tickets</span>
                   <span className="text-sm font-medium">
-                    {ticketStats.openTickets} ({Math.round((ticketStats.openTickets / ticketStats.totalTickets) * 100)}%)
+                    {ticketStats.openTickets} ({(() => {
+                      const total = ticketStats.totalTickets || 0;
+                      return total ? Math.round((ticketStats.openTickets / total) * 100) : 0;
+                    })()}%)
                   </span>
                 </div>
-                <div className="w-full bg-muted rounded-full h-2">
-                  <div 
-                    className="bg-orange-500 h-2 rounded-full" 
-                    style={{ width: `${(ticketStats.openTickets / ticketStats.totalTickets) * 100}%` }}
-                  />
-                </div>
+                {(() => {
+                  const total = ticketStats.totalTickets || 0;
+                  const percent = total ? Math.round((ticketStats.openTickets / total) * 100) : 0;
+                  return <Progress value={percent} indicatorClassName="bg-orange-500" />
+                })()}
               </div>
               
               <div>
                 <div className="flex justify-between mb-2">
                   <span className="text-sm text-muted-foreground">Resolved Tickets</span>
                   <span className="text-sm font-medium">
-                    {ticketStats.resolvedTickets} ({Math.round((ticketStats.resolvedTickets / ticketStats.totalTickets) * 100)}%)
+                    {ticketStats.resolvedTickets} ({(() => {
+                      const total = ticketStats.totalTickets || 0;
+                      return total ? Math.round((ticketStats.resolvedTickets / total) * 100) : 0;
+                    })()}%)
                   </span>
                 </div>
-                <div className="w-full bg-muted rounded-full h-2">
-                  <div 
-                    className="bg-green-500 h-2 rounded-full" 
-                    style={{ width: `${(ticketStats.resolvedTickets / ticketStats.totalTickets) * 100}%` }}
-                  />
-                </div>
+                {(() => {
+                  const total = ticketStats.totalTickets || 0;
+                  const percent = total ? Math.round((ticketStats.resolvedTickets / total) * 100) : 0;
+                  return <Progress value={percent} indicatorClassName="bg-green-500" />
+                })()}
               </div>
             </div>
           )}
@@ -287,28 +313,7 @@ export function DashboardPage() {
         </Card>
       </div>
 
-      {/* Quick Actions */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Quick Actions</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <CardDescription>
-            This section will contain quick action buttons for common tasks like creating tickets, 
-            scheduling appointments, and viewing overdue items.
-          </CardDescription>
-        </CardContent>
-      </Card>
-
-      {/* Note about ShadCN UI Migration Complete */}
-      <Card className="border-green-200 bg-green-50">
-        <CardContent className="pt-6">
-          <p className="text-green-800 text-sm">
-            <strong>✅ Phase 3 Complete:</strong> This dashboard now uses ShadCN UI components 
-            for professional design and consistent user experience.
-          </p>
-        </CardContent>
-      </Card>
+      {/* Removed placeholder Quick Actions and migration note for a cleaner UI */}
     </div>
   );
 }

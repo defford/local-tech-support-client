@@ -23,6 +23,7 @@ import {
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
 import { Ticket, TicketCreateRequest, TicketUpdateRequest, TicketPriority, ServiceType } from '../../types';
+import { DEFAULT_API_CONFIG } from '../../types/api';
 import { useCreateTicket, useUpdateTicket, useClients } from '../../hooks';
 
 // Base schema for shared fields
@@ -35,21 +36,12 @@ const baseTicketFormSchema = z.object({
   clientId: z
     .number({ message: 'Client selection is required' })
     .min(1, 'Please select a client'),
-  dueAt: z
-    .string()
-    .optional()
-    .refine((date) => {
-      if (!date) return true; // Optional field
-      const selectedDate = new Date(date);
-      const now = new Date();
-      return selectedDate > now;
-    }, 'Due date must be in the future'),
 });
 
-// Schema for creating tickets (no title/priority required)
+// Schema for creating tickets (priority optional, backend will default if missing)
 const createTicketFormSchema = baseTicketFormSchema.extend({
-  title: z.string().optional(), // Keep for form display but not required
-  priority: z.nativeEnum(TicketPriority).optional(), // Keep for form display but not required
+  title: z.string().optional(),
+  priority: z.nativeEnum(TicketPriority).optional(),
 });
 
 // Schema for editing tickets (title/priority required)
@@ -88,7 +80,7 @@ export function TicketForm({ ticket, defaultClientId, onSuccess, onCancel }: Tic
       serviceType: ticket?.serviceType || ServiceType.HARDWARE,
       priority: ticket?.priority || TicketPriority.MEDIUM,
       clientId: ticket?.clientId || defaultClientId || 0,
-      dueAt: ticket?.dueAt ? new Date(ticket.dueAt).toISOString().slice(0, 16) : '',
+      // No dueAt input in create/edit as backend manages SLA due date
     },
   });
 
@@ -109,6 +101,12 @@ export function TicketForm({ ticket, defaultClientId, onSuccess, onCancel }: Tic
   const handleSubmit = async (values: TicketFormValues) => {
     try {
       let result: Ticket;
+      const ensureSeconds = (value: string): string => {
+        if (!value) return value;
+        // Accept formats like YYYY-MM-DDTHH:mm or YYYY-MM-DDTHH:mm:ss
+        const parts = value.split(':');
+        return parts.length === 2 ? `${value}:00` : value;
+      };
 
       if (isEditing && ticket) {
         const updateData: TicketUpdateRequest = {
@@ -116,7 +114,7 @@ export function TicketForm({ ticket, defaultClientId, onSuccess, onCancel }: Tic
           description: values.description.trim(),
           serviceType: values.serviceType,
           priority: values.priority,
-          dueAt: values.dueAt || undefined,
+          // Backend controls dueAt; editing dueAt not supported per current server contract
         };
 
         result = await updateTicketMutation.mutateAsync({
@@ -128,11 +126,12 @@ export function TicketForm({ ticket, defaultClientId, onSuccess, onCancel }: Tic
           description: values.description.trim(),
           serviceType: values.serviceType,
           clientId: values.clientId,
-          dueAt: values.dueAt ? (values.dueAt.includes(':') && values.dueAt.split(':').length === 2 ? `${values.dueAt}:00` : values.dueAt) : undefined,
+          priority: values.priority,
         };
 
         console.log('📤 Sending ticket creation request:', createData);
         result = await createTicketMutation.mutateAsync(createData);
+        // No follow-up dueAt update; backend manages due date by SLA
         form.reset();
       }
 
@@ -354,25 +353,33 @@ export function TicketForm({ ticket, defaultClientId, onSuccess, onCancel }: Tic
           </div>
         </div>
 
-        {/* Due Date */}
+        {/* Priority (optional on create; required on edit) */}
         <div className="space-y-2">
-          <Label htmlFor="dueAt" className="flex items-center gap-2">
-            <Calendar className="h-4 w-4" />
-            Due Date (Optional)
-          </Label>
-          <Input
-            id="dueAt"
-            type="datetime-local"
-            {...form.register('dueAt')}
+          <Label htmlFor="priority">Priority{isEditing ? ' *' : ''}</Label>
+          <Select
+            value={form.watch('priority')}
+            onValueChange={(value) => form.setValue('priority', value as TicketPriority)}
             disabled={isLoading}
-            min={new Date(Date.now() + 60000).toISOString().slice(0, 16)} // Current time + 1 minute
-          />
-          {form.formState.errors.dueAt && (
-            <p className="text-sm text-red-600">{form.formState.errors.dueAt.message}</p>
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Select priority" />
+            </SelectTrigger>
+            <SelectContent>
+              {Object.values(TicketPriority).map((priority) => (
+                <SelectItem key={priority} value={priority}>
+                  <div className="flex items-center gap-2">
+                    <span>{getPriorityIcon(priority)}</span>
+                    <span className={getPriorityColor(priority)}>
+                      {priority.charAt(0) + priority.slice(1).toLowerCase()}
+                    </span>
+                  </div>
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          {form.formState.errors.priority && (
+            <p className="text-sm text-red-600">{form.formState.errors.priority.message}</p>
           )}
-          <p className="text-sm text-muted-foreground">
-            Set a target completion date for this ticket. Leave empty if no specific deadline.
-          </p>
         </div>
 
         {/* Error Display */}

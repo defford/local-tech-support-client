@@ -97,7 +97,7 @@ export function TicketDetailPage() {
         return '🔴';
       case TicketPriority.HIGH:
         return '🟠';
-      case TicketPriority.MEDIUM:
+      case TicketPriority.NORMAL:
         return '🟡';
       case TicketPriority.LOW:
         return '🟢';

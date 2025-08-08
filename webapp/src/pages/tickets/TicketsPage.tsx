@@ -16,7 +16,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Checkbox } from '@/components/ui/checkbox';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { useTickets, useDeleteTicket } from '@/hooks/useTickets';
+import { useTickets, useDeleteTicket, useTicketStatistics } from '@/hooks/useTickets';
 import { TicketForm } from '@/components/forms/TicketForm';
 import { TicketStatus, TicketPriority, ServiceType, Ticket } from '@/types';
 import { TicketUtils } from '@/types/Ticket';
@@ -44,6 +44,9 @@ export function TicketsPage() {
     size: pageSize 
   });
 
+  // Fetch ticket statistics
+  const { data: statisticsData, isLoading: statsLoading } = useTicketStatistics();
+
   // Delete ticket mutation
   const deleteTicketMutation = useDeleteTicket();
 
@@ -55,7 +58,13 @@ export function TicketsPage() {
       const matchesSearch = !searchQuery || 
         (ticket.title || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
         (ticket.description || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (ticket.clientName || '').toLowerCase().includes(searchQuery.toLowerCase());
+        (
+          (
+            ticket.clientName ||
+            ticket.client?.fullName ||
+            [ticket.client?.firstName, ticket.client?.lastName].filter(Boolean).join(' ')
+          ) || ''
+        ).toLowerCase().includes(searchQuery.toLowerCase());
       
       const matchesStatus = (() => {
         switch (statusFilter) {
@@ -88,7 +97,7 @@ export function TicketsPage() {
             bValue = b.title;
             break;
           case 'priority':
-            const priorityOrder: Record<string, number> = { 'URGENT': 4, 'HIGH': 3, 'MEDIUM': 2, 'LOW': 1 };
+            const priorityOrder: Record<string, number> = { 'URGENT': 4, 'HIGH': 3, 'NORMAL': 2, 'LOW': 1 };
             aValue = priorityOrder[a.priority || 'LOW'] || 0;
             bValue = priorityOrder[b.priority || 'LOW'] || 0;
             break;
@@ -97,8 +106,16 @@ export function TicketsPage() {
             bValue = b.status;
             break;
           case 'client':
-            aValue = a.clientName || '';
-            bValue = b.clientName || '';
+            aValue = (
+              a.clientName ||
+              a.client?.fullName ||
+              [a.client?.firstName, a.client?.lastName].filter(Boolean).join(' ')
+            ) || '';
+            bValue = (
+              b.clientName ||
+              b.client?.fullName ||
+              [b.client?.firstName, b.client?.lastName].filter(Boolean).join(' ')
+            ) || '';
             break;
           case 'dueAt':
             aValue = a.dueAt ? new Date(a.dueAt) : new Date(0);
@@ -121,14 +138,14 @@ export function TicketsPage() {
     return filtered;
   })();
 
-  // Statistics calculations
+  // Use proper statistics from API instead of calculating from current page
   const statistics = {
-    total: data?.content?.length || 0,
-    open: data?.content?.filter(t => t && TicketUtils.isOpen(t)).length || 0,
-    closed: data?.content?.filter(t => t && TicketUtils.isClosed(t)).length || 0,
-    overdue: data?.content?.filter(t => t && TicketUtils.isOverdue(t)).length || 0,
-    unassigned: data?.content?.filter(t => t && !TicketUtils.isAssigned(t)).length || 0,
-    urgent: data?.content?.filter(t => t && t.priority === TicketPriority.URGENT).length || 0,
+    total: statisticsData?.totalTickets || 0,
+    open: statisticsData?.openTickets || 0,
+    closed: statisticsData?.closedTickets || 0,
+    overdue: statisticsData?.overdueTickets || 0,
+    unassigned: statisticsData?.unassignedTickets || 0,
+    urgent: statisticsData?.urgentTickets || 0,
   };
 
   // Table helper functions
@@ -448,7 +465,7 @@ export function TicketsPage() {
                     <SelectItem value="ALL">All Priority</SelectItem>
                     <SelectItem value={TicketPriority.URGENT}>🔴 Urgent</SelectItem>
                     <SelectItem value={TicketPriority.HIGH}>🟠 High</SelectItem>
-                    <SelectItem value={TicketPriority.MEDIUM}>🟡 Medium</SelectItem>
+                    <SelectItem value={TicketPriority.NORMAL}>🟡 Normal</SelectItem>
                     <SelectItem value={TicketPriority.LOW}>🟢 Low</SelectItem>
                   </SelectContent>
                 </Select>
@@ -641,8 +658,15 @@ export function TicketsPage() {
                         <div className="flex items-center gap-2">
                           <User className="h-4 w-4 text-muted-foreground" />
                           <div className="space-y-1">
-                            <div className="text-sm font-medium">{ticket.clientName || 'Unknown'}</div>
-                            <div className="text-xs text-muted-foreground">{ticket.clientEmail || 'N/A'}</div>
+                            <div className="text-sm font-medium">
+                              {ticket.clientName ||
+                                ticket.client?.fullName ||
+                                [ticket.client?.firstName, ticket.client?.lastName].filter(Boolean).join(' ') ||
+                                'Unknown'}
+                            </div>
+                            <div className="text-xs text-muted-foreground">
+                              {ticket.clientEmail || ticket.client?.email || 'N/A'}
+                            </div>
                           </div>
                         </div>
                       </TableCell>

@@ -151,8 +151,18 @@ export class AppointmentService {
    * Search appointments
    */
   static async searchAppointments(searchParams: SearchParams): Promise<PagedResponse<Appointment>> {
-    const response = await apiClient.get<PagedResponse<Appointment>>(ENDPOINTS.APPOINTMENT_SEARCH, {
-      params: searchParams
+    // The backend expects `startTime`/`endTime` query params for date range filters.
+    // Our shared `SearchParams` type uses `startDate`/`endDate` in some callers (e.g., Dashboard).
+    // Remap if present to maintain compatibility without changing callers.
+    const { startDate, endDate, ...rest } = (searchParams || {}) as Record<string, unknown>;
+    const params = {
+      ...rest,
+      ...(startDate ? { startTime: startDate } : {}),
+      ...(endDate ? { endTime: endDate } : {}),
+    } as Record<string, unknown>;
+
+    const response = await apiClient.get<PagedResponse<Appointment>>(ENDPOINTS.APPOINTMENTS, {
+      params
     });
     return response.data;
   }

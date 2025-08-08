@@ -13,33 +13,33 @@ import { renderWithProviders } from '../../utils/test-utils';
 const mockNavigate = vi.fn();
 const mockUseParams = vi.fn();
 
-vi.mock('react-router-dom', () => ({
-  useNavigate: () => mockNavigate,
-  useParams: mockUseParams,
-  ...vi.importActual('react-router-dom')
-}));
+vi.mock('react-router-dom', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('react-router-dom')>();
+  return {
+    ...actual,
+    useNavigate: () => mockNavigate,
+    useParams: () => mockUseParams(),
+  };
+});
 
 // Mock the hooks
-const mockUseTicket = vi.fn();
-const mockUseClients = vi.fn();
-const mockUseTechnicians = vi.fn();
-const mockUseDeleteTicket = vi.fn();
-const mockUseCloseTicket = vi.fn();
-const mockUseReopenTicket = vi.fn();
+import * as ticketHooks from '../../../hooks/useTickets';
+import * as clientHooks from '../../../hooks/useClients';
+import * as technicianHooks from '../../../hooks/useTechnicians';
 
 vi.mock('../../../hooks/useTickets', () => ({
-  useTicket: mockUseTicket,
-  useDeleteTicket: mockUseDeleteTicket,
-  useCloseTicket: mockUseCloseTicket,
-  useReopenTicket: mockUseReopenTicket
+  useTicket: vi.fn(),
+  useDeleteTicket: vi.fn(),
+  useCloseTicket: vi.fn(),
+  useReopenTicket: vi.fn()
 }));
 
 vi.mock('../../../hooks/useClients', () => ({
-  useClients: mockUseClients
+  useClients: vi.fn()
 }));
 
 vi.mock('../../../hooks/useTechnicians', () => ({
-  useTechnicians: mockUseTechnicians
+  useTechnicians: vi.fn()
 }));
 
 // Mock the components

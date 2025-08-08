@@ -11,18 +11,20 @@ import { renderWithProviders } from '../../utils/test-utils';
 
 // Mock react-router-dom
 const mockNavigate = vi.fn();
-vi.mock('react-router-dom', () => ({
-  useNavigate: () => mockNavigate,
-  ...vi.importActual('react-router-dom')
-}));
+vi.mock('react-router-dom', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('react-router-dom')>();
+  return {
+    ...actual,
+    useNavigate: () => mockNavigate,
+  };
+});
 
 // Mock the hooks
-const mockUseTickets = vi.fn();
-const mockUseDeleteTicket = vi.fn();
-
+import * as ticketHooks from '../../../hooks/useTickets';
 vi.mock('../../../hooks/useTickets', () => ({
-  useTickets: mockUseTickets,
-  useDeleteTicket: mockUseDeleteTicket
+  useTickets: vi.fn(),
+  useDeleteTicket: vi.fn(),
+  useTicketStatistics: vi.fn()
 }));
 
 // Mock the components
@@ -142,13 +144,25 @@ const mockDeleteTicketMutation = {
 describe('TicketsPage', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mockUseTickets.mockReturnValue({
+    (ticketHooks.useTickets as any).mockReturnValue({
       data: mockTicketsData,
       isLoading: false,
       error: null,
       refetch: vi.fn()
     });
-    mockUseDeleteTicket.mockReturnValue(mockDeleteTicketMutation);
+    (ticketHooks.useDeleteTicket as any).mockReturnValue(mockDeleteTicketMutation);
+    (ticketHooks.useTicketStatistics as any).mockReturnValue({
+      data: {
+        totalTickets: 3,
+        openTickets: 2,
+        closedTickets: 1,
+        overdueTickets: 1,
+        unassignedTickets: 1,
+        urgentTickets: 1
+      },
+      isLoading: false,
+      error: null
+    });
   });
 
   describe('Rendering', () => {
@@ -252,7 +266,7 @@ describe('TicketsPage', () => {
 
   describe('Loading and Error States', () => {
     it('renders loading skeletons when data is loading', () => {
-      mockUseTickets.mockReturnValue({
+      (ticketHooks.useTickets as any).mockReturnValue({
         data: null,
         isLoading: true,
         error: null,
@@ -268,7 +282,7 @@ describe('TicketsPage', () => {
 
     it('renders error message when fetch fails', () => {
       const mockError = new Error('Failed to fetch tickets');
-      mockUseTickets.mockReturnValue({
+      (ticketHooks.useTickets as any).mockReturnValue({
         data: null,
         isLoading: false,
         error: mockError,
@@ -282,7 +296,7 @@ describe('TicketsPage', () => {
     });
 
     it('renders empty state when no tickets found', () => {
-      mockUseTickets.mockReturnValue({
+      (ticketHooks.useTickets as any).mockReturnValue({
         data: { ...mockTicketsData, content: [], totalElements: 0 },
         isLoading: false,
         error: null,
@@ -645,8 +659,10 @@ describe('TicketsPage', () => {
     it('calls delete mutation when confirmed', async () => {
       const user = userEvent.setup();
       const mockRefetch = vi.fn();
-      mockUseTickets.mockReturnValue({
-        ...mockUseTickets(),
+      (ticketHooks.useTickets as any).mockReturnValue({
+        data: mockTicketsData,
+        isLoading: false,
+        error: null,
         refetch: mockRefetch
       });
       
@@ -778,7 +794,7 @@ describe('TicketsPage', () => {
         number: 1
       };
       
-      mockUseTickets.mockReturnValue({
+      (ticketHooks.useTickets as any).mockReturnValue({
         data: multiPageData,
         isLoading: false,
         error: null,

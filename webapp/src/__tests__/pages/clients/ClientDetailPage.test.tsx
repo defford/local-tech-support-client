@@ -13,13 +13,17 @@ import { renderWithProviders } from '../../utils/test-utils';
 const mockNavigate = vi.fn();
 const mockUseParams = vi.fn();
 
-vi.mock('react-router-dom', () => ({
-  useNavigate: () => mockNavigate,
-  useParams: () => mockUseParams(),
-  ...vi.importActual('react-router-dom')
-}));
+vi.mock('react-router-dom', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('react-router-dom')>();
+  return {
+    ...actual,
+    useNavigate: () => mockNavigate,
+    useParams: () => mockUseParams(),
+  };
+});
 
 // Mock the hooks
+import * as hooks from '../../../hooks';
 vi.mock('../../../hooks', () => ({
   useClient: vi.fn(),
   useClientTickets: vi.fn(),
@@ -52,6 +56,7 @@ const mockTicketsData = {
     {
       id: 1,
       title: 'Computer Issue',
+      description: 'Computer not working properly',
       status: 'OPEN',
       priority: 'HIGH',
       createdAt: '2024-01-10T00:00:00Z'
@@ -59,6 +64,7 @@ const mockTicketsData = {
     {
       id: 2,
       title: 'Network Problem',
+      description: 'Network connection issues',
       status: 'CLOSED',
       priority: 'MEDIUM',
       createdAt: '2024-01-08T00:00:00Z'
@@ -74,9 +80,9 @@ const mockAppointmentsData = {
   content: [
     {
       id: 1,
-      title: 'System Maintenance',
+      description: 'System Maintenance',
       status: 'SCHEDULED',
-      scheduledDate: '2024-01-20T10:00:00Z',
+      scheduledDateTime: '2024-01-20T10:00:00Z',
       technician: {
         firstName: 'Alice',
         lastName: 'Johnson'
@@ -99,27 +105,22 @@ describe('ClientDetailPage', () => {
     
     // Mock URL params
     mockUseParams.mockReturnValue({ id: '1' });
-    
-    const hooks = require('../../../hooks');
-    hooks.useClient.mockImplementation(mockUseClient);
-    hooks.useClientTickets.mockImplementation(mockUseClientTickets);
-    hooks.useClientAppointments.mockImplementation(mockUseClientAppointments);
 
     // Default successful data fetch
-    mockUseClient.mockReturnValue({
+    (hooks.useClient as any).mockReturnValue({
       data: mockClient,
       isLoading: false,
       error: null,
       refetch: vi.fn()
     });
     
-    mockUseClientTickets.mockReturnValue({
+    (hooks.useClientTickets as any).mockReturnValue({
       data: mockTicketsData,
       isLoading: false,
       error: null
     });
     
-    mockUseClientAppointments.mockReturnValue({
+    (hooks.useClientAppointments as any).mockReturnValue({
       data: mockAppointmentsData,
       isLoading: false,
       error: null
@@ -141,7 +142,7 @@ describe('ClientDetailPage', () => {
   });
 
   it('should render loading state', () => {
-    mockUseClient.mockReturnValue({
+    (hooks.useClient as any).mockReturnValue({
       data: null,
       isLoading: true,
       error: null,
@@ -150,12 +151,13 @@ describe('ClientDetailPage', () => {
 
     renderWithProviders(<ClientDetailPage />);
 
-    expect(screen.getByTestId('loading-spinner')).toBeInTheDocument();
+    // The ClientDetailPage uses a custom skeleton instead of loading-spinner
+    expect(document.querySelector('.animate-pulse')).toBeInTheDocument();
   });
 
   it('should render error state', () => {
     const error = new Error('Failed to fetch client');
-    mockUseClient.mockReturnValue({
+    (hooks.useClient as any).mockReturnValue({
       data: null,
       isLoading: false,
       error,
@@ -164,7 +166,7 @@ describe('ClientDetailPage', () => {
 
     renderWithProviders(<ClientDetailPage />);
 
-    expect(screen.getByText('Failed to load client')).toBeInTheDocument();
+    expect(screen.getByText('Failed to fetch client')).toBeInTheDocument();
   });
 
   it('should navigate back to clients list when back button is clicked', async () => {
@@ -237,7 +239,7 @@ describe('ClientDetailPage', () => {
 
   it('should display client status warning for non-active clients', async () => {
     const suspendedClient = { ...mockClient, status: ClientStatus.SUSPENDED };
-    mockUseClient.mockReturnValue({
+    (hooks.useClient as any).mockReturnValue({
       data: suspendedClient,
       isLoading: false,
       error: null,
@@ -260,7 +262,7 @@ describe('ClientDetailPage', () => {
       notes: undefined
     };
 
-    mockUseClient.mockReturnValue({
+    (hooks.useClient as any).mockReturnValue({
       data: clientWithoutOptionalFields,
       isLoading: false,
       error: null,
@@ -280,7 +282,7 @@ describe('ClientDetailPage', () => {
 
   it('should handle tickets loading error', async () => {
     const ticketsError = new Error('Failed to load tickets');
-    mockUseClientTickets.mockReturnValue({
+    (hooks.useClientTickets as any).mockReturnValue({
       data: null,
       isLoading: false,
       error: ticketsError
@@ -302,7 +304,7 @@ describe('ClientDetailPage', () => {
 
   it('should handle appointments loading error', async () => {
     const appointmentsError = new Error('Failed to load appointments');
-    mockUseClientAppointments.mockReturnValue({
+    (hooks.useClientAppointments as any).mockReturnValue({
       data: null,
       isLoading: false,
       error: appointmentsError
@@ -328,6 +330,6 @@ describe('ClientDetailPage', () => {
     renderWithProviders(<ClientDetailPage />);
 
     // The hook should be called with NaN, which should be handled gracefully
-    expect(mockUseClient).toHaveBeenCalledWith(NaN, false);
+    expect(hooks.useClient).toHaveBeenCalledWith(NaN);
   });
 });
