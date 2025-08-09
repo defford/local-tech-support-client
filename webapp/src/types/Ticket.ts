@@ -117,7 +117,9 @@ export const TicketUtils = {
     }
     
     // Fallback to checking technician assignment
-    return ticket.assignedTechnician !== undefined || ticket.assignedTechnicianId !== undefined;
+    const hasAssignedTechnicianObject = ticket.assignedTechnician != null;
+    const hasAssignedTechnicianId = ticket.assignedTechnicianId != null;
+    return hasAssignedTechnicianObject || hasAssignedTechnicianId;
   },
 
   /**

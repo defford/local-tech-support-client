@@ -13,6 +13,7 @@ export interface TicketStatistics {
   closedTickets: number;
   overdueTickets?: number;
   unassignedTickets?: number;
+  urgentTickets?: number;
   assignmentRate?: number;
   closureRate?: number;
   overdueRate?: number;

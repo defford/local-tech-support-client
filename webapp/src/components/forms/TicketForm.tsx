@@ -93,7 +93,6 @@ export function TicketForm({ ticket, defaultClientId, onSuccess, onCancel }: Tic
         serviceType: ticket.serviceType,
         priority: ticket.priority,
         clientId: ticket.clientId,
-        dueAt: ticket.dueAt ? new Date(ticket.dueAt).toISOString().slice(0, 16) : '',
       });
     }
   }, [ticket, form]);
@@ -182,18 +181,6 @@ export function TicketForm({ ticket, defaultClientId, onSuccess, onCancel }: Tic
         return 'Computer, server, or physical equipment issues';
       case ServiceType.SOFTWARE:
         return 'Application, OS, or software-related problems';
-      case ServiceType.NETWORK:
-        return 'Internet, WiFi, or connectivity issues';
-      case ServiceType.PRINTER:
-        return 'Printer, scanner, or printing problems';
-      case ServiceType.EMAIL:
-        return 'Email setup, configuration, or delivery issues';
-      case ServiceType.SECURITY:
-        return 'Security, antivirus, or malware concerns';
-      case ServiceType.BACKUP:
-        return 'Data backup, recovery, or storage issues';
-      case ServiceType.CONSULTATION:
-        return 'Technical advice or consultation services';
       default:
         return '';
     }

@@ -40,7 +40,7 @@ import { ClientForm } from '@/components/forms/ClientForm';
 import { TicketForm } from '@/components/forms/TicketForm';
 import { AppointmentForm } from '@/components/forms/AppointmentForm';
 import { ClientUtils } from '@/types/Client';
-import { ClientStatus, TicketStatus } from '@/types';
+import { ClientStatus, TicketStatus, AppointmentStatus } from '@/types';
 
 export function ClientDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -288,20 +288,20 @@ export function ClientDetailPage() {
                           Created: {formatDate(ticket.createdAt)}
                         </p>
                       </div>
-                      <div className="flex flex-col items-end gap-1">
-                        <Badge variant={
-                          ticket.status === 'OPEN' ? 'destructive' : 
-                          ticket.status === 'IN_PROGRESS' ? 'default' :
-                          'secondary'
-                        }>
-                          {ticket.status}
-                        </Badge>
-                        {ticket.priority && (
-                          <Badge variant="outline" className="text-xs">
-                            {ticket.priority}
-                          </Badge>
-                        )}
-                      </div>
+                  <div className="flex flex-col items-end gap-1">
+                    <Badge variant={
+                      ticket.status === TicketStatus.OPEN ? 'destructive' :
+                      ticket.status === TicketStatus.CLOSED ? 'secondary' :
+                      'secondary'
+                    }>
+                      {ticket.status}
+                    </Badge>
+                    {ticket.priority && (
+                      <Badge variant="outline" className="text-xs">
+                        {ticket.priority}
+                      </Badge>
+                    )}
+                  </div>
                     </div>
                   ))}
                   {tickets.content.length > 5 && (
@@ -339,12 +339,12 @@ export function ClientDetailPage() {
                     <div key={appointment.id} className="flex items-center space-x-3 py-2 border-b last:border-b-0">
                       <Clock className="h-4 w-4 text-muted-foreground" />
                       <div className="flex-1">
-                        <p className="font-medium">{formatDate(appointment.scheduledDateTime)}</p>
-                        <p className="text-sm text-muted-foreground">{appointment.description}</p>
+                        <p className="font-medium">{formatDate(appointment.scheduledStartTime)}</p>
+                        <p className="text-sm text-muted-foreground">{appointment.notes || 'No notes'}</p>
                       </div>
                       <Badge variant={
-                        appointment.status === 'SCHEDULED' ? 'default' :
-                        appointment.status === 'COMPLETED' ? 'secondary' :
+                        appointment.status === AppointmentStatus.CONFIRMED ? 'default' :
+                        appointment.status === AppointmentStatus.COMPLETED ? 'secondary' :
                         'destructive'
                       }>
                         {appointment.status}

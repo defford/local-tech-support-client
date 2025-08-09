@@ -138,7 +138,7 @@ export function TicketsPage() {
     return filtered;
   })();
 
-  // Statistics are displayed in Reports; no local cards here
+  // Statistics cards (lightweight summary)
 
   // Table helper functions
   const handleSort = (column: string) => {
@@ -345,6 +345,40 @@ export function TicketsPage() {
         </Dialog>
       </div>
 
+      {/* Statistics Cards (if available) */}
+      {statisticsData && (
+        <Card className="border-0 shadow-md bg-card/50">
+          <CardContent className="p-6">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+              <div className="space-y-1">
+                <div className="text-sm text-muted-foreground">Total</div>
+                <div className="text-2xl font-bold">{statisticsData.totalTickets}</div>
+              </div>
+              <div className="space-y-1">
+                <div className="text-sm text-muted-foreground">Open</div>
+                <div className="text-2xl font-bold">{statisticsData.openTickets}</div>
+              </div>
+              <div className="space-y-1">
+                <div className="text-sm text-muted-foreground">Closed</div>
+                <div className="text-2xl font-bold">{statisticsData.closedTickets}</div>
+              </div>
+              <div className="space-y-1">
+                <div className="text-sm text-muted-foreground">Overdue</div>
+                <div className="text-2xl font-bold">{statisticsData.overdueTickets}</div>
+              </div>
+              <div className="space-y-1">
+                <div className="text-sm text-muted-foreground">Unassigned</div>
+                <div className="text-2xl font-bold">{statisticsData.unassignedTickets}</div>
+              </div>
+              <div className="space-y-1">
+                <div className="text-sm text-muted-foreground">Urgent</div>
+                <div className="text-2xl font-bold">{statisticsData.urgentTickets}</div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       
 
       {/* Search and Filter Controls */}
@@ -358,6 +392,7 @@ export function TicketsPage() {
                   placeholder="Search tickets by title, description, or client..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
+                  aria-label="Search tickets by title, description, or client"
                   className="pl-10 bg-background border-border/50"
                 />
               </div>
