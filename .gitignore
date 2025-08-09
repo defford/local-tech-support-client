@@ -1,8 +1,39 @@
-# Ignore all markdown files
-*.md
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
 
-# But allow README.md to be committed
-!README.md
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
 
-#Ignore cursor AI rules
+# Java CLI specific (cli/)
+cli/target/
+cli/logs/*.log
+cli/.classpath
+cli/.project
+cli/.settings/
+
+# React webapp specific (webapp/)
+webapp/node_modules/
+webapp/dist/
+webapp/build/
+webapp/coverage/
+webapp/.env.local
+webapp/.env.production
+webapp/.env.staging
+webapp/*.log
+
+# Shared
+*.log
+.env
+
+# Cursor AI rules
 .cursor/rules/codacy.mdc

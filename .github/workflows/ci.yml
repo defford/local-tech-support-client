@@ -10,6 +10,7 @@ permissions:
   checks: write
   pull-requests: write
   statuses: write
+  security-events: write
 
 jobs:
   test:
@@ -39,32 +40,36 @@ jobs:
       run: mvn --version
     
     - name: Compile project
-      run: mvn clean compile
+      working-directory: ./cli
+      run: mvn -B -ntp clean compile
     
     - name: Run tests
-      run: mvn test
+      working-directory: ./cli
+      run: mvn -B -ntp test
     
     - name: Generate test report
       uses: dorny/test-reporter@v1
       if: success() || failure()
       with:
         name: Maven Test Results
-        path: target/surefire-reports/*.xml
+        path: cli/target/surefire-reports/*.xml
         reporter: java-junit
         fail-on-error: true
     
     - name: Build JAR
-      run: mvn package -DskipTests
+      working-directory: ./cli
+      run: mvn -B -ntp package -DskipTests
     
     - name: Upload build artifacts
       uses: actions/upload-artifact@v4
       if: success()
       with:
         name: jar-artifacts
-        path: target/*.jar
+        path: cli/target/*.jar
         retention-days: 5
     
     - name: Run basic smoke test
+      working-directory: ./cli
       run: |
         echo "Testing JAR execution..."
         java -jar target/tech-support-cli.jar --help || echo "JAR help command completed"

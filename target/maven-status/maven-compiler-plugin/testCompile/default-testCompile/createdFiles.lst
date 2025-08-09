@@ -1,8 +1,0 @@
-com/localtechsupport/cli/model/TechnicianTest.class
-com/localtechsupport/cli/model/ClientTest.class
-com/localtechsupport/cli/client/TechSupportApiClientTest$ResourceManagementTests.class
-com/localtechsupport/cli/client/TechSupportApiClientTest$SuccessfulApiCallTests.class
-com/localtechsupport/cli/client/TechSupportApiClientTest$ErrorHandlingTests.class
-com/localtechsupport/cli/client/TechSupportApiClientTest.class
-com/localtechsupport/cli/client/TechSupportApiClientTest$ConstructorTests.class
-com/localtechsupport/cli/client/TechSupportApiClientTest$ConnectionTests.class
