@@ -64,9 +64,8 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <ThemeProvider
         attribute="class"
-        defaultTheme="system"
-        enableSystem
-        disableTransitionOnChange
+        defaultTheme="light"
+        enableSystem={false}
       >
         <Router>
           <AppShellLayout>

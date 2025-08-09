@@ -114,12 +114,12 @@ export function Navigation({ onLinkClick }: NavigationProps) {
     const getBadgeClasses = (badgeColor?: 'urgent' | 'overdue' | 'primary') => {
       switch (badgeColor) {
         case 'urgent':
-          return 'bg-red-500 text-white animate-pulse';
+          return 'bg-destructive text-destructive-foreground animate-pulse';
         case 'overdue':
-          return 'bg-orange-500 text-white';
+          return 'bg-secondary text-secondary-foreground';
         case 'primary':
         default:
-          return 'bg-blue-500 text-white';
+          return 'bg-primary text-primary-foreground';
       }
     };
 
@@ -130,8 +130,8 @@ export function Navigation({ onLinkClick }: NavigationProps) {
         onClick={onLinkClick}
         className={`flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-colors ${
           isActive 
-            ? 'bg-blue-100 text-blue-700 font-medium' 
-            : 'text-gray-700 hover:bg-gray-100'
+            ? 'bg-primary/15 text-primary font-medium' 
+            : 'text-foreground hover:bg-muted'
         }`}
       >
         {item.icon}
@@ -159,7 +159,7 @@ export function Navigation({ onLinkClick }: NavigationProps) {
       <div className="p-4">
         {/* Main Navigation */}
         <div className="mb-6">
-          <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
+          <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
             Main Menu
           </h3>
           <nav className="space-y-1">
@@ -168,11 +168,11 @@ export function Navigation({ onLinkClick }: NavigationProps) {
         </div>
 
         {/* Divider */}
-        <div className="border-t border-gray-200 my-4"></div>
+        <div className="border-t border-border my-4"></div>
 
         {/* System Navigation */}
         <div className="mb-6">
-          <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
+          <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
             System
           </h3>
           <nav className="space-y-1">
@@ -181,11 +181,11 @@ export function Navigation({ onLinkClick }: NavigationProps) {
         </div>
 
         {/* Divider */}
-        <div className="border-t border-gray-200 my-4"></div>
+        <div className="border-t border-border my-4"></div>
 
         {/* App Info */}
         <div className="text-center mt-8">
-          <p className="text-xs text-gray-500">
+          <p className="text-xs text-muted-foreground">
             Tech Support System
             <br />
             v1.0.0

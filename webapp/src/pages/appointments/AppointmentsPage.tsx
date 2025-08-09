@@ -13,7 +13,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
@@ -171,15 +171,7 @@ export function AppointmentsPage() {
     return filtered;
   })();
 
-  // Statistics calculations
-  const statistics = {
-    total: data?.content?.length || 0,
-    pending: data?.content?.filter(a => a && a.status === AppointmentStatus.PENDING).length || 0,
-    confirmed: data?.content?.filter(a => a && a.status === AppointmentStatus.CONFIRMED).length || 0,
-    inProgress: data?.content?.filter(a => a && a.status === AppointmentStatus.IN_PROGRESS).length || 0,
-    completed: data?.content?.filter(a => a && a.status === AppointmentStatus.COMPLETED).length || 0,
-    overdue: data?.content?.filter(a => a && new Date() > new Date(a.scheduledStartTime) && a.status === AppointmentStatus.PENDING).length || 0,
-  };
+  // Statistics moved to Reports view
 
   // Helper functions
   const handleSort = (column: string) => {
@@ -409,81 +401,6 @@ export function AppointmentsPage() {
       {/* List View */}
       {viewMode === 'list' && (
         <>
-      {/* Statistics Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
-        <Card className="border-l-4 border-l-blue-500 bg-gradient-to-r from-blue-50/50 to-background dark:from-blue-950/30">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-blue-600 dark:text-blue-400">Total</p>
-                <p className="text-2xl font-bold">{statistics.total}</p>
-              </div>
-              <Calendar className="h-5 w-5 text-blue-500" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="border-l-4 border-l-yellow-500 bg-gradient-to-r from-yellow-50/50 to-background dark:from-yellow-950/30">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-yellow-600 dark:text-yellow-400">Pending</p>
-                <p className="text-2xl font-bold">{statistics.pending}</p>
-              </div>
-              <Clock className="h-5 w-5 text-yellow-500" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="border-l-4 border-l-green-500 bg-gradient-to-r from-green-50/50 to-background dark:from-green-950/30">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-green-600 dark:text-green-400">Confirmed</p>
-                <p className="text-2xl font-bold">{statistics.confirmed}</p>
-              </div>
-              <CheckCircle className="h-5 w-5 text-green-500" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="border-l-4 border-l-orange-500 bg-gradient-to-r from-orange-50/50 to-background dark:from-orange-950/30">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-orange-600 dark:text-orange-400">In Progress</p>
-                <p className="text-2xl font-bold">{statistics.inProgress}</p>
-              </div>
-              <Play className="h-5 w-5 text-orange-500" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="border-l-4 border-l-emerald-500 bg-gradient-to-r from-emerald-50/50 to-background dark:from-emerald-950/30">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-emerald-600 dark:text-emerald-400">Completed</p>
-                <p className="text-2xl font-bold">{statistics.completed}</p>
-              </div>
-              <CheckCheck className="h-5 w-5 text-emerald-500" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="border-l-4 border-l-red-500 bg-gradient-to-r from-red-50/50 to-background dark:from-red-950/30">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-red-600 dark:text-red-400">Overdue</p>
-                <p className="text-2xl font-bold">{statistics.overdue}</p>
-              </div>
-              <AlertTriangle className="h-5 w-5 text-red-500" />
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
       {/* Search and Filter Controls */}
       <Card className="border-0 shadow-md bg-card/50">
         <CardContent className="p-6">

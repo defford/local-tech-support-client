@@ -9,4 +9,4 @@ export { TechniciansPage, TechnicianDetailPage } from './technicians';
 export { TicketsPage, TicketDetailPage } from './tickets';
 export { AppointmentsPage, AppointmentDetailPage } from './appointments';
 export { NotFoundPage } from './NotFound';
-export { ReportsPage } from './reports/ReportsPage';
+export { default as ReportsPage } from './reports/ReportsPage';

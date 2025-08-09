@@ -10,12 +10,18 @@
 export interface TicketStatistics {
   totalTickets: number;
   openTickets: number;
-  inProgressTickets: number;
-  resolvedTickets: number;
   closedTickets: number;
-  averageResolutionTimeHours: number;
-  ticketsResolvedToday: number;
-  ticketsByPriority: Record<string, number>;
+  overdueTickets?: number;
+  unassignedTickets?: number;
+  assignmentRate?: number;
+  closureRate?: number;
+  overdueRate?: number;
+  // optional legacy fields
+  inProgressTickets?: number;
+  resolvedTickets?: number;
+  averageResolutionTimeHours?: number;
+  ticketsResolvedToday?: number;
+  ticketsByPriority?: Record<string, number>;
   ticketsByStatus: Record<string, number>;
   ticketsByServiceType: Record<string, number>;
 }

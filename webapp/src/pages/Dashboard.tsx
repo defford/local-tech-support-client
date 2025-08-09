@@ -25,6 +25,7 @@ import {
   CardFooter,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Link } from 'react-router-dom';
 
 interface StatCardProps {
   title: string;
@@ -187,38 +188,46 @@ export function DashboardPage() {
 
       {/* Key Statistics */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        <StatCard
-          title="Total Clients"
-          value={clientsPage?.totalElements ?? 0}
-          icon={<IconUsers size={24} />}
-          color="blue"
-          description="Active users"
-          trend={{ value: 12, positive: true }}
-        />
+        <Link to="/clients" className="block" aria-label="View all clients">
+          <StatCard
+            title="Total Clients"
+            value={clientsPage?.totalElements ?? 0}
+            icon={<IconUsers size={24} />}
+            color="blue"
+            description="Active users"
+            trend={{ value: 12, positive: true }}
+          />
+        </Link>
         
-        <StatCard
-          title="Active Technicians"
-          value={techStats?.activeTechnicians || 0}
-          icon={<IconTool size={24} />}
-          color="green"
-          description="Available now"
-        />
+        <Link to="/technicians" className="block" aria-label="View all technicians">
+          <StatCard
+            title="Active Technicians"
+            value={techStats?.activeTechnicians || 0}
+            icon={<IconTool size={24} />}
+            color="green"
+            description="Available now"
+          />
+        </Link>
         
-        <StatCard
-          title="Open Tickets"
-          value={ticketStats?.openTickets || 0}
-          icon={<IconTicket size={24} />}
-          color="orange"
-          description="Pending resolution"
-        />
+        <Link to="/tickets" className="block" aria-label="View all tickets">
+          <StatCard
+            title="Open Tickets"
+            value={ticketStats?.openTickets || 0}
+            icon={<IconTicket size={24} />}
+            color="orange"
+            description="Pending resolution"
+          />
+        </Link>
         
-        <StatCard
-          title="Today's Appointments"
-          value={todaysAppointments?.totalElements ?? 0}
-          icon={<IconCalendarEvent size={24} />}
-          color="purple"
-          description="Scheduled"
-        />
+        <Link to="/appointments" className="block" aria-label="View today's appointments">
+          <StatCard
+            title="Today's Appointments"
+            value={todaysAppointments?.totalElements ?? 0}
+            icon={<IconCalendarEvent size={24} />}
+            color="purple"
+            description="Scheduled"
+          />
+        </Link>
       </div>
 
       {/* Quick Status Overview */}

@@ -295,64 +295,7 @@ export function ClientsPage() {
         </CardContent>
       </Card>
 
-      {/* Summary Statistics */}
-      {data && (
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-          <Card className="relative overflow-hidden shadow-sm border-border/50 bg-gradient-to-br from-card to-card/50 backdrop-blur-sm">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Total Clients</CardTitle>
-              <Users className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold text-foreground">{data.totalElements}</div>
-              <p className="text-xs text-muted-foreground mt-1">All registered clients</p>
-            </CardContent>
-            <div className="absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-primary/20 to-primary/40" />
-          </Card>
-          
-          <Card className="relative overflow-hidden shadow-sm border-border/50 bg-gradient-to-br from-card to-emerald-50/20 dark:to-emerald-950/20 backdrop-blur-sm">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Active</CardTitle>
-              <UserCheck className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold text-emerald-700 dark:text-emerald-300">
-                {data.content.filter(c => c.status === 'ACTIVE').length}
-              </div>
-              <p className="text-xs text-muted-foreground mt-1">Active accounts</p>
-            </CardContent>
-            <div className="absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-emerald-400/40 to-emerald-500/60" />
-          </Card>
-          
-          <Card className="relative overflow-hidden shadow-sm border-border/50 bg-gradient-to-br from-card to-amber-50/20 dark:to-amber-950/20 backdrop-blur-sm">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Suspended</CardTitle>
-              <UserMinus className="h-4 w-4 text-amber-600 dark:text-amber-400" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold text-amber-700 dark:text-amber-300">
-                {data.content.filter(c => c.status === 'SUSPENDED').length}
-              </div>
-              <p className="text-xs text-muted-foreground mt-1">Temporarily suspended</p>
-            </CardContent>
-            <div className="absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-amber-400/40 to-amber-500/60" />
-          </Card>
-          
-          <Card className="relative overflow-hidden shadow-sm border-border/50 bg-gradient-to-br from-card to-red-50/20 dark:to-red-950/20 backdrop-blur-sm">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Terminated</CardTitle>
-              <UserX className="h-4 w-4 text-red-600 dark:text-red-400" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold text-red-700 dark:text-red-300">
-                {data.content.filter(c => c.status === 'TERMINATED').length}
-              </div>
-              <p className="text-xs text-muted-foreground mt-1">Permanently closed</p>
-            </CardContent>
-            <div className="absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-red-400/40 to-red-500/60" />
-          </Card>
-        </div>
-      )}
+      
     </div>
   );
 }

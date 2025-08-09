@@ -141,28 +141,28 @@ export class TicketService {
    * Get overdue tickets
    */
   static async getOverdueTickets(params?: PaginationParams): Promise<PagedResponse<OverdueTicketInfo>> {
-    const response = await apiClient.get<PagedResponse<OverdueTicketInfo>>(ENDPOINTS.OVERDUE_TICKETS, {
-      params
-    });
-    return response.data;
+    const response = await apiClient.get<any>(ENDPOINTS.OVERDUE_TICKETS, { params });
+    const payload = response.data as any;
+    return (payload && typeof payload === 'object' && 'data' in payload ? payload.data : payload) as PagedResponse<OverdueTicketInfo>;
   }
 
   /**
    * Get unassigned tickets
    */
   static async getUnassignedTickets(params?: PaginationParams): Promise<PagedResponse<Ticket>> {
-    const response = await apiClient.get<PagedResponse<Ticket>>(ENDPOINTS.UNASSIGNED_TICKETS, {
-      params
-    });
-    return response.data;
+    const response = await apiClient.get<any>(ENDPOINTS.UNASSIGNED_TICKETS, { params });
+    const payload = response.data as any;
+    return (payload && typeof payload === 'object' && 'data' in payload ? payload.data : payload) as PagedResponse<Ticket>;
   }
 
   /**
    * Get ticket statistics
    */
   static async getTicketStatistics(): Promise<TicketStatistics> {
-    const response = await apiClient.get<TicketStatistics>(ENDPOINTS.TICKET_STATISTICS);
-    return response.data;
+    const response = await apiClient.get<any>(ENDPOINTS.TICKET_STATISTICS);
+    const payload = response.data as any;
+    // Some backends wrap the payload as { data: TicketStatistics, status: number }
+    return (payload && typeof payload === 'object' && 'data' in payload ? payload.data : payload) as TicketStatistics;
   }
 
   /**

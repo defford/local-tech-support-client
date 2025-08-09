@@ -787,64 +787,7 @@ export function TechniciansPage() {
         </CardContent>
       </Card>
 
-      {/* Summary Statistics */}
-      {data && (
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-          <Card className="relative overflow-hidden shadow-sm border-border/50 bg-gradient-to-br from-card to-card/50 backdrop-blur-sm">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Total Technicians</CardTitle>
-              <Users className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold text-foreground">{data.totalElements}</div>
-              <p className="text-xs text-muted-foreground mt-1">All registered technicians</p>
-            </CardContent>
-            <div className="absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-primary/20 to-primary/40" />
-          </Card>
-          
-          <Card className="relative overflow-hidden shadow-sm border-border/50 bg-gradient-to-br from-card to-emerald-50/20 dark:to-emerald-950/20 backdrop-blur-sm">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Active</CardTitle>
-              <UserCheck className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold text-emerald-700 dark:text-emerald-300">
-                {data.content.filter(t => t && t.status === 'ACTIVE').length}
-              </div>
-              <p className="text-xs text-muted-foreground mt-1">Currently working</p>
-            </CardContent>
-            <div className="absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-emerald-400/40 to-emerald-500/60" />
-          </Card>
-          
-          <Card className="relative overflow-hidden shadow-sm border-border/50 bg-gradient-to-br from-card to-blue-50/20 dark:to-blue-950/20 backdrop-blur-sm">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
-              <CardTitle className="text-sm font-medium text-muted-foreground">On Vacation</CardTitle>
-              <Settings className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold text-blue-700 dark:text-blue-300">
-                {data.content.filter(t => t && t.status === 'ON_VACATION').length}
-              </div>
-              <p className="text-xs text-muted-foreground mt-1">Currently on vacation</p>
-            </CardContent>
-            <div className="absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-blue-400/40 to-blue-500/60" />
-          </Card>
-          
-          <Card className="relative overflow-hidden shadow-sm border-border/50 bg-gradient-to-br from-card to-amber-50/20 dark:to-amber-950/20 backdrop-blur-sm">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Sick Leave</CardTitle>
-              <UserMinus className="h-4 w-4 text-amber-600 dark:text-amber-400" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold text-amber-700 dark:text-amber-300">
-                {data.content.filter(t => t && t.status === 'SICK_LEAVE').length}
-              </div>
-              <p className="text-xs text-muted-foreground mt-1">On sick leave</p>
-            </CardContent>
-            <div className="absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-amber-400/40 to-amber-500/60" />
-          </Card>
-        </div>
-      )}
+      
       </div>
     </TechnicianErrorBoundary>
   );

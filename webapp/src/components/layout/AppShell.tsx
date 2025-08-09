@@ -25,8 +25,10 @@ export function AppShellLayout({ children }: AppShellLayoutProps) {
       <div className="flex">
         {/* Sidebar */}
         <aside 
-          className={`bg-card/30 backdrop-blur-sm border-r border-border/50 w-64 min-h-[calc(100vh-73px)] transition-all duration-300 ease-out ${
-            opened ? 'translate-x-0 shadow-xl' : '-translate-x-full md:translate-x-0 md:shadow-sm'
+          className={`bg-card/30 backdrop-blur-sm min-h-[calc(100vh-73px)] overflow-hidden transition-[transform,width] duration-300 ease-out ${
+            opened 
+              ? 'w-64 translate-x-0 border-r border-border/50 shadow-xl' 
+              : 'w-0 -translate-x-full border-r-0'
           }`}
         >
           <Navigation onLinkClick={() => setOpened(false)} />
@@ -38,10 +40,10 @@ export function AppShellLayout({ children }: AppShellLayoutProps) {
         </main>
       </div>
 
-      {/* Mobile overlay */}
+      {/* Mobile overlay (no blur) */}
       {opened && (
         <div 
-          className="fixed inset-0 bg-background/80 backdrop-blur-sm md:hidden z-40 transition-opacity duration-300"
+          className="fixed inset-0 bg-background/50 md:hidden z-40 transition-opacity duration-300"
           onClick={() => setOpened(false)}
         />
       )}

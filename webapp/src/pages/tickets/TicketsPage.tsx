@@ -4,11 +4,11 @@
 
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Search, Ticket as TicketIcon, AlertTriangle, Clock, UserX, Settings, ChevronUp, ChevronDown, MoreHorizontal, Edit, Trash2, Eye, User, Calendar, Tag, Check } from 'lucide-react';
+import { Plus, Search, AlertTriangle, Clock, Settings, ChevronUp, ChevronDown, MoreHorizontal, Edit, Trash2, Eye, User, Calendar, Tag, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
@@ -44,8 +44,8 @@ export function TicketsPage() {
     size: pageSize 
   });
 
-  // Fetch ticket statistics
-  const { data: statisticsData, isLoading: statsLoading } = useTicketStatistics();
+  // Fetch ticket statistics (moved to Reports)
+  const { data: statisticsData } = useTicketStatistics();
 
   // Delete ticket mutation
   const deleteTicketMutation = useDeleteTicket();
@@ -138,15 +138,7 @@ export function TicketsPage() {
     return filtered;
   })();
 
-  // Use proper statistics from API instead of calculating from current page
-  const statistics = {
-    total: statisticsData?.totalTickets || 0,
-    open: statisticsData?.openTickets || 0,
-    closed: statisticsData?.closedTickets || 0,
-    overdue: statisticsData?.overdueTickets || 0,
-    unassigned: statisticsData?.unassignedTickets || 0,
-    urgent: statisticsData?.urgentTickets || 0,
-  };
+  // Statistics are displayed in Reports; no local cards here
 
   // Table helper functions
   const handleSort = (column: string) => {
@@ -353,80 +345,7 @@ export function TicketsPage() {
         </Dialog>
       </div>
 
-      {/* Statistics Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
-        <Card className="border-l-4 border-l-blue-500 bg-gradient-to-r from-blue-50/50 to-background dark:from-blue-950/30">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-blue-600 dark:text-blue-400">Total</p>
-                <p className="text-2xl font-bold">{statistics.total}</p>
-              </div>
-              <TicketIcon className="h-5 w-5 text-blue-500" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="border-l-4 border-l-green-500 bg-gradient-to-r from-green-50/50 to-background dark:from-green-950/30">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-green-600 dark:text-green-400">Open</p>
-                <p className="text-2xl font-bold">{statistics.open}</p>
-              </div>
-              <Clock className="h-5 w-5 text-green-500" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="border-l-4 border-l-gray-500 bg-gradient-to-r from-gray-50/50 to-background dark:from-gray-950/30">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Closed</p>
-                <p className="text-2xl font-bold">{statistics.closed}</p>
-              </div>
-              <Check className="h-5 w-5 text-gray-500" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="border-l-4 border-l-red-500 bg-gradient-to-r from-red-50/50 to-background dark:from-red-950/30">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-red-600 dark:text-red-400">Overdue</p>
-                <p className="text-2xl font-bold">{statistics.overdue}</p>
-              </div>
-              <AlertTriangle className="h-5 w-5 text-red-500" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="border-l-4 border-l-yellow-500 bg-gradient-to-r from-yellow-50/50 to-background dark:from-yellow-950/30">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-yellow-600 dark:text-yellow-400">Unassigned</p>
-                <p className="text-2xl font-bold">{statistics.unassigned}</p>
-              </div>
-              <UserX className="h-5 w-5 text-yellow-500" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="border-l-4 border-l-orange-500 bg-gradient-to-r from-orange-50/50 to-background dark:from-orange-950/30">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-orange-600 dark:text-orange-400">Urgent</p>
-                <p className="text-2xl font-bold">{statistics.urgent}</p>
-              </div>
-              <AlertTriangle className="h-5 w-5 text-orange-500" />
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+      
 
       {/* Search and Filter Controls */}
       <Card className="border-0 shadow-md bg-card/50">
