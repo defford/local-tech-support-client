@@ -74,14 +74,17 @@ interface AppointmentFormProps {
   onSuccess?: () => void;
   onCancel?: () => void;
   mode?: 'create' | 'update' | 'reschedule';
+  // When provided, restrict selectable tickets to this client's tickets
+  clientIdFilter?: number;
 }
 
-export function AppointmentForm({ appointment, onSuccess, onCancel, mode }: AppointmentFormProps) {
+export function AppointmentForm({ appointment, onSuccess, onCancel, mode, clientIdFilter }: AppointmentFormProps) {
   const [conflicts, setConflicts] = useState<AppointmentConflict[]>([]);
   const [isCheckingConflicts, setIsCheckingConflicts] = useState(false);
   const [availabilityStatus, setAvailabilityStatus] = useState<'checking' | 'available' | 'unavailable' | null>(null);
   const [showDiagnostics, setShowDiagnostics] = useState(false);
   const [failedAppointmentData, setFailedAppointmentData] = useState<AppointmentCreateRequest | null>(null);
+  const [conflictChecksAvailable, setConflictChecksAvailable] = useState(true);
   
   // Determine the actual mode
   const actualMode = mode || (appointment ? 'update' : 'create');
@@ -100,9 +103,16 @@ export function AppointmentForm({ appointment, onSuccess, onCancel, mode }: Appo
   const { data: techniciansData, isLoading: techniciansLoading } = useTechnicians();
   
   // Filter data for valid selections
-  const availableTickets = ticketsData?.content?.filter(ticket => 
-    ticket && ticket.status === TicketStatus.OPEN
-  ) || [];
+  const availableTickets = (ticketsData?.content || []).filter(ticket => {
+    if (!ticket) return false;
+    if (ticket.status !== TicketStatus.OPEN) return false;
+    if (clientIdFilter == null) return true;
+    const anyT = ticket as any;
+    const flatClientId = anyT.clientId != null ? Number(anyT.clientId) : undefined;
+    const nestedClientId = anyT.client?.id != null ? Number(anyT.client.id) : undefined;
+    const targetId = Number(clientIdFilter);
+    return flatClientId === targetId || nestedClientId === targetId;
+  });
   
   const availableTechnicians = techniciansData?.content?.filter(technician => 
     technician && technician.status === TechnicianStatus.ACTIVE
@@ -136,7 +146,7 @@ export function AppointmentForm({ appointment, onSuccess, onCancel, mode }: Appo
     
     if (ticketId && technicianId && scheduledStartTime && scheduledEndTime) {
       // Check conflicts (for new appointments only)
-      if (!isEditing) {
+      if (!isEditing && conflictChecksAvailable) {
         const appointmentRequest: AppointmentCreateRequest = {
           ticketId,
           technicianId,
@@ -152,7 +162,10 @@ export function AppointmentForm({ appointment, onSuccess, onCancel, mode }: Appo
             setIsCheckingConflicts(false);
           },
           onError: () => {
+            // Backend does not support conflicts; disable further checks
             setIsCheckingConflicts(false);
+            setConflictChecksAvailable(false);
+            setConflicts([]);
           },
         });
       }

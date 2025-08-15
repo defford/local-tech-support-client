@@ -56,8 +56,8 @@ export function ClientDetailPage() {
   
   // Fetch client data
   const { data: client, isLoading: clientLoading, error: clientError } = useClient(clientId);
-  const { data: tickets, isLoading: ticketsLoading, refetch: refetchTickets } = useClientTickets(clientId);
-  const { data: appointments, isLoading: appointmentsLoading, refetch: refetchAppointments } = useClientAppointments(clientId);
+  const { data: tickets, isLoading: ticketsLoading, refetch: refetchTickets } = useClientTickets(clientId, { page: 0, size: 1000 });
+  const { data: appointments, isLoading: appointmentsLoading, refetch: refetchAppointments } = useClientAppointments(clientId, { page: 0, size: 1000 });
   
   // Helper functions for quick actions
   const handleCreateTicket = () => {
@@ -280,7 +280,13 @@ export function ClientDetailPage() {
               ) : (
                 <div className="space-y-3">
                   {tickets.content.slice(0, 5).map((ticket) => (
-                    <div key={ticket.id} className="flex items-center justify-between py-2 border-b last:border-b-0">
+                    <div
+                      key={ticket.id}
+                      className="flex items-center justify-between py-2 border-b last:border-b-0 cursor-pointer hover:bg-muted/10 rounded-md px-2"
+                      onClick={() => navigate(`/tickets/${ticket.id}`)}
+                      role="button"
+                      aria-label={`View ticket #${ticket.id}`}
+                    >
                       <div>
                         <p className="font-medium">#{ticket.id} - {ticket.title}</p>
                         <p className="text-sm text-muted-foreground">{ticket.description}</p>
@@ -336,11 +342,17 @@ export function ClientDetailPage() {
               ) : (
                 <div className="space-y-3">
                   {appointments.content.slice(0, 3).map((appointment) => (
-                    <div key={appointment.id} className="flex items-center space-x-3 py-2 border-b last:border-b-0">
+                    <div
+                      key={appointment.id}
+                      className="flex items-center space-x-3 py-2 border-b last:border-b-0 cursor-pointer hover:bg-muted/10 rounded-md px-2"
+                      onClick={() => navigate(`/appointments/${appointment.id}`)}
+                      role="button"
+                      aria-label={`View appointment #${appointment.id}`}
+                    >
                       <Clock className="h-4 w-4 text-muted-foreground" />
                       <div className="flex-1">
                         <p className="font-medium">{formatDate(appointment.scheduledStartTime)}</p>
-                        <p className="text-sm text-muted-foreground">{appointment.notes || 'No notes'}</p>
+                        <p className="text-sm text-muted-foreground">{appointment.notes ?? appointment.ticket?.description ?? 'No notes'}</p>
                       </div>
                       <Badge variant={
                         appointment.status === AppointmentStatus.CONFIRMED ? 'default' :
@@ -493,6 +505,7 @@ export function ClientDetailPage() {
           </DialogHeader>
           <AppointmentForm
             appointment={undefined}
+            clientIdFilter={client.id}
             onSuccess={onAppointmentSuccess}
             onCancel={() => setIsAppointmentModalOpen(false)}
           />

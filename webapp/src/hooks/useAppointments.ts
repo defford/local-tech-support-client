@@ -17,6 +17,7 @@ import {
   AppointmentConflict, 
   AppointmentSlot 
 } from '../services/appointments';
+import { CLIENT_QUERY_KEYS } from './useClients';
 
 /**
  * Query keys for appointment-related queries
@@ -118,6 +119,14 @@ export function useCreateAppointment() {
       
       // Invalidate available slots since a new appointment was created
       queryClient.invalidateQueries({ queryKey: appointmentKeys.availableSlots() });
+
+      // Also invalidate client-specific appointment queries so client pages refresh
+      queryClient.invalidateQueries({
+        predicate: (query) => {
+          const key = query.queryKey as readonly unknown[];
+          return Array.isArray(key) && key[0] === CLIENT_QUERY_KEYS.all[0] && key.includes('appointments');
+        }
+      });
     },
   });
 }
@@ -142,6 +151,14 @@ export function useUpdateAppointment() {
       queryClient.invalidateQueries({ queryKey: appointmentKeys.lists() });
       queryClient.invalidateQueries({ queryKey: appointmentKeys.upcoming() });
       queryClient.invalidateQueries({ queryKey: appointmentKeys.availableSlots() });
+
+      // Invalidate client-specific appointment queries
+      queryClient.invalidateQueries({
+        predicate: (query) => {
+          const key = query.queryKey as readonly unknown[];
+          return Array.isArray(key) && key[0] === CLIENT_QUERY_KEYS.all[0] && key.includes('appointments');
+        }
+      });
     },
   });
 }
@@ -162,6 +179,14 @@ export function useDeleteAppointment() {
       queryClient.invalidateQueries({ queryKey: appointmentKeys.lists() });
       queryClient.invalidateQueries({ queryKey: appointmentKeys.upcoming() });
       queryClient.invalidateQueries({ queryKey: appointmentKeys.availableSlots() });
+
+      // Invalidate client-specific appointment queries
+      queryClient.invalidateQueries({
+        predicate: (query) => {
+          const key = query.queryKey as readonly unknown[];
+          return Array.isArray(key) && key[0] === CLIENT_QUERY_KEYS.all[0] && key.includes('appointments');
+        }
+      });
     },
   });
 }
@@ -181,6 +206,13 @@ export function useConfirmAppointment() {
       );
       queryClient.invalidateQueries({ queryKey: appointmentKeys.lists() });
       queryClient.invalidateQueries({ queryKey: appointmentKeys.upcoming() });
+
+      queryClient.invalidateQueries({
+        predicate: (query) => {
+          const key = query.queryKey as readonly unknown[];
+          return Array.isArray(key) && key[0] === CLIENT_QUERY_KEYS.all[0] && key.includes('appointments');
+        }
+      });
     },
   });
 }
@@ -200,6 +232,13 @@ export function useStartAppointment() {
       );
       queryClient.invalidateQueries({ queryKey: appointmentKeys.lists() });
       queryClient.invalidateQueries({ queryKey: appointmentKeys.upcoming() });
+
+      queryClient.invalidateQueries({
+        predicate: (query) => {
+          const key = query.queryKey as readonly unknown[];
+          return Array.isArray(key) && key[0] === CLIENT_QUERY_KEYS.all[0] && key.includes('appointments');
+        }
+      });
     },
   });
 }
@@ -220,6 +259,13 @@ export function useCompleteAppointment() {
       );
       queryClient.invalidateQueries({ queryKey: appointmentKeys.lists() });
       queryClient.invalidateQueries({ queryKey: appointmentKeys.upcoming() });
+
+      queryClient.invalidateQueries({
+        predicate: (query) => {
+          const key = query.queryKey as readonly unknown[];
+          return Array.isArray(key) && key[0] === CLIENT_QUERY_KEYS.all[0] && key.includes('appointments');
+        }
+      });
     },
   });
 }
@@ -241,6 +287,13 @@ export function useCancelAppointment() {
       queryClient.invalidateQueries({ queryKey: appointmentKeys.lists() });
       queryClient.invalidateQueries({ queryKey: appointmentKeys.upcoming() });
       queryClient.invalidateQueries({ queryKey: appointmentKeys.availableSlots() });
+
+      queryClient.invalidateQueries({
+        predicate: (query) => {
+          const key = query.queryKey as readonly unknown[];
+          return Array.isArray(key) && key[0] === CLIENT_QUERY_KEYS.all[0] && key.includes('appointments');
+        }
+      });
     },
   });
 }
@@ -262,6 +315,13 @@ export function useMarkNoShowAppointment() {
       queryClient.invalidateQueries({ queryKey: appointmentKeys.lists() });
       queryClient.invalidateQueries({ queryKey: appointmentKeys.upcoming() });
       queryClient.invalidateQueries({ queryKey: appointmentKeys.availableSlots() });
+
+      queryClient.invalidateQueries({
+        predicate: (query) => {
+          const key = query.queryKey as readonly unknown[];
+          return Array.isArray(key) && key[0] === CLIENT_QUERY_KEYS.all[0] && key.includes('appointments');
+        }
+      });
     },
   });
 }
@@ -283,6 +343,13 @@ export function useRescheduleAppointment() {
       queryClient.invalidateQueries({ queryKey: appointmentKeys.lists() });
       queryClient.invalidateQueries({ queryKey: appointmentKeys.upcoming() });
       queryClient.invalidateQueries({ queryKey: appointmentKeys.availableSlots() });
+
+      queryClient.invalidateQueries({
+        predicate: (query) => {
+          const key = query.queryKey as readonly unknown[];
+          return Array.isArray(key) && key[0] === CLIENT_QUERY_KEYS.all[0] && key.includes('appointments');
+        }
+      });
     },
   });
 }

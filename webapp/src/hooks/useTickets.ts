@@ -4,6 +4,7 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { TicketService, TicketAssignmentResult, OverdueTicketInfo } from '../services';
+import { CLIENT_QUERY_KEYS } from './useClients';
 import {
   Ticket,
   TicketCreateRequest,
@@ -125,6 +126,14 @@ export const useCreateTicket = () => {
       // Invalidate related queries
       queryClient.invalidateQueries({ queryKey: TICKET_QUERY_KEYS.statistics() });
       queryClient.invalidateQueries({ queryKey: TICKET_QUERY_KEYS.unassigned() });
+
+      // Also invalidate client-specific ticket queries so client pages stay fresh
+      queryClient.invalidateQueries({
+        predicate: (query) => {
+          const key = query.queryKey as readonly unknown[];
+          return Array.isArray(key) && key[0] === CLIENT_QUERY_KEYS.all[0] && key.includes('tickets');
+        }
+      });
     }
   });
 };
@@ -149,6 +158,14 @@ export const useUpdateTicket = () => {
       queryClient.invalidateQueries({ queryKey: TICKET_QUERY_KEYS.statistics() });
       queryClient.invalidateQueries({ queryKey: TICKET_QUERY_KEYS.overdue() });
       queryClient.invalidateQueries({ queryKey: TICKET_QUERY_KEYS.unassigned() });
+
+      // Invalidate client-specific ticket queries
+      queryClient.invalidateQueries({
+        predicate: (query) => {
+          const key = query.queryKey as readonly unknown[];
+          return Array.isArray(key) && key[0] === CLIENT_QUERY_KEYS.all[0] && key.includes('tickets');
+        }
+      });
     }
   });
 };
@@ -174,6 +191,14 @@ export const useAssignTicket = () => {
       
       // Invalidate statistics
       queryClient.invalidateQueries({ queryKey: TICKET_QUERY_KEYS.statistics() });
+
+      // Invalidate client-specific ticket queries (assignment may change visibility)
+      queryClient.invalidateQueries({
+        predicate: (query) => {
+          const key = query.queryKey as readonly unknown[];
+          return Array.isArray(key) && key[0] === CLIENT_QUERY_KEYS.all[0] && key.includes('tickets');
+        }
+      });
     }
   });
 };
@@ -197,6 +222,14 @@ export const useCloseTicket = () => {
       // Invalidate related queries
       queryClient.invalidateQueries({ queryKey: TICKET_QUERY_KEYS.statistics() });
       queryClient.invalidateQueries({ queryKey: TICKET_QUERY_KEYS.overdue() });
+
+      // Invalidate client-specific ticket queries
+      queryClient.invalidateQueries({
+        predicate: (query) => {
+          const key = query.queryKey as readonly unknown[];
+          return Array.isArray(key) && key[0] === CLIENT_QUERY_KEYS.all[0] && key.includes('tickets');
+        }
+      });
     }
   });
 };
@@ -219,6 +252,14 @@ export const useReopenTicket = () => {
       
       // Invalidate related queries
       queryClient.invalidateQueries({ queryKey: TICKET_QUERY_KEYS.statistics() });
+
+      // Invalidate client-specific ticket queries
+      queryClient.invalidateQueries({
+        predicate: (query) => {
+          const key = query.queryKey as readonly unknown[];
+          return Array.isArray(key) && key[0] === CLIENT_QUERY_KEYS.all[0] && key.includes('tickets');
+        }
+      });
     }
   });
 };
@@ -242,6 +283,14 @@ export const useDeleteTicket = () => {
       queryClient.invalidateQueries({ queryKey: TICKET_QUERY_KEYS.statistics() });
       queryClient.invalidateQueries({ queryKey: TICKET_QUERY_KEYS.overdue() });
       queryClient.invalidateQueries({ queryKey: TICKET_QUERY_KEYS.unassigned() });
+
+      // Invalidate client-specific ticket queries
+      queryClient.invalidateQueries({
+        predicate: (query) => {
+          const key = query.queryKey as readonly unknown[];
+          return Array.isArray(key) && key[0] === CLIENT_QUERY_KEYS.all[0] && key.includes('tickets');
+        }
+      });
     }
   });
 };

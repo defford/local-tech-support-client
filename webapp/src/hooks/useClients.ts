@@ -3,7 +3,7 @@
  */
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ClientService } from '../services';
+import { ClientService, TicketService, AppointmentService } from '../services';
 import {
   Client,
   ClientRequest,
@@ -70,7 +70,33 @@ export const useClientSearch = (searchParams: SearchParams, enabled = true) => {
 export const useClientTickets = (id: number, params?: PaginationParams, enabled = true) => {
   return useQuery({
     queryKey: CLIENT_QUERY_KEYS.tickets(id, params),
-    queryFn: () => ClientService.getClientTickets(id, params),
+    // Reuse the stable list endpoint and filter client-side by clientId
+    // This avoids relying on nested endpoints that may not exist on the backend
+    queryFn: async () => {
+      const page = params?.page ?? 0;
+      const size = params?.size ?? 100;
+      const all = await TicketService.getTickets({ page, size });
+      const clientIdNumber = Number(id);
+      const filtered = (all.content || []).filter(t => {
+        if (!t) return false;
+        const ticketAny = t as any;
+        const clientObj = ticketAny.client;
+        const ticketClientId = ticketAny.clientId != null ? Number(ticketAny.clientId) : undefined;
+        const nestedClientId = clientObj && clientObj.id != null ? Number(clientObj.id) : undefined;
+        return ticketClientId === clientIdNumber || nestedClientId === clientIdNumber;
+      });
+      return {
+        content: filtered,
+        totalElements: filtered.length,
+        totalPages: 1,
+        size: filtered.length,
+        number: 0,
+        numberOfElements: filtered.length,
+        first: true,
+        last: true,
+        empty: filtered.length === 0
+      };
+    },
     enabled: enabled && !!id,
     staleTime: 2 * 60 * 1000, // 2 minutes
     gcTime: 5 * 60 * 1000 // 5 minutes
@@ -83,7 +109,62 @@ export const useClientTickets = (id: number, params?: PaginationParams, enabled 
 export const useClientAppointments = (id: number, params?: PaginationParams, enabled = true) => {
   return useQuery({
     queryKey: CLIENT_QUERY_KEYS.appointments(id, params),
-    queryFn: () => ClientService.getClientAppointments(id, params),
+    // Fetch global appointments and filter by this client's tickets
+    queryFn: async () => {
+      const page = params?.page ?? 0;
+      const size = params?.size ?? 100;
+
+      // 1) Get all tickets for this client from the global list
+      const allTickets = await TicketService.getTickets({ page: 0, size: 1000 });
+      const clientIdNumber = Number(id);
+      const clientTicketIds = (allTickets.content || [])
+        .filter(t => {
+          if (!t) return false;
+          const anyT = t as any;
+          const nestedClientId = anyT.client?.id != null ? Number(anyT.client.id) : undefined;
+          const flatClientId = anyT.clientId != null ? Number(anyT.clientId) : undefined;
+          return flatClientId === clientIdNumber || nestedClientId === clientIdNumber;
+        })
+        .map(t => t!.id);
+
+      // 2) Get appointments and filter by ticketId membership or nested ticket client
+      const allAppts = await AppointmentService.getAppointments({ page, size });
+      const filtered = (allAppts.content || []).filter(appt => {
+        if (!appt) return false;
+        const anyA = appt as any;
+        const apptTicketId = anyA.ticketId != null ? Number(anyA.ticketId) : undefined;
+        const nestedTicketId = anyA.ticket?.id != null ? Number(anyA.ticket.id) : undefined;
+        const nestedTicketClientId = anyA.ticket?.clientId != null ? Number(anyA.ticket.clientId) :
+          (anyA.ticket?.client?.id != null ? Number(anyA.ticket.client.id) : undefined);
+        return (apptTicketId != null && clientTicketIds.includes(apptTicketId)) ||
+               (nestedTicketId != null && clientTicketIds.includes(nestedTicketId)) ||
+               nestedTicketClientId === clientIdNumber;
+      });
+
+      // Normalize field names for UI consumption
+      const normalized = filtered.map((appt) => {
+        const anyA = appt as any;
+        const scheduledStartTime = anyA.scheduledStartTime ?? anyA.startTime;
+        const scheduledEndTime = anyA.scheduledEndTime ?? anyA.endTime;
+        return {
+          ...appt,
+          scheduledStartTime,
+          scheduledEndTime,
+        } as any;
+      });
+
+      return {
+        content: normalized,
+        totalElements: normalized.length,
+        totalPages: 1,
+        size: normalized.length,
+        number: 0,
+        numberOfElements: normalized.length,
+        first: true,
+        last: true,
+        empty: normalized.length === 0
+      };
+    },
     enabled: enabled && !!id,
     staleTime: 2 * 60 * 1000, // 2 minutes
     gcTime: 5 * 60 * 1000 // 5 minutes

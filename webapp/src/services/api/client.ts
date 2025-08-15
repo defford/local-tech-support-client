@@ -9,8 +9,13 @@ import { ApiError, DEFAULT_API_CONFIG, HttpStatusCode } from '../../types/api';
  * Create and configure the Axios instance
  */
 const createApiClient = (): AxiosInstance => {
+  // Prefer proxy through the same-origin dev server when available to avoid CORS
+  const computedBaseURL =
+    (typeof window !== 'undefined' && window.location && window.location.origin) ||
+    DEFAULT_API_CONFIG.baseURL;
+
   const client = axios.create({
-    baseURL: DEFAULT_API_CONFIG.baseURL,
+    baseURL: import.meta.env.VITE_API_URL || computedBaseURL,
     timeout: DEFAULT_API_CONFIG.timeout,
     headers: {
       'Content-Type': 'application/json',
