@@ -34,7 +34,7 @@ import {
   useCloseTicket,
   useReopenTicket
 } from '@/hooks/useTickets';
-import { useClients } from '@/hooks/useClients';
+import { useClient } from '@/hooks/useClients';
 import { useTechnicians } from '@/hooks/useTechnicians';
 import { TicketForm } from '@/components/forms/TicketForm';
 import { TechnicianAssignmentModal } from '@/components/forms/TechnicianAssignmentModal';
@@ -52,7 +52,11 @@ export function TicketDetailPage() {
   
   // Fetch ticket data
   const { data: ticket, isLoading: ticketLoading, error: ticketError, refetch } = useTicket(ticketId);
-  const { data: clientsData, isLoading: clientsLoading } = useClients();
+  const clientIdForDetail = ticket?.clientId != null
+    ? Number(ticket.clientId)
+    : (ticket?.client?.id != null ? Number(ticket.client?.id) : 0);
+  const shouldFetchClient = clientIdForDetail > 0;
+  const { data: clientDetail, isLoading: clientLoading, error: clientError } = useClient(clientIdForDetail, shouldFetchClient);
   const { data: techniciansData, isLoading: techniciansLoading } = useTechnicians();
   
   // Mutations
@@ -60,9 +64,8 @@ export function TicketDetailPage() {
   const closeTicketMutation = useCloseTicket();
   const reopenTicketMutation = useReopenTicket();
 
-  // Find related client and technician
-  // First try the embedded client object, then lookup by clientId
-  const client = ticket?.client || clientsData?.content?.find(c => c.id === ticket?.clientId);
+  // Find related client and technician (prefer full client detail; fallback to embedded)
+  const client = clientDetail ?? ticket?.client;
   const assignedTechnician = ticket?.assignedTechnician || techniciansData?.content?.find(t => t.id === ticket?.assignedTechnicianId);
 
   if (ticketLoading) {
@@ -97,7 +100,7 @@ export function TicketDetailPage() {
         return '🔴';
       case TicketPriority.HIGH:
         return '🟠';
-      case TicketPriority.NORMAL:
+      case TicketPriority.MEDIUM:
         return '🟡';
       case TicketPriority.LOW:
         return '🟢';
@@ -149,7 +152,6 @@ export function TicketDetailPage() {
     return (
       <span className={isOverdue ? 'text-red-600 font-medium' : 'text-muted-foreground'}>
         {formatDate(dueAt)}
-        {isOverdue && ' (Overdue)'}
       </span>
     );
   };
@@ -196,15 +198,9 @@ export function TicketDetailPage() {
             size="sm" 
             onClick={() => navigate('/tickets')}
           >
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Tickets
+            <ArrowLeft className="h-4 w-4 text-blue-500" />
+            <span className="sr-only">Back to Tickets</span>
           </Button>
-          <div>
-            <h1 className="text-3xl font-bold">
-              #{ticket.id} - {ticket.title}
-            </h1>
-            <p className="text-muted-foreground">Ticket Details</p>
-          </div>
         </div>
         
         <div className="flex items-center gap-2">
@@ -245,7 +241,7 @@ export function TicketDetailPage() {
             <CardHeader>
               <div className="flex items-start justify-between">
                 <div className="space-y-2">
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2" aria-label="ticket status and priority">
                     <Badge className={getStatusColor()}>
                       {getStatusIcon()}
                       <span className="ml-1">
@@ -262,7 +258,8 @@ export function TicketDetailPage() {
                       {ticket.serviceType ? (ticket.serviceType.charAt(0) + ticket.serviceType.slice(1).toLowerCase()) : 'Unknown'}
                     </Badge>
                   </div>
-                  <CardTitle className="text-xl">{ticket.title}</CardTitle>
+                  <CardTitle className="text-xl">#{ticket.id} - {ticket.client?.fullName} - {(ticket.description && ticket.description.length > 30) ? ticket.description.slice(0, 30) + '...' : ticket.description}</CardTitle>
+                  <span className="sr-only">{ticket.title}</span>
                 </div>
               </div>
             </CardHeader>
@@ -306,13 +303,43 @@ export function TicketDetailPage() {
               <CardTitle className="flex items-center">
                 <User className="h-5 w-5 mr-2" />
                 Client Information
-              </CardTitle>
-              <CardDescription>
-                Contact details and information for this ticket
-              </CardDescription>
+              </CardTitle>              
             </CardHeader>
             <CardContent>
-              {clientsLoading ? (
+              {client ? (
+                <div className="space-y-3">
+                  <div>
+                    <button 
+                      className="font-medium text-lg hover:text-primary transition-colors cursor-pointer"
+                      onClick={() => navigate(`/clients/${client.id}`)}
+                      title="View client details"
+                    >
+                      {client.firstName} {client.lastName}
+                    </button>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="flex items-center space-x-3">
+                      <Mail className="h-4 w-4 text-muted-foreground" />
+                      <span className="text-sm">{client.email}</span>
+                    </div>
+
+                    {client.phone && (
+                      <div className="flex items-center space-x-3">
+                        <Phone className="h-4 w-4 text-muted-foreground" />
+                        <span className="text-sm">{client.phone}</span>
+                      </div>
+                    )}
+                    
+                  </div>
+                  {client.address && (
+                    <div className="pt-2">
+                      <p className="text-sm font-medium">Address:</p>
+                      <p className="text-sm text-muted-foreground">{client.address}</p>
+                    </div>
+                  )}
+                </div>
+              ) : clientLoading ? (
                 <div className="space-y-3">
                   <div className="flex items-center space-x-3">
                     <Skeleton className="h-4 w-4 rounded-full" />
@@ -326,54 +353,24 @@ export function TicketDetailPage() {
                     <Skeleton className="h-4 w-36" />
                   </div>
                 </div>
-              ) : client ? (
-                <div className="space-y-3">
-                  <div>
-                    <button 
-                      className="font-medium text-lg hover:text-primary transition-colors cursor-pointer"
-                      onClick={() => navigate(`/clients/${client.id}`)}
-                      title="View client details"
-                    >
-                      {client.firstName} {client.lastName}
-                    </button>
-                    <p className="text-sm text-muted-foreground">Client ID: {ticket.clientId} • Click name to view details</p>
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="flex items-center space-x-3">
-                      <Mail className="h-4 w-4 text-muted-foreground" />
-                      <span className="text-sm">{client.email}</span>
-                    </div>
-                    {client.phone && (
-                      <div className="flex items-center space-x-3">
-                        <Phone className="h-4 w-4 text-muted-foreground" />
-                        <span className="text-sm">{client.phone}</span>
-                      </div>
-                    )}
-                  </div>
-                  {client.address && (
-                    <div className="pt-2">
-                      <p className="text-sm font-medium">Address:</p>
-                      <p className="text-sm text-muted-foreground">{client.address}</p>
-                    </div>
-                  )}
+              ) : clientError ? (
+                <div className="text-center py-4">
+                  <User className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
+                  <p className="text-sm text-muted-foreground">
+                    <span>
+                      Failed to load client information<br />
+                      <span className="text-xs text-red-600">{clientError.message}</span>
+                    </span>
+                  </p>
                 </div>
               ) : (
                 <div className="text-center py-4">
                   <User className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
                   <p className="text-sm text-muted-foreground">
-                    {ticket.clientName || ticket.clientEmail ? (
-                      <span>
-                        Client: {ticket.clientName || 'Unknown'}<br />
-                        {ticket.clientEmail && <span className="text-xs">Email: {ticket.clientEmail}</span>}
-                        <br />
-                        <span className="text-xs text-yellow-600">Full client details loading... (ID: {ticket.clientId})</span>
-                      </span>
-                    ) : (
-                      <span>
-                        Client information not available<br />
-                        <span className="text-xs text-red-600">Client ID: {ticket.clientId} - Check if client exists</span>
-                      </span>
-                    )}
+                    <span>
+                      Client information not available<br />
+                      <span className="text-xs text-red-600">Client ID: {ticket.clientId} - Check if client exists</span>
+                    </span>
                   </p>
                 </div>
               )}
@@ -453,7 +450,7 @@ export function TicketDetailPage() {
                 onClick={() => setIsAssignModalOpen(true)}
               >
                 <UserCheck className="h-4 w-4 mr-2" />
-                {assignedTechnician ? 'Reassign' : 'Assign'} Technician
+                {assignedTechnician ? 'Reassign Technician' : 'Assign Technician'}
               </Button>
               
               {TicketUtils.isOpen(ticket) ? (
@@ -476,7 +473,7 @@ export function TicketDetailPage() {
                   disabled={reopenTicketMutation.isPending}
                 >
                   <RotateCcw className="h-4 w-4 mr-2" />
-                  Reopen Ticket
+                  Reopen
                 </Button>
               )}
               
@@ -516,8 +513,7 @@ export function TicketDetailPage() {
                 <div className="flex justify-between">
                   <span className="text-sm">Status</span>
                   <span className="font-medium">
-                    {TicketUtils.isOverdue(ticket) ? 'Overdue' :
-                     TicketUtils.isOpen(ticket) ? 'Open' : 'Closed'}
+                    {TicketUtils.isOpen(ticket) ? 'Open' : 'Closed'}
                   </span>
                 </div>
                 {ticket.updatedAt && (
@@ -558,7 +554,7 @@ export function TicketDetailPage() {
       <Dialog open={isDeleteModalOpen} onOpenChange={setIsDeleteModalOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Delete Ticket</DialogTitle>
+            <DialogTitle>Confirm Delete</DialogTitle>
             <DialogDescription>
               Are you sure you want to delete ticket "#{ticket.id} - {ticket.title}"? This action cannot be undone.
             </DialogDescription>

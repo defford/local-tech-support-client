@@ -23,11 +23,9 @@ export enum TicketStatus {
 
 export enum TicketPriority {
   LOW = 'LOW',
-  NORMAL = 'NORMAL',
+  MEDIUM = 'NORMAL',
   HIGH = 'HIGH',
-  URGENT = 'URGENT',
-  // Backward-compatibility alias (maps to NORMAL)
-  MEDIUM = 'NORMAL'
+  URGENT = 'URGENT'
 }
 
 export enum ServiceType {
@@ -44,6 +42,23 @@ export enum AppointmentStatus {
   COMPLETED = 'COMPLETED',
   CANCELLED = 'CANCELLED',
   NO_SHOW = 'NO_SHOW'
+}
+
+export enum SatisfactionLevel {
+  EXCELLENT = 'EXCELLENT',
+  VERY_GOOD = 'VERY_GOOD',
+  GOOD = 'GOOD',
+  AVERAGE = 'AVERAGE',
+  POOR = 'POOR',
+  VERY_POOR = 'VERY_POOR',
+  UNKNOWN = 'UNKNOWN'
+}
+
+export enum SystemLoadLevel {
+  NONE = 'NONE',
+  LOW = 'LOW',
+  MEDIUM = 'MEDIUM',
+  HIGH = 'HIGH'
 }
 
 // Type guards for enum validation
@@ -64,23 +79,6 @@ export const isServiceType = (value: string): value is ServiceType =>
 
 export const isAppointmentStatus = (value: string): value is AppointmentStatus =>
   Object.values(AppointmentStatus).includes(value as AppointmentStatus);
-
-export enum SatisfactionLevel {
-  EXCELLENT = 'EXCELLENT',
-  VERY_GOOD = 'VERY_GOOD',
-  GOOD = 'GOOD',
-  AVERAGE = 'AVERAGE',
-  POOR = 'POOR',
-  VERY_POOR = 'VERY_POOR',
-  UNKNOWN = 'UNKNOWN'
-}
-
-export enum SystemLoadLevel {
-  NONE = 'NONE',
-  LOW = 'LOW',
-  MEDIUM = 'MEDIUM',
-  HIGH = 'HIGH'
-}
 
 export const isSatisfactionLevel = (value: string): value is SatisfactionLevel =>
   Object.values(SatisfactionLevel).includes(value as SatisfactionLevel);

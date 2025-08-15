@@ -419,7 +419,7 @@ export function TicketsPage() {
                     <SelectItem value="ALL">All Priority</SelectItem>
                     <SelectItem value={TicketPriority.URGENT}>🔴 Urgent</SelectItem>
                     <SelectItem value={TicketPriority.HIGH}>🟠 High</SelectItem>
-                    <SelectItem value={TicketPriority.NORMAL}>🟡 Normal</SelectItem>
+                    <SelectItem value={TicketPriority.MEDIUM}>🟡 Normal</SelectItem>
                     <SelectItem value={TicketPriority.LOW}>🟢 Low</SelectItem>
                   </SelectContent>
                 </Select>

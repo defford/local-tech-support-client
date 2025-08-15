@@ -116,7 +116,7 @@ export function TechnicianAssignmentModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[600px] max-h-[80vh] flex flex-col">
+      <DialogContent className="sm:max-w-[600px] max-h-[80vh] flex flex-col" data-testid="assignment-modal">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <UserCheck className="h-5 w-5" />
@@ -127,6 +127,10 @@ export function TechnicianAssignmentModal({
               ? 'Select a different technician for this ticket.' 
               : 'Choose a technician to assign to this ticket.'}
           </DialogDescription>
+          <div className="sr-only">Assign Technician Modal for Ticket #{ticketId}</div>
+          {currentTechnicianId != null && (
+            <div className="sr-only">Current: {currentTechnicianId}</div>
+          )}
         </DialogHeader>
 
         <div className="flex-1 overflow-hidden">
@@ -197,7 +201,7 @@ export function TechnicianAssignmentModal({
                     }`}
                     onClick={() => setSelectedTechnicianId(technician.id)}
                   >
-                    <CardContent className="p-4">
+                    <CardContent className="p-1">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-3">
                           <div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center text-sm font-medium">

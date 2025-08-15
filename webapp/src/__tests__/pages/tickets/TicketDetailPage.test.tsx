@@ -35,7 +35,8 @@ vi.mock('../../../hooks/useTickets', () => ({
 }));
 
 vi.mock('../../../hooks/useClients', () => ({
-  useClients: vi.fn()
+  useClients: vi.fn(),
+  useClient: vi.fn()
 }));
 
 vi.mock('../../../hooks/useTechnicians', () => ({
@@ -46,6 +47,7 @@ vi.mock('../../../hooks/useTechnicians', () => ({
 let mockUseTicket: vi.Mock;
 let mockUseClients: vi.Mock;
 let mockUseTechnicians: vi.Mock;
+let mockUseClient: vi.Mock;
 let mockUseDeleteTicket: vi.Mock;
 let mockUseCloseTicket: vi.Mock;
 let mockUseReopenTicket: vi.Mock;
@@ -159,6 +161,7 @@ describe('TicketDetailPage', () => {
     // Mock successful data fetching
     mockUseTicket = ticketHooks.useTicket as unknown as vi.Mock;
     mockUseClients = clientHooks.useClients as unknown as vi.Mock;
+    mockUseClient = clientHooks.useClient as unknown as vi.Mock;
     mockUseTechnicians = technicianHooks.useTechnicians as unknown as vi.Mock;
     mockUseDeleteTicket = ticketHooks.useDeleteTicket as unknown as vi.Mock;
     mockUseCloseTicket = ticketHooks.useCloseTicket as unknown as vi.Mock;
@@ -179,6 +182,13 @@ describe('TicketDetailPage', () => {
     
     mockUseTechnicians.mockReturnValue({
       data: mockTechniciansData,
+      isLoading: false,
+      error: null
+    });
+
+    // Default useClient to no-op data to support components that call it conditionally
+    mockUseClient.mockReturnValue({
+      data: undefined,
       isLoading: false,
       error: null
     });
@@ -525,10 +535,10 @@ describe('TicketDetailPage', () => {
       renderWithProviders(<TicketDetailPage />);
       
       await waitFor(() => {
-        expect(screen.getByText('Reassign Technician')).toBeInTheDocument();
+        expect(screen.getAllByText('Reassign Technician').length).toBeGreaterThanOrEqual(1);
       });
       
-      await user.click(screen.getByText('Reassign Technician'));
+      await user.click(screen.getAllByText('Reassign Technician')[0]);
       
       expect(screen.getByTestId('assignment-modal')).toBeInTheDocument();
       expect(screen.getByText('Assign Technician Modal for Ticket #1')).toBeInTheDocument();
@@ -540,7 +550,7 @@ describe('TicketDetailPage', () => {
       renderWithProviders(<TicketDetailPage />);
       
       await waitFor(() => {
-        expect(screen.getByText('Reassign Technician')).toBeInTheDocument();
+        expect(screen.getAllByText('Reassign Technician').length).toBeGreaterThanOrEqual(1);
       });
       
       const quickActionsButton = screen.getAllByText('Reassign Technician')[1]; // Second one is in quick actions
@@ -553,7 +563,7 @@ describe('TicketDetailPage', () => {
       const user = userEvent.setup();
       renderWithProviders(<TicketDetailPage />);
       
-      await user.click(screen.getByText('Reassign Technician'));
+      await user.click(screen.getAllByText('Reassign Technician')[0]);
       expect(screen.getByTestId('assignment-modal')).toBeInTheDocument();
       
       await user.click(screen.getByRole('button', { name: /cancel/i }));
