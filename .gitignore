@@ -37,3 +37,10 @@ webapp/*.log
 
 # Cursor AI rules
 .cursor/rules/codacy.mdc
+
+CLAUDE.md
+.claude/*
+.codacy/*
+.cursor/*
+
+docs/*
