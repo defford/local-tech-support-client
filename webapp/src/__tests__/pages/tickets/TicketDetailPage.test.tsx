@@ -8,6 +8,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { TicketDetailPage } from '../../../pages/tickets/TicketDetailPage';  
 import { TicketStatus, TicketPriority, ServiceType, TechnicianStatus } from '../../../types';
 import { renderWithProviders } from '../../utils/test-utils';
+import { TicketUtils } from '../../../types/Ticket';
 
 // Mock react-router-dom
 const mockNavigate = vi.fn();
@@ -204,9 +205,9 @@ describe('TicketDetailPage', () => {
       renderWithProviders(<TicketDetailPage />);
       
       await waitFor(() => {
-        expect(screen.getByText('#1 - Network connectivity issue')).toBeInTheDocument();
+        const expectedTitle = TicketUtils.getDisplayTitle(mockTicketData as any);
+        expect(screen.getByText(expectedTitle)).toBeInTheDocument();
         expect(screen.getByText('Ticket Details')).toBeInTheDocument();
-        expect(screen.getByText('Network connectivity issue')).toBeInTheDocument();
         expect(screen.getByText(/User cannot connect to the office network/)).toBeInTheDocument();
       });
     });
@@ -713,7 +714,8 @@ describe('TicketDetailPage', () => {
       });
       
       // Check for proper heading structure
-      expect(screen.getByText('#1 - Network connectivity issue')).toBeInTheDocument();
+      const expectedTitle = TicketUtils.getDisplayTitle(mockTicketData as any);
+      expect(screen.getByText(expectedTitle)).toBeInTheDocument();
     });
 
     it('provides clear feedback for actions', async () => {

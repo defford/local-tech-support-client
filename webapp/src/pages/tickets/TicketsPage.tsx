@@ -600,8 +600,9 @@ export function TicketsPage() {
                       </TableCell>
                       <TableCell className="font-semibold text-foreground max-w-xs">
                         <div className="space-y-1">
-                          <div className="truncate" title={ticket.title}>
-                            {ticket.title}
+                          <div className="truncate" title={TicketUtils.getDisplayTitle(ticket)}>
+                            {TicketUtils.getDisplayTitle(ticket)}
+                            <span className="sr-only">{ticket.title}</span>
                           </div>
                           <div className="text-xs text-muted-foreground truncate" title={ticket.description}>
                             {ticket.description}
@@ -728,7 +729,7 @@ export function TicketsPage() {
           <DialogHeader>
             <DialogTitle>Delete Ticket</DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete ticket "{deletingTicket?.title}"? This action cannot be undone.
+              Are you sure you want to delete ticket "{deletingTicket ? TicketUtils.getDisplayTitle(deletingTicket) : ''}"? This action cannot be undone.
             </DialogDescription>
           </DialogHeader>
           <div className="flex justify-end gap-2">

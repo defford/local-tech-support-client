@@ -23,6 +23,7 @@ import { Appointment, AppointmentCreateRequest, AppointmentUpdateRequest, Appoin
 import { AppointmentConflict, AppointmentRescheduleRequest } from '@/services/appointments';
 import { AppointmentDiagnostics } from '@/components/diagnostics/AppointmentDiagnostics';
 import { TechnicianUtils } from '@/types/Technician';
+import { TicketUtils } from '@/types/Ticket';
 
 /**
  * Appointment form validation schema - dynamic based on mode
@@ -271,7 +272,7 @@ export function AppointmentForm({ appointment, onSuccess, onCancel, mode, client
                 {availableTickets.map((ticket) => (
                   <SelectItem key={ticket.id} value={ticket.id.toString()}>
                     <div className="flex items-center justify-between w-full">
-                      <span>#{ticket.id} - {ticket.title}</span>
+                      <span>{TicketUtils.getDisplayTitle(ticket)}</span>
                       <Badge variant="outline" className="ml-2">
                         {ticket.priority?.toLowerCase()}
                       </Badge>
