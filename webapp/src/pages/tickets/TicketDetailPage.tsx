@@ -258,8 +258,8 @@ export function TicketDetailPage() {
                       {ticket.serviceType ? (ticket.serviceType.charAt(0) + ticket.serviceType.slice(1).toLowerCase()) : 'Unknown'}
                     </Badge>
                   </div>
-                  <CardTitle className="text-xl">#{ticket.id} - {ticket.client?.fullName} - {(ticket.description && ticket.description.length > 30) ? ticket.description.slice(0, 30) + '...' : ticket.description}</CardTitle>
-                  <span className="sr-only">{ticket.title}</span>
+                  <CardTitle className="text-xl">{TicketUtils.getDisplayTitle(ticket)}</CardTitle>
+                  <div className="text-sm text-muted-foreground">#{ticket.id} - {ticket.title}</div>
                 </div>
               </div>
             </CardHeader>
@@ -556,7 +556,7 @@ export function TicketDetailPage() {
           <DialogHeader>
             <DialogTitle>Confirm Delete</DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete ticket "#{ticket.id} - {ticket.title}"? This action cannot be undone.
+              Are you sure you want to delete ticket "{TicketUtils.getDisplayTitle(ticket)}"? This action cannot be undone.
             </DialogDescription>
           </DialogHeader>
           <div className="flex justify-end gap-2">

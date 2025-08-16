@@ -38,6 +38,7 @@ import { TechnicianForm } from '@/components/forms/TechnicianForm';
 import { TechnicianUtils } from '@/types/Technician';
 import { TechnicianStatus } from '@/types';
 import { TechnicianErrorBoundary } from '@/components/ErrorBoundary';
+import { TicketUtils } from '@/types/Ticket';
 
 export function TechnicianDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -212,7 +213,7 @@ export function TechnicianDetailPage() {
                   {tickets.content.slice(0, 5).map((ticket) => (
                     <div key={ticket.id} className="flex items-center justify-between py-2 border-b last:border-b-0">
                       <div>
-                        <p className="font-medium">#{ticket.id} - {ticket.title}</p>
+                        <p className="font-medium">{TicketUtils.getDisplayTitle(ticket)}</p>
                         <p className="text-sm text-muted-foreground">{ticket.description}</p>
                       </div>
                       <Badge variant={ticket.status === 'OPEN' ? 'destructive' : 'secondary'}>

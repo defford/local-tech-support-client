@@ -171,5 +171,27 @@ export const TicketUtils = {
     if (TicketUtils.isOverdue(ticket)) return 'red';
     if (TicketUtils.isOpen(ticket)) return 'blue';
     return 'green';
+  },
+
+  /**
+   * Build a consistent display title matching the Ticket Detail header
+   * Example: #123 - John Smith - User cannot connect to the office n...
+   */
+  getDisplayTitle: (
+    ticket: Ticket,
+    options?: { maxDescriptionLength?: number }
+  ): string => {
+    const maxLen = options?.maxDescriptionLength ?? 30;
+    const clientName = (
+      ticket.client?.fullName ||
+      [ticket.client?.firstName, ticket.client?.lastName].filter(Boolean).join(' ') ||
+      ticket.clientName ||
+      'Unknown'
+    );
+    const description = ticket.description || '';
+    const shortDesc = description
+      ? (description.length > maxLen ? description.slice(0, maxLen) + '...' : description)
+      : '';
+    return `#${ticket.id} - ${clientName} - ${shortDesc}`;
   }
 };

@@ -41,6 +41,7 @@ import { TicketForm } from '@/components/forms/TicketForm';
 import { AppointmentForm } from '@/components/forms/AppointmentForm';
 import { ClientUtils } from '@/types/Client';
 import { ClientStatus, TicketStatus, AppointmentStatus } from '@/types';
+import { TicketUtils } from '@/types/Ticket';
 
 export function ClientDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -288,7 +289,7 @@ export function ClientDetailPage() {
                       aria-label={`View ticket #${ticket.id}`}
                     >
                       <div>
-                        <p className="font-medium">#{ticket.id} - {ticket.title}</p>
+                        <p className="font-medium">{TicketUtils.getDisplayTitle(ticket)}</p>
                         <p className="text-sm text-muted-foreground">{ticket.description}</p>
                         <p className="text-xs text-muted-foreground">
                           Created: {formatDate(ticket.createdAt)}
